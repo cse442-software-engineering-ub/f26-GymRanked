@@ -6,9 +6,10 @@ Follow this document exactly as the steps it contains are not a choice, they are
 
 ## 1: Move the card into In Progress on our Scrum Board
 
-1. Open your assigned tasked card on the scrum board
-2. Verify there are task tesks written in the description, if they are not written write them NOW as cards should NEVER be in "In Progress" without task tests.
-3. Once you have verfied tests are written and are ready to begin drag the card from the Planned pipeline to the In Progress pipeline.
+1. Open your assigned tasked card on the scrum board.
+2. Ensure that there are correct tags on the card, if there are not add them immediatly.
+3. Verify there are task tesks written in the description, if they are not written write them NOW as cards should NEVER be in "In Progress" without task tests.
+4. Once you have verfied tests are written and are ready to begin drag the card from the Planned pipeline to the In Progress pipeline.
       - Only do this once you are ready to start working as cards can NEVER be moved from In Progress backwards.
       - If this card does not require creation, deletion or updating any files skip to step 5 (Rare).
   
@@ -117,3 +118,42 @@ If a test fails do the following:
 2. Fix the bug(s) on the same branch DO NOT CREATE A NEW BRANCH
 3. Add a comment documenting the issue.
 4. Re-push and move back to testing once fixed.
+
+## 6: Move the card into complete and open a pull request
+Once you've that all of the task tests on your assigned card pass drag the card from the Testing pipeline to the Completed pipeline. Do NOT under any circumstances move a card into the Closed pipeline as only our PM, Divyansh, should be moving cards to the Closed pipeline.
+
+Now you should push your work one final time, as a sanity check that your branch is up to date with your local machine with the following command:
+```bash
+   git push
+```
+
+Next navigate to your branch on the teams repository on the GitHub web interface and follow these steps
+1. You should see a bar above the files in the repo with a button labeled contribute, click it.
+2. It will open a drop down menu, click on open pull request.
+3. IMPORTANT: ENSURE THAT THE BASE BRANCH IS DEV NOT MAIN DO NOT OPEN A PULL REQUEST TO MAIN.
+4. Esnure that the comapre branch is the branch you wish to contribute to dev.
+5. Fill out the fields with the following conventions:
+   - Title: Branch Name
+   - Description: Short decription of changes implemented
+6. Link the Pull request you've created to your task card under the GitHub section.
+
+## 7: Bugs found after moving a card to completed
+If a bug is found after a card has been moved to Completed or Closed follow the follwoing steps:
+1. Move the card back to In Progress.
+2. Add atleast one new task test that will onlt pass once the bug is fixed.
+3. Use the exsisting branch to fix any bugs, do not create a new branch. UNDER NO CIRCUMSTANCES CAN WE USE HOTFIXES TO FIX BUGS.
+4. Open a second pull reuest into dev once finsihed.
+
+### Important: If a task card carries over to a new sprint do not remove the orginal sprint label, add the new sprint tag alongside it.
+
+
+## Quick reference
+ 
+| Board state | What must be true / what to do |
+|---|---|
+| In Progress | Branch created off dev (if task touches files); branch link added to card |
+| Testing | All code pushed; running task tests now |
+| Testing → fails | Move back to In Progress, fix on same branch |
+| Complete | All task tests passed; PR opened into dev |
+| Bug found after Complete/Closed | Move back to In Progress, add a new failing test, reuse existing branch |
+
