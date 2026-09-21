@@ -49,6 +49,26 @@ When creating, updating or deleting any files espically those involving code for
 2. On the top right click the New Bracnh button.
 3. Use the same naming conventions as the first method.
 4. Switch the source to dev.
+5. Finally go back to your card and add the branch liunk to the card's GitHub field. 
 
 Again in every other situation other than documentation use the first method.
+
+## 3. Commit Habits
+
+Do not wait long streches inbetween commits, possible broken code on your branch will not effect other branches so commit at regular intervals whiile coding to esnure changes are saved and visible. Use the following commands:
+
+```bash
+git add <files>
+git commit -m "<subject line, 50 chars or fewer>"
+git push
+```
+
+Note the first line of a commit must be 50 characters or less. However you can additional lines below thye subject if you need to further explain changes shown here:
+```bash
+git commit -m "First Line under 50 Chars" \
+  -m "Additional Information\
+Keep this short and useful when it is needed."
+```
+
+Again NEVER commit to dev or main, this will be repeated again and again!
 
