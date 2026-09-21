@@ -108,19 +108,42 @@ MySQL setup.
 
 ## 4. Logs
 
-The repo does not document any server log location. **[VERIFY]** the items below on aptitude.
+To debug the app, use two tools: the browser's Network tab (what the API sent back) and phpMyAdmin
+(what is in the database).
 
-| Where | How |
-| --- | --- |
-| Local PHP server | Requests and PHP errors print in the terminal running `php -S localhost:8000 -t api` |
-| Browser | DevTools, Network tab (status and response of `workouts.php`) and Console tab |
-| API response | `curl -i <api url>` shows the status code and body |
-| Server PHP/Apache error log | **[VERIFY]** path, and whether students can read it. Ask course staff or check `ls /var/log` and your home directory after SSH. Record the path here once found. |
+### Read the Network tab (browser)
 
-Known error signals:
+Use this to see whether the frontend reached the API and what the API answered.
 
-- `{"error":"Database connection failed"}` with HTTP 500 comes from `api/workouts.php`. See Troubleshooting.
-- A **JSON parse error** in the browser means the request got HTML (usually `index.html` from Vite) instead of the API. See Troubleshooting.
+1. Open the site (on VPN): `https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/`
+2. Open DevTools: right-click, **Inspect**, then the **Network** tab. (Mac: `Cmd+Option+I`, Windows: `F12`.)
+3. Reload the page with the tab open.
+4. Filter by **Fetch/XHR** and click the `workouts.php` request.
+5. Read these parts:
+   - **Headers**: the *Status Code* (200 = fine, 404 = wrong path, 500 = server or database error) and the *Request URL*.
+   - **Response** (or **Preview**): the body. A healthy response is a JSON array of `{id, exercise, reps, weight}`.
+6. Check the **Console** tab for red errors from the frontend.
+
+What the results mean:
+
+| You see | Meaning | Go to |
+| --- | --- | --- |
+| Status 200, JSON array | API and database are working | Nothing to fix |
+| Status 500, `{"error":"Database connection failed"}` | `api/workouts.php` could not log in to MySQL | Troubleshooting |
+| Status 404 | Wrong URL or `api/` not copied to the server | Troubleshooting |
+| Status 200 but the response is HTML, or "JSON parse error" in the Console | The request got a web page instead of the API | Troubleshooting |
+
+### Check the database (phpMyAdmin)
+
+Use this to see whether the data is really in the database and to catch SQL errors.
+
+1. Open `https://aptitude.cse.buffalo.edu/phpmyadmin/` (on VPN) and log in with `UBIT_USERNAME` / `<PERSON_NUMBER>`.
+2. Select `cse442_2026_fall_team_y_db` in the sidebar, then the `workouts` table.
+3. Click **Browse** to see the current rows. The list on the site should match these rows.
+4. To run the same query the API uses, open the **SQL** tab, run `SELECT id, exercise, reps, weight FROM workouts;`, and click **Go**.
+5. Read the result: rows appear in a table, and any SQL error shows in a red box with the MySQL error text.
+
+If the login fails, the same credentials will fail for the API too, so the problem is `api/config.php`.
 
 ## 5. Database access
 
@@ -238,7 +261,6 @@ If there is no backup and the table is gone, recreate it with the schema in sect
 ## Open items to confirm
 
 - [ ] Cattle (prod) web folder, URL, and release steps
-- [ ] Server error log path and who can read it
 - [ ] Real file owner/permissions on the server
 - [ ] `mysqldump` / restore run successfully on aptitude
 - [ ] How new teammates get server and DB access
