@@ -10,7 +10,7 @@ Follow this document exactly as the steps it contains are not a choice, they are
 2. Verify there are task tesks written in the description, if they are not written write them NOW as cards should NEVER be in "In Progress" without task tests.
 3. Once you have verfied tests are written and are ready to begin drag the card from the Planned pipeline to the In Progress pipeline.
       - Only do this once you are ready to start working as cards can NEVER be moved from In Progress backwards.
-      - If this card does not require creation, deletion or updating any files skip to step (Rare).
+      - If this card does not require creation, deletion or updating any files skip to step 5 (Rare).
   
 ## 2: Create a branch from dev
 
@@ -42,7 +42,7 @@ git push -u origin <card-number>-<short-description>
 ```
 Finally go back to your card and add the branch liunk to the card's GitHub field. 
 
-### 2. (Not Recommended) Creating a branch directly on the web interface
+### 2: (Not Recommended) Creating a branch directly on the web interface
 
 When creating, updating or deleting any files espically those involving code for our application use the first option. However creating documentation like this it is acceptable to use this method for ease of use. The steps are:
 1. Locate the branches button on our repo and click it.
@@ -53,7 +53,7 @@ When creating, updating or deleting any files espically those involving code for
 
 Again in every other situation other than documentation use the first method.
 
-## 3. Commit Habits
+## 3: Commit Habits
 
 Do not wait long streches inbetween commits, possible broken code on your branch will not effect other branches so commit at regular intervals whiile coding to esnure changes are saved and visible. Use the following commands:
 
@@ -72,3 +72,48 @@ Keep this short and useful when it is needed."
 
 Again NEVER commit to dev or main, this will be repeated again and again!
 
+## 4: Keeping your branch up to date and handling conflicts
+
+At normal intervals merge the latest dev into your branch to catch conflicts early with the following commands:
+
+```bash
+git checkout <your-branch>
+git fetch origin
+git merge origin/dev
+```
+If Git reports a conflict:
+1. Run git status command to see which files are in conflict (listed under "Unmerged paths")
+2. Open each conflicted file and look forr the following conflict markers:
+```
+   <<<<<<< HEAD
+   (your branch's version)
+   =======
+   (incoming dev version)
+   >>>>>>> origin/dev
+```
+3. Edit the file to keep the correct combination of changes and delete the maker lines.
+4. Stage and commit resolved files as shown below:
+```bash
+   git add <resolved-file>
+   git commit -m "Resolve merge conflict with dev in <file>"
+```
+5. Push the branch with the following command
+```bash
+   git push
+```
+6. If you're unsure which version is correct, check with whoever wrote the
+   conflicting dev change before resolving — don't guess on logic you
+   don't understand.
+
+## 5: Moving the card to testing
+Once you are confident that your will pass the task tests written for it do the following:
+1. Push your final commit(s).
+2. Drag the card from In Progress to Testing on our scrumboard.
+3. Run every task test in order as they were written.
+4. Record the result of the tests as a comment on the card (pass/fail).
+
+If a test fails do the following:
+1. Move the card back to In Progress.
+2. Fix the bug(s) on the same branch DO NOT CREATE A NEW BRANCH
+3. Add a comment documenting the issue.
+4. Re-push and move back to testing once fixed.
