@@ -1,10 +1,10 @@
 # Testing and Debugging Guide
 
-How to test GymRank locally and on aptitude, write task tests, record failures, read logs, and verify a fix.
+How to test GymRank locally, on aptitude (test), and on cattle (production), write task tests, record failures, read logs, and verify a fix.
 
 Every command and quoted output below was run on 2026-09-21 against `dev` at `b15cebe`: macOS, Node 24.11.1,
-npm 11.6.2, PHP 8.5.10, MySQL 26.7.0 (Homebrew), Chrome. The aptitude checks were run the same day over the
-UB VPN. Anything that needs SSH access or would break the shared server is marked **[VERIFY]**. Run it once, then
+npm 11.6.2, PHP 8.5.10, MySQL 26.7.0 (Homebrew), Chrome. The aptitude and cattle checks were run the same day over
+the UB VPN. Anything that needs SSH access or would break a shared server is marked **[VERIFY]**. Run it once, then
 replace the marker with the real result. Error messages are quoted from Chrome. Safari and Firefox word them
 differently.
 
@@ -17,7 +17,7 @@ repo is a manual task test or acceptance test on the scrum board. Do not report 
 ## Contents
 
 1. [Local testing](#1-local-testing)
-2. [Testing on aptitude](#2-testing-on-aptitude)
+2. [Testing on aptitude and cattle (production)](#2-testing-on-aptitude-and-cattle-production)
 3. [Common failures](#3-common-failures)
 4. [Reading logs](#4-reading-logs)
 5. [Writing task tests](#5-writing-task-tests)
@@ -89,43 +89,57 @@ Notes:
 - `npm run preview` serves the exact files that get deployed and forwards `/api` to port 8000 like the dev
   server. Use it to test a build before copying it to aptitude.
 
-## 2. Testing on aptitude
+## 2. Testing on aptitude and cattle (production)
 
-aptitude is the test server. Deploy with [ServerOperationsGuide.md → Deployment](ServerOperationsGuide.md#2-deployment),
-then run these checks. You must be on the UB VPN or campus network.
+| Server | Role | When to test it |
+| --- | --- | --- |
+| `aptitude.cse.buffalo.edu` | Test | After every deploy during a sprint |
+| `cattle.cse.buffalo.edu` | Production (the team's released code) | After the end-of-sprint release, and before a sprint demo |
+
+Both serve the app at `/CSE442/2026-Fall/cse-442y/` and use the same checks. Deploy with
+[ServerOperationsGuide.md → Deployment](ServerOperationsGuide.md#2-deployment). cattle is only updated at the end
+of a sprint. You must be on the UB VPN or campus network.
+
+Set `SITE` to the server you are testing, then run the checks:
+
+```bash
+SITE=https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y   # test
+SITE=https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y     # production
+```
 
 | Check | Command or action | Pass |
 | --- | --- | --- |
-| Site responds | `curl -s -o /dev/null -w "%{http_code}\n" https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/` | `200` |
-| API responds | `curl -s https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/api/workouts.php` | `[{"id":"1","exercise":"Squat","reps":"5","weight":"225"},{"id":"2","exercise":"Bench Press","reps":"8","weight":"135"},{"id":"3","exercise":"Deadlift","reps":"3","weight":"315"}]` while the shared table still holds the sample rows. If teammates have changed the data, compare with the `workouts` table in phpMyAdmin instead |
+| Site responds | `curl -s -o /dev/null -w "%{http_code}\n" "$SITE/"` | `200` |
+| API responds | `curl -s "$SITE/api/workouts.php"` | `[{"id":"1","exercise":"Squat","reps":"5","weight":"225"},{"id":"2","exercise":"Bench Press","reps":"8","weight":"135"},{"id":"3","exercise":"Deadlift","reps":"3","weight":"315"}]` while that server's table still holds the sample rows. If the data has changed, compare with the `workouts` table in that server's phpMyAdmin instead |
 | Page | Open the site URL in Chrome | Heading "GymRank" and the three cards: "Squat — 5 reps @ 225 lbs", "Bench Press — 8 reps @ 135 lbs", "Deadlift — 3 reps @ 315 lbs" |
 | Desktop layout | Chrome at 1440×900 | The three cards side by side in one row |
 | Mobile layout | Chrome DevTools device toolbar (`Cmd+Shift+M` on Mac, `Ctrl+Shift+M` on Windows) at 375×812 | The three cards stacked in a single column, no horizontal scroll |
-| Wrong endpoint | `curl -s -o /dev/null -w "%{http_code}\n" https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/api/doesnotexist.php` | `404` (Apache's "Not Found" page) |
+| Wrong endpoint | `curl -s -o /dev/null -w "%{http_code}\n" "$SITE/api/doesnotexist.php"` | `404` (Apache's "Not Found" page) |
 
-The CSS in `src/index.css` switches to one column at 480px and below. On the server the page requests
-`workouts.php` once per load, not twice as in `npm run dev`.
+Every check above passed on both aptitude and cattle on 2026-09-21. The CSS in `src/index.css` switches to one
+column at 480px and below. On the servers, the page requests `workouts.php` once per load, not twice as in
+`npm run dev`.
 
 **Which build is deployed?** Vite puts a content hash in each asset file name, so compare the server's asset
 names with a local `npm run build` of the branch you expect:
 
 ```bash
-curl -s https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/ | grep -o 'assets/[^"]*'
+curl -s "$SITE/" | grep -o 'assets/[^"]*'
 ls dist/assets
 ```
 
-If the names match, the server has that build. On 2026-09-21 both printed `index-DM-Gnhfr.js` and
-`index-pKauxic3.css`, a build of `dev` at `b15cebe`.
+If the names match, the server has that build. On 2026-09-21, aptitude, cattle, and a local build of `dev` at
+`b15cebe` all printed `index-DM-Gnhfr.js` and `index-pKauxic3.css`. Run this on cattle before a sprint demo to
+confirm production has the release you expect.
 
-- **Not on the VPN:** `curl -m 10 https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/` prints nothing,
-  and exits with code `28` (timed out) after 10 seconds. Connect to the VPN first.
-- **Database errors on aptitude [VERIFY]:** locally, a database failure returns status `200` with a PHP error page
-  (see [Common failures](#3-common-failures)). The server's PHP error settings may differ, so it could return
-  status `500` or an empty body instead. Record what you see the first time it happens.
+- **Not on the VPN:** `curl -m 10 "$SITE/"` prints nothing, and exits with code `28` (timed out) after 10 seconds.
+  Connect to the VPN first.
+- **Database errors on the servers [VERIFY]:** locally, a database failure returns status `200` with a PHP error
+  page (see [Common failures](#3-common-failures)). The servers' PHP error settings may differ, so they could
+  return status `500` or an empty body instead. Record what you see the first time it happens.
 - Use phpMyAdmin to check the data itself:
   [ServerOperationsGuide.md → Check the database](ServerOperationsGuide.md#check-the-database-phpmyadmin).
-- cattle (prod) steps are not documented yet. See the open items in
-  [ServerOperationsGuide.md](ServerOperationsGuide.md#open-items-to-confirm).
+  cattle has its own at `https://cattle.cse.buffalo.edu/phpmyadmin/`.
 
 ## 3. Common failures
 
@@ -171,7 +185,7 @@ Work through these in order and stop when you find the cause.
    tail -n 20 "/opt/homebrew/var/mysql/$(hostname).err"
    ```
 
-On aptitude, use the Network tab and phpMyAdmin: [ServerOperationsGuide.md → Logs](ServerOperationsGuide.md#4-logs).
+On aptitude or cattle, use the Network tab and phpMyAdmin: [ServerOperationsGuide.md → Logs](ServerOperationsGuide.md#4-logs).
 Where the server writes PHP errors is not known yet **[VERIFY]**.
 
 ## 5. Writing task tests
@@ -254,7 +268,7 @@ Next: checking DB_USER/DB_PASS in api/config.php against the MySQL user from REA
 2. Re-run **every** task test on the card in order. A fix can break a test that passed before.
 3. Re-run the checks in [Local testing → Checks](#checks) that touch what you changed. For example,
    `php -l api/workouts.php` after a PHP change, or `npm run build` after a frontend change.
-4. If you deploy to aptitude, repeat the relevant [Testing on aptitude](#2-testing-on-aptitude) checks.
+4. If you deploy to aptitude or cattle, repeat the [server checks](#2-testing-on-aptitude-and-cattle-production) there.
 5. Add a comment to the card with the result of each test (pass/fail), then move it through Testing as in
    [GitAndScrumDocumentation.md → 5](GitAndScrumDocumentation.md#5-moving-the-card-to-testing).
 
