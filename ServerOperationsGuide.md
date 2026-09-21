@@ -234,8 +234,11 @@ scp api/config.php UBIT_USERNAME@aptitude.cse.buffalo.edu:/data/web/CSE442/2026-
 Run before any risky change to shared data.
 
 ```bash
-mysqldump -u UBIT_USERNAME -p cse442_2026_fall_team_y_db > workouts_backup.sql
+mysqldump -u UBIT_USERNAME -p --set-gtid-purged=OFF cse442_2026_fall_team_y_db > workouts_backup.sql
 ```
+
+`--set-gtid-purged=OFF` keeps the dump restorable. Without it, restoring on a MySQL server with GTIDs
+enabled can fail with `ERROR 3546: @@GLOBAL.GTID_PURGED cannot be changed`. (Tested on local MySQL.)
 
 Keep the dump out of git. It may contain real data.
 
