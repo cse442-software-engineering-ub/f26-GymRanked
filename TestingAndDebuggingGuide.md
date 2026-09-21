@@ -91,14 +91,18 @@ Notes:
 
 ## 2. Testing on aptitude and cattle (production)
 
-| Server | Role | When to test it |
+| Server | Role | Which tests run here |
 | --- | --- | --- |
-| `aptitude.cse.buffalo.edu` | Test | After every deploy during a sprint |
-| `cattle.cse.buffalo.edu` | Production (the team's released code) | After the end-of-sprint release, and before a sprint demo |
+| `aptitude.cse.buffalo.edu` | Test: updated and used within a sprint | **Task tests** that need a server. Write their URLs against aptitude |
+| `cattle.cse.buffalo.edu` | Production: holds the latest release, updated only at the end of a sprint | **Acceptance tests** on user stories. Write their URLs against cattle |
 
-Both serve the app at `/CSE442/2026-Fall/cse-442y/` and use the same checks. Deploy with
-[ServerOperationsGuide.md → Deployment](ServerOperationsGuide.md#2-deployment). cattle is only updated at the end
-of a sprint. You must be on the UB VPN or campus network.
+This split comes from the course instructor's server setup email. On each server the team's shared folder is
+`/data/web/CSE442/2026-Fall/cse-442y/` (the leading slash is required), served at `/CSE442/2026-Fall/cse-442y/`.
+Deploy with [ServerOperationsGuide.md → Deployment](ServerOperationsGuide.md#2-deployment). Both servers are
+behind UB's firewall, so you must be on the UB VPN or campus network, even just to view pages.
+
+The checks below work on either server. Run them on aptitude after every deploy during a sprint, and on cattle
+after the end-of-sprint release and before a sprint demo.
 
 Set `SITE` to the server you are testing, then run the checks:
 
@@ -205,6 +209,8 @@ Every test needs:
 - For documentation tasks, the phrase **"Using only the doc's instructions"**, so the tester can't fill gaps from
   memory.
 - If a test needs an input file, its path in the repo. If it uses unit tests, the test file names.
+- If the test needs a deployed server, use **aptitude** URLs. cattle is for acceptance tests
+  (see [Testing on aptitude and cattle](#2-testing-on-aptitude-and-cattle-production)).
 
 Use this template, with a blank line between tests:
 
@@ -230,8 +236,9 @@ Expected outcome: step 3 shows the heading "GymRank" and the text "No workouts f
 Step 4 shows workouts.php with status 200 and response body []. After step 5, reloading shows the three sample cards.
 ```
 
-Acceptance tests on **user stories** are different. They are run by an untrained user, so they use no technical
-terms or DevTools, just what the user types, clicks, and sees.
+Acceptance tests on **user stories** are different. They are run by an untrained user against **cattle**
+(`https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/`), so they use no technical terms or DevTools, just
+what the user types, clicks, and sees.
 
 ## 6. Recording a failure
 
