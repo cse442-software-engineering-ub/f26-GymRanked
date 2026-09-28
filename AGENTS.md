@@ -2,6 +2,19 @@
 
 This file guides coding agents working in the GymRanked repository. The current application on `dev` is a proof of concept: a React/Vite frontend reads workout data from a PHP endpoint backed by MySQL. Check the branch and working tree before making changes; an older or uncommitted local checkout may not match `dev`.
 
+## Documentation map
+
+Read `README.md` for initial setup and the current proof-of-concept overview, then use the guide that matches the work:
+
+| Document | Use it for |
+| --- | --- |
+| `ARCHITECTURE.md` | Current frontend, backend, database, configuration, data flow, and guidance on where new code belongs. |
+| `GitAndScrumDocumentation.md` | Required Scrum-card, branching, commit, testing-state, and pull-request workflow. |
+| `ServerOperationsGuide.md` | Aptitude/cattle access, deployment, server checks, logs, recovery, database backup, and troubleshooting. |
+| `TestingAndDebuggingGuide.md` | Local and server testing, task-test authoring, common failures, debugging, failure reporting, and fix verification. |
+
+Treat these documents as companion guides to this file. Read the relevant guide before changing architecture, starting workflow, testing or debugging behavior, or performing server operations.
+
 ## Repository structure
 
 | Path | Purpose |
@@ -14,6 +27,10 @@ This file guides coding agents working in the GymRanked repository. The current 
 | `vite.config.js` | React plugin, deployment base path, and local proxy for `/api`. |
 | `index.html` | Vite HTML entry point. |
 | `README.md` | Setup, database, build, and deployment details. |
+| `ARCHITECTURE.md` | System structure, data flow, configuration, and code-placement guidance. |
+| `GitAndScrumDocumentation.md` | Required Git and Scrum-board workflow. |
+| `ServerOperationsGuide.md` | Deployment, server administration, recovery, and troubleshooting. |
+| `TestingAndDebuggingGuide.md` | Local/server checks, task tests, and debugging procedures. |
 | `package.json`, `package-lock.json` | npm scripts and locked dependencies. |
 
 The Figma [GymRank Prototype page](https://www.figma.com/design/JMSaaXvmkMfjxrQuQqQ7CV/GymRank?node-id=94-94) is a design reference for future features. Its screens are not evidence that those features already exist in code.
@@ -47,7 +64,7 @@ php -l api/workouts.php
 php -l api/config.example.php
 ```
 
-For frontend or API behavior changes, also run the Vite and PHP servers, load the app, and verify the affected loading, success, empty, and error behavior as applicable. Testing the successful API response requires a configured MySQL instance and `workouts` table. Record exactly what was checked and any environment limitation.
+For frontend or API behavior changes, also run the Vite and PHP servers, load the app, and verify the affected loading, success, empty, and error behavior as applicable. Testing the successful API response requires a configured MySQL instance and `workouts` table. Follow `TestingAndDebuggingGuide.md` for detailed local and server procedures, task-test expectations, debugging, and fix verification. Record exactly what was checked and any environment limitation.
 
 ## Coding conventions
 
@@ -61,8 +78,9 @@ For frontend or API behavior changes, also run the Vite and PHP servers, load th
 
 ## Instructions for coding agents
 
-1. Read `README.md`, inspect the target branch, and check `git status` before editing. Preserve unrelated or uncommitted work.
-2. Work from `dev` on a task-specific branch; do not commit directly to `dev` or `main`. Follow the team's Scrum-card, branch, commit, and testing workflow documented in `GitAndScrumDocumentation.md` when it is available. Use the card number and a short description in the branch name, and keep commit subjects at 50 characters or fewer.
+1. Read `README.md` and the relevant companion documentation from the map above, inspect the target branch, and check `git status` before editing. Preserve unrelated or uncommitted work.
+2. Work from `dev` on a task-specific branch; do not commit directly to `dev` or `main`. Follow the team's required Scrum-card, branch, commit, testing-state, and pull-request workflow in `GitAndScrumDocumentation.md`. Use the card number and a short description in the branch name, and keep commit subjects at 50 characters or fewer.
 3. Make focused changes that satisfy the task's stated tests. For UI work, compare against the relevant Figma frame and note any intentional deviation.
-4. Do not put credentials or tokens in source, logs, screenshots, commits, or task comments. Do not deploy or modify shared server data unless the task explicitly calls for it.
-5. Run the applicable checks above, review the final diff, and report the changed behavior, verification results, and any remaining limitations. Do not claim unrun checks passed.
+4. Consult `ARCHITECTURE.md` before changing system boundaries, data flow, configuration, API contracts, database structure, or code organization.
+5. Do not put credentials or tokens in source, logs, screenshots, commits, or task comments. Do not deploy or modify shared server data unless the task explicitly calls for it; when authorized, follow `ServerOperationsGuide.md`.
+6. Run the applicable checks above and the relevant procedures in `TestingAndDebuggingGuide.md`, review the final diff, and report the changed behavior, verification results, and any remaining limitations. Do not claim unrun checks passed.
