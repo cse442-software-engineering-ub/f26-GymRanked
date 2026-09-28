@@ -1,5 +1,8 @@
 # GymRank POC
 
+Registration and login setup, API contracts, schema migration, and tests are
+documented in [AUTHENTICATION.md](AUTHENTICATION.md).
+
 Minimal proof of concept: React frontend fetches workout data from a PHP
 backend backed by MySQL.
 
