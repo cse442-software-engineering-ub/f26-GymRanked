@@ -99,7 +99,8 @@ expired auth_sessions and old auth_attempts rows; do not delete active records.
 - Successful login and registration continue to the static dashboard. Visiting the
   login route with a valid session also returns to the dashboard. The dashboard does
   not load or submit workout data yet; future feature work can connect its navigation
-  and cards without changing the authentication API.
+  and cards without changing the authentication API. Its Figma account menu includes
+  a logout action that revokes the session and returns to login with confirmation.
 - Inter falls back to the system sans-serif font if not installed locally.
 
 ## Verification

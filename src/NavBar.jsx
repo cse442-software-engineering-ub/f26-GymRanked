@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 // Add a `to` value when a teammate implements one of the future destinations.
@@ -12,7 +13,9 @@ const NAV_LINKS = [
   { label: 'Today', futurePath: '/today' },
 ]
 
-function NavBar({ current }) {
+function NavBar({ current, onLogout, logoutBusy = false }) {
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false)
+
   return (
     <header className="nav-bar">
       <Link className="nav-bar__brand" to="/dashboard" aria-label="GymRank dashboard">
@@ -38,9 +41,45 @@ function NavBar({ current }) {
         <button type="button" className="nav-bar__start-workout">
           Start Workout
         </button>
-        <div className="nav-bar__avatar" aria-hidden="true">
-          MM
-        </div>
+        {onLogout ? (
+          <div className="nav-bar__account">
+            <button
+              type="button"
+              className="nav-bar__avatar"
+              aria-label="Open account menu"
+              aria-haspopup="menu"
+              aria-expanded={accountMenuOpen}
+              onClick={() => setAccountMenuOpen((open) => !open)}
+            >
+              MM
+            </button>
+            {accountMenuOpen && (
+              <>
+                <button
+                  type="button"
+                  className="nav-bar__menu-backdrop"
+                  aria-label="Close account menu"
+                  onClick={() => setAccountMenuOpen(false)}
+                />
+                <div className="nav-bar__account-menu" role="menu">
+                  <span className="nav-bar__account-item" role="menuitem" aria-disabled="true">Profile</span>
+                  <span className="nav-bar__account-item" role="menuitem" aria-disabled="true">Account Settings</span>
+                  <button
+                    type="button"
+                    className="nav-bar__logout"
+                    role="menuitem"
+                    disabled={logoutBusy}
+                    onClick={onLogout}
+                  >
+                    {logoutBusy ? 'Logging out…' : 'Log out'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="nav-bar__avatar" aria-hidden="true">MM</div>
+        )}
       </div>
     </header>
   )
