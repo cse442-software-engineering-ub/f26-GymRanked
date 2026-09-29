@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom'
 
-// Prototype wiring per Figma: Dashboard goes to the weekly workout plan (home) and Plans to the
-// plan library; the other screens don't have a page to link to yet.
+// Workouts is the weekly workout plan and Plans the plan library; the other screens
+// (including the Figma Dashboard) don't have a page to link to yet.
 const NAV_LINKS = [
-  { label: 'Dashboard', to: '/weekly-plan' },
-  { label: 'Workouts' },
+  { label: 'Dashboard' },
+  { label: 'Workouts', to: '/weekly-plan' },
   { label: 'Plans', to: '/plans' },
   { label: 'Progress' },
   { label: 'Leaderboard' },
