@@ -46,7 +46,7 @@ function WeeklyPlan() {
 
   return (
     <div className="plan-library">
-      <NavBar current="Dashboard" />
+      <NavBar current="Workouts" />
       <main className="weekly-plan">
         {loggedOut && (
           <p className="status">
