@@ -23,8 +23,8 @@ export default function RegistrationPage() {
     if (Object.keys(nextErrors).length) return
     setBusy(true); setFailure('')
     try {
-      const data = await authRequest('register', values)
-      navigate('/login', { replace: true, state: { email: values.email.trim(), message: data.message } })
+      await authRequest('register', values)
+      navigate('/dashboard', { replace: true, state: { fullName: values.full_name.trim() } })
     } catch (error) { setFailure(error.message); setErrors(error.fields || {}) }
     finally { setBusy(false) }
   }

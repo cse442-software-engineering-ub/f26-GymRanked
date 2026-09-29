@@ -57,7 +57,7 @@ All paths are relative to `${import.meta.env.BASE_URL}api/`. POST requests requi
 
 | Endpoint | Input | Success |
 | --- | --- | --- |
-| POST register.php | full_name, email, password, confirm_password | 201, message; continue to login |
+| POST register.php | full_name, email, password, confirm_password | 201, message; continue to the static dashboard |
 | POST login.php | email, password, optional boolean remember | 200, user; sets HttpOnly session cookie |
 | GET session.php | Session cookie | 200, user, or 401 if absent/expired |
 | POST logout.php | `{}` and session cookie | 200, message; revokes session and clears cookie |
@@ -96,9 +96,10 @@ expired auth_sessions and old auth_attempts rows; do not delete active records.
   policies; no invented agreement is presented during registration.
 - Google/Apple and password recovery show availability messages. OAuth credentials
   and password-reset email delivery are not configured by this change.
-- Login shows a signed-in confirmation and logout action in the existing panel.
-  Registration returns to login with success feedback. Future dashboard/onboarding
-  work can replace these destinations without changing the API.
+- Successful login and registration continue to the static dashboard. Visiting the
+  login route with a valid session also returns to the dashboard. The dashboard does
+  not load or submit workout data yet; future feature work can connect its navigation
+  and cards without changing the authentication API.
 - Inter falls back to the system sans-serif font if not installed locally.
 
 ## Verification
