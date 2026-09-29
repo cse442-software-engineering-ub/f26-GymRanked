@@ -5,7 +5,6 @@ import RegistrationPage from './auth/RegistrationPage.jsx'
 function App() {
   return (
     <HashRouter><Routes>
-      <Route path="/" element={<LoginPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegistrationPage />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
