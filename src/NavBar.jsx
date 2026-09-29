@@ -1,25 +1,26 @@
 import { Link } from 'react-router-dom'
 
-// Workouts is the weekly workout plan and Plans the plan library; the other screens
-// (including the Figma Dashboard) don't have a page to link to yet.
+// Add a `to` value when a teammate implements one of the future destinations.
+// Keeping route ownership here lets new pages join the shared navigation without
+// changing every signed-in screen.
 const NAV_LINKS = [
-  { label: 'Dashboard' },
+  { label: 'Dashboard', to: '/dashboard' },
   { label: 'Workouts', to: '/weekly-plan' },
   { label: 'Plans', to: '/plans' },
-  { label: 'Progress' },
-  { label: 'Leaderboard' },
-  { label: 'Today' },
+  { label: 'Progress', futurePath: '/progress' },
+  { label: 'Leaderboard', futurePath: '/leaderboard' },
+  { label: 'Today', futurePath: '/today' },
 ]
 
 function NavBar({ current }) {
   return (
     <header className="nav-bar">
-      <div className="nav-bar__brand">
+      <Link className="nav-bar__brand" to="/dashboard" aria-label="GymRank dashboard">
         <span className="nav-bar__logo" aria-hidden="true" />
         <span className="nav-bar__brand-name">GymRank</span>
-      </div>
+      </Link>
       <nav className="nav-bar__links" aria-label="Primary">
-        {NAV_LINKS.map(({ label, to }) => {
+        {NAV_LINKS.map(({ label, to, futurePath }) => {
           const className =
             label === current ? 'nav-bar__link nav-bar__link--current' : 'nav-bar__link'
           return to ? (
@@ -27,7 +28,7 @@ function NavBar({ current }) {
               {label}
             </Link>
           ) : (
-            <span key={label} className={className}>
+            <span key={label} className={className} aria-disabled="true" data-future-route={futurePath}>
               {label}
             </span>
           )
