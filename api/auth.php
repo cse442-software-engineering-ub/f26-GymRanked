@@ -7,7 +7,7 @@ header('X-Content-Type-Options: nosniff');
 
 function respond($status, $body) {
     http_response_code($status);
-    echo json_encode($body);
+    echo json_encode($body, JSON_UNESCAPED_SLASHES);
     exit;
 }
 
