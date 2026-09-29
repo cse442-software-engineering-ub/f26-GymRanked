@@ -42,3 +42,542 @@ body {
     padding: 1rem;
   }
 }
+
+/* Nav bar */
+
+.nav-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 48px;
+  background: #14161b;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nav-bar__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-bar__logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f2652e;
+}
+
+.nav-bar__brand-name {
+  color: #e8e9ec;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.nav-bar__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 32px;
+  font-size: 14px;
+}
+
+.nav-bar__link {
+  color: #8a8f99;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.nav-bar__link--current {
+  color: #e8e9ec;
+  font-weight: 600;
+}
+
+.nav-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-bar__start-workout {
+  background: #f2652e;
+  color: #0e1015;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.nav-bar__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: #f2652e;
+  color: #0e1015;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Workout plan library */
+
+.plan-library {
+  min-height: 100vh;
+  background: #0e1015;
+  color: #e8e9ec;
+}
+
+.plan-library__content {
+  padding: 8px 48px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.plan-library__heading h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 500;
+  color: #e8e9ec;
+}
+
+.plan-library__heading p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #8b8d94;
+}
+
+.plan-library .status {
+  color: #8b8d94;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 13px;
+}
+
+.breadcrumb__crumb {
+  color: #8b8d94;
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+.breadcrumb__crumb--current {
+  color: #e8e9ec;
+  font-weight: 500;
+}
+
+.breadcrumb__separator {
+  display: block;
+  flex-shrink: 0;
+}
+
+.breadcrumb__crumb--link {
+  text-decoration: none;
+}
+
+.breadcrumb__crumb--link:hover {
+  color: #e8e9ec;
+}
+
+.plan-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.plan-list__item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.plan-row {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #1e2027;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.plan-row__name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #e8e9ec;
+}
+
+.plan-row__meta {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #8b8d94;
+}
+
+.plan-row__frequency {
+  margin: 0;
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: #f2865a;
+}
+
+.plan-list__select {
+  flex-shrink: 0;
+  background: #e3e3e3;
+  color: #1e1e1e;
+  border: 1px solid #767676;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.plan-list__select:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.plan-library .status a {
+  color: #f2865a;
+}
+
+a.plan-row {
+  color: inherit;
+  text-decoration: none;
+}
+
+a.plan-row:hover {
+  background: #262831;
+}
+
+/* Plan details */
+
+.plan-details {
+  width: 100%;
+  max-width: 796px;
+  margin: 0 auto;
+  padding: 8px 48px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.plan-details__title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.plan-details__title h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 500;
+  color: #e8e9ec;
+}
+
+.plan-details__frequency {
+  margin: 0;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #f2865a;
+}
+
+.plan-details__meta {
+  margin: 0;
+  font-size: 13px;
+  color: #8b8d94;
+}
+
+.plan-details__description {
+  margin: 0;
+  font-size: 14px;
+  color: #8b8d94;
+}
+
+.plan-details__subheading {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #e8e9ec;
+}
+
+.plan-split {
+  list-style: none;
+  margin: 0;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #161820;
+  border-radius: 12px;
+}
+
+.plan-split__day {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px;
+  background: #1e2027;
+  border-radius: 8px;
+}
+
+.plan-split__name {
+  font-size: 14px;
+  color: #e8e9ec;
+}
+
+.plan-split__detail {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #8b8d94;
+  text-align: right;
+}
+
+.plan-split__focus {
+  font-size: 13px;
+}
+
+.plan-split__duration {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+/* Weekly workout plan */
+
+.weekly-plan {
+  padding: 8px 48px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.weekly-plan__heading h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 500;
+  color: #e8e9ec;
+}
+
+.weekly-plan__heading p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #8b8d94;
+}
+
+.weekly-plan__days {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.day-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 12px;
+  background: #161820;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  min-width: 0;
+}
+
+.day-card__weekday {
+  font-size: 11px;
+  font-weight: 500;
+  color: #8b8d94;
+}
+
+.day-card__name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #e8e9ec;
+}
+
+.day-card__status {
+  font-size: 11px;
+  color: #8b8d94;
+}
+
+.day-card--rest .day-card__name {
+  color: #8b8d94;
+}
+
+.day-card--today {
+  background: rgba(242, 101, 46, 0.15);
+  border-color: #f2652e;
+}
+
+.day-card--today .day-card__weekday,
+.day-card--today .day-card__status {
+  color: #f2865a;
+}
+
+.today-workout {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 24px;
+  background: #161820;
+  border-radius: 12px;
+}
+
+.today-workout__label,
+.today-workout__meta {
+  margin: 0;
+  font-size: 13px;
+  color: #8b8d94;
+}
+
+.today-workout__name {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 500;
+  color: #e8e9ec;
+}
+
+a.today-workout__action {
+  width: auto;
+  text-decoration: none;
+}
+
+/* Buttons (Figma Simple Design System "Primary" and the local subtle "Cancel" button) */
+
+.button-primary,
+.button-subtle {
+  width: 100%;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.button-primary {
+  padding: 12px;
+  background: #2c2c2c;
+  color: #f5f5f5;
+  border: 1px solid #2c2c2c;
+}
+
+.button-subtle {
+  padding: 8px;
+  background: none;
+  color: #d2d3d7;
+  border: none;
+}
+
+.button-primary:disabled,
+.button-subtle:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Switch plan modal */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.switch-plan-modal {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  background: #161820;
+  border-radius: 14px;
+}
+
+.switch-plan-modal__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #e8e9ec;
+}
+
+.switch-plan-modal__warning {
+  margin: 0;
+  font-size: 13px;
+  color: #8b8d94;
+}
+
+.switch-plan-modal__note {
+  margin: 0;
+  font-size: 12px;
+  color: #8b8d94;
+}
+
+.switch-plan-modal__error {
+  margin: 0;
+  font-size: 13px;
+  color: #f2865a;
+}
+
+@media (max-width: 640px) {
+  .nav-bar {
+    padding: 16px 20px;
+  }
+
+  .nav-bar__links {
+    gap: 16px;
+  }
+
+  .plan-library__content {
+    padding: 8px 20px 32px;
+  }
+
+  .plan-list__item {
+    flex-wrap: wrap;
+  }
+
+  .plan-row {
+    width: 100%;
+  }
+
+  .plan-details {
+    padding: 8px 20px 32px;
+  }
+
+  .weekly-plan {
+    padding: 8px 20px 32px;
+  }
+
+  .weekly-plan__days {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .plan-split__detail {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+}
