@@ -5,6 +5,7 @@ import Dashboard from './Dashboard.jsx'
 import PlanDetails from './PlanDetails.jsx'
 import WeeklyPlan from './WeeklyPlan.jsx'
 import WorkoutPlanLibrary from './WorkoutPlanLibrary.jsx'
+import SetupPage from './onboarding/SetupPage.jsx'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Route path="/plans" element={<WorkoutPlanLibrary />} />
       <Route path="/plans/:id" element={<PlanDetails />} />
       <Route path="/weekly-plan" element={<WeeklyPlan />} />
+      <Route path="/setup" element={<SetupPage />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes></HashRouter>
   )

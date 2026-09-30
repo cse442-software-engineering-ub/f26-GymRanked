@@ -1,0 +1,419 @@
+/* Onboarding styles, matched to the Figma "Training goal" and "Experience" frames.
+   Everything is scoped under .onboarding and prefixed ob- so it can't clash with other pages.
+
+   Scaling: .onboarding sets one base font size that grows with the window width
+   in proportion to the Figma (15px at 1440px wide, 20px at 1920px, 24px max on 2304px+ screens, 14px min).
+   Every size below is in em, so text, spacing and content width all scale together. */
+
+/* Full-screen page: fills the whole browser window at any size (dvh handles mobile browser bars). */
+.ob-page {
+  --ob-bg: #0e0f13;
+  --ob-surface: #16181e;
+  --ob-surface-raised: #1f222a;
+  --ob-border: #2a2d36;
+  --ob-text: #ececef;
+  --ob-muted: #9a9ea9;
+  --ob-accent: #f26a2e;
+  --ob-accent-soft: rgba(242, 106, 46, 0.12);
+  --ob-success: #4fd18b;
+  --ob-danger: #ff8a80;
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--ob-bg);
+  color: var(--ob-text);
+}
+
+.onboarding {
+  box-sizing: border-box;
+  flex: 1;
+  width: 100%;
+  padding: 1.333em clamp(1em, 4vw, 3.2em) 3.2em;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: clamp(14px, 1.0417vw, 24px);
+  line-height: 1.5;
+}
+
+.onboarding *,
+.onboarding *::before,
+.onboarding *::after {
+  box-sizing: inherit;
+}
+
+/* Step indicator */
+.ob-stepper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.615em;
+  margin: 0 0 2.154em;
+  padding: 0;
+  list-style: none;
+  font-size: 0.867em;
+  color: var(--ob-muted);
+}
+
+.ob-stepper-item {
+  display: flex;
+  align-items: center;
+  gap: 0.615em;
+}
+
+.ob-stepper-item::before {
+  content: '';
+  width: 0.538em;
+  height: 0.538em;
+  border-radius: 50%;
+  background: var(--ob-border);
+}
+
+.ob-stepper-item:not(:last-child)::after {
+  content: '';
+  width: 2.3em;
+  height: 1px;
+  margin-left: 0.3em;
+  background: var(--ob-border);
+}
+
+.ob-stepper-item.is-done::before {
+  background: var(--ob-muted);
+}
+
+.ob-stepper-item.is-current {
+  color: var(--ob-text);
+}
+
+.ob-stepper-item.is-current::before {
+  background: var(--ob-accent);
+}
+
+/* Step layout */
+.ob-step {
+  width: 100%;
+}
+
+.ob-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.067em;
+  margin-bottom: 1.867em;
+}
+
+.ob-title {
+  margin: 0 0 0.167em;
+  font-size: 1.6em;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.ob-subtitle {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--ob-muted);
+  font-size: 0.933em;
+}
+
+.ob-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.533em;
+}
+
+.ob-group {
+  margin-bottom: 1.867em;
+}
+
+.ob-group-label,
+.ob-impact-label {
+  margin: 0 0 0.923em;
+  color: var(--ob-muted);
+  font-size: 0.867em;
+  font-weight: 400;
+}
+
+/* Buttons */
+.ob-button {
+  padding: 0.643em 1.143em;
+  border: 1px solid var(--ob-border);
+  border-radius: 0.571em;
+  background: var(--ob-surface-raised);
+  color: var(--ob-text);
+  font: inherit;
+  font-size: 0.933em;
+  cursor: pointer;
+}
+
+.ob-button--primary {
+  border-color: var(--ob-accent);
+  background: var(--ob-accent);
+  color: #fff;
+  font-weight: 500;
+}
+
+.ob-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* Choice cards */
+.ob-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.067em;
+}
+
+.ob-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4em;
+  padding: 1.2em;
+  border: 1px solid var(--ob-border);
+  border-radius: 0.8em;
+  background: var(--ob-surface);
+  color: var(--ob-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ob-card:not([aria-pressed='true']):not(:disabled):hover {
+  border-color: var(--ob-muted);
+}
+
+.ob-card[aria-pressed='true'] {
+  border-color: var(--ob-accent);
+  background: var(--ob-accent-soft);
+}
+
+.ob-card:disabled {
+  cursor: default;
+}
+
+.ob-card-icon {
+  width: 1.6em;
+  height: 1.6em;
+  margin-bottom: 0.4em;
+  border-radius: 0.3em;
+  background: var(--ob-surface-raised);
+}
+
+.ob-card[aria-pressed='true'] .ob-card-icon {
+  background: var(--ob-accent);
+}
+
+.ob-card-label {
+  font-size: 1.067em;
+  font-weight: 500;
+}
+
+.ob-card-description {
+  color: var(--ob-muted);
+  font-size: 0.867em;
+}
+
+.ob-card-state {
+  margin-top: 0.769em;
+  padding: 0.385em 0.923em;
+  border: 1px solid transparent;
+  border-radius: 0.462em;
+  background: var(--ob-surface-raised);
+  color: var(--ob-muted);
+  font-size: 0.867em;
+}
+
+.ob-card[aria-pressed='true'] .ob-card-state {
+  border-color: var(--ob-accent);
+  background: transparent;
+  color: var(--ob-accent);
+}
+
+/* Equipment chips */
+.ob-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.533em;
+}
+
+.ob-chip {
+  padding: 0.538em 0.923em;
+  border: 1px solid transparent;
+  border-radius: 0.462em;
+  background: var(--ob-surface-raised);
+  color: var(--ob-muted);
+  font: inherit;
+  font-size: 0.867em;
+  cursor: pointer;
+}
+
+.ob-chip:not([aria-pressed='true']):not(:disabled):hover {
+  color: var(--ob-text);
+}
+
+.ob-chip[aria-pressed='true'] {
+  border-color: var(--ob-accent);
+  background: var(--ob-accent-soft);
+  color: var(--ob-accent);
+}
+
+.ob-chip:disabled {
+  cursor: default;
+}
+
+/* Plan impact panel */
+.ob-impact {
+  padding: 1.067em 1.2em;
+  border-radius: 0.8em;
+  background: var(--ob-surface);
+}
+
+.ob-impact-label {
+  margin-bottom: 0.308em;
+}
+
+.ob-impact-text {
+  margin: 0;
+}
+
+/* Goal step: profile preview and plan impact panels */
+.ob-panels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 1.067em;
+}
+
+.ob-panel {
+  padding: 1.067em 1.2em;
+  border-radius: 0.8em;
+  background: var(--ob-surface);
+}
+
+.ob-panel-label {
+  margin: 0 0 0.615em;
+  color: var(--ob-muted);
+  font-size: 0.867em;
+  font-weight: 400;
+}
+
+.ob-panel-text {
+  margin: 0;
+}
+
+.ob-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.8em;
+}
+
+.ob-profile-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4em;
+}
+
+.ob-profile-name {
+  font-weight: 500;
+}
+
+.ob-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 3.6em;
+  height: 3.6em;
+  border-radius: 50%;
+  background: var(--ob-accent);
+  color: #fff;
+  font-size: 1em;
+  font-weight: 500;
+}
+
+.ob-tag {
+  padding: 0.357em 0.857em;
+  border: 1px solid var(--ob-accent);
+  border-radius: 0.5em;
+  background: var(--ob-accent-soft);
+  color: var(--ob-accent);
+  font-size: 0.933em;
+}
+
+.ob-tag--empty {
+  border-color: var(--ob-border);
+  background: transparent;
+  color: var(--ob-muted);
+}
+
+/* Status messages */
+.ob-message {
+  margin: -0.857em 0 1.429em;
+  font-size: 0.933em;
+}
+
+.ob-message--error {
+  color: var(--ob-danger);
+}
+
+.ob-message--success {
+  color: var(--ob-success);
+}
+
+.ob-message a {
+  color: var(--ob-accent);
+  font-weight: 500;
+}
+
+.ob-loading {
+  color: var(--ob-muted);
+}
+
+/* Keyboard focus */
+.onboarding :focus-visible {
+  outline: 2px solid var(--ob-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ob-card,
+  .ob-card-icon,
+  .ob-chip,
+  .ob-button {
+    transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease;
+  }
+}
+
+/* Tablets and narrow windows: two cards per row */
+@media (max-width: 960px) {
+  .ob-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Phones: one column, full-width buttons, bigger tap targets */
+@media (max-width: 640px) {
+  .ob-header {
+    flex-direction: column;
+  }
+
+  .ob-actions {
+    width: 100%;
+  }
+
+  .ob-actions .ob-button {
+    flex: 1;
+    padding: 0.857em 1.143em;
+  }
+
+  .ob-card-grid,
+  .ob-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .ob-chip {
+    padding: 0.769em 1.077em;
+  }
+}
