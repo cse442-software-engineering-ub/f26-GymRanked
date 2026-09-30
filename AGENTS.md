@@ -32,6 +32,8 @@ Treat these documents as companion guides to this file. Read the relevant guide 
 | `ServerOperationsGuide.md` | Deployment, server administration, recovery, and troubleshooting. |
 | `TestingAndDebuggingGuide.md` | Local/server checks, task tests, and debugging procedures. |
 | `package.json`, `package-lock.json` | npm scripts and locked dependencies. |
+| `stories/` | One file per user story with its acceptance tests, copied from the scrum card. See `stories/README.md`. |
+| `tests/e2e/`, `playwright.config.js`, `playwright.watch.config.js` | Playwright acceptance tests: one spec per story file. `npm run test:e2e:watch` (the standard way) shows the browser at a human pace and opens the results page (`e2e-report/index.html`); `npm run test:e2e` is a quick headless run. |
 
 The Figma [GymRank Prototype page](https://www.figma.com/design/JMSaaXvmkMfjxrQuQqQ7CV/GymRank?node-id=94-94) is a design reference for future features. Its screens are not evidence that those features already exist in code.
 
@@ -56,7 +58,7 @@ php -S localhost:8000 -t api
 
 ## Validation
 
-There is no `test` or `lint` script in the current `package.json`. Do not report an automated suite as passing. For relevant changes, run:
+`npm test` runs the auth validation unit tests. `npm run test:e2e:watch` runs the Playwright acceptance tests in a visible browser and opens a plain-language results page, which is how the team runs them; `npm run test:e2e` is the same tests headless, for quick checks (see `TestingAndDebuggingGuide.md` section 8). There is no `lint` script. Do not report a suite as passing unless you ran it. For relevant changes, run:
 
 ```bash
 npm run build
@@ -65,6 +67,17 @@ php -l api/config.example.php
 ```
 
 For frontend or API behavior changes, also run the Vite and PHP servers, load the app, and verify the affected loading, success, empty, and error behavior as applicable. Testing the successful API response requires a configured MySQL instance and `workouts` table. Follow `TestingAndDebuggingGuide.md` for detailed local and server procedures, task-test expectations, debugging, and fix verification. Record exactly what was checked and any environment limitation.
+
+## User stories and acceptance tests
+
+Every user story on the scrum board has a file in `stories/` named `<card number>-<short-name>.md`, holding the story's title and its acceptance tests under `## Acceptance Test N: <title>` headings. The format is in `stories/README.md`.
+
+- Story owners write only the story file: its title and acceptance tests in plain English, then paste the tests onto the card, which is what the course grades. They don't write code, and nothing converts the English into code automatically.
+- When a new user story is created, add its file in the same task that starts work on it. Leave the tests for the story's owner if they aren't written yet.
+- Keep the file and the card the same.
+- The owner of the story's Playwright task card creates its spec with the same name in `tests/e2e/` and writes the code for each test. The spec reads the story file and runs one Playwright test per heading. A heading without code is reported as "not automated yet" and doesn't fail the run; code for a number with no heading stops the run. A story file with no spec isn't run at all.
+- If you add or change an acceptance test heading and aren't the Playwright task owner, leave the code to them unless the user asks you to write it.
+- After a change that affects a story, run the Playwright tests and report the result. Use `npm run test:e2e:watch` when the user wants to watch, which is the default for this team; it opens a browser window on their screen. Point the user to the results page, `e2e-report/index.html`, which says what passed and, for a failure, the step, the reason and a screenshot. Use `npm run test:e2e` for repeated quick checks.
 
 ## Coding conventions
 
