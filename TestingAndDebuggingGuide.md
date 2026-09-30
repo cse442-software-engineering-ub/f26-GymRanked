@@ -11,8 +11,11 @@ differently.
 Never put real credentials in this file, in commits, or in task comments. Use `UBIT_USERNAME` and
 `<PERSON_NUMBER>` as placeholders.
 
-There is no automated test suite: no `npm test` script, no test framework, and no linter or CI. Every test in this
-repo is a manual task test or acceptance test on the scrum board. Do not report an automated suite as passing.
+Automated checks: `npm test` runs the auth validation unit tests, and `npm run test:e2e:watch` runs the Playwright
+acceptance tests in a visible browser (`npm run test:e2e` for a quick headless run), as described in
+[section 8](#8-automated-acceptance-tests-playwright). There is no linter or CI. Every
+other test is a manual task test or acceptance test on the scrum board. Don't report a suite as passing unless you
+ran it.
 
 ## Contents
 
@@ -23,6 +26,7 @@ repo is a manual task test or acceptance test on the scrum board. Do not report 
 5. [Writing task tests](#5-writing-task-tests)
 6. [Recording a failure](#6-recording-a-failure)
 7. [Verifying a fix](#7-verifying-a-fix)
+8. [Automated acceptance tests (Playwright)](#8-automated-acceptance-tests-playwright)
 
 ## 1. Local testing
 
@@ -282,3 +286,146 @@ Next: checking DB_USER/DB_PASS in api/config.php against the MySQL user from REA
 If the bug was found after the card reached Completed or Closed, first add a task test that fails until the bug is
 fixed, then fix it on the existing branch and open a second pull request. See
 [GitAndScrumDocumentation.md → 7](GitAndScrumDocumentation.md#7-bugs-found-after-moving-a-card-to-completed).
+
+## 8. Automated acceptance tests (Playwright)
+
+[Playwright](https://playwright.dev/) runs the user stories' acceptance tests in a real Chromium browser. Checked
+on 2026-09-29 on macOS with Node 24, PHP 8.5 and MySQL 26.7 (Homebrew), Playwright 1.63.
+
+| Path | What it holds |
+| --- | --- |
+| `stories/` | One file per user story with its acceptance tests, copied from the card. Format: [stories/README.md](stories/README.md) |
+| `tests/e2e/<story>.spec.js` | The code for each story's tests, one spec per story file with the same name |
+| `tests/e2e/stories.js`, `banner.js`, `helpers.js` | Reads the story files; names each step and draws the watch-mode banner; shared actions like creating an account and logging in |
+| `tests/e2e/summary-reporter.js` | Writes the plain-language results page, `e2e-report/index.html` |
+| `playwright.config.js` | Browser sizes, the site to test, and the servers Playwright starts |
+
+Each `## Acceptance Test N: …` heading in a story file becomes one test with the same title. A heading that has
+no code yet is listed as skipped and marked "not automated yet", so owners can add tests without breaking the run.
+
+### Set up (first time)
+
+1. Set up the local site as in [1. Local testing](#1-local-testing), including `api/config.php`.
+2. Apply every file in `database/migrations/` to your local database, in order (see
+   [database/seeds/README.md](database/seeds/README.md)).
+3. Install the dependencies and Playwright's browser:
+
+   ```bash
+   npm ci --legacy-peer-deps
+   npx playwright install chromium
+   ```
+
+### Run the tests
+
+Watch mode is the standard way to run them:
+
+```bash
+npm run test:e2e:watch
+```
+
+The tests run one at a time in a visible Chromium window, at a human pace: Playwright waits 1.2 seconds before each
+click and page load, and types logins one key at a time. A banner in the top-left corner of the page shows what's
+running: the story, which acceptance test out of how many (e.g. "Story 72 · Acceptance Test 3 of 4 · desktop"),
+its title, and the current step. A full run takes about two and a half minutes.
+
+When the run finishes, a **results page** opens in your browser (`e2e-report/index.html`). It starts with one
+line saying whether everything passed, e.g. "All 6 checks passed" or "1 of 6 checks failed". Below that, each
+story lists its acceptance tests with a Desktop and a Phone result and the steps that ran. A failed test shows:
+
+- the step it failed at, e.g. Failed at "Step 1: selecting "Full Body Strength" shows the switch warning"
+- what went wrong in one sentence, e.g. Expected to see the "Switch plan" button in the dialog, but it wasn't on
+  the page
+- a screenshot of the page at that moment
+- which later steps didn't run
+- a "Technical details" section with Playwright's exact error
+
+For a quick check while you're working, `npm run test:e2e` runs the same tests without showing the browser,
+at full speed and in parallel, in about 10 seconds. It writes the same results page but doesn't open it; open
+`e2e-report/index.html` yourself.
+
+You don't need to start the servers first. Both commands start `php -S localhost:8000 -t api` and `npm run dev`,
+and stop them when the tests finish. If they're already running, they're used instead. Before the run, Playwright
+checks the database connection and tables. It also clears this machine's login and sign-up counters, so repeated
+runs don't hit the API's limit of 50 logins and 50 sign-ups per IP address every 15 minutes.
+
+Each test creates new accounts named `e2e-<timestamp>-<random>@example.com`, so you can run the tests again
+straight away. They build up in your local `users` table and are safe to delete.
+
+A passing run ends like this:
+
+```text
+  6 passed (2.3m)
+
+  Results page: e2e-report/index.html (opening in your browser)
+```
+
+Every test runs on `desktop` (1440×900). The ones a spec marks as layout-sensitive also run on `mobile`
+(375×812).
+
+Both commands take the same extra options after `--`:
+
+| To… | Watch mode | Quick check |
+| --- | --- | --- |
+| Run everything | `npm run test:e2e:watch` | `npm run test:e2e` |
+| Run one story | `npm run test:e2e:watch -- 72-select-workout-plan` | `npm run test:e2e -- 72-select-workout-plan` |
+| Run desktop only | `npm run test:e2e:watch -- --project=desktop` | `npm run test:e2e -- --project=desktop` |
+| See the results page | Opens by itself | Open `e2e-report/index.html` |
+
+To step through tests one action at a time, use Playwright's UI: `npm run test:e2e -- --ui`.
+
+When a test fails and you need more than the results page, Playwright's technical report has the full log and a
+trace of the failed test that you can step through: run `npx playwright show-report`, or the
+`npx playwright show-trace …` command printed in the terminal. The `e2e-report/`, `playwright-report/` and
+`test-results/` folders are gitignored. The request log from the PHP server is hidden during the run;
+to see PHP errors, start both servers yourself first (Playwright then reuses them) and watch that terminal.
+
+### Run against aptitude or cattle
+
+Set `E2E_BASE_URL` to the deployed site. Playwright then starts no servers and skips the database check.
+
+```bash
+E2E_BASE_URL=https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/ npm run test:e2e:watch
+```
+
+This needs the UB VPN. The run creates `e2e-…@example.com` accounts in that server's database, and it counts
+toward that server's limit of 50 logins and 50 sign-ups per IP address every 15 minutes. A full run uses 8 logins
+and 5 sign-ups, so about six runs fit in 15 minutes.
+Use aptitude for task tests. Use cattle only to check a release, since it's production. Not yet run against
+either server **[VERIFY]**.
+
+### Adding tests for a story
+
+Story owners only write the plain-English tests in `stories/` (see [stories/README.md](stories/README.md)). These
+steps are for the owner of the story's Playwright task card, who writes the code:
+
+1. Add or update the story's file in `stories/`, as in [stories/README.md](stories/README.md). Paste the same tests
+   onto the card.
+2. Create `tests/e2e/<same name>.spec.js` if it doesn't exist, and give each test's code a number matching its
+   heading. `tests/e2e/72-select-workout-plan.spec.js` is the example to copy:
+
+   ```js
+   acceptanceTests('72-select-workout-plan.md', {
+     1: async ({ page }) => {
+       await step('Step 1: the library lists 10 plans', async () => {
+         /* the actions and checks of step 1 */
+       })
+     },
+   }, { mobile: [1] })
+   ```
+
+3. Wrap each written step in `step('Step N: …', …)` from `tests/e2e/banner.js`, using the story's numbering, so
+   the banner and the results page show which step is running or failed. Follow the steps in order, and check the exact
+   text each one names. Prefer finding elements by
+   role and visible text (`getByRole('button', { name: 'Select' })`), as a user would.
+4. Run the story with `npm run test:e2e:watch -- <story file name>` and watch the browser follow each step.
+
+### Common failures
+
+| Output | Cause and fix |
+| --- | --- |
+| `The local database is missing tables: …` | Apply the listed migrations from `database/migrations/` |
+| `Can't connect to the local database (MySQL error 2002)` | MySQL isn't running. On macOS: `brew services start mysql` |
+| `Can't connect to the local database (MySQL error 1045)` | Wrong user or password in `api/config.php` |
+| `browserType.launch: Executable doesn't exist at …` | Run `npx playwright install chromium` |
+| `Acceptance Test N has code but no matching heading in stories/…` | The spec has code for a test the story file doesn't have. Fix the number, or add the heading |
+| `The API allows 50 logins and 50 sign-ups per IP address every 15 minutes…` | Wait 15 minutes, or on a local database run `mysql -u root cse442_2026_fall_team_y_db -e "DELETE FROM auth_attempts;"` |
