@@ -77,6 +77,16 @@
   background: var(--ob-border);
 }
 
+.ob-stepper a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ob-stepper a:hover {
+  color: var(--ob-text);
+  text-decoration: underline;
+}
+
 .ob-stepper-item.is-done::before {
   background: var(--ob-muted);
 }
