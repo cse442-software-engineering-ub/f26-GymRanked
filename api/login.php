@@ -1,0 +1,26 @@
+<?php
+require __DIR__ . '/auth.php';
+$data = input();
+[$email, $password] = credentials($data);
+if (isset($data['remember']) && !is_bool($data['remember'])) respond(400, ['error' => 'Remember must be a boolean.']);
+$db = database();
+throttle($db, 'login', $email);
+$stmt = $db->prepare('SELECT id, full_name, email, password_hash FROM users WHERE email = ?');
+$stmt->bind_param('s', $email);
+$stmt->execute();
+$user = $stmt->get_result()->fetch_assoc();
+$dummy = '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.';
+$valid = password_verify($password, $user['password_hash'] ?? $dummy);
+if (!$user || !$valid) respond(401, ['error' => 'Invalid email or password.']);
+clear_session($db);
+$token = bin2hex(random_bytes(32));
+$hash = hash('sha256', $token);
+$remember = $data['remember'] ?? false;
+$expiry = time() + ($remember ? 30 * 86400 : 8 * 3600);
+$expires = gmdate('Y-m-d H:i:s', $expiry);
+$stmt = $db->prepare('INSERT INTO auth_sessions (token_hash, user_id, expires_at) VALUES (?, ?, ?)');
+$stmt->bind_param('sis', $hash, $user['id'], $expires);
+$stmt->execute();
+setcookie('gymrank_session', $token, cookie_options($remember ? $expiry : 0));
+unset($user['password_hash']);
+respond(200, ['user' => $user]);
