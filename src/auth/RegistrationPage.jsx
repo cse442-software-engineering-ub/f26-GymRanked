@@ -24,7 +24,7 @@ export default function RegistrationPage() {
     setBusy(true); setFailure('')
     try {
       await authRequest('register', values)
-      navigate('/dashboard', { replace: true, state: { fullName: values.full_name.trim() } })
+      navigate('/login', { replace: true, state: { email: values.email.trim(), message: 'Account created! Type in your password to log in.' } })
     } catch (error) { setFailure(error.message); setErrors(error.fields || {}) }
     finally { setBusy(false) }
   }
