@@ -81,23 +81,28 @@ function plainError(error) {
   }
 }
 
-// Counts the numbered steps under each "## Acceptance Test N" heading's **Steps:** list in a story file.
+// Counts the numbered steps of each "## Acceptance Test N" in a story file. Tests with a **Steps:** label count
+// only the list under it (their setup is numbered too); tests without one, like the team's cards, count every
+// numbered line.
 function stepCounts(storyText) {
-  const counts = {}
+  const tests = {}
   let current = null
   let inSteps = false
   for (const line of storyText.split('\n')) {
     const heading = line.match(/^## Acceptance Test (\d+):/)
     if (heading) {
-      current = Number(heading[1])
-      counts[current] = 0
+      current = { labelled: false, underLabel: 0, all: 0 }
+      tests[heading[1]] = current
       inSteps = false
     } else if (line.startsWith('## ')) current = null
-    else if (current && /^\*\*Steps:\*\*/.test(line)) inSteps = true
+    else if (current && /^\*\*Steps:\*\*/.test(line)) inSteps = current.labelled = true
     else if (current && /^\*\*/.test(line)) inSteps = false
-    else if (current && inSteps && /^\d+\. /.test(line)) counts[current] += 1
+    else if (current && /^\d+\. /.test(line)) {
+      current.all += 1
+      if (inSteps) current.underLabel += 1
+    }
   }
-  return counts
+  return Object.fromEntries(Object.entries(tests).map(([n, t]) => [n, t.labelled ? t.underLabel : t.all]))
 }
 
 const SIZE_ORDER = ['desktop', 'mobile']
@@ -116,6 +121,12 @@ export default class SummaryReporter {
   constructor({ open = false } = {}) {
     this.open = open
     this.results = []
+    this.errors = []
+  }
+
+  // Errors outside any test, such as a spec that stops the run before it starts.
+  onError(error) {
+    this.errors.push(error)
   }
 
   onBegin(config) {
@@ -194,7 +205,11 @@ export default class SummaryReporter {
 
     let verdict
     let verdictKind
-    if (checks.length === 0) {
+    const loadErrors = this.errors.map((error) => stripAnsi(error.message || error.value || '').split('\n')[0].replace(/^Error: /, ''))
+    if (checks.length === 0 && loadErrors.length) {
+      verdict = "The tests couldn't start"
+      verdictKind = 'fail'
+    } else if (checks.length === 0) {
       verdict = 'No tests ran'
       verdictKind = 'skip'
     } else if (failed === 0 && passed === checks.length) {
@@ -288,12 +303,15 @@ export default class SummaryReporter {
       <p>${
         verdictKind === 'pass'
           ? 'Every automated acceptance test did what its story says.'
-          : verdictKind === 'fail'
-            ? 'Look for the red boxes below: each one names the step that failed and what the page showed instead.'
-            : 'Some tests did not run.'
+          : checks.length === 0 && loadErrors.length
+            ? 'A problem in the test files stopped the run before any test began:'
+            : verdictKind === 'fail'
+              ? 'Look for the red boxes below: each one names the step that failed and what the page showed instead.'
+              : 'Some tests did not run.'
       }</p>
     </div>
   </section>
+  ${loadErrors.map((message) => `<div class="problem"><p class="what">${escape(message)}</p></div>`).join('\n')}
   <ul class="counts">
     <li><b>${passed}</b> passed</li>
     <li><b>${failed}</b> failed</li>
@@ -362,11 +380,14 @@ export default class SummaryReporter {
     // The story file says how many steps the test has; say which ones never ran because of the failure.
     let notRun = ''
     if (failed && totalSteps) {
-      const failedNumber = Number(run.failedStep?.match(/^Step (\d+)/)?.[1] ?? 0)
+      // "Step 4: …" or, for grouped steps, "Steps 3–5: …" (the last number is the one that matters).
+      const numbers = run.failedStep?.match(/^Steps? (\d+)(?:–(\d+))?/)
+      const failedNumber = Number(numbers?.[2] ?? numbers?.[1] ?? 0)
       const first = failedNumber + 1
-      if (!run.failedStep || /^Setup/.test(run.failedStep)) notRun = `None of the ${totalSteps} steps ran, because the setup failed.`
-      else if (first === totalSteps) notRun = `Step ${totalSteps} didn't run, because step ${failedNumber} failed.`
-      else if (first < totalSteps) notRun = `Steps ${first}–${totalSteps} didn't run, because step ${failedNumber} failed.`
+      const failedLabel = numbers?.[2] ? `steps ${numbers[1]}–${numbers[2]}` : `step ${failedNumber}`
+      if (!run.failedStep || /^(Setup|Before you start)/.test(run.failedStep)) notRun = `None of the ${totalSteps} steps ran, because the setup failed.`
+      else if (first === totalSteps) notRun = `Step ${totalSteps} didn't run, because ${failedLabel} failed.`
+      else if (first < totalSteps) notRun = `Steps ${first}–${totalSteps} didn't run, because ${failedLabel} failed.`
     }
     const notRunItem = notRun ? `<li class="todo"><span class="mark">·</span><span>${escape(notRun)}</span></li>` : ''
 
