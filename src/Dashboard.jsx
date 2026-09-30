@@ -1,7 +1,5 @@
-import { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import NavBar from './NavBar.jsx'
-import { authRequest } from './auth/api.js'
 
 const METRICS = [
   { label: 'RANK', value: 'Unranked', accent: true },
@@ -24,30 +22,11 @@ function MetricCard({ label, value, accent = false }) {
 
 function Dashboard() {
   const location = useLocation()
-  const navigate = useNavigate()
-  const [logoutBusy, setLogoutBusy] = useState(false)
-  const [logoutError, setLogoutError] = useState('')
   const firstName = location.state?.fullName?.trim().split(/\s+/)[0] || 'Marcus'
-
-  async function logout() {
-    setLogoutBusy(true)
-    setLogoutError('')
-    try {
-      await authRequest('logout', {})
-      navigate('/login', {
-        replace: true,
-        state: { message: 'You are logged out.' },
-      })
-    } catch (error) {
-      setLogoutError(error.message)
-    } finally {
-      setLogoutBusy(false)
-    }
-  }
 
   return (
     <div className="dashboard-page">
-      <NavBar current="Dashboard" onLogout={logout} logoutBusy={logoutBusy} />
+      <NavBar current="Dashboard" />
       <main className="dashboard-content">
         <header className="dashboard-header">
           <div>
@@ -56,8 +35,6 @@ function Dashboard() {
           </div>
           <button type="button" className="dashboard-secondary-action">Log a lift</button>
         </header>
-
-        {logoutError && <p className="dashboard-alert" role="alert">{logoutError}</p>}
 
         <section className="dashboard-metrics" aria-label="Weekly summary">
           {METRICS.map((metric) => <MetricCard key={metric.label} {...metric} />)}

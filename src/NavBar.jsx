@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { authRequest } from './auth/api.js'
 
 // Add a `to` value when a teammate implements one of the future destinations.
 // Keeping route ownership here lets new pages join the shared navigation without
@@ -13,8 +14,23 @@ const NAV_LINKS = [
   { label: 'Today', futurePath: '/today' },
 ]
 
-function NavBar({ current, onLogout, logoutBusy = false }) {
+function NavBar({ current }) {
+  const navigate = useNavigate()
   const [accountMenuOpen, setAccountMenuOpen] = useState(false)
+  const [logoutBusy, setLogoutBusy] = useState(false)
+  const [logoutError, setLogoutError] = useState('')
+
+  async function onLogout() {
+    setLogoutBusy(true)
+    setLogoutError('')
+    try {
+      await authRequest('logout', {})
+      navigate('/login', { replace: true, state: { message: 'You are logged out.' } })
+    } catch (error) {
+      setLogoutError(error.message)
+      setLogoutBusy(false)
+    }
+  }
 
   return (
     <header className="nav-bar">
@@ -41,7 +57,7 @@ function NavBar({ current, onLogout, logoutBusy = false }) {
         <button type="button" className="nav-bar__start-workout">
           Start Workout
         </button>
-        {onLogout ? (
+        {(
           <div className="nav-bar__account">
             <button
               type="button"
@@ -73,12 +89,11 @@ function NavBar({ current, onLogout, logoutBusy = false }) {
                   >
                     {logoutBusy ? 'Logging out…' : 'Log out'}
                   </button>
+                  {logoutError && <span className="nav-bar__account-item" role="alert">{logoutError}</span>}
                 </div>
               </>
             )}
           </div>
-        ) : (
-          <div className="nav-bar__avatar" aria-hidden="true">MM</div>
         )}
       </div>
     </header>
