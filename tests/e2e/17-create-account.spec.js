@@ -223,8 +223,9 @@ acceptanceTests(
       })
     },
 
-    5: async ({ page }) => {
+    5: async ({ page }, testInfo) => {
       const signUps = watchSignUps(page)
+      const close = page.getByRole('link', { name: 'Close registration' })
 
       await step('Setup: start logged out', async () => {
         await page.goto('#/login')
@@ -235,15 +236,26 @@ acceptanceTests(
         await onRegistration(page)
       })
 
-      await step('Step 2: the "×" in the top-right corner returns to "Log in to GymRank"', async () => {
-        await expect(page.getByRole('link', { name: 'Close registration' })).toHaveText('×')
-        await page.getByRole('link', { name: 'Close registration' }).click()
-        await expect(page).toHaveURL(/#\/login$/)
-        await expect(loginCard(page)).toBeVisible()
-        expect(signUps, 'a sign-up request was sent').toHaveLength(0)
-      })
+      // Step 2 is for computers and step 3 for phones, so each screen size runs one of them.
+      if (testInfo.project.name === 'desktop') {
+        await step('Step 2: on a computer, "Log in" at the bottom of the card returns to "Log in to GymRank"', async () => {
+          await expect(close).toBeHidden()
+          await page.locator('.account-link').getByRole('link', { name: 'Log in' }).click()
+          await expect(page).toHaveURL(/#\/login$/)
+          await expect(loginCard(page)).toBeVisible()
+          expect(signUps, 'a sign-up request was sent').toHaveLength(0)
+        })
+      } else {
+        await step('Step 3: on a phone, the "×" in the top-right corner returns to "Log in to GymRank"', async () => {
+          await expect(close).toHaveText('×')
+          await close.click()
+          await expect(page).toHaveURL(/#\/login$/)
+          await expect(loginCard(page)).toBeVisible()
+          expect(signUps, 'a sign-up request was sent').toHaveLength(0)
+        })
+      }
     },
   },
-  // Test 5's "×" exists only at phone and tablet widths (under 850px), so it also runs on mobile.
+  // Test 5's "×" exists only at 850px wide or narrower, so Test 5 also runs on mobile (its step 3).
   { mobile: [1, 5] },
 )
