@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test'
 import { step } from './banner.js'
 
 const PASSWORD = 'TaskTestPass12!'
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
 const email = () => `e2e-task-${Date.now()}-${Math.random().toString(36).slice(2, 9)}@example.com`
 const field = (page, name) => page.getByLabel(name, { exact: true })
 const avatar = (page) => page.getByRole('button', { name: 'Open account menu' })
@@ -81,10 +82,18 @@ test.describe('Task #70: Home Dashboard', () => {
       await expect(cards.nth(2)).toContainText('0')
     })
     await step('Step 4: Today’s lifts has the empty message', () => expect(page.getByText('No lifts logged today — add your first to get placed.')).toBeVisible())
-    await step('Step 5: Volume by day names this week’s Monday', async () => {
+    await step('Step 5: the greeting shows this Monday through Sunday and Volume by day has no duplicate date', async () => {
       const monday = new Date()
       monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7))
-      await expect(page.locator('.dashboard-volume')).toContainText(`Week of ${monday.getMonth() + 1}/${monday.getDate()}`)
+      const sunday = new Date(monday)
+      sunday.setDate(monday.getDate() + 6)
+      const end = sunday.getMonth() === monday.getMonth()
+        ? sunday.getDate()
+        : `${MONTHS[sunday.getMonth()]} ${sunday.getDate()}`
+      await expect(page.locator('.dashboard-header p')).toHaveText(
+        `Week of ${MONTHS[monday.getMonth()]} ${monday.getDate()} – ${end} · 0 sessions logged`,
+      )
+      await expect(page.locator('.dashboard-volume')).not.toContainText('Week of')
     })
     await step('Step 6: the chart labels Monday through Sunday', () => expect(page.locator('.dashboard-chart__day')).toHaveText(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']))
     await step('Step 7: the navigation shows every section and marks Dashboard current', async () => {
