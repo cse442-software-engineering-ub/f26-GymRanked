@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authRequest } from './auth/api.js'
 
@@ -14,11 +14,33 @@ const NAV_LINKS = [
   { label: 'Today', futurePath: '/today' },
 ]
 
-function NavBar({ current }) {
+function NavBar({ current, userName = '' }) {
   const navigate = useNavigate()
   const [accountMenuOpen, setAccountMenuOpen] = useState(false)
   const [logoutBusy, setLogoutBusy] = useState(false)
   const [logoutError, setLogoutError] = useState('')
+  const [sessionUserName, setSessionUserName] = useState(userName.trim())
+  const nameParts = sessionUserName.split(/\s+/).filter(Boolean)
+  const hasSingleName = nameParts.length === 1
+  const avatarInitials = nameParts.length > 1
+    ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase()
+    : (nameParts[0]?.[0] || '?').toUpperCase()
+
+  useEffect(() => {
+    if (userName.trim()) setSessionUserName(userName.trim())
+  }, [userName])
+
+  useEffect(() => {
+    let active = true
+    authRequest('session')
+      .then(data => {
+        if (active) setSessionUserName(data.user.full_name.trim())
+      })
+      .catch(() => {
+        if (active) navigate('/login', { replace: true })
+      })
+    return () => { active = false }
+  }, [navigate])
 
   async function onLogout() {
     setLogoutBusy(true)
@@ -67,7 +89,9 @@ function NavBar({ current }) {
               aria-expanded={accountMenuOpen}
               onClick={() => setAccountMenuOpen((open) => !open)}
             >
-              MM
+              <span className={hasSingleName ? 'nav-bar__avatar-text nav-bar__avatar-text--single' : 'nav-bar__avatar-text'}>
+                {avatarInitials}
+              </span>
             </button>
             {accountMenuOpen && (
               <>

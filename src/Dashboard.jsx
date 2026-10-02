@@ -1,5 +1,7 @@
-import { useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import NavBar from './NavBar.jsx'
+import { authRequest } from './auth/api.js'
 
 const METRICS = [
   { label: 'RANK', value: 'Unranked', accent: true },
@@ -8,6 +10,13 @@ const METRICS = [
 ]
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+function getWeekLabel(date = new Date()) {
+  const monday = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const daysSinceMonday = (monday.getDay() + 6) % 7
+  monday.setDate(monday.getDate() - daysSinceMonday)
+  return `Week of ${monday.getMonth() + 1}/${monday.getDate()}`
+}
 
 function MetricCard({ label, value, accent = false }) {
   return (
@@ -22,11 +31,27 @@ function MetricCard({ label, value, accent = false }) {
 
 function Dashboard() {
   const location = useLocation()
-  const firstName = location.state?.fullName?.trim().split(/\s+/)[0] || 'Marcus'
+  const navigate = useNavigate()
+  const [fullName, setFullName] = useState(location.state?.fullName?.trim() || '')
+
+  useEffect(() => {
+    let active = true
+    authRequest('session')
+      .then(data => {
+        if (active) setFullName(data.user.full_name.trim())
+      })
+      .catch(() => {
+        if (active) navigate('/login', { replace: true })
+      })
+    return () => { active = false }
+  }, [navigate])
+
+  const displayName = fullName || 'Athlete'
+  const firstName = displayName.split(/\s+/)[0]
 
   return (
     <div className="dashboard-page">
-      <NavBar current="Dashboard" />
+      <NavBar current="Dashboard" userName={fullName} />
       <main className="dashboard-content">
         <header className="dashboard-header">
           <div>
@@ -54,7 +79,7 @@ function Dashboard() {
           <article className="dashboard-card dashboard-volume">
             <header className="dashboard-card__heading dashboard-card__heading--stacked">
               <h2>Volume by day</h2>
-              <p>Mon–Sun · lb moved</p>
+              <p>{getWeekLabel()}</p>
             </header>
             <div className="dashboard-chart" aria-label="No lifting volume logged Monday through Sunday">
               {DAYS.map((day) => (

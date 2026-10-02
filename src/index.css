@@ -138,6 +138,10 @@ button.nav-bar__avatar {
   cursor: pointer;
 }
 
+.nav-bar__avatar-text--single {
+  font-size: 18px;
+}
+
 .nav-bar__account {
   position: relative;
 }
