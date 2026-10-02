@@ -1,0 +1,145 @@
+Based on reading the documentation in this project, can you copy over the task tests listed below and have Playwright run its automated tests?
+Tests:
+"Test 1: Home Dashboard displays the signed-in user and dashboard content
+Setup for this test:
+1. Connect to the UB VPN or use the campus network.
+2. Open the Aptitude registration page: https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register
+3. Create an account using:
+   - Full name: Dashboard Tester
+   - Email: Use a unique email such as dashboard-display+YOUR_INITIALS-TIMESTAMP@example.com
+   - Password: TaskTestPass12!
+   - Confirm password: TaskTestPass12!
+4. Complete the Training Goal and Experience/Training Setup pages.
+5. Log in using the newly created account and confirm that the Dashboard opens.
+Steps:
+1. Confirm that the address ends with #/dashboard and the page displays Let’s move weight, Dashboard.
+2. Confirm that the profile icon displays DT, using the initials from Dashboard Tester.
+3. Confirm that the Dashboard displays the RANK, VOLUME THIS WEEK, and NEW PRS cards with the initial values Unranked, 0 lb, and 0.
+4. Confirm that the Today’s lifts section displays No lifts logged today — add your first to get placed.
+5. Confirm that the Volume by day section displays Week of followed by the date of Monday for the current week.
+6. Confirm that the volume chart displays labels for Monday through Sunday: Mon, Tue, Wed, Thu, Fri, Sat, and Sun.
+7. Confirm that the navigation bar displays Dashboard, Workouts, Plans, Progress, Leaderboard, and Today, with Dashboard shown as the current page.
+Test 2: Home Dashboard preserves the user session and supports navigation and logout
+Setup for this test:
+1. Connect to the UB VPN or use the campus network.
+2. Open the Aptitude registration page: https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register
+3. Create an account using:
+   - Full name: Dashboard Session Tester
+   - Email: Use a unique email such as dashboard-session+YOUR_INITIALS-TIMESTAMP@example.com
+   - Password: TaskTestPass12!
+   - Confirm password: TaskTestPass12!
+4. Complete the Training Goal and Experience/Training Setup pages.
+5. On the Login page, enter the new account’s password, select Keep me logged in, and select Log in.
+Steps:
+1. Confirm that the Dashboard opens, displays Let’s move weight, Dashboard., and shows DT in the profile icon.
+2. Refresh the browser. Confirm that the Dashboard remains open and continues to display the correct greeting and profile initials.
+3. Select Plans from the navigation bar. Confirm that the Plans page opens and the profile icon continues to display DT.
+4. Select Dashboard from the navigation bar. Confirm that the Dashboard opens again and retains the correct signed-in user.
+5. Select the profile icon. Confirm that the account menu opens and displays Profile, Account Settings, and the red Log out button.
+6. Select Log out. Confirm that the Login page opens and displays You are logged out.
+7. Open the Dashboard URL directly: https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/dashboard
+8. Confirm that the browser returns to the Login page because the session is no longer active."
+"Test 1: Login page handles incorrect and correct sign-in attempts
+Setup for this test:
+1. Connect to the UB VPN or use the campus network.
+2. Open the Aptitude registration page: https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register
+3. Create a test account using:
+   - Full name: Login Page Tester
+   - Email: Use a unique email such as login-page-test+YOUR_INITIALS@example.com
+   - Password: TaskTestPass12!
+   - Confirm password: TaskTestPass12!
+4. Complete the Training Goal and Experience/Training Setup pages.
+5. Confirm that completing the setup returns you to the Login page. Keep the test email and password available
+Steps:
+1. Clear both Login fields and select Log in. Confirm that Enter a valid email address. appears below Email and Enter your password. appears below Password.
+2. Enter the test email and WrongPassword12!, then select Log in. Confirm that Invalid email or password. appears and that you remain on the Login page.
+3. Replace the password with TaskTestPass12!, select Keep me logged in, and select Log in. Confirm that the address ends with #/dashboard, the greeting displays Let’s move weight, Login., and the RANK, VOLUME THIS WEEK, and NEW PRS cards are visible.
+4. Refresh the browser. Confirm that the Dashboard remains visible and still displays the signed-in user’s name.
+5. Open the Aptitude Login page again: https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login. Confirm that the active session automatically returns you to #/dashboard.
+Test 2: Signed-in user’s profile initials remain correct across pages
+Setup for this test:
+1. Connect to the UB VPN or use the campus network.
+2. Open the Aptitude registration page: https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register
+3. Create a test account using:
+   - Full name: Test User
+   - Email: Use a unique email such as login-initials-test+YOUR_INITIALS@example.com
+   - Password: TaskTestPass12!
+   - Confirm password: TaskTestPass12!
+4. Complete the Training Goal and Experience/Training Setup pages.
+5. Log in using the newly created account and confirm that the Dashboard opens.
+Steps:
+1. On the Dashboard, confirm that the greeting displays Let’s move weight, Test. and the profile icon displays TU.
+2. Select Plans from the navigation bar. Confirm that the Plans page opens and the profile icon still displays TU.
+3. Select Workouts from the navigation bar. Confirm that the Workouts page opens and the profile icon still displays TU.
+4. Select Dashboard from the navigation bar. Confirm that the Dashboard opens and the profile icon still displays TU.
+5. Refresh the Dashboard. Confirm that the greeting still uses Test and the profile icon still displays TU.
+Test 3: Logging out ends the frontend session
+Setup for this test:
+1. Connect to the UB VPN or use the campus network.
+2. Open the Aptitude registration page: https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register
+3. Create a test account using:
+   - Full name: Logout Tester
+   - Email: Use a unique email such as logout-page-test+YOUR_INITIALS@example.com
+   - Password: TaskTestPass12!
+   - Confirm password: TaskTestPass12!
+4. Complete the Training Goal and Experience/Training Setup pages.
+5. Log in using the newly created account and confirm that the Dashboard opens.
+Steps:
+1. Confirm that the Dashboard displays Let’s move weight, Logout. and the profile icon displays LT.
+2. Select the profile icon. Confirm that the account menu opens and displays the red Log out button.
+3. Select Log out. Confirm that the Login page opens and displays You are logged out.
+4. Open the Dashboard directly: https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/dashboard
+5. Confirm that the browser returns to the Login page because the session has ended.
+6. Log in again with the same account. Confirm that the Dashboard opens and displays the correct name and LT profile initials."
+"Test 1: Registration page shows clear validation and creates an account
+Setup for this test:
+1. Connect to the UB VPN or use the campus network.
+2. Open the Aptitude registration page: https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register
+3. Choose a unique test email that has not previously been registered, such as: registration-validation+YOUR_INITIALS-TIMESTAMP@example.com
+4. Keep the following valid test values available:
+   - Full name: Registration Tester
+   - Password: TaskTestPass12!
+   - Confirm password: TaskTestPass12!
+Steps:
+1. Select Create account without filling in any fields. Confirm that an error appears below every required field.
+2. Enter Registration Tester for Full name, not-an-email for Email, short for Password, and different for Confirm password. Select Create account and confirm that the page displays Enter a valid email address., Use 12+ characters with letters, numbers & symbols., and Passwords must match.
+3. Replace the email with the unique test email. Enter TaskTestPass12! in both password fields and confirm that the password-strength indicator displays Strong.
+4. Select Show next to Password and confirm that the password becomes visible. Select Hide and confirm that it is concealed again.
+5. Select Create account. Confirm that the browser opens the Training Goal page and that the address ends with #/goal.
+6. Confirm that the page displays Choose your training goal and the Strength, Fat loss, and Aerobic fitness choices.
+Test 2: New account completes onboarding and reaches Login
+Setup for this test:
+1. Connect to the UB VPN or use the campus network.
+2. Open the Aptitude registration page: https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register
+3. Create an account using:
+   - Full name: Onboarding Tester
+   - Email: Use a unique email such as registration-onboarding+YOUR_INITIALS-TIMESTAMP@example.com
+   - Password: TaskTestPass12!
+   - Confirm password: TaskTestPass12!
+4. Confirm that account creation opens the Training Goal page at #/goal.
+Steps:
+1. Select Strength and confirm that the choice is marked as selected and appears in the profile preview.
+2. Select Save goal. Confirm that the Experience/Training Setup page opens and the address ends with #/setup.
+3. Select Intermediate and Dumbbells. Confirm that both choices are visibly selected.
+4. Select Save setup. Confirm that the Login page opens and displays Account setup saved. Log in to continue.
+5. Confirm that the newly created account’s email is already entered in the Email field.
+6. Enter TaskTestPass12! and select Log in. Confirm that the Dashboard opens at #/dashboard, displays Let’s move weight, Onboarding., and shows OT in the profile icon.
+7. Confirm that the Dashboard displays Unranked, 0 lb, 0, and No lifts logged today — add your first to get placed.
+Test 3: Registration page rejects an existing email
+Setup for this test:
+1. Connect to the UB VPN or use the campus network.
+2. Open the Aptitude registration page: https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register
+3. Create an account using:
+   - Full name: Duplicate Registration Tester
+   - Email: Use a unique email such as registration-duplicate+YOUR_INITIALS-TIMESTAMP@example.com
+   - Password: TaskTestPass12!
+   - Confirm password: TaskTestPass12!
+4. Complete the Training Goal and Experience/Training Setup pages so that you return to Login.
+5. Keep the registered email and password available.
+Steps:
+1. Return to the Aptitude registration page: https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register
+2. Enter Duplicate Registration Tester for Full name, the already registered email for Email, and TaskTestPass12! in both password fields.
+3. Select Create account. Confirm that you remain on the Registration page and that This email is already registered. appears.
+4. Select Log in under the registration form. Confirm that the Login page opens.
+5. Enter the registered email and TaskTestPass12!, then select Log in. Confirm that the Dashboard opens and displays Let’s move weight, Duplicate.
+6. Confirm that the profile icon displays DT, showing that the original account remains available."

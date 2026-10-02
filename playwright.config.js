@@ -17,6 +17,8 @@ export default defineConfig({
   use: {
     baseURL: baseURL.endsWith('/') ? baseURL : `${baseURL}/`,
     browserName: 'chromium',
+    // Use an installed Chrome/Edge channel when the bundled Chromium download is unavailable.
+    channel: process.env.E2E_BROWSER_CHANNEL || undefined,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },

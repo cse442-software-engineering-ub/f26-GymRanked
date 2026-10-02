@@ -24,7 +24,7 @@ export function validate(values, registration = false) {
   if (registration) {
     if (!values.full_name.trim()) errors.full_name = 'Enter your full name.'
     if (values.password.length < 12 || !/[a-zA-Z]/.test(values.password) || !/[0-9]/.test(values.password) || !/[^a-zA-Z0-9]/.test(values.password)) errors.password = 'Use 12+ characters with letters, numbers & symbols.'
-    if (values.confirm_password !== values.password) errors.confirm_password = 'Passwords must match.'
+    if (!values.confirm_password || values.confirm_password !== values.password) errors.confirm_password = 'Passwords must match.'
   }
   return errors
 }
