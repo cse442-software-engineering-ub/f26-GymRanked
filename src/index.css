@@ -279,8 +279,7 @@ button.nav-bar__avatar {
 }
 
 .dashboard-metric__label,
-.dashboard-card__heading h2,
-.dashboard-card__heading p {
+.dashboard-card__heading h2 {
   color: #8b8d94;
   font-size: 12px;
   font-weight: 400;
@@ -319,8 +318,7 @@ button.nav-bar__avatar {
   margin-bottom: 16px;
 }
 
-.dashboard-card__heading h2,
-.dashboard-card__heading p {
+.dashboard-card__heading h2 {
   margin: 0;
   line-height: normal;
 }
@@ -338,12 +336,6 @@ button.nav-bar__avatar {
   color: #f2652e;
   font-size: 13px;
   font-weight: 500;
-}
-
-.dashboard-card__heading--stacked {
-  align-items: flex-start;
-  flex-direction: column;
-  gap: 4px;
 }
 
 .dashboard-lifts__empty {

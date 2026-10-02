@@ -16,7 +16,7 @@ Steps:
 2. Confirm that the profile icon displays DT, using the initials from Dashboard Tester.
 3. Confirm that the Dashboard displays the RANK, VOLUME THIS WEEK, and NEW PRS cards with the initial values Unranked, 0 lb, and 0.
 4. Confirm that the Today’s lifts section displays No lifts logged today — add your first to get placed.
-5. Confirm that the Volume by day section displays Week of followed by the date of Monday for the current week.
+5. Confirm that the line under Let’s move weight, Dashboard. displays Week of followed by the dates of Monday and Sunday for the current week and 0 sessions logged. Confirm that no Week of date appears under Volume by day.
 6. Confirm that the volume chart displays labels for Monday through Sunday: Mon, Tue, Wed, Thu, Fri, Sat, and Sun.
 7. Confirm that the navigation bar displays Dashboard, Workouts, Plans, Progress, Leaderboard, and Today, with Dashboard shown as the current page.
 Test 2: Home Dashboard preserves the user session and supports navigation and logout

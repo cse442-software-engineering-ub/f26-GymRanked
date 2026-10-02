@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import NavBar from './NavBar.jsx'
 import { authRequest } from './auth/api.js'
+import { weekRangeLabel } from './weeklySchedule.js'
 
 const METRICS = [
   { label: 'RANK', value: 'Unranked', accent: true },
@@ -10,13 +11,6 @@ const METRICS = [
 ]
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-
-function getWeekLabel(date = new Date()) {
-  const monday = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-  const daysSinceMonday = (monday.getDay() + 6) % 7
-  monday.setDate(monday.getDate() - daysSinceMonday)
-  return `Week of ${monday.getMonth() + 1}/${monday.getDate()}`
-}
 
 function MetricCard({ label, value, accent = false }) {
   return (
@@ -56,7 +50,7 @@ function Dashboard() {
         <header className="dashboard-header">
           <div>
             <h1>Let's move weight, {firstName}.</h1>
-            <p>Week of Sep 7 – 13 · 0 sessions logged</p>
+            <p>{weekRangeLabel(new Date())} · 0 sessions logged</p>
           </div>
           <button type="button" className="dashboard-secondary-action">Log a lift</button>
         </header>
@@ -77,9 +71,8 @@ function Dashboard() {
           </article>
 
           <article className="dashboard-card dashboard-volume">
-            <header className="dashboard-card__heading dashboard-card__heading--stacked">
+            <header className="dashboard-card__heading">
               <h2>Volume by day</h2>
-              <p>{getWeekLabel()}</p>
             </header>
             <div className="dashboard-chart" aria-label="No lifting volume logged Monday through Sunday">
               {DAYS.map((day) => (
