@@ -41,6 +41,11 @@ function describeLocator(locator) {
   const label = quoted(/getByLabel\('([^']*)'/)
   if (label) return `the "${label}" field`
   const css = quoted(/locator\('([^']*)'/)
+  const errorField = css?.match(/^#([a-z_]+)-error$/)?.[1]
+  if (errorField) {
+    const name = errorField.replaceAll('_', ' ')
+    return `the error below "${name[0].toUpperCase()}${name.slice(1)}"`
+  }
   return css ? `the part of the page matching ${css}` : 'the element'
 }
 
@@ -48,7 +53,7 @@ function describeLocator(locator) {
 function plainError(error) {
   const text = technicalError(error)
   if (!text) return ''
-  const field = (label) => text.match(new RegExp(`^${label}(?: string| pattern)?: (.*)$`, 'm'))?.[1]?.trim()
+  const field = (label) => text.match(new RegExp(`^${label}(?: string| pattern| substring)?: (.*)$`, 'm'))?.[1]?.trim()
   const matcher = text.match(/expect\((?:locator|page|received)\)\.(not\.)?(\w+)\(/)
   const timeout = text.match(/Test timeout of (\d+)ms exceeded/)
   if (timeout) return `The test ran out of time: it didn't finish within ${Number(timeout[1]) / 1000} seconds.`
@@ -316,13 +321,13 @@ export default class SummaryReporter {
     <li><b>${passed}</b> passed</li>
     <li><b>${failed}</b> failed</li>
     ${notAutomated ? `<li><b>${notAutomated}</b> not automated yet</li>` : ''}
-    <li><b>${stories.length}</b> ${stories.length === 1 ? 'story' : 'stories'}</li>
+    <li><b>${stories.length}</b> ${stories.length === 1 ? 'test group' : 'test groups'}</li>
   </ul>
 
   ${stories.map((story) => this.storySection(story)).join('\n')}
 
   <footer>
-    Each check is one acceptance test from a story file in <code>stories/</code>, run on a desktop screen and, for
+    Checks come from story acceptance tests and task tests. They run on a desktop screen and, for
     layout-sensitive tests, a phone screen. For the full technical report with traces, run
     <code>npx playwright show-report</code>.
   </footer>
@@ -335,10 +340,13 @@ export default class SummaryReporter {
   storySection(story) {
     const { title: heading, steps } = this.readStory(story.file)
     const [label, ...rest] = heading.split(': ')
+    const fileLabel = story.file.startsWith('Task #')
+      ? 'task-tests/65-66-70-auth-dashboard.txt'
+      : `stories/${story.file}`
     return `<section class="story">
     <p class="eyebrow">${escape(label)}</p>
     <h2>${escape(rest.join(': ') || heading)}</h2>
-    <p class="file">stories/${escape(story.file)}</p>
+    <p class="file">${escape(fileLabel)}</p>
     ${[...story.tests.values()]
       .sort((a, b) => testNumber(a.title) - testNumber(b.title))
       .map((test) => this.testCard(test, steps))
