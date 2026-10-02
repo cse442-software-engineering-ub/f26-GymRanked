@@ -41,11 +41,12 @@
 
 **Steps:**
 1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and click "Create an account". "Create your account" should show.
-2. Leave every box empty and click "Create account". You should stay on "Create your account", with red writing under three boxes and a red outline around each of them:
+2. Leave every box empty and click "Create account". You should stay on "Create your account", with red writing under all four boxes and a red outline around each of them:
    - under "Full name": "Enter your full name."
    - under "Email": "Enter a valid email address."
    - under "Password": "Use 12+ characters with letters, numbers & symbols."
-3. Type "Jamie Lee" in "Full name". The red writing under "Full name" should disappear straight away; the other two messages should stay.
+   - under "Confirm password": "Passwords must match."
+3. Type "Jamie Lee" in "Full name". The red writing under "Full name" should disappear straight away; the other three messages should stay.
 4. Type "jamie.test3" (no @ sign, on purpose) in "Email", "short1" in "Password" and "different1!" in "Confirm password". The line under Password should say "Password strength: Weak" or "Password strength: Moderate", not "Strong".
 5. Click "Create account". You should stay on "Create your account", with:
    - "Enter a valid email address." under "Email"
@@ -84,6 +85,9 @@ an account and start onboarding" is a `##` heading) so the Playwright runner can
 
 Test 5 was changed on 2026-10-01: the "×" only appears at 850px wide or
 narrower, by design, so on a computer the test leaves through the "Log in" link instead. The page itself didn't change.
+
+Test 3 was changed on 2026-10-02 after PR #32 (card #65): an empty "Confirm password" box now also shows
+"Passwords must match.", so step 2 lists four messages and step 3 says the other three stay.
 
 The automated version creates a new `e2e-…@example.com` account each run instead of jamie-a-1001@example.com, so it
 can be repeated. It runs on a local copy of the site instead of cattle, so the VPN steps don't apply. Test 5 runs
