@@ -72,8 +72,9 @@
 1. Connect to the UB VPN, or use the campus network. If you're logged in, log out from the account menu.
 
 **Steps:**
-1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and click "Create an account".
-2. Click the small "×" in the top-right corner. The "Log in to GymRank" card should show again, and no account should have been created.
+1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and click "Create an account". "Create your account" should show.
+2. On a computer: click the orange "Log in" link at the bottom of the card ("Already have an account? Log in"). The "Log in to GymRank" card should show again, and no account should have been created. (There is no "×" on this page on a computer screen.)
+3. On a phone, or in a browser window 850 pixels wide or narrower: repeat step 1, then tap the small "×" in the top-right corner instead. The "Log in to GymRank" card should show again, and no account should have been created.
 
 ## Notes
 
@@ -81,9 +82,9 @@ Copied from card #17 on 2026-10-01, word for word, after the card was rewritten 
 flow ("Create account" now opens "Choose your training goal"). Only the headings changed ("Acceptance Test 1: Create
 an account and start onboarding" is a `##` heading) so the Playwright runner can find them.
 
-The automated version creates a new `e2e-…@example.com` account each run instead of jamie-a-1001@example.com, so it
-can be repeated. It runs on a local copy of the site instead of cattle, so the VPN steps don't apply.
+Test 5 was changed on 2026-10-01: the "×" only appears at 850px wide or
+narrower, by design, so on a computer the test leaves through the "Log in" link instead. The page itself didn't change.
 
-As of dev at 22749bf, Test 5 fails on Desktop: the "×" only appears at phone and tablet widths (under 850px), so
-there's nothing to click on a desktop screen. Either the card should say to use a phone-sized screen, or the page
-should show the "×" on desktop too. That's for the owners of #17 and #65 to decide.
+The automated version creates a new `e2e-…@example.com` account each run instead of jamie-a-1001@example.com, so it
+can be repeated. It runs on a local copy of the site instead of cattle, so the VPN steps don't apply. Test 5 runs
+step 2 on Desktop and step 3 on Phone.
