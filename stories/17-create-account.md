@@ -5,13 +5,11 @@
 
 ## Acceptance Test 1: Create an account and start onboarding
 
-Setup for this test:
-
+**Setup for this test:**
 1. Connect to the UB VPN, or use the campus network.
 2. If you're logged in, log out from the account menu.
 
-Steps:
-
+**Steps:**
 1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login. The page should show:
    - a dark screen split into two halves
    - on the left, "Every rep gets a" in large white words with the orange word "rank." under it
@@ -28,24 +26,20 @@ Steps:
 
 ## Acceptance Test 2: Your new account is really saved
 
-Setup for this test:
-
+**Setup for this test:**
 1. Complete Acceptance Test 1 first. You should be on "Choose your training goal" as Jamie Lee.
 
-Steps:
-
+**Steps:**
 1. Click the "GymRank" logo in the top-left corner. The Dashboard should open.
 2. Open the account menu and click "Log out". The "Log in to GymRank" card should show.
 3. Type "jamie-a-1001@example.com" in "Email" and "Lift!ng2Gether99" in "Password", then click "Log in". The Dashboard should open with "Let's move weight, Jamie." near the top-left, and no "Invalid email or password." message should appear.
 
 ## Acceptance Test 3: Empty and incomplete boxes are refused
 
-Setup for this test:
-
+**Setup for this test:**
 1. Connect to the UB VPN, or use the campus network. If you're logged in, log out from the account menu.
 
-Steps:
-
+**Steps:**
 1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and click "Create an account". "Create your account" should show.
 2. Leave every box empty and click "Create account". You should stay on "Create your account", with red writing under three boxes and a red outline around each of them:
    - under "Full name": "Enter your full name."
@@ -61,12 +55,10 @@ Steps:
 
 ## Acceptance Test 4: An email that already has an account is refused
 
-Setup for this test:
-
+**Setup for this test:**
 1. Complete Acceptance Test 1 first, so jamie-a-1001@example.com is already registered. Log out from the account menu on the Dashboard.
 
-Steps:
-
+**Steps:**
 1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and click "Create an account".
 2. Type "Jamie Lee" in "Full name", "jamie-a-1001@example.com" in "Email", and "Lift!ng2Gether99" in both "Password" and "Confirm password".
 3. Click "Create account". You should stay on "Create your account", with:
@@ -76,12 +68,10 @@ Steps:
 
 ## Acceptance Test 5: Leaving the sign-up page without an account
 
-Setup for this test:
-
+**Setup for this test:**
 1. Connect to the UB VPN, or use the campus network. If you're logged in, log out from the account menu.
 
-Steps:
-
+**Steps:**
 1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and click "Create an account".
 2. Click the small "×" in the top-right corner. The "Log in to GymRank" card should show again, and no account should have been created.
 
