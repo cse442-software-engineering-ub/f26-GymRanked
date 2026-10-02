@@ -8,7 +8,12 @@
 **Setup for this test:**
 1. Connect to the UB VPN, or use the campus network.
 2. The end-of-sprint release, with its plan data (migrations 004-006), must already be on cattle.
-3. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/plans in a browser.
+3. Create an account at https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register, then log in with it:
+   Full name: Plans Viewer
+   Email: plans-v-1002@example.com
+   Password and Confirm password: AcceptPlans12!
+   You must be logged in to see the plan library: a logged-out visitor is sent to the login page.
+4. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/plans in a browser.
 
 **Steps:**
 1. The page should show the heading "Workout plan library" and "Browse all training programs.", with a list of
@@ -28,8 +33,8 @@
 
 **Setup for this test:**
 1. Connect to the UB VPN, or use the campus network.
-2. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login. If it says "You're logged in", click
-   Log out.
+2. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login. If the Dashboard opens instead, you're
+   still logged in: log out from the account menu.
 3. Create an account at https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register:
    Full name: Plans Tester A
    Email: plans-a-0929@example.com
@@ -88,8 +93,8 @@
    still show "Full Body Strength — Week 1".
 2. Close the browser completely, reopen it, and open the same link. If you're asked to log in, log in as
    plans-a-0929@example.com, then open the link again. It should still show "Full Body Strength — Week 1".
-3. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and click Log out. Then open the
-   weekly plan link again. It should show "Log in to see your weekly plan."
+3. Open the account menu and click "Log out". Then open the weekly plan link again. The login page should open
+   instead, showing "Log in to GymRank".
 4. Log back in as plans-a-0929@example.com and open the weekly plan link. It should show "Full Body Strength —
    Week 1".
 5. Log out. Create a second account at https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register:
@@ -115,6 +120,17 @@ Copied from card #72 on 2026-09-29. These lines were fixed while copying; the ca
 - Test 2, setup step 3 is new. The card logs you out and then expects working Select buttons, but never logs
   anyone in, while Tests 3 and 4 assume you're logged in as plans-a-0929@example.com. The step creates that
   account the same way Test 4 step 5 creates the second one.
+
+Changed on 2026-10-02 to match the app after PR #28 (card #70), which sends logged-out visitors on any page with
+the top navigation to the login page (Sam's decision: being logged in is required). Card #72 gets the same changes:
+
+- Test 1, setup step 3 is new: create an account and log in before opening the plan library.
+- Test 4, step 3: after logging out, the weekly plan link now opens the login page ("Log in to GymRank") instead
+  of showing "Log in to see your weekly plan.". Logging out is done from the account menu, since opening the
+  login page while logged in goes straight to the Dashboard.
+- Test 2, setup step 2: the card said to click Log out if the login page says "You're logged in", but the app
+  never shows that; a logged-in visitor goes straight to the Dashboard. It now says to log out from the account
+  menu in that case.
 
 The automated version uses a new `e2e-…@example.com` account for each test instead of the fixed
 plans-a/plans-b accounts, so it can be run again and again.

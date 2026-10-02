@@ -56,7 +56,9 @@ acceptanceTests(
     1: async ({ page }) => {
       const split = page.locator('.plan-split__day')
 
-      await step('Setup: open the plan library', async () => {
+      await step('Setup: log in and open the plan library', async () => {
+        // A logged-out visitor is sent to the login page, so Test 1 logs in first.
+        await createAccountAndLogIn(page, 'Plans Viewer')
         await page.goto('#/plans')
       })
 
@@ -250,17 +252,19 @@ acceptanceTests(
         await followContext(reopened)
         const page2 = await reopened.newPage()
         await page2.goto('#/weekly-plan')
-        await expect(page2.getByText('to see your weekly plan.')).toBeVisible()
+        // The card says "If you're asked to log in, log in": the app now opens the login page.
+        await expect(page2.getByRole('heading', { name: 'Log in to GymRank' })).toBeVisible()
         await logIn(page2, accountA)
         await page2.goto('#/weekly-plan')
         await expectWeeklyPlan(page2, 'Full Body Strength')
         await reopened.close()
       })
 
-      await step('Step 3: logged out, the weekly plan asks you to log in', async () => {
+      await step('Step 3: logged out, the weekly plan link opens the login page', async () => {
         await logOut(page)
         await page.goto('#/weekly-plan')
-        await expect(page.locator('.weekly-plan')).toHaveText('Log in to see your weekly plan.')
+        await expect(page).toHaveURL(/#\/login$/)
+        await expect(page.getByRole('heading', { name: 'Log in to GymRank' })).toBeVisible()
       })
 
       await step('Step 4: logging back in brings the plan back', async () => {
