@@ -147,13 +147,14 @@ acceptanceTests(
         await onRegistration(page)
       })
 
-      await step('Step 2: with every box empty, "Create account" shows three red messages and outlines', async () => {
+      await step('Step 2: with every box empty, "Create account" shows four red messages and outlines', async () => {
         await createButton(page).click()
         await onRegistration(page)
         await expect(fieldError(page, 'full_name')).toHaveText('Enter your full name.')
         await expect(fieldError(page, 'email')).toHaveText('Enter a valid email address.')
         await expect(fieldError(page, 'password')).toHaveText('Use 12+ characters with letters, numbers & symbols.')
-        for (const label of ['Full name', 'Email', 'Password']) {
+        await expect(fieldError(page, 'confirm_password')).toHaveText('Passwords must match.')
+        for (const label of ['Full name', 'Email', 'Password', 'Confirm password']) {
           await expect(field(page, label)).toHaveAttribute('aria-invalid', 'true')
           await expect(field(page, label).locator('..')).toHaveClass(/invalid/)
         }
@@ -164,6 +165,7 @@ acceptanceTests(
         await expect(fieldError(page, 'full_name')).toHaveCount(0)
         await expect(fieldError(page, 'email')).toBeVisible()
         await expect(fieldError(page, 'password')).toBeVisible()
+        await expect(fieldError(page, 'confirm_password')).toBeVisible()
       })
 
       await step('Step 4: type an email with no @, "short1" and "different1!"; strength is Weak or Moderate', async () => {
