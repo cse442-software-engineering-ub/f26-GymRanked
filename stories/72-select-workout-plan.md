@@ -3,17 +3,23 @@
 - **Tasks:** #67 (workout-plan library), #73 (Playwright checks)
 - **Automated in:** `tests/e2e/72-select-workout-plan.spec.js`
 
+(Note: in each test, a plan is a set of exercises.)
+
 ## Acceptance Test 1: Browse the plan library and view a plan's details
 
 **Setup for this test:**
 1. Connect to the UB VPN, or use the campus network.
 2. The end-of-sprint release, with its plan data (migrations 004-006), must already be on cattle.
-3. Create an account at https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register, then log in with it:
+3. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and click "Create an account". Create an account with these details, then click the
+   "Create account" button:
    Full name: Plans Viewer
    Email: plans-v-1002@example.com
    Password and Confirm password: AcceptPlans12!
-   You must be logged in to see the plan library: a logged-out visitor is sent to the login page.
-4. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/plans in a browser.
+4. Select any training goal and click "Save goal". Then select your experience and available equipment and click
+   "Save setup".
+5. You're sent to the login page with your email already filled in. Type your password and click "Log in".
+6. Click "Plans" in the top navigation. It should open the workout plan library. The Select buttons should be
+   clickable, and there should be no login message.
 
 **Steps:**
 1. The page should show the heading "Workout plan library" and "Browse all training programs.", with a list of
@@ -33,16 +39,17 @@
 
 **Setup for this test:**
 1. Connect to the UB VPN, or use the campus network.
-2. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login. If the Dashboard opens instead, you're
-   still logged in: log out from the account menu.
-3. Create an account at https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register:
+2. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login. If the Dashboard opens instead, you're still logged in: log out from the account menu.
+3. Click "Create an account". Create an account with these details, then click the "Create account" button:
    Full name: Plans Tester A
    Email: plans-a-0929@example.com
    Password and Confirm password: AcceptPlans12!
-   Then log in with it.
+4. Select any training goal and click "Save goal". Then select your experience and available equipment and click
+   "Save setup".
+5. You're sent to the login page with your email already filled in. Type your password and click "Log in".
 
 **Steps:**
-1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/plans. The Select buttons should be
+1. Click "Plans" in the top navigation. It should open the workout plan library. The Select buttons should be
    clickable, and there should be no login message.
 2. Click Select next to "Push Pull Legs". No warning should appear. You should go straight to your weekly plan
    page, which shows:
@@ -64,7 +71,7 @@
    plan.
 
 **Steps:**
-1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/plans and click Select next to "Full Body
+1. Click "Plans" in the top navigation to open the workout plan library, and click Select next to "Full Body
    Strength". A dialog should appear with:
    - "Switch to Full Body Strength?"
    - "You're partway through Week 1 of Push Pull Legs. Switching plans now will reset this week's progress."
@@ -89,26 +96,44 @@
    your plan.
 
 **Steps:**
-1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/weekly-plan and refresh the page. It should
-   still show "Full Body Strength — Week 1".
-2. Close the browser completely, reopen it, and open the same link. If you're asked to log in, log in as
-   plans-a-0929@example.com, then open the link again. It should still show "Full Body Strength — Week 1".
+1. Click "Workouts" in the top navigation, then refresh the page. It should still show "Full Body Strength —
+   Week 1".
+2. Close the browser completely, reopen it, and open the weekly plan link: https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/weekly-plan. If you're asked to
+   log in, log in as plans-a-0929@example.com, then open the weekly plan link again. It should still show "Full
+   Body Strength — Week 1".
 3. Open the account menu and click "Log out". Then open the weekly plan link again. The login page should open
    instead, showing "Log in to GymRank".
 4. Log back in as plans-a-0929@example.com and open the weekly plan link. It should show "Full Body Strength —
    Week 1".
-5. Log out. Create a second account at https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register:
+5. Log out. On the login page, click "Create an account" and create a second account with these details, then
+   click the "Create account" button:
    Full name: Plans Tester B
    Email: plans-b-0929@example.com
    Password and Confirm password: AcceptPlans12!
-   Log in with it and open the weekly plan link. It should show "You haven't picked a plan yet." with a link to
-   "Browse the plan library". The first account's plan must not appear here.
+   Save a training goal and setup as in Test 2's setup, then log in with the new account and open the weekly
+   plan link. It should show "You haven't picked a plan yet." with a link to "Browse the plan library". The
+   first account's plan must not appear here.
 6. Click "Browse the plan library" and click Select next to "Glute Focus". The weekly plan should show "Glute
    Focus — Week 1".
 7. Log out, log back in as plans-a-0929@example.com, and open the weekly plan link. It should still show "Full
    Body Strength — Week 1". The second account's choice must not have changed the first account's plan.
 
 ## Notes
+
+Changed on 2026-10-03 (Sam) after Suryamur10 rewrote card #72 on 2026-10-02. Kept from that rewrite: the note that a
+plan is a set of exercises, creating each account through the sign-up, goal and setup pages and then logging in on
+the login page that follows, and opening the library with "Plans" in the top navigation (Tests 1–3). Fixed:
+
+- Every link points to cattle again; the rewrite had switched most of them to aptitude. Acceptance tests are
+  written for cattle (course rule).
+- Test 4, step 1 opened the plan library but expected "Full Body Strength — Week 1", which only the weekly plan
+  shows, and no longer refreshed. It now clicks "Workouts" and refreshes. Step 2 names the weekly plan link that
+  later steps reopen.
+- Test 4, step 5 creates the second account the same way as the first (sign-up, goal and setup pages, then
+  log in), since signing up no longer leaves you on the login page.
+
+The automated version creates its accounts through the API and logs in, instead of going through the goal and
+setup pages, which story #13's and #14's tests cover.
 
 Copied from card #72 on 2026-09-29. These lines were fixed while copying; the card should get the same fixes:
 
