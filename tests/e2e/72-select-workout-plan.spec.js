@@ -56,10 +56,13 @@ acceptanceTests(
     1: async ({ page }) => {
       const split = page.locator('.plan-split__day')
 
-      await step('Setup: log in and open the plan library', async () => {
+      await step('Setup: log in, then "Plans" in the top navigation opens the plan library', async () => {
         // A logged-out visitor is sent to the login page, so Test 1 logs in first.
         await createAccountAndLogIn(page, 'Plans Viewer')
-        await page.goto('#/plans')
+        await topNav(page).getByRole('link', { name: 'Plans' }).click()
+        await expect(page).toHaveURL(/#\/plans$/)
+        await expect(planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Select' })).toBeEnabled()
+        await expect(page.getByText('to choose a plan')).toHaveCount(0)
       })
 
       await step('Step 1: the library lists 10 plans with their details and a Select button', async () => {
@@ -121,8 +124,9 @@ acceptanceTests(
         await createAccountAndLogIn(page, 'Plans Tester A')
       })
 
-      await step('Step 1: logged in, the Select buttons work and there is no login message', async () => {
-        await page.goto('#/plans')
+      await step('Step 1: "Plans" in the top navigation opens the library, with working Select buttons', async () => {
+        await topNav(page).getByRole('link', { name: 'Plans' }).click()
+        await expect(page).toHaveURL(/#\/plans$/)
         await expect(planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Select' })).toBeEnabled()
         await expect(page.getByText('to choose a plan')).toHaveCount(0)
       })
@@ -178,7 +182,7 @@ acceptanceTests(
       })
 
       await step('Step 1: selecting "Full Body Strength" shows the switch warning', async () => {
-        await page.goto('#/plans')
+        await topNav(page).getByRole('link', { name: 'Plans' }).click()
         await selectFullBody.click()
         await expect(dialog.getByRole('heading')).toHaveText('Switch to Full Body Strength?')
         await expect(dialog).toContainText(
@@ -241,7 +245,9 @@ acceptanceTests(
         await selectFirstPlan(page, 'Full Body Strength')
       })
 
-      await step('Step 1: the plan is still there after a refresh', async () => {
+      await step('Step 1: "Workouts" shows the plan, and it stays after a refresh', async () => {
+        await topNav(page).getByRole('link', { name: 'Workouts' }).click()
+        await expectWeeklyPlan(page, 'Full Body Strength')
         await page.reload()
         await expectWeeklyPlan(page, 'Full Body Strength')
       })
