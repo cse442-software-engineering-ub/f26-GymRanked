@@ -2,23 +2,120 @@ import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import NavBar from './NavBar.jsx'
 import { authRequest } from './auth/api.js'
-import { weekRangeLabel } from './weeklySchedule.js'
+import { apiRequest } from './onboarding/api.js'
+import { fetchCurrentPlan, fetchPlan } from './plansApi.js'
+import { buildWeek } from './weeklySchedule.js'
 
-const METRICS = [
-  { label: 'RANK', value: 'Unranked', accent: true },
-  { label: 'VOLUME THIS WEEK', value: '0 lb' },
-  { label: 'NEW PRS', value: '0' },
-]
-
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-
-function MetricCard({ label, value, accent = false }) {
+function MetricCard({ label, value, hint, accent = false }) {
   return (
     <article className="dashboard-metric">
-      <span className="dashboard-metric__label">{label}</span>
-      <strong className={accent ? 'dashboard-metric__value dashboard-metric__value--accent' : 'dashboard-metric__value'}>
-        {value}
-      </strong>
+      <span className="dashboard-metric__icon" aria-hidden="true" />
+      <div className="dashboard-metric__body">
+        <span className="dashboard-metric__label">{label}</span>
+        <strong className={accent ? 'dashboard-metric__value dashboard-metric__value--accent' : 'dashboard-metric__value'}>
+          {value}
+        </strong>
+        <span className="dashboard-metric__hint">{hint}</span>
+      </div>
+    </article>
+  )
+}
+
+function metricsFor(plan) {
+  return [
+    {
+      label: 'RANK',
+      value: 'Getting started',
+      hint: plan ? 'Complete 3 workouts to earn a rank' : 'Select a plan, then complete 3 workouts to earn a rank',
+      accent: true,
+    },
+    {
+      label: 'WORKOUTS THIS WEEK',
+      value: plan ? `0 of ${plan.days_per_week}` : 'No plan yet',
+      hint: plan ? 'Hit every session to build your streak' : 'Select a workout plan to set a weekly goal',
+    },
+    {
+      label: 'WEEKLY CONSISTENCY',
+      value: '0 weeks',
+      hint: 'Your streak begins after your first full week',
+    },
+  ]
+}
+
+// plan is null when the user hasn't selected one; today is that day's {name, focus, duration_minutes} or null on a rest day.
+function TodayWorkoutCard({ plan, today, onBrowse, onView }) {
+  if (!plan) {
+    return (
+      <article className="dashboard-card dashboard-today" aria-label="Today's workout">
+        <header className="dashboard-card__heading">
+          <h2>Today's workout</h2>
+        </header>
+        <h3 className="dashboard-card__title">No workout selected yet</h3>
+        <p className="dashboard-card__text">
+          Start by selecting a workout plan. Once you pick one, today's session will show up here.
+        </p>
+        <button type="button" className="dashboard-primary-action dashboard-primary-action--spaced" onClick={onBrowse}>
+          Browse workout plans ›
+        </button>
+      </article>
+    )
+  }
+  return (
+    <article className="dashboard-card dashboard-today" aria-label="Today's workout">
+      <header className="dashboard-card__heading">
+        <h2>Today's workout</h2>
+        {today && <span className="dashboard-card__meta">About {today.duration_minutes} min</span>}
+      </header>
+      <h3 className="dashboard-card__title">{today ? today.name : 'Rest day'}</h3>
+      <p className="dashboard-card__text">
+        {today
+          ? `${today.focus} — part of your ${plan.name} plan.`
+          : `No session scheduled today in your ${plan.name} plan. Rest up and come back tomorrow.`}
+      </p>
+      <button type="button" className="dashboard-primary-action dashboard-primary-action--spaced" onClick={onView}>
+        {today ? `View ${plan.name} ›` : 'View your weekly plan ›'}
+      </button>
+    </article>
+  )
+}
+
+function ChecklistCard({ items }) {
+  const doneCount = items.filter((item) => item.done).length
+  return (
+    <article className="dashboard-card dashboard-checklist" aria-label="First-week checklist">
+      <header className="dashboard-card__heading">
+        <h2>Getting started</h2>
+        <span className="dashboard-card__meta dashboard-card__meta--accent">{doneCount} of {items.length}</span>
+      </header>
+      <h3 className="dashboard-card__title">Your first-week checklist</h3>
+      <div
+        className="dashboard-progress"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={items.length}
+        aria-valuenow={doneCount}
+      >
+        <span style={{ width: `${(doneCount / items.length) * 100}%` }} />
+      </div>
+      <ul className="dashboard-steps">
+        {items.map((item, index) => (
+          <li className="dashboard-step" key={item.title}>
+            <span className={item.done ? 'dashboard-step__marker dashboard-step__marker--done' : 'dashboard-step__marker'}>
+              {item.done ? '✓' : index + 1}
+            </span>
+            <div className="dashboard-step__text">
+              <strong>{item.title}</strong>
+              <span>{item.detail}</span>
+            </div>
+            {item.action && !item.done && (
+              <button type="button" className="dashboard-step__action" onClick={item.onAction}>{item.action}</button>
+            )}
+          </li>
+        ))}
+      </ul>
+      <p className="dashboard-tip">
+        <strong>Beginner tip:</strong> Start lighter than you think. Good form matters more than heavy weight.
+      </p>
     </article>
   )
 }
@@ -27,6 +124,8 @@ function Dashboard() {
   const location = useLocation()
   const navigate = useNavigate()
   const [fullName, setFullName] = useState(location.state?.fullName?.trim() || '')
+  // null while loading; {plan, goal} afterwards, where plan/goal are null if the user hasn't chosen one.
+  const [setup, setSetup] = useState(null)
 
   useEffect(() => {
     let active = true
@@ -40,6 +139,39 @@ function Dashboard() {
     return () => { active = false }
   }, [navigate])
 
+  useEffect(() => {
+    let active = true
+    Promise.all([
+      fetchCurrentPlan().then(async ({ plan }) => (plan ? fetchPlan(plan.id) : null)).catch(() => null),
+      apiRequest('preferences.php').then((result) => (result.ok ? result.data.training_goal : null)),
+    ]).then(([plan, goal]) => {
+      if (active) setSetup({ plan, goal })
+    })
+    return () => { active = false }
+  }, [])
+
+  const plan = setup?.plan ?? null
+  const goal = setup?.goal ?? null
+  const today = plan ? buildWeek(plan, new Date()).find((day) => day.when === 'today').workout : null
+  const checklist = [
+    {
+      title: 'Choose your training goal',
+      detail: goal ? 'Goal saved — you can change it any time' : 'Tell us whether you want strength, fat loss or endurance',
+      done: Boolean(goal),
+      action: 'Choose goal',
+      onAction: () => navigate('/goal'),
+    },
+    {
+      title: 'Select a workout plan',
+      detail: plan ? `You're following ${plan.name}` : 'Browse the library and pick the plan that fits you',
+      done: Boolean(plan),
+      action: 'Browse plans',
+      onAction: () => navigate('/plans'),
+    },
+    { title: 'Log your first lift', detail: 'Record weight and reps to track progress' },
+    { title: 'Complete your first workout', detail: 'Move at your own pace and focus on form' },
+  ]
+
   const displayName = fullName || 'Athlete'
   const firstName = displayName.split(/\s+/)[0]
 
@@ -49,40 +181,37 @@ function Dashboard() {
       <main className="dashboard-content">
         <header className="dashboard-header">
           <div>
-            <h1>Let's move weight, {firstName}.</h1>
-            <p>{weekRangeLabel(new Date())} · 0 sessions logged</p>
+            <span className="dashboard-header__eyebrow">{plan ? `YOUR ${plan.level.toUpperCase()} PLAN` : 'WELCOME TO GYMRANK'}</span>
+            <h1>{plan || setup === null ? `Welcome back, ${firstName}` : `Welcome, ${firstName}`}</h1>
+            <p>
+              {setup === null
+                ? 'Loading your dashboard...'
+                : plan
+                  ? 'You are one workout away from starting your first week.'
+                  : 'Start by selecting a workout plan — it takes a minute and sets up your week.'}
+            </p>
           </div>
-          <button type="button" className="dashboard-secondary-action">Log a lift</button>
+          <button type="button" className="dashboard-secondary-action">+ Log a lift</button>
         </header>
 
         <section className="dashboard-metrics" aria-label="Weekly summary">
-          {METRICS.map((metric) => <MetricCard key={metric.label} {...metric} />)}
+          {metricsFor(plan).map((metric) => <MetricCard key={metric.label} {...metric} />)}
         </section>
 
         <section className="dashboard-overview" aria-label="Workout overview">
-          <article className="dashboard-card dashboard-lifts">
-            <header className="dashboard-card__heading">
-              <h2>Today's lifts</h2>
-              <button type="button">+ Add lift</button>
-            </header>
-            <div className="dashboard-lifts__empty">
-              No lifts logged today — add your first to get placed.
-            </div>
-          </article>
-
-          <article className="dashboard-card dashboard-volume">
-            <header className="dashboard-card__heading">
-              <h2>Volume by day</h2>
-            </header>
-            <div className="dashboard-chart" aria-label="No lifting volume logged Monday through Sunday">
-              {DAYS.map((day) => (
-                <div className="dashboard-chart__day" key={day}>
-                  <span className="dashboard-chart__bar" />
-                  <span>{day}</span>
-                </div>
-              ))}
-            </div>
-          </article>
+          {setup === null ? (
+            <article className="dashboard-card dashboard-today" aria-busy="true">
+              <p className="dashboard-card__text">Loading today's workout...</p>
+            </article>
+          ) : (
+            <TodayWorkoutCard
+              plan={plan}
+              today={today}
+              onBrowse={() => navigate('/plans')}
+              onView={() => navigate(today ? `/plans/${plan.id}` : '/weekly-plan')}
+            />
+          )}
+          <ChecklistCard items={checklist} />
         </section>
       </main>
     </div>
