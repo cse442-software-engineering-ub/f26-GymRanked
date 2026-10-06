@@ -40,6 +40,7 @@ a:hover, .text-button:hover { text-decoration: underline; }
 .field-error, .form-error { color: #ffb4aa; font-size: 13px; line-height: 1.5; }
 .form-error, .notice { padding: 12px; border: 1px solid #444958; border-radius: 8px; }
 .notice { color: #e8e9ec; font-size: 13px; line-height: 1.5; }
+.login-feedback { padding: 10px 12px; border: 1px solid #ff968b; border-radius: 8px; background: rgba(255, 150, 139, .08); color: #ffb4aa; font-size: 13px; line-height: 1.5; }
 .login-options { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
 .login-options label { display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 14px; }
 .login-options input { margin: 0; accent-color: var(--accent); }
