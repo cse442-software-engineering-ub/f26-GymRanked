@@ -216,8 +216,8 @@ button.nav-bar__avatar {
 .dashboard-content {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  padding: 48px 48px 48px;
+  gap: 16px;
+  padding: 24px 48px;
 }
 
 .dashboard-header {
@@ -262,7 +262,7 @@ button.nav-bar__avatar {
   align-items: center;
   gap: 16px;
   min-width: 0;
-  padding: 24px;
+  padding: 16px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
   background: #161820;
@@ -308,7 +308,7 @@ button.nav-bar__avatar {
 
 .dashboard-card {
   min-width: 0;
-  padding: 28px;
+  padding: 20px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
   background: #161820;
@@ -353,7 +353,7 @@ button.nav-bar__avatar {
 }
 
 .dashboard-card__text {
-  margin: 16px 0 0;
+  margin: 12px 0 0;
   color: #a2a5ad;
   font-size: 14px;
 }
@@ -361,7 +361,7 @@ button.nav-bar__avatar {
 .dashboard-exercises {
   display: flex;
   flex-direction: column;
-  margin: 20px 0;
+  margin: 12px 0;
   padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 10px;
@@ -373,7 +373,7 @@ button.nav-bar__avatar {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 16px;
+  padding: 10px 14px;
 }
 
 .dashboard-exercise + .dashboard-exercise {
@@ -417,7 +417,7 @@ button.nav-bar__avatar {
 
 .dashboard-primary-action {
   width: 100%;
-  padding: 16px;
+  padding: 12px;
   border: 0;
   border-radius: 8px;
   background: #e0703f;
@@ -433,7 +433,7 @@ button.nav-bar__avatar {
 
 .dashboard-progress {
   height: 4px;
-  margin: 20px 0 8px;
+  margin: 16px 0 4px;
   border-radius: 2px;
   background: #2a2d38;
   overflow: hidden;
@@ -455,7 +455,7 @@ button.nav-bar__avatar {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 18px 0;
+  padding: 12px 0;
 }
 
 .dashboard-step + .dashboard-step {
@@ -483,8 +483,8 @@ button.nav-bar__avatar {
 }
 
 .dashboard-tip {
-  margin: 8px 0 0;
-  padding: 16px;
+  margin: 6px 0 0;
+  padding: 12px;
   border-radius: 10px;
   background: #12131a;
   color: #a2a5ad;
@@ -497,7 +497,7 @@ button.nav-bar__avatar {
 
 @media (max-width: 900px) {
   .dashboard-content {
-    padding: 32px 20px 40px;
+    padding: 20px 20px 32px;
   }
 
   .dashboard-metrics,
