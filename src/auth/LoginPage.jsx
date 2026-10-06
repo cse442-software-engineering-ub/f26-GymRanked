@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [message, setMessage] = useState(location.state?.message || '')
   const [failure, setFailure] = useState('')
   const [busy, setBusy] = useState(false)
+  const loggedOut = message === 'You are logged out.'
   useEffect(() => {
     let active = true
     authRequest('session').then(data => {
@@ -24,7 +25,6 @@ export default function LoginPage() {
     const { name, value, checked, type } = event.target
     setValues(previous => ({ ...previous, [name]: type === 'checkbox' ? checked : value }))
     setErrors(previous => ({ ...previous, [name]: undefined }))
-    setFailure('')
   }
   async function submit(event) {
     event.preventDefault()
@@ -35,7 +35,10 @@ export default function LoginPage() {
     try {
       const data = await authRequest('login', values)
       navigate('/dashboard', { replace: true, state: { fullName: data.user.full_name } })
-    } catch (error) { setFailure(error.message); setErrors(error.fields || {}) }
+    } catch (error) {
+      setErrors(error.fields || {})
+      setFailure(error.message === 'Please check the highlighted fields.' ? '' : error.message)
+    }
     finally { setBusy(false) }
   }
   return <main className="landing">
@@ -45,7 +48,10 @@ export default function LoginPage() {
     <section className="login-panel" aria-labelledby="login-title">
       <form className="auth-stack" onSubmit={submit} noValidate>
         <h2 id="login-title">Log in to GymRank</h2><p className="subtitle">Welcome back. Your division is waiting.</p>
-        {message && <p className="notice" role="status">{message}</p>}{failure && <p className="form-error" role="alert">{failure}</p>}
+        {message && !loggedOut && <p className="notice" role="status">{message}</p>}
+        {(failure || loggedOut) && (
+          <p className="login-feedback" role={failure ? 'alert' : 'status'}>{failure || message}</p>
+        )}
         <FormField name="email" label="Email" type="email" autoComplete="username" placeholder="you@email.com" maxLength={254} value={values.email} onChange={change} error={errors.email} required />
         <FormField name="password" label="Password" type="password" autoComplete="current-password" placeholder="••••••••" maxLength={72} value={values.password} onChange={change} error={errors.password} required />
         <div className="login-options"><label><input name="remember" type="checkbox" checked={values.remember} onChange={change} />Keep me logged in</label><button type="button" className="text-button" onClick={() => setMessage('Password recovery is not available yet. Please contact the GymRank team.')}>Forgot password?</button></div>
