@@ -56,9 +56,16 @@ function WeeklyPlan() {
         {error && <p className="status">Error loading your plan: {error}</p>}
         {!loggedOut && !error && current === null && <p className="status">Loading your plan...</p>}
         {current && !plan && (
-          <p className="status">
-            You haven&apos;t picked a plan yet. <Link to="/plans">Browse the plan library</Link>.
-          </p>
+          <section className="today-workout" aria-labelledby="no-plan-title">
+            <p className="today-workout__label">Get started</p>
+            <h2 id="no-plan-title" className="today-workout__name">No workout plan selected yet</h2>
+            <p className="today-workout__meta">
+              Start by selecting a plan from the library. Your week, with a workout for each training day, will appear here.
+            </p>
+            <Link to="/plans" className="button-primary today-workout__action">
+              Browse workout plans
+            </Link>
+          </section>
         )}
         {plan && (
           <>

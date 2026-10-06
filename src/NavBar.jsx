@@ -76,7 +76,7 @@ function NavBar({ current, userName = '' }) {
         })}
       </nav>
       <div className="nav-bar__actions">
-        <button type="button" className="nav-bar__start-workout">
+        <button type="button" className="nav-bar__start-workout" onClick={() => navigate('/weekly-plan')}>
           Start Workout
         </button>
         {(

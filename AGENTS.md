@@ -2,6 +2,8 @@
 
 This file guides coding agents working in the GymRanked repository. The current application on `dev` is a proof of concept: a React/Vite frontend reads workout data from a PHP endpoint backed by MySQL. Check the branch and working tree before making changes; an older or uncommitted local checkout may not match `dev`.
 
+Follow the [CSE Software Development Standards](https://webdev.cse.buffalo.edu/cse404/guidelines/) for Scrum cards, task and acceptance tests, branches, pull requests, and commits. Read the relevant standards before starting work; use `GitAndScrumDocumentation.md` for this repository's workflow details.
+
 ## Documentation map
 
 Read `README.md` for initial setup and the current proof-of-concept overview, then use the guide that matches the work:
