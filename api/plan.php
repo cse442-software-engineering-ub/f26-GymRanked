@@ -1,9 +1,10 @@
 <?php
 // GET api/plan.php?id=1 -> {"id":1,"name":"...","level":"intermediate","duration_weeks":"6-8","days_per_week":5,
 //                           "description":"...",
-//                           "days":[{"name":"Push","focus":"...","duration_minutes":45}, ...]}
+//                           "days":[{"name":"Push","focus":"...","duration_minutes":45,
+//                                    "exercises":["Bench press", "Overhead press", "Triceps pushdown"]}, ...]}
 //
-// One plan from the public catalog, for the plan details screen; not tied to a
+// One plan from the public catalog, for the plan details screen and dashboard; not tied to a
 // logged-in user. 400 for a missing or non-integer id, 404 for an unknown one.
 // Every response is JSON, including errors, so the frontend never gets an HTML error page.
 
@@ -57,13 +58,14 @@ try {
     $plan['days_per_week'] = (int) $plan['days_per_week'];
 
     $stmt = $db->prepare(
-        'SELECT name, focus, duration_minutes FROM workout_plan_days WHERE plan_id = ? ORDER BY position'
+        'SELECT name, focus, duration_minutes, exercises FROM workout_plan_days WHERE plan_id = ? ORDER BY position'
     );
     $stmt->bind_param('i', $id);
     $stmt->execute();
     $plan['days'] = [];
     foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $day) {
         $day['duration_minutes'] = (int) $day['duration_minutes'];
+        $day['exercises'] = $day['exercises'] === null ? [] : json_decode($day['exercises'], true);
         $plan['days'][] = $day;
     }
 

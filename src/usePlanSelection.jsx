@@ -5,7 +5,7 @@ import { fetchCurrentPlan, selectPlan } from './plansApi.js'
 
 // Shared by the plan library's Select buttons and the plan details page's "Start this plan":
 // loads the user's current plan, confirms a switch with the Figma switch plan warning, saves
-// the choice, and then goes to the weekly workout plan screen.
+// the choice, and then goes to the dashboard.
 function usePlanSelection() {
   const navigate = useNavigate()
   // {plan, week} once loaded; plan is null when the user hasn't picked one yet.
@@ -30,7 +30,7 @@ function usePlanSelection() {
     setSelectError(null)
     try {
       await selectPlan(plan.id)
-      navigate('/weekly-plan')
+      navigate('/dashboard')
     } catch (err) {
       setBusy(false)
       if (err.status === 401) {

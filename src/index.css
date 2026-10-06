@@ -251,18 +251,6 @@ button.nav-bar__avatar {
   font-size: 15px;
 }
 
-.dashboard-secondary-action {
-  flex-shrink: 0;
-  padding: 12px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  background: #161820;
-  color: #e8e9ec;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
 .dashboard-metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -314,7 +302,7 @@ button.nav-bar__avatar {
 .dashboard-overview {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: start;
+  align-items: stretch;
   gap: 24px;
 }
 
@@ -324,6 +312,15 @@ button.nav-bar__avatar {
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
   background: #161820;
+}
+
+.dashboard-today {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-today .dashboard-primary-action--spaced {
+  margin-top: auto;
 }
 
 .dashboard-card__heading {

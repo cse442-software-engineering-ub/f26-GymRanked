@@ -42,7 +42,7 @@ function metricsFor(plan) {
   ]
 }
 
-// plan is null when the user hasn't selected one; today is that day's {name, focus, duration_minutes} or null on a rest day.
+// plan is null when the user hasn't selected one; today is that day's workout or null on a rest day.
 function TodayWorkoutCard({ plan, today, onBrowse, onView }) {
   if (!plan) {
     return (
@@ -72,6 +72,16 @@ function TodayWorkoutCard({ plan, today, onBrowse, onView }) {
           ? `${today.focus} — part of your ${plan.name} plan.`
           : `No session scheduled today in your ${plan.name} plan. Rest up and come back tomorrow.`}
       </p>
+      {today?.exercises?.length > 0 && (
+        <ol className="dashboard-exercises" aria-label="Today's exercises">
+          {today.exercises.map((exercise, index) => (
+            <li className="dashboard-exercise" key={exercise}>
+              <span className="dashboard-exercise__number">{index + 1}</span>
+              <div><strong>{exercise}</strong></div>
+            </li>
+          ))}
+        </ol>
+      )}
       <button type="button" className="dashboard-primary-action dashboard-primary-action--spaced" onClick={onView}>
         {today ? `View ${plan.name} ›` : 'View your weekly plan ›'}
       </button>
@@ -169,7 +179,6 @@ function Dashboard() {
       onAction: () => navigate('/plans'),
     },
     { title: 'Log your first lift', detail: 'Record weight and reps to track progress' },
-    { title: 'Complete your first workout', detail: 'Move at your own pace and focus on form' },
   ]
 
   const displayName = fullName || 'Athlete'
@@ -191,7 +200,6 @@ function Dashboard() {
                   : 'Start by selecting a workout plan — it takes a minute and sets up your week.'}
             </p>
           </div>
-          <button type="button" className="dashboard-secondary-action">+ Log a lift</button>
         </header>
 
         <section className="dashboard-metrics" aria-label="Weekly summary">
