@@ -14,6 +14,8 @@ export default function LoginPage() {
   const [failure, setFailure] = useState('')
   const [busy, setBusy] = useState(false)
   const loggedOut = message === 'You are logged out.'
+  const setupSaved = message === 'Account setup saved. Log in to continue.'
+  const invalidCredentials = failure === 'Invalid email or password.'
   useEffect(() => {
     let active = true
     authRequest('session').then(data => {
@@ -25,6 +27,11 @@ export default function LoginPage() {
     const { name, value, checked, type } = event.target
     setValues(previous => ({ ...previous, [name]: type === 'checkbox' ? checked : value }))
     setErrors(previous => ({ ...previous, [name]: undefined }))
+  }
+  const unavailableSignIn = provider => {
+    setErrors({})
+    setMessage('')
+    setFailure(`${provider} sign-in is not available yet. Please use your email and password.`)
   }
   async function submit(event) {
     event.preventDefault()
@@ -48,16 +55,19 @@ export default function LoginPage() {
     <section className="login-panel" aria-labelledby="login-title">
       <form className="auth-stack" onSubmit={submit} noValidate>
         <h2 id="login-title">Log in to GymRank</h2><p className="subtitle">Welcome back. Your division is waiting.</p>
-        {message && !loggedOut && <p className="notice" role="status">{message}</p>}
+        {message && !loggedOut && <p className={setupSaved ? 'login-feedback login-feedback-success' : 'notice'} role="status">{message}</p>}
         {(failure || loggedOut) && (
           <p className="login-feedback" role={failure ? 'alert' : 'status'}>{failure || message}</p>
         )}
-        <FormField name="email" label="Email" type="email" autoComplete="username" placeholder="you@email.com" maxLength={254} value={values.email} onChange={change} error={errors.email} required />
-        <FormField name="password" label="Password" type="password" autoComplete="current-password" placeholder="••••••••" maxLength={72} value={values.password} onChange={change} error={errors.password} required />
+        <FormField name="email" label="Email" type="email" autoComplete="username" placeholder="you@email.com" maxLength={254} value={values.email} onChange={change} error={errors.email} invalid={invalidCredentials} required />
+        <FormField name="password" label="Password" type="password" autoComplete="current-password" placeholder="••••••••" maxLength={72} value={values.password} onChange={change} error={errors.password} invalid={invalidCredentials} required />
         <div className="login-options"><label><input name="remember" type="checkbox" checked={values.remember} onChange={change} />Keep me logged in</label><button type="button" className="text-button" onClick={() => setMessage('Password recovery is not available yet. Please contact the GymRank team.')}>Forgot password?</button></div>
         <button className="primary" disabled={busy}>{busy ? 'Logging in…' : 'Log in'}</button>
         <div className="divider"><span />OR<span /></div>
-        <div className="social-buttons">{['Google', 'Apple'].map(provider => <button type="button" key={provider} onClick={() => setMessage(`${provider} sign-in is not available yet. Please use your email and password.`)}>{provider}</button>)}</div>
+        <div className="social-buttons">
+          <button type="button" aria-label="Google" onClick={() => unavailableSignIn('Google')}><img className="google-icon" src={`${import.meta.env.BASE_URL}brand/google-g.png`} alt="" />Continue with Google</button>
+          <button type="button" aria-label="Apple" onClick={() => unavailableSignIn('Apple')}><img className="apple-icon" src={`${import.meta.env.BASE_URL}brand/apple.svg`} alt="" />Continue with Apple</button>
+        </div>
         <p className="account-link"><span>New to GymRank? </span><Link to="/register">Create an account</Link></p>
       </form>
     </section>
