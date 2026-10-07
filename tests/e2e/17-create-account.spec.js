@@ -116,7 +116,7 @@ acceptanceTests(
       await step('Step 1: the "GymRank" logo opens the Dashboard', async () => {
         await page.getByRole('link', { name: 'GymRank dashboard' }).click()
         await expect(page).toHaveURL(/#\/dashboard$/)
-        await expect(page.getByRole('heading', { level: 1 })).toContainText("Let's move weight,")
+        await expect(page.getByRole('heading', { level: 1 })).toContainText('Welcome')
       })
 
       await step('Step 2: "Log out" in the account menu shows the "Log in to GymRank" card', async () => {
@@ -125,12 +125,12 @@ acceptanceTests(
         await expect(loginCard(page)).toBeVisible()
       })
 
-      await step('Step 3: log in again; the Dashboard greets "Let\'s move weight, Jamie."', async () => {
+      await step('Step 3: log in again; the Dashboard greets "Welcome, Jamie"', async () => {
         await typeText(field(page, 'Email'), email)
         await typeText(field(page, 'Password'), PASSWORD)
         await page.getByRole('button', { name: 'Log in', exact: true }).click()
         await expect(page).toHaveURL(/#\/dashboard$/)
-        await expect(page.getByRole('heading', { level: 1 })).toHaveText("Let's move weight, Jamie.")
+        await expect(page.getByRole('heading', { level: 1 })).toHaveText('Welcome, Jamie')
         await expect(page.getByText('Invalid email or password.')).toHaveCount(0)
       })
     },

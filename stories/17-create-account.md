@@ -32,7 +32,7 @@
 **Steps:**
 1. Click the "GymRank" logo in the top-left corner. The Dashboard should open.
 2. Open the account menu and click "Log out". The "Log in to GymRank" card should show.
-3. Type "jamie-a-1001@example.com" in "Email" and "Lift!ng2Gether99" in "Password", then click "Log in". The Dashboard should open with "Let's move weight, Jamie." near the top-left, and no "Invalid email or password." message should appear.
+3. Type "jamie-a-1001@example.com" in "Email" and "Lift!ng2Gether99" in "Password", then click "Log in". The Dashboard should open with "Welcome, Jamie" near the top-left, and no "Invalid email or password." message should appear.
 
 ## Acceptance Test 3: Empty and incomplete boxes are refused
 
@@ -78,6 +78,9 @@
 3. On a phone, or in a browser window 850 pixels wide or narrower: repeat step 1, then tap the small "×" in the top-right corner instead. The "Log in to GymRank" card should show again, and no account should have been created.
 
 ## Notes
+
+Test 2 step 3 was changed on 2026-10-06: the Dashboard redesign (commit 5718a5e, merged in PR #36) greets a new
+account with "Welcome, Jamie" instead of "Let's move weight, Jamie.". Nothing else in the story changed.
 
 Copied from card #17 on 2026-10-01, word for word, after the card was rewritten for the registration-to-goal-setup
 flow ("Create account" now opens "Choose your training goal"). Only the headings changed ("Acceptance Test 1: Create
