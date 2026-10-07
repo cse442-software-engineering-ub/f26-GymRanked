@@ -42,10 +42,16 @@ async function expectWeeklyPlan(page, planName) {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(`${planName} — Week 1`)
 }
 
+// Selecting or switching a plan opens the Dashboard, whose "Getting started" checklist names the plan.
+async function expectDashboardFollowing(page, planName) {
+  await expect(page).toHaveURL(/#\/dashboard$/)
+  await expect(page.locator('.dashboard-checklist')).toContainText(`You're following ${planName}`)
+}
+
 async function selectFirstPlan(page, planName) {
   await page.goto('#/plans')
   await planRow(page, planName).getByRole('button', { name: 'Select' }).click()
-  await expectWeeklyPlan(page, planName)
+  await expectDashboardFollowing(page, planName)
 }
 
 const switchDialog = (page) => page.getByRole('dialog')
@@ -131,9 +137,11 @@ acceptanceTests(
         await expect(page.getByText('to choose a plan')).toHaveCount(0)
       })
 
-      await step('Step 2: selecting "Push Pull Legs" opens it as your weekly plan', async () => {
+      await step('Step 2: selecting "Push Pull Legs" opens the Dashboard, then "Workouts" shows it as your weekly plan', async () => {
         await planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Select' }).click()
         await expect(switchDialog(page)).toHaveCount(0)
+        await expectDashboardFollowing(page, 'Push Pull Legs')
+        await topNav(page).getByRole('link', { name: 'Workouts' }).click()
         await expectWeeklyPlan(page, 'Push Pull Legs')
         await expect(page.getByText(weekOfLabel(today))).toBeVisible()
         await expect(topNav(page).getByRole('link', { name: 'Workouts' })).toHaveClass(/nav-bar__link--current/)
@@ -223,8 +231,10 @@ acceptanceTests(
         await expect(dialog.getByRole('heading')).toHaveText('Switch to Full Body Strength?')
       })
 
-      await step('Step 6: "Switch plan" opens the "Full Body Strength" week', async () => {
+      await step('Step 6: "Switch plan" opens the Dashboard, then "Workouts" shows the "Full Body Strength" week', async () => {
         await dialog.getByRole('button', { name: 'Switch plan' }).click()
+        await expectDashboardFollowing(page, 'Full Body Strength')
+        await topNav(page).getByRole('link', { name: 'Workouts' }).click()
         await expectWeeklyPlan(page, 'Full Body Strength')
         const names = await dayCards(page).locator('.day-card__name').allTextContents()
         expect(names).toEqual(expect.arrayContaining(['Full body A', 'Full body B', 'Full body C']))
@@ -284,13 +294,16 @@ acceptanceTests(
         const accountB = await createAccount(page, 'Plans Tester B')
         await logIn(page, accountB)
         await page.goto('#/weekly-plan')
-        await expect(page.locator('.weekly-plan')).toHaveText("You haven't picked a plan yet. Browse the plan library.")
+        await expect(page.getByRole('heading', { name: 'No workout plan selected yet' })).toBeVisible()
+        await expect(page.getByRole('link', { name: 'Browse workout plans' })).toBeVisible()
         await expect(page.getByText('Full Body Strength')).toHaveCount(0)
       })
 
       await step('Step 6: the second account picks "Glute Focus"', async () => {
-        await page.getByRole('link', { name: 'Browse the plan library' }).click()
+        await page.getByRole('link', { name: 'Browse workout plans' }).click()
         await planRow(page, 'Glute Focus').getByRole('button', { name: 'Select' }).click()
+        await expectDashboardFollowing(page, 'Glute Focus')
+        await page.goto('#/weekly-plan')
         await expectWeeklyPlan(page, 'Glute Focus')
       })
 

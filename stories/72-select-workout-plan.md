@@ -51,8 +51,9 @@
 **Steps:**
 1. Click "Plans" in the top navigation. It should open the workout plan library. The Select buttons should be
    clickable, and there should be no login message.
-2. Click Select next to "Push Pull Legs". No warning should appear. You should go straight to your weekly plan
-   page, which shows:
+2. Click Select next to "Push Pull Legs". No warning should appear. The Dashboard should open, and its "Getting
+   started" checklist should say "You're following Push Pull Legs". Then click "Workouts" in the top navigation.
+   Your weekly plan page should show:
    - The title "Push Pull Legs — Week 1", with this week's dates underneath (e.g. "Week of Sept 28 – Oct 4").
    - "Workouts" highlighted in the top navigation.
    - Seven day cards from MON to SUN, with today's card highlighted in orange and labelled "Today". Training
@@ -84,8 +85,9 @@
    should close without changing your plan.
 5. Click "Full Body Strength" to open its details, then click "Start this plan". The same "Switch to Full Body
    Strength?" dialog should appear.
-6. Click Switch plan. You should go to your weekly plan page, now showing "Full Body Strength — Week 1" with its
-   training days (Full body A, Full body B, Full body C).
+6. Click Switch plan. The Dashboard should open, and its "Getting started" checklist should say "You're
+   following Full Body Strength". Then click "Workouts" in the top navigation. Your weekly plan page should show
+   "Full Body Strength — Week 1" with its training days (Full body A, Full body B, Full body C).
 7. Click "Plans" in the top navigation. "Full Body Strength" should now show "Current plan", and "Push Pull
    Legs" should show a clickable Select button.
 
@@ -111,14 +113,20 @@
    Email: plans-b-0929@example.com
    Password and Confirm password: AcceptPlans12!
    Save a training goal and setup as in Test 2's setup, then log in with the new account and open the weekly
-   plan link. It should show "You haven't picked a plan yet." with a link to "Browse the plan library". The
-   first account's plan must not appear here.
-6. Click "Browse the plan library" and click Select next to "Glute Focus". The weekly plan should show "Glute
-   Focus — Week 1".
+   plan link. It should show "No workout plan selected yet" with a "Browse workout plans" button. The first
+   account's plan must not appear here.
+6. Click "Browse workout plans" and click Select next to "Glute Focus". The Dashboard should open, and its
+   "Getting started" checklist should say "You're following Glute Focus". Then open the weekly plan link. It
+   should show "Glute Focus — Week 1".
 7. Log out, log back in as plans-a-0929@example.com, and open the weekly plan link. It should still show "Full
    Body Strength — Week 1". The second account's choice must not have changed the first account's plan.
 
 ## Notes
+
+Changed on 2026-10-06 (Sam) to match the app after PRs #36 and #39 (cards #86 and #98): selecting or switching a
+plan now opens the Dashboard instead of the weekly plan, and the weekly plan without a plan says "No workout plan
+selected yet" with a "Browse workout plans" button. Test 2 step 2, Test 3 step 6 and Test 4 steps 5–6 now check
+the Dashboard's "Getting started" checklist, then open the weekly plan with "Workouts" or its link.
 
 Changed on 2026-10-03 (Sam) after Suryamur10 rewrote card #72 on 2026-10-02. Kept from that rewrite: the note that a
 plan is a set of exercises, creating each account through the sign-up, goal and setup pages and then logging in on
