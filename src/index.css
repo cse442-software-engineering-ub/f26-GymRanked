@@ -1,3 +1,50 @@
+/* GymRank design tokens (DESIGN.md, "CSS variables"). Use var(--gr-…) instead of writing a hex value. */
+:root {
+  /* Backgrounds */
+  --gr-bg-page: #0e1015;
+  --gr-bg-nav: #14161b;
+  --gr-surface: #161820;
+  --gr-surface-raised: #1d2029;
+  --gr-surface-sunken: #12131a;
+  --gr-track: #2a2d38;
+
+  /* Text */
+  --gr-text: #e8e9ec;
+  --gr-text-soft: #a2a5ad;
+  --gr-text-muted: #8b8d94;
+  --gr-nav-inactive: #8a8f99;
+  --gr-text-on-orange: #14161b;
+
+  /* Oranges */
+  --gr-brand: #f2652e;
+  --gr-action: #e0703f;
+  --gr-action-text: #f2865a;
+  --gr-selected-bg: color-mix(in srgb, #e0703f 16%, #161820);
+
+  /* Lines */
+  --gr-border: rgba(255, 255, 255, 0.06);
+  --gr-border-strong: rgba(255, 255, 255, 0.08);
+  --gr-control-outline: #6b6f7a;
+
+  /* Feedback */
+  --gr-success: #63c792;
+  --gr-success-text: #8de0ad;
+  --gr-success-bg: rgba(99, 199, 146, 0.08);
+  --gr-error: #ff968b;
+  --gr-error-text: #ffb4aa;
+  --gr-error-bg: rgba(255, 150, 139, 0.08);
+  --gr-danger: #ff5c5c;
+
+  /* Shape */
+  --gr-radius-card: 12px;
+  --gr-radius-inner: 10px;
+  --gr-radius-button: 8px;
+  --gr-shadow-menu: 0 12px 30px rgba(0, 0, 0, 0.3);
+
+  /* Type */
+  --gr-font: system-ui, sans-serif;
+}
+
 * {
   box-sizing: border-box;
 }
