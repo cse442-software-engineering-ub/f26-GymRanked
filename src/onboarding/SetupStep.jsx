@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { authRequest } from '../auth/api.js';
 import { apiRequest, errorMessage } from './api.js';
 import { ChoiceCard, Chip, Message, StepHeader } from './parts.jsx';
 
@@ -45,7 +44,7 @@ function planImpact(experience, equipment) {
   return `${level} programming using ${joinWithAnd(items)}.`;
 }
 
-export default function SetupStep({ user }) {
+export default function SetupStep() {
   const navigate = useNavigate();
   const [experience, setExperience] = useState(null);
   const [equipment, setEquipment] = useState([]);
@@ -90,20 +89,7 @@ export default function SetupStep({ user }) {
     });
     setStatus('ready');
     if (result.ok) {
-      try {
-        // Registration uses a temporary login so the protected onboarding APIs can
-        // save this account's choices. End it here so the user signs in normally.
-        await authRequest('logout', {});
-        navigate('/login', {
-          replace: true,
-          state: {
-            email: user?.email || '',
-            message: 'Account setup saved. Log in to continue.',
-          },
-        });
-      } catch (error) {
-        setError(error.message);
-      }
+      navigate('/dashboard', { replace: true });
     } else {
       setSessionEnded(result.status === 401);
       setError(errorMessage(result, "Couldn't save your setup. Try again."));

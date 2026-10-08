@@ -14,7 +14,7 @@ export default function LoginPage() {
   const [failure, setFailure] = useState('')
   const [busy, setBusy] = useState(false)
   const loggedOut = message === 'You are logged out.'
-  const setupSaved = message === 'Account setup saved. Log in to continue.'
+  const accountCreated = message === 'Account created. Log in to continue.'
   const invalidCredentials = failure === 'Invalid email or password.'
   useEffect(() => {
     let active = true
@@ -55,7 +55,7 @@ export default function LoginPage() {
     <section className="login-panel" aria-labelledby="login-title">
       <form className="auth-stack" onSubmit={submit} noValidate>
         <h2 id="login-title">Log in to GymRank</h2><p className="subtitle">Welcome back. Your division is waiting.</p>
-        {message && !loggedOut && <p className={setupSaved ? 'login-feedback login-feedback-success' : 'notice'} role="status">{message}</p>}
+        {message && !loggedOut && <p className={accountCreated ? 'login-feedback login-feedback-success' : 'notice'} role="status">{message}</p>}
         {(failure || loggedOut) && (
           <p className="login-feedback" role={failure ? 'alert' : 'status'}>{failure || message}</p>
         )}

@@ -57,7 +57,7 @@ All paths are relative to `${import.meta.env.BASE_URL}api/`. POST requests requi
 
 | Endpoint | Input | Success |
 | --- | --- | --- |
-| POST register.php | full_name, email, password, confirm_password | 201, message; continue to the static dashboard |
+| POST register.php | full_name, email, password, confirm_password | 201, message; continue to login |
 | POST login.php | email, password, optional boolean remember | 200, user; sets HttpOnly session cookie |
 | GET session.php | Session cookie | 200, user, or 401 if absent/expired |
 | POST logout.php | `{}` and session cookie | 200, message; revokes session and clears cookie |
@@ -96,11 +96,13 @@ expired auth_sessions and old auth_attempts rows; do not delete active records.
   policies; no invented agreement is presented during registration.
 - Google/Apple and password recovery show availability messages. OAuth credentials
   and password-reset email delivery are not configured by this change.
-- Successful login and registration continue to the static dashboard. Visiting the
-  login route with a valid session also returns to the dashboard. The dashboard does
-  not load or submit workout data yet; future feature work can connect its navigation
-  and cards without changing the authentication API. Its Figma account menu includes
-  a logout action that revokes the session and returns to login with confirmation.
+- Registration returns to login without creating a session. After login, the app
+  reads the saved training goal and experience/equipment setup. Missing steps
+  route to the goal or setup page; completed accounts may enter the dashboard.
+  The same check runs on reload and direct visits to signed-in pages. A failed
+  check shows a retry option rather than treating an unknown state as complete.
+  The session stays active when setup is saved. The account menu's logout action
+  revokes the session and returns to login with confirmation.
 - Inter falls back to the system sans-serif font if not installed locally.
 
 ## Verification

@@ -7,18 +7,21 @@ import WeeklyPlan from './WeeklyPlan.jsx'
 import WorkoutPlanLibrary from './WorkoutPlanLibrary.jsx'
 import SetupPage from './onboarding/SetupPage.jsx'
 import TrainingGoalPage from './onboarding/TrainingGoalPage.jsx'
+import OnboardingGate from './onboarding/OnboardingGate.jsx'
 
 function App() {
   return (
     <HashRouter><Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegistrationPage />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/plans" element={<WorkoutPlanLibrary />} />
-      <Route path="/plans/:id" element={<PlanDetails />} />
-      <Route path="/weekly-plan" element={<WeeklyPlan />} />
-      <Route path="/setup" element={<SetupPage />} />
-      <Route path="/goal" element={<TrainingGoalPage />} />
+      <Route element={<OnboardingGate />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/plans" element={<WorkoutPlanLibrary />} />
+        <Route path="/plans/:id" element={<PlanDetails />} />
+        <Route path="/weekly-plan" element={<WeeklyPlan />} />
+        <Route path="/setup" element={<SetupPage />} />
+        <Route path="/goal" element={<TrainingGoalPage />} />
+      </Route>
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes></HashRouter>
   )
