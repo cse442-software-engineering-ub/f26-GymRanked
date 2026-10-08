@@ -39,7 +39,11 @@ const GOALS = [
 
 // Route: #/goal (registered in src/App.jsx). Onboarding step 1 of 3.
 export default function TrainingGoalPage() {
-  return <OnboardingShell step={0}>{(user) => <TrainingGoalStep user={user} />}</OnboardingShell>;
+  return (
+    <OnboardingShell step={0} backdrop="backdrops/rack.webp">
+      {(user) => <TrainingGoalStep user={user} />}
+    </OnboardingShell>
+  );
 }
 
 function TrainingGoalStep({ user }) {
