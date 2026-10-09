@@ -60,8 +60,9 @@ function RecommendedPlans() {
           {recommended.map((plan) => (
             <li key={plan.id} className="ob-plan">
               <div className="ob-plan-body">
+                <p className="ob-plan-days">{plan.days_per_week} days/wk</p>
                 <Link className="ob-plan-name" to={`/plans/${plan.id}`}>{plan.name}</Link>
-                <p className="ob-plan-meta">{planMeta(plan)} · {plan.days_per_week} days/wk</p>
+                <p className="ob-plan-meta">{planMeta(plan)}</p>
                 <PlanEquipmentNote missing={plan.missing_equipment} />
               </div>
               <button

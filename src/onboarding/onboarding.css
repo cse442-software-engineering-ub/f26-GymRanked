@@ -585,48 +585,56 @@
   }
 }
 
-/* Recommended plans (#/recommended) */
+/* Recommended plans (#/recommended): same card grid as the plan library */
 .ob-plans {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
 }
 .ob-plan {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px 18px;
+  padding: 20px;
   background: var(--gr-surface);
-  border: 1px solid var(--gr-border-strong);
+  border: 1px solid var(--gr-border);
   border-radius: var(--gr-radius-card);
+}
+.ob-plan:hover {
+  border-color: var(--gr-border-strong);
+  background: var(--gr-surface-raised);
 }
 .ob-plan-body {
   min-width: 0;
 }
+.ob-plan-days {
+  margin: 0 0 4px;
+  color: var(--gr-action-text);
+  font-size: 12px;
+  font-weight: 600;
+}
 .ob-plan-name {
   color: var(--gr-text);
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 500;
   text-decoration: none;
 }
 .ob-plan-name:hover {
   text-decoration: underline;
 }
 .ob-plan-meta {
-  margin: 2px 0 0;
+  margin: 4px 0 0;
   color: var(--gr-text-muted);
   font-size: 13px;
 }
+.ob-plan .ob-button {
+  width: 100%;
+  min-width: 0;
+}
 .ob-plans-footer a {
   color: var(--gr-action-text);
-}
-@media (max-width: 600px) {
-  .ob-plan {
-    flex-direction: column;
-    align-items: stretch;
-  }
 }
