@@ -15,7 +15,8 @@ function DayCard({ day }) {
       <span className="day-card__weekday">{day.label}</span>
       <span className="day-card__name">{day.workout ? day.workout.name : 'Rest day'}</span>
       <span className="day-card__status">
-        {day.workout ? STATUS_LABELS[day.when] : 'Recovery'}
+        {/* Today always says "Today", so it isn't marked by colour alone, even on a rest day. */}
+        {day.when === 'today' ? 'Today' : day.workout ? STATUS_LABELS[day.when] : 'Recovery'}
       </span>
     </li>
   )
