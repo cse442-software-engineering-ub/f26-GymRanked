@@ -34,6 +34,9 @@
   --gr-error-text: #ffb4aa;
   --gr-error-bg: rgba(255, 150, 139, 0.08);
   --gr-danger: #ff5c5c;
+  --gr-warning: #f0cf65;
+  --gr-warning-text: #f5dc8c;
+  --gr-warning-bg: rgba(240, 207, 101, 0.08);
 
   /* Shape */
   --gr-radius-card: 12px;
@@ -713,6 +716,33 @@ button.nav-bar__avatar {
   font-size: 16px;
   font-weight: 500;
   color: var(--gr-text);
+}
+
+.level-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.level-badge--beginner {
+  border-color: var(--gr-success);
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
+}
+
+.level-badge--intermediate {
+  border-color: var(--gr-warning);
+  background: var(--gr-warning-bg);
+  color: var(--gr-warning-text);
+}
+
+.level-badge--advanced {
+  border-color: var(--gr-error);
+  background: var(--gr-error-bg);
+  color: var(--gr-error-text);
 }
 
 .plan-row__meta {
