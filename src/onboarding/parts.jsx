@@ -1,4 +1,4 @@
-// Building blocks shared by the onboarding pages (#/goal and #/setup).
+// Building blocks shared by the onboarding pages (#/goal, #/experience, #/equipment and #/recommended).
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authRequest } from '../auth/api.js';
@@ -8,7 +8,8 @@ import './onboarding.css';
 // Onboarding steps from the Figma, in order. "Choose plan" is the recommended plans page.
 const STEPS = [
   { label: 'Training goal', to: '/goal' },
-  { label: 'Experience', to: '/setup' },
+  { label: 'Experience', to: '/experience' },
+  { label: 'Equipment', to: '/equipment' },
   { label: 'Choose plan', to: '/recommended' },
 ];
 
@@ -109,27 +110,52 @@ export function ChoiceCard({ label, description, selected, onSelect, disabled, i
           {selected ? 'Selected' : 'Select'}
         </span>
       </span>
-      <span className="ob-card-tick" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M5 12.5l4.5 4.5L19 7.5" />
-        </svg>
-      </span>
+      <Tick />
     </button>
   );
 }
 
-// A small toggle chip (many can be on at once).
-export function Chip({ label, selected, onToggle, disabled }) {
+// The tick circle on option cards and equipment tiles: an empty ring, filled orange with a dark tick when selected.
+export function Tick() {
   return (
-    <button
-      type="button"
-      className="ob-chip"
-      aria-pressed={selected}
-      onClick={onToggle}
-      disabled={disabled}
-    >
-      {label}
-    </button>
+    <span className="ob-card-tick" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M5 12.5l4.5 4.5L19 7.5" />
+      </svg>
+    </span>
+  );
+}
+
+// The step's main button and, while it's greyed out, the reason why.
+// Top right next to the heading on computers; a full-width bar at the bottom on phones (onboarding.css).
+export function SaveBar({ label, saving, disabled, help, onSave }) {
+  return (
+    <div className="ob-save">
+      <button type="button" className="ob-button ob-button--primary" onClick={onSave} disabled={disabled}>
+        {saving ? 'Saving…' : label}
+      </button>
+      {help && (
+        <p className="ob-save-help">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 11v5M12 8h.01" />
+          </svg>
+          {help}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// "Back to …" link above the heading.
+export function BackLink({ to, children }) {
+  return (
+    <Link className="ob-back" to={to}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M15 5l-7 7 7 7" />
+      </svg>
+      {children}
+    </Link>
   );
 }
 

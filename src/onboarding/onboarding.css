@@ -1,4 +1,4 @@
-/* Onboarding styles (#/goal and #/setup), on the shared design tokens in DESIGN.md.
+/* Onboarding styles (#/goal, #/experience, #/equipment, #/recommended), on the shared design tokens in DESIGN.md.
    Colours, radii and the font come from the --gr- variables in src/index.css; sizes are the px values in DESIGN.md.
    Everything is prefixed ob- so it can't clash with other pages. */
 
@@ -30,9 +30,9 @@
 /* Step indicator on the photo band's lower edge: a bar and a name for each step */
 .ob-stepper {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
-  width: min(560px, 100%);
+  width: min(720px, 100%);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -115,8 +115,6 @@
   gap: 8px;
 }
 
-.ob-group-label,
-.ob-impact-label,
 .ob-panel-label {
   margin: 0 0 12px;
   color: var(--gr-text-muted);
@@ -282,42 +280,178 @@
   opacity: 1;
 }
 
-/* Equipment chips (setup page, until #94 replaces them with tiles) */
-.ob-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+/* "Back to …" link above the heading */
+.ob-back {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 4px;
+  min-height: 44px;
+  color: var(--gr-text-soft);
+  font-size: 14px;
+  text-decoration: none;
 }
 
-.ob-chip {
-  min-height: 40px;
-  padding: 8px 14px;
+.ob-back:hover {
+  color: var(--gr-text);
+  text-decoration: underline;
+}
+
+.ob-back svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Experience level icon: three bars, lit up to the level */
+.ob-level-bars path {
+  stroke: var(--gr-track);
+}
+
+.ob-level-bars path.is-lit {
+  stroke: var(--gr-action);
+}
+
+.ob-card[aria-pressed='true'] .ob-level-bars path {
+  stroke: rgba(14, 16, 21, 0.3);
+}
+
+.ob-card[aria-pressed='true'] .ob-level-bars path.is-lit {
+  stroke: var(--gr-text-on-orange);
+}
+
+/* Equipment: "Bodyweight only" as a full-width option, then a divider and the tiles */
+.ob-option,
+.ob-tile {
+  position: relative;
   border: 1.5px solid var(--gr-border-strong);
-  border-radius: var(--gr-radius-button);
+  border-radius: var(--gr-radius-card);
   background: var(--gr-surface);
-  color: var(--gr-text-soft);
+  color: var(--gr-text);
   font: inherit;
-  font-size: 14px;
+  text-align: left;
   cursor: pointer;
 }
 
-.ob-chip:not([aria-pressed='true']):not(:disabled):hover {
-  border-color: var(--gr-control-outline);
-  color: var(--gr-text);
+.ob-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 68px;
+  padding: 12px 16px;
 }
 
-.ob-chip[aria-pressed='true'] {
+.ob-option .ob-card-tick {
+  position: static;
+  flex: none;
+}
+
+.ob-option-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ob-option-label {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.ob-option-description {
+  color: var(--gr-text-soft);
+  font-size: 14px;
+}
+
+.ob-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0;
+  color: var(--gr-text-muted);
+  font-size: 12px;
+}
+
+.ob-divider::before,
+.ob-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gr-border);
+}
+
+.ob-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ob-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 104px;
+  padding: 14px;
+}
+
+.ob-tile > svg {
+  width: 30px;
+  height: 30px;
+}
+
+.ob-tile-label {
+  padding-right: 24px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.ob-tile .ob-card-tick {
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+}
+
+.ob-option:not([aria-pressed='true']):not(:disabled):hover,
+.ob-tile:not([aria-pressed='true']):not(:disabled):hover {
+  border-color: var(--gr-control-outline);
+}
+
+.ob-option[aria-pressed='true'],
+.ob-tile[aria-pressed='true'] {
   border-color: var(--gr-action);
   background: var(--gr-selected-bg);
-  color: var(--gr-text);
 }
 
-.ob-chip:disabled {
+.ob-option[aria-pressed='true'] .ob-card-icon {
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+}
+
+.ob-tile[aria-pressed='true'] > svg {
+  color: var(--gr-action-text);
+}
+
+.ob-option[aria-pressed='true'] .ob-card-tick,
+.ob-tile[aria-pressed='true'] .ob-card-tick {
+  border-color: var(--gr-action);
+  background: var(--gr-action);
+}
+
+.ob-option[aria-pressed='true'] .ob-card-tick svg,
+.ob-tile[aria-pressed='true'] .ob-card-tick svg {
+  opacity: 1;
+}
+
+.ob-option:disabled,
+.ob-tile:disabled {
   cursor: default;
 }
 
-/* Panels: plan impact (setup), profile preview and plan impact (goal) */
-.ob-impact,
+/* Panels: profile preview and plan impact */
 .ob-panel {
   padding: 20px;
   border: 1px solid var(--gr-border);
@@ -325,11 +459,6 @@
   background: var(--gr-surface);
 }
 
-.ob-impact-label {
-  margin-bottom: 8px;
-}
-
-.ob-impact-text,
 .ob-panel-text {
   margin: 0;
   font-size: 15px;
@@ -389,24 +518,35 @@
   color: var(--gr-text-muted);
 }
 
-/* Goal page: "Save goal" sits top right, next to the heading, with the reason it's greyed out under it */
-.ob-goal {
+/* Goal, experience and equipment pages: the main button sits top right, next to the heading, with the reason
+   it's greyed out under it. A "Back to …" link, if there is one, sits above the heading. */
+.ob-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 24px 32px;
   align-items: start;
 }
 
-.ob-goal > * {
+.ob-form > * {
   grid-column: 1 / -1;
 }
 
-.ob-goal > .ob-header {
+.ob-form > .ob-header {
   grid-row: 1;
   grid-column: 1;
 }
 
-.ob-goal .ob-card {
+.ob-form > .ob-back {
+  grid-row: 1;
+  margin-bottom: -16px;
+}
+
+.ob-form:has(> .ob-back) > .ob-header,
+.ob-form:has(> .ob-back) > .ob-save {
+  grid-row: 2;
+}
+
+.ob-form .ob-card {
   min-height: 180px;
 }
 
@@ -417,7 +557,7 @@
   gap: 8px;
 }
 
-.ob-goal > .ob-save {
+.ob-form > .ob-save {
   grid-row: 1;
   grid-column: 2;
 }
@@ -477,7 +617,8 @@
   .ob-card,
   .ob-card-icon,
   .ob-card-tick,
-  .ob-chip,
+  .ob-option,
+  .ob-tile,
   .ob-button {
     transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease;
   }
@@ -525,7 +666,6 @@
     gap: 10px;
   }
 
-  .ob-impact,
   .ob-panel {
     padding: 14px 16px;
   }
@@ -536,8 +676,23 @@
     font-size: 14px;
   }
 
+  .ob-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .ob-tile {
+    min-height: 84px;
+    padding: 12px 14px;
+  }
+
+  .ob-tile > svg {
+    width: 28px;
+    height: 28px;
+  }
+
   /* Goal cards become rows: icon, text, tick */
-  .ob-goal .ob-card {
+  .ob-form .ob-card {
     flex-direction: row;
     align-items: center;
     gap: 14px;
@@ -545,27 +700,27 @@
     padding: 14px 16px;
   }
 
-  .ob-goal .ob-card-body {
+  .ob-form .ob-card-body {
     gap: 3px;
   }
 
-  .ob-goal .ob-card-state {
+  .ob-form .ob-card-state {
     margin-top: 6px;
   }
 
-  .ob-goal .ob-card-tick {
+  .ob-form .ob-card .ob-card-tick {
     position: static;
     flex: none;
   }
 
   /* The goal page becomes one column, and "Save goal" a full-width bar fixed to the bottom while scrolling */
-  .ob-goal {
+  .ob-form {
     display: flex;
     flex-direction: column;
     align-items: stretch;
   }
 
-  .ob-goal > .ob-save {
+  .ob-form > .ob-save {
     position: sticky;
     bottom: 0;
     z-index: 1;

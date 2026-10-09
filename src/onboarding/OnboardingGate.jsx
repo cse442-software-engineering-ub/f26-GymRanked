@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { authRequest } from '../auth/api.js'
 import { apiRequest } from './api.js'
-import { requiredOnboardingRoute } from './onboardingRoute.js'
+import { allowedOnboardingPaths, requiredOnboardingRoute } from './onboardingRoute.js'
 
 export default function OnboardingGate() {
   const location = useLocation()
@@ -53,9 +53,8 @@ export default function OnboardingGate() {
     </main>
   }
 
-  if (check.required === '/goal' && location.pathname !== '/goal') return <Navigate to="/goal" replace />
-  if (check.required === '/setup' && !['/goal', '/setup'].includes(location.pathname)) {
-    return <Navigate to="/setup" replace />
+  if (check.required && !allowedOnboardingPaths(check.required).includes(location.pathname)) {
+    return <Navigate to={check.required} replace />
   }
   return <Outlet />
 }
