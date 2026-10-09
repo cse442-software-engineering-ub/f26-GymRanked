@@ -89,7 +89,7 @@ export default function SetupStep() {
     });
     setStatus('ready');
     if (result.ok) {
-      navigate('/dashboard', { replace: true });
+      navigate('/recommended'); // Next onboarding step: pick from the recommended plans.
     } else {
       setSessionEnded(result.status === 401);
       setError(errorMessage(result, "Couldn't save your setup. Try again."));
