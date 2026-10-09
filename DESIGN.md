@@ -263,6 +263,7 @@ Used for training goal and experience level. The experience cards' icon is three
 
 - `SaveBar`: the step's primary button ("Save goal", "Save and continue") with the reason it's greyed out under it ("Pick one goal to continue."). Top right next to the heading on computers; a full-width bar fixed to the bottom of the screen on phones, at least 48px tall.
 - `BackLink`: "Back to …" with a chevron, above the heading, at least 44px tall.
+- "Log out" sits at the top right of the photo band on every onboarding page (onboarding has no NavBar, and an unfinished account can't reach the Dashboard). It works like the NavBar's: the login page opens with "You are logged out.". `text` on a 70% `bg-page` backing, so it stays readable on any photo.
 - The step indicator shows Training goal, Experience, Equipment and Choose plan as bars with names on the photo band. The current step is `text` and bold; finished steps have an `action` bar.
 
 ### Empty, loading and error states
