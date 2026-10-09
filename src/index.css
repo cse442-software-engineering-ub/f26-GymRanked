@@ -83,6 +83,16 @@ body {
   color: #555;
 }
 
+/* Failed loads (plan library, weekly plan): the error feedback colours from DESIGN.md. */
+.status.status--error {
+  padding: 10px 12px;
+  border: 1px solid var(--gr-error);
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-error-bg);
+  color: var(--gr-error-text);
+  font-size: 14px;
+}
+
 @media (max-width: 480px) {
   .workout-list {
     grid-template-columns: 1fr;
@@ -729,6 +739,24 @@ button.nav-bar__avatar {
   background: var(--gr-surface-raised);
 }
 
+/* The whole card opens the plan's details (WorkoutPlanLibrary.jsx). */
+.plan-list__item {
+  cursor: pointer;
+}
+
+/* The plan you're following: orange border, and "Current plan" with a tick on its greyed-out button. */
+.plan-list__item--current,
+.plan-list__item--current:hover {
+  border-color: var(--gr-action);
+}
+
+.plan-list__select svg {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: -3px;
+}
+
 /* "Your setup: Strength · Intermediate · Full gym access — Edit" (YourSetup.jsx), on the plan library and
    on "Choose your workout plan". */
 .your-setup {
@@ -1200,7 +1228,8 @@ a.today-workout__action {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 10;
+  /* Above the nav bar (20, or 40 on phones), so the backdrop dims it and a click on it closes the dialog. */
+  z-index: 60;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1222,7 +1251,7 @@ a.today-workout__action {
 
 .switch-plan-modal__title {
   margin: 0;
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 500;
   color: #e8e9ec;
 }
@@ -1268,9 +1297,22 @@ a.today-workout__action {
     padding: 8px 20px 32px;
   }
 
+  /* Phones: the week is a stacked list, one row per day: weekday, workout, status. */
   .weekly-plan__days {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     gap: 8px;
+  }
+
+  .day-card {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+  }
+
+  .day-card__status {
+    text-align: right;
   }
 
   .plan-split__detail {
