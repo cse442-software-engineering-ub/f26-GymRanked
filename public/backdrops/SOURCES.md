@@ -4,7 +4,7 @@ Photos for the gym photo band (`src/components/GymBackdrop.jsx`). All three are 
 
 | File | Used on | Photo | Photographer | Licence |
 | --- | --- | --- | --- | --- |
-| `rack.webp` | Training goal (`#/goal`) | [Empty gym with power rack, barbells, and weights](https://unsplash.com/photos/j4T5z94b8ns) | Mirko Meister ([@stillsbymirko](https://unsplash.com/@stillsbymirko)) | Unsplash License |
+| `rack.webp` | Training goal (`#/goal`) and Choose your workout plan (`#/recommended`) | [Empty gym with power rack, barbells, and weights](https://unsplash.com/photos/j4T5z94b8ns) | Mirko Meister ([@stillsbymirko](https://unsplash.com/@stillsbymirko)) | Unsplash License |
 | `gym-floor.webp` | Experience (`#/experience`, card #94) | [Dark gym with rowers and a bike in front of a roller door](https://unsplash.com/photos/YiMP5EGR670) | Ambitious Studio* \| Rick Barrett ([@weareambitious](https://unsplash.com/@weareambitious)) | Unsplash License |
 | `dumbbells.webp` | Equipment (`#/equipment`, card #94) | [A row of dumbbells in a gym](https://unsplash.com/photos/m4Jqyv5VwqY) | Jason Grant ([@jgrant1](https://unsplash.com/@jgrant1)) | Unsplash License |
 

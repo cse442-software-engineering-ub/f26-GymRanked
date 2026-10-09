@@ -804,6 +804,29 @@
   }
 }
 
+/* "Your setup is saved." on arrival from the equipment page */
+.ob-handoff {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.ob-handoff svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+}
+
+.ob-handoff p {
+  margin: 0;
+}
+
+.ob-handoff strong {
+  font-weight: 600;
+}
+
 /* Recommended plans (#/recommended): same card grid as the plan library */
 .ob-plans {
   list-style: none;
