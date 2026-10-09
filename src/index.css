@@ -1183,6 +1183,7 @@ a.today-workout__action {
   .dashboard-metric { gap: 10px; min-height: 78px; padding: 14px; border-color: #2c3b4c; background: #162231; }
   .dashboard-metric:first-child { grid-column: 1 / -1; }
   .dashboard-metric:not(:first-child) { display: grid; grid-template-columns: 32px minmax(0, 1fr); align-items: start; min-height: 94px; }
+  .dashboard-metric:not(:first-child) .dashboard-metric__icon { align-self: center; }
   .dashboard-metric:not(:first-child) .dashboard-metric__body { display: grid; grid-template-rows: 30px 24px; align-content: start; align-self: start; gap: 2px; }
   .dashboard-metric:not(:first-child) .dashboard-metric__label { align-self: start; }
   .dashboard-metric:not(:first-child) .dashboard-metric__value { align-self: start; font-size: clamp(15px, 4.4vw, 20px); line-height: 24px; white-space: nowrap; }
