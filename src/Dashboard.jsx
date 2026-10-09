@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import NavBar from './NavBar.jsx'
 import { authRequest } from './auth/api.js'
 import { apiRequest } from './onboarding/api.js'
@@ -66,6 +66,9 @@ function TodayWorkoutCard({ plan, today, weekLabel, onBrowse, onView }) {
         <div className="dashboard-today__heading-label"><h2>Today's workout</h2><span aria-hidden="true">·</span><span>{weekLabel}</span></div>
         {today && <span className="dashboard-card__meta">About {today.duration_minutes} min</span>}
       </header>
+      <p className="dashboard-today__plan">
+        Current plan: <Link to={`/plans/${plan.id}`}>{plan.name}</Link>
+      </p>
       <h3 className="dashboard-card__title">{today ? today.name : 'Rest day'}</h3>
       <p className="dashboard-card__text">
         {today
