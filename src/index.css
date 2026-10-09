@@ -1182,8 +1182,10 @@ a.today-workout__action {
   .dashboard-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 8px; }
   .dashboard-metric { gap: 10px; min-height: 78px; padding: 14px; border-color: #2c3b4c; background: #162231; }
   .dashboard-metric:first-child { grid-column: 1 / -1; }
-  .dashboard-metric:not(:first-child) { min-height: 88px; }
-  .dashboard-metric:not(:first-child) .dashboard-metric__body { display: grid; grid-template-rows: 28px auto; align-content: center; gap: 2px; }
+  .dashboard-metric:not(:first-child) { display: grid; grid-template-columns: 32px minmax(0, 1fr); align-items: start; min-height: 94px; }
+  .dashboard-metric:not(:first-child) .dashboard-metric__body { display: grid; grid-template-rows: 30px 24px; align-content: start; align-self: start; gap: 2px; }
+  .dashboard-metric:not(:first-child) .dashboard-metric__label { align-self: start; }
+  .dashboard-metric:not(:first-child) .dashboard-metric__value { align-self: start; font-size: clamp(15px, 4.4vw, 20px); line-height: 24px; white-space: nowrap; }
   .dashboard-metric__icon { display: grid; flex: 0 0 32px; place-items: center; width: 32px; height: 36px; border: 0; background: transparent; box-shadow: none; }
   .dashboard-metric__icon svg { display: block; width: 30px; height: 30px; color: #ff7035; stroke-width: 2.5; }
   .dashboard-metric__label { color: #a6b4c7; font-size: 10px; line-height: 1.2; letter-spacing: .03em; }
@@ -1241,8 +1243,7 @@ a.today-workout__action {
 }
 
 @media (max-width: 380px) {
-  .dashboard-metric:not(:first-child) { gap: 7px; padding: 11px; }
-  .dashboard-metric:not(:first-child) .dashboard-metric__icon { flex-basis: 26px; width: 26px; }
+  .dashboard-metric:not(:first-child) { grid-template-columns: 26px minmax(0, 1fr); gap: 7px; padding: 11px; }
+  .dashboard-metric:not(:first-child) .dashboard-metric__icon { width: 26px; }
   .dashboard-metric:not(:first-child) .dashboard-metric__icon svg { width: 25px; height: 25px; }
-  .dashboard-metric:not(:first-child) .dashboard-metric__value { font-size: 16px; }
 }
