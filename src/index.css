@@ -276,7 +276,8 @@ button.nav-bar__avatar {
 
 .dashboard-header__eyebrow,
 .dashboard-metric__label,
-.dashboard-card__heading h2 {
+.dashboard-card__heading h2,
+.dashboard-today__heading-label span {
   color: #8b8d94;
   font-size: 12px;
   font-weight: 500;
@@ -380,6 +381,13 @@ button.nav-bar__avatar {
 .dashboard-card__heading h2 {
   margin: 0;
   line-height: normal;
+}
+
+.dashboard-today__heading-label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
 }
 
 .dashboard-card__meta {

@@ -28,14 +28,7 @@ export default function RegistrationPage() {
       setFailure(error.message); setErrors(error.fields || {}); setBusy(false)
       return
     }
-    try {
-      // New accounts start onboarding. Log in first so the goal page has a session.
-      await authRequest('login', { email: values.email, password: values.password })
-      navigate('/goal', { replace: true })
-    } catch {
-      // Account exists but auto-login failed (e.g. rate limit): send them to log in manually.
-      navigate('/login', { replace: true, state: { email: values.email.trim(), message: 'Account created. Log in to continue.' } })
-    } finally { setBusy(false) }
+    navigate('/login', { replace: true, state: { email: values.email.trim(), message: 'Account created. Log in to continue.' } })
   }
   return <main className="registration">
     <header className="registration-header"><Brand /><Link className="close" to="/login" aria-label="Close registration">×</Link></header>

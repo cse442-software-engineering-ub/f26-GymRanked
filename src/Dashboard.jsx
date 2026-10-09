@@ -4,7 +4,7 @@ import NavBar from './NavBar.jsx'
 import { authRequest } from './auth/api.js'
 import { apiRequest } from './onboarding/api.js'
 import { fetchCurrentPlan, fetchPlan } from './plansApi.js'
-import { buildWeek } from './weeklySchedule.js'
+import { buildWeek, weekRangeLabel } from './weeklySchedule.js'
 
 function MetricCard({ label, value, hint, accent = false }) {
   return (
@@ -43,14 +43,14 @@ function metricsFor(plan) {
 }
 
 // plan is null when the user hasn't selected one; today is that day's workout or null on a rest day.
-function TodayWorkoutCard({ plan, today, onBrowse, onView }) {
+function TodayWorkoutCard({ plan, today, weekLabel, onBrowse, onView }) {
   if (!plan) {
     return (
       <article className="dashboard-card dashboard-today" aria-label="Today's workout">
         <header className="dashboard-card__heading">
-          <h2>Today's workout</h2>
+          <div className="dashboard-today__heading-label"><h2>Today's workout</h2><span aria-hidden="true">·</span><span>{weekLabel}</span></div>
         </header>
-        <h3 className="dashboard-card__title">No workout selected yet</h3>
+        <h3 className="dashboard-card__title">No workout plan selected</h3>
         <p className="dashboard-card__text">
           Start by selecting a workout plan. Once you pick one, today's session will show up here.
         </p>
@@ -63,7 +63,7 @@ function TodayWorkoutCard({ plan, today, onBrowse, onView }) {
   return (
     <article className="dashboard-card dashboard-today" aria-label="Today's workout">
       <header className="dashboard-card__heading">
-        <h2>Today's workout</h2>
+        <div className="dashboard-today__heading-label"><h2>Today's workout</h2><span aria-hidden="true">·</span><span>{weekLabel}</span></div>
         {today && <span className="dashboard-card__meta">About {today.duration_minutes} min</span>}
       </header>
       <h3 className="dashboard-card__title">{today ? today.name : 'Rest day'}</h3>
@@ -162,7 +162,8 @@ function Dashboard() {
 
   const plan = setup?.plan ?? null
   const goal = setup?.goal ?? null
-  const today = plan ? buildWeek(plan, new Date()).find((day) => day.when === 'today').workout : null
+  const currentDate = new Date()
+  const today = plan ? buildWeek(plan, currentDate).find((day) => day.when === 'today').workout : null
   const checklist = [
     {
       title: 'Choose your training goal',
@@ -215,6 +216,7 @@ function Dashboard() {
             <TodayWorkoutCard
               plan={plan}
               today={today}
+              weekLabel={weekRangeLabel(currentDate)}
               onBrowse={() => navigate('/plans')}
               onView={() => navigate(today ? `/plans/${plan.id}` : '/weekly-plan')}
             />
