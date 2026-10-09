@@ -1,22 +1,24 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authRequest } from './auth/api.js'
+import MobileDashboardIcon from './MobileDashboardIcon.jsx'
 
 // Add a `to` value when a teammate implements one of the future destinations.
 // Keeping route ownership here lets new pages join the shared navigation without
 // changing every signed-in screen.
 const NAV_LINKS = [
-  { label: 'Dashboard', to: '/dashboard' },
-  { label: 'Workouts', to: '/weekly-plan' },
-  { label: 'Plans', to: '/plans' },
-  { label: 'Progress', futurePath: '/progress' },
-  { label: 'Leaderboard', futurePath: '/leaderboard' },
-  { label: 'Today', futurePath: '/today' },
+  { label: 'Dashboard', to: '/dashboard', icon: 'home' },
+  { label: 'Workouts', to: '/weekly-plan', icon: 'dumbbell' },
+  { label: 'Plans', to: '/plans', icon: 'calendar' },
+  { label: 'Progress', futurePath: '/progress', icon: 'progress' },
+  { label: 'Leaderboard', futurePath: '/leaderboard', icon: 'trophy' },
+  { label: 'Today', futurePath: '/today', icon: 'today' },
 ]
 
 function NavBar({ current, userName = '' }) {
   const navigate = useNavigate()
   const [accountMenuOpen, setAccountMenuOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [logoutBusy, setLogoutBusy] = useState(false)
   const [logoutError, setLogoutError] = useState('')
   const [sessionUserName, setSessionUserName] = useState(userName.trim())
@@ -29,6 +31,15 @@ function NavBar({ current, userName = '' }) {
   useEffect(() => {
     if (userName.trim()) setSessionUserName(userName.trim())
   }, [userName])
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return undefined
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') setMobileMenuOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [mobileMenuOpen])
 
   useEffect(() => {
     let active = true
@@ -57,9 +68,12 @@ function NavBar({ current, userName = '' }) {
   return (
     <header className="nav-bar">
       <Link className="nav-bar__brand" to="/dashboard" aria-label="GymRank dashboard">
-        <span className="nav-bar__logo" aria-hidden="true" />
+        <span className="nav-bar__logo" aria-hidden="true"><MobileDashboardIcon name="dumbbell" /></span>
         <span className="nav-bar__brand-name">GymRank</span>
       </Link>
+      <button type="button" className="nav-bar__mobile-toggle" aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={mobileMenuOpen} aria-controls="mobile-navigation" onClick={() => setMobileMenuOpen((open) => !open)}>
+        <span /><span /><span />
+      </button>
       <nav className="nav-bar__links" aria-label="Primary">
         {NAV_LINKS.map(({ label, to, futurePath }) => {
           const className =
@@ -120,6 +134,27 @@ function NavBar({ current, userName = '' }) {
           </div>
         )}
       </div>
+      <button type="button" className={`nav-bar__mobile-backdrop${mobileMenuOpen ? ' is-open' : ''}`} aria-label="Close navigation menu" tabIndex={mobileMenuOpen ? 0 : -1} onClick={() => setMobileMenuOpen(false)} />
+      <nav id="mobile-navigation" className={`nav-bar__mobile-drawer${mobileMenuOpen ? ' is-open' : ''}`} aria-label="Mobile navigation" aria-hidden={!mobileMenuOpen}>
+        <span className="nav-bar__mobile-caption">Menu</span>
+        {NAV_LINKS.map(({ label, to, futurePath, icon }) => {
+          const className = label === current ? 'nav-bar__mobile-link is-current' : 'nav-bar__mobile-link'
+          return to ? (
+            <Link key={label} to={to} className={className} aria-current={label === current ? 'page' : undefined} tabIndex={mobileMenuOpen ? 0 : -1} onClick={() => setMobileMenuOpen(false)}>
+              <MobileDashboardIcon name={icon} />{label}
+            </Link>
+          ) : (
+            <span key={label} className={className} aria-disabled="true" data-future-route={futurePath}>
+              <MobileDashboardIcon name={icon} />{label}
+            </span>
+          )
+        })}
+        <div className="nav-bar__mobile-account"><span className="nav-bar__mobile-avatar">{avatarInitials}</span><span>{sessionUserName}</span></div>
+        <button type="button" className="nav-bar__mobile-logout" disabled={logoutBusy} tabIndex={mobileMenuOpen ? 0 : -1} onClick={onLogout}>
+          <MobileDashboardIcon name="logout" />{logoutBusy ? 'Logging out…' : 'Log out'}
+        </button>
+        {logoutError && <span className="nav-bar__mobile-error" role="alert">{logoutError}</span>}
+      </nav>
     </header>
   )
 }
