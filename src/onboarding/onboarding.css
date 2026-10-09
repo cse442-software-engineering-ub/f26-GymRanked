@@ -44,6 +44,53 @@
   font-weight: 500;
 }
 
+/* Top of the photo band: the logo on the left, "Log out" on the right */
+.ob-band-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ob-logout {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+/* A dark backing keeps the text readable on any part of the photo. */
+.ob-logout-button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-button);
+  background: rgba(14, 16, 21, 0.7);
+  color: var(--gr-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.ob-logout-button:hover:not(:disabled) {
+  border-color: var(--gr-control-outline);
+}
+
+.ob-logout-button:disabled {
+  color: var(--gr-nav-inactive);
+  cursor: not-allowed;
+}
+
+.ob-logout-error {
+  margin: 0;
+  padding: 4px 8px;
+  border-radius: var(--gr-radius-button);
+  background: rgba(14, 16, 21, 0.85);
+  color: var(--gr-error-text);
+  font-size: 13px;
+}
+
 /* Step indicator on the photo band's lower edge: a bar and a name for each step */
 .ob-stepper {
   display: grid;

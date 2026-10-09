@@ -14,8 +14,8 @@ const STEPS = [
 ];
 
 // Full-screen page frame shared by every onboarding step:
-// checks the login (signed-out visitors go to #/login), shows the gym photo band with the logo and the
-// step indicator, then renders children(user) with the logged-in user from api/session.php.
+// checks the login (signed-out visitors go to #/login), shows the gym photo band with the logo, "Log out" and
+// the step indicator, then renders children(user) with the logged-in user from api/session.php.
 // backdrop: optional photo for the band, e.g. "backdrops/rack.webp".
 export function OnboardingShell({ step, backdrop, children }) {
   const navigate = useNavigate();
@@ -38,11 +38,14 @@ export function OnboardingShell({ step, backdrop, children }) {
   return (
     <div className="ob-page">
       <GymBackdrop image={backdrop}>
-        {/* Same logo as the shared NavBar (styles live in src/index.css). */}
-        <Link className="nav-bar__brand ob-brand" to="/dashboard" aria-label="GymRank dashboard">
-          <span className="nav-bar__logo" aria-hidden="true" />
-          <span className="nav-bar__brand-name">GymRank</span>
-        </Link>
+        <div className="ob-band-top">
+          {/* Same logo as the shared NavBar (styles live in src/index.css). */}
+          <Link className="nav-bar__brand ob-brand" to="/dashboard" aria-label="GymRank dashboard">
+            <span className="nav-bar__logo" aria-hidden="true" />
+            <span className="nav-bar__brand-name">GymRank</span>
+          </Link>
+          {user && <LogOutButton />}
+        </div>
 
         <nav aria-label="Setup progress">
           <ol className="ob-stepper">
@@ -71,6 +74,39 @@ export function OnboardingShell({ step, backdrop, children }) {
           </p>
         )}
       </main>
+    </div>
+  );
+}
+
+// Onboarding pages have no NavBar, and unfinished accounts can't reach the Dashboard, so the band has its own
+// "Log out". It works like the NavBar's: end the session, then show the login page with "You are logged out."
+function LogOutButton() {
+  const navigate = useNavigate();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleLogOut() {
+    setBusy(true);
+    setError('');
+    try {
+      await authRequest('logout', {});
+      navigate('/login', { replace: true, state: { message: 'You are logged out.' } });
+    } catch (err) {
+      setError(err.message);
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="ob-logout">
+      <button type="button" className="ob-logout-button" onClick={handleLogOut} disabled={busy}>
+        {busy ? 'Logging out…' : 'Log out'}
+      </button>
+      {error && (
+        <p className="ob-logout-error" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
