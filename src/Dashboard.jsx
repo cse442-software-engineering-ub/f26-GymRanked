@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import NavBar from './NavBar.jsx'
+import MobileDashboardIcon from './MobileDashboardIcon.jsx'
 import { authRequest } from './auth/api.js'
 import { apiRequest } from './onboarding/api.js'
 import { fetchCurrentPlan, fetchPlan } from './plansApi.js'
 import { buildWeek, weekRangeLabel } from './weeklySchedule.js'
 
-function MetricCard({ label, value, hint, accent = false }) {
+function MetricCard({ label, value, hint, accent = false, icon }) {
   return (
     <article className="dashboard-metric">
-      <span className="dashboard-metric__icon" aria-hidden="true" />
+      <span className="dashboard-metric__icon" aria-hidden="true"><MobileDashboardIcon name={icon} /></span>
       <div className="dashboard-metric__body">
         <span className="dashboard-metric__label">{label}</span>
         <strong className={accent ? 'dashboard-metric__value dashboard-metric__value--accent' : 'dashboard-metric__value'}>
@@ -25,17 +26,20 @@ function metricsFor(plan) {
   return [
     {
       label: 'RANK',
+      icon: 'trophy',
       value: 'Getting started',
       hint: plan ? 'Complete 3 workouts to earn a rank' : 'Select a plan, then complete 3 workouts to earn a rank',
       accent: true,
     },
     {
       label: 'WORKOUTS THIS WEEK',
+      icon: 'dumbbell',
       value: plan ? `0 of ${plan.days_per_week}` : 'No plan yet',
       hint: plan ? 'Hit every session to build your streak' : 'Select a workout plan to set a weekly goal',
     },
     {
       label: 'WEEKLY CONSISTENCY',
+      icon: 'calendar',
       value: '0 weeks',
       hint: 'Your streak begins after your first full week',
     },
@@ -61,7 +65,7 @@ function TodayWorkoutCard({ plan, today, weekLabel, onBrowse, onView }) {
     )
   }
   return (
-    <article className="dashboard-card dashboard-today" aria-label="Today's workout">
+    <article className="dashboard-card dashboard-today dashboard-today--planned" aria-label="Today's workout">
       <header className="dashboard-card__heading">
         <div className="dashboard-today__heading-label"><h2>Today's workout</h2><span aria-hidden="true">·</span><span>{weekLabel}</span></div>
         {today && <span className="dashboard-card__meta">About {today.duration_minutes} min</span>}
@@ -72,18 +76,29 @@ function TodayWorkoutCard({ plan, today, weekLabel, onBrowse, onView }) {
           ? `${today.focus} — part of your ${plan.name} plan.`
           : `No session scheduled today in your ${plan.name} plan. Rest up and come back tomorrow.`}
       </p>
+      <div className="dashboard-today__mobile-summary">
+        <span className="dashboard-today__mobile-icon"><MobileDashboardIcon name="dumbbell" /></span>
+        <div>
+          <strong>{today ? today.name : 'Rest day'}</strong>
+          <span>{today ? today.focus : `No session scheduled today in your ${plan.name} plan.`}</span>
+          {today && <span className="dashboard-today__mobile-duration"><MobileDashboardIcon name="clock" /> About {today.duration_minutes} min</span>}
+        </div>
+      </div>
       {today?.exercises?.length > 0 && (
         <ol className="dashboard-exercises" aria-label="Today's exercises">
           {today.exercises.map((exercise, index) => (
             <li className="dashboard-exercise" key={exercise}>
               <span className="dashboard-exercise__number">{index + 1}</span>
+              <span className="dashboard-exercise__mobile-icon"><MobileDashboardIcon name="dumbbell" /></span>
               <div><strong>{exercise}</strong></div>
+              <MobileDashboardIcon name="chevron" className="dashboard-exercise__chevron" />
             </li>
           ))}
         </ol>
       )}
       <button type="button" className="dashboard-primary-action dashboard-primary-action--spaced" onClick={onView}>
-        {today ? `View ${plan.name} ›` : 'View your weekly plan ›'}
+        <span className="dashboard-desktop-only">{today ? `View ${plan.name} ›` : 'View your weekly plan ›'}</span>
+        <span className="dashboard-mobile-only">{today ? 'View plan ›' : 'View your weekly plan ›'}</span>
       </button>
     </article>
   )
@@ -97,7 +112,8 @@ function ChecklistCard({ items }) {
         <h2>Getting started</h2>
         <span className="dashboard-card__meta dashboard-card__meta--accent">{doneCount} of {items.length}</span>
       </header>
-      <h3 className="dashboard-card__title">Your first-week checklist</h3>
+      <h3 className="dashboard-card__title dashboard-checklist__desktop-title">Your first-week checklist</h3>
+      <h3 className="dashboard-card__title dashboard-checklist__mobile-title">Getting started</h3>
       <div
         className="dashboard-progress"
         role="progressbar"
@@ -193,13 +209,14 @@ function Dashboard() {
           <div>
             <span className="dashboard-header__eyebrow">{plan ? `YOUR ${plan.level.toUpperCase()} PLAN` : 'WELCOME TO GYMRANK'}</span>
             <h1>{plan || setup === null ? `Welcome back, ${firstName}` : `Welcome, ${firstName}`}</h1>
-            <p>
+            <p className="dashboard-header__desktop-copy">
               {setup === null
                 ? 'Loading your dashboard...'
                 : plan
                   ? 'You are one workout away from starting your first week.'
                   : 'Start by selecting a workout plan — it takes a minute and sets up your week.'}
             </p>
+            {setup !== null && plan && <p className="dashboard-header__mobile-copy">Consistency builds strength. Let’s keep the momentum going.</p>}
           </div>
         </header>
 
