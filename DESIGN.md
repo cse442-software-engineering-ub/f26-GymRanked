@@ -219,11 +219,18 @@ A box above the form: 10px 12px padding, 8px corners, 1px border, 13px text, col
 
 ### Dialog (`src/SwitchPlanModal.jsx`)
 
-`surface`, 12px corners, 24px padding, at most 380px wide, over the `backdrop`. Title 16px / 500, body 13px `text-muted`. Closes with Cancel, Escape, or a click on the backdrop. Uses `role="dialog"` and `aria-modal="true"`, and moves focus to its main button when it opens.
+`surface`, 12px corners, 24px padding, at most 380px wide, over the `backdrop`, which covers the whole page including the nav bar. Title 22px / 500, body 13px `text-muted`. Closes with Cancel, Escape, or a click on the backdrop. Uses `role="dialog"` and `aria-modal="true"`, and moves focus to its main button when it opens.
+
+### Plan card (plan library, `.plan-list__item`)
+
+- A `surface` card with 12px corners: "N days/wk" in `action-text`, the plan name, a coloured level badge (Beginner `success`, Intermediate `warning`, Advanced `error`) with the length, the equipment it needs as icons with labels, and a green or red dot for whether you have that equipment (Suryamur10, PR #44).
+- The whole card opens the plan's details; its button, name link and dot keep their own actions.
+- "Select" is a full-width primary button. Your current plan's card has an `action` border, and its button reads "Current plan" with a tick, greyed out.
+- "Your setup" (`src/YourSetup.jsx`) sits under the heading of the plan library and of "Choose your workout plan": an eyebrow label, the saved goal · experience · equipment, and an "Edit" text action to the goal page.
 
 ### Day card (weekly plan, `.day-card`)
 
-`surface`, 10px corners. Today: `brand` border, `brand` at 15% background, weekday and status in `action-text`, and the word "Today" (not colour alone). Rest days show "Rest day" in `text-muted`.
+`surface`, 10px corners. Today: `brand` border, `brand` at 15% background, weekday and status in `action-text`, and the word "Today" (not colour alone). Rest days show "Rest day" in `text-muted`. Computers show seven cards in a row (four per row at 900px or less); phones show a stacked list, one row per day with the weekday, the workout and its status.
 
 ### Gym backdrop (`src/components/GymBackdrop.jsx`, added by #93)
 
@@ -315,13 +322,10 @@ Third-party logos live in `public/brand/`, with their source and usage rules in 
 
 ## Known differences in the current code
 
-As of task #94 (2026-10-09). These pages predate the Dashboard redesign and should move to the tokens above through upgrade tasks.
+As of task #95 (2026-10-09). These pages predate the Dashboard redesign and should move to the tokens above through upgrade tasks.
 
 | Area | What it uses now | Should use | File | Task |
 |---|---|---|---|---|
-| Plan library and details | Rows `#1e2027`; light grey "Select" button (`#e3e3e3` with `#767676` border); page title 22–24px | `surface` cards; primary or text action; 28px title | `src/index.css` (`.plan-row`, `.plan-list__select`, `.plan-details`) | #95 |
-| Weekly plan | Title 22px; grey `.button-primary` (`#2c2c2c`) | 28px title; `action` primary | `src/index.css` (`.weekly-plan`, `.button-primary`) | #95 |
-| Switch plan dialog | 14px corners | 12px | `.switch-plan-modal` | #95 |
 | Login and sign-up | Grey "Log in" / "Create account" button (`#2c2c2c`) on desktop; white input fields; brand square 24px; sign-up card 16px corners | `action` primary; 32px brand square; 12px corners | `src/auth/auth.css` | #97, #99 |
 | Font setup | `:root` in auth.css still names Inter. `body` in index.css sets system-ui, so Inter shows nowhere (onboarding moved to `--gr-font` in #93), but the rule is misleading | Drop Inter from `:root` | `src/auth/auth.css` | #99 |
 | Breakpoints | 960, 900, 850, 640 and 480px | 900px and 640px | all three stylesheets | as each page is upgraded |
