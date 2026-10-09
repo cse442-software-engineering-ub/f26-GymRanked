@@ -595,6 +595,7 @@
   gap: 16px;
 }
 .ob-plan {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -616,7 +617,6 @@
   gap: 10px;
 }
 
-.ob-plan-body .plan-equipment,
 .ob-plan-body .plan-icons {
   margin: 0;
 }
