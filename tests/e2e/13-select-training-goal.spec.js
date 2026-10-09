@@ -34,7 +34,7 @@ async function expectSelected(page, label) {
 async function chooseAndSave(page, label) {
   await card(page, label).click()
   await saveGoal(page).click()
-  await expect(page).toHaveURL(/#\/setup$/)
+  await expect(page).toHaveURL(/#\/experience$/)
 }
 
 acceptanceTests(
@@ -48,7 +48,7 @@ acceptanceTests(
       await step('Step 1: the goal page shows three goals, an empty preview and a greyed-out "Save goal"', async () => {
         await openGoalPage(page)
         const progress = page.getByRole('navigation', { name: 'Setup progress' })
-        await expect(progress.getByRole('listitem')).toHaveText(['Training goal', 'Experience', 'Choose plan'])
+        await expect(progress.getByRole('listitem')).toHaveText(['Training goal', 'Experience', 'Equipment', 'Choose plan'])
         await expect(currentStep(page)).toHaveText('Training goal')
         await expect(page.getByText('This appears on your profile and shapes your training plan.')).toBeVisible()
         for (const [label, description] of Object.entries(GOALS)) {
@@ -79,8 +79,8 @@ acceptanceTests(
 
       await step('Step 4: "Save goal" opens the experience step', async () => {
         await saveGoal(page).click()
-        await expect(page).toHaveURL(/#\/setup$/)
-        await expect(page.getByRole('heading', { name: 'Tell us about your training setup' })).toBeVisible()
+        await expect(page).toHaveURL(/#\/experience$/)
+        await expect(page.getByRole('heading', { name: 'How experienced are you?' })).toBeVisible()
         await expect(currentStep(page)).toHaveText('Experience')
       })
     },
