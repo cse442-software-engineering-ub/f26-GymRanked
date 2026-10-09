@@ -6,7 +6,6 @@ import { planMeta } from '../planFormat.js';
 import { recommendPlans } from '../planEquipment.js';
 import { fetchPlans } from '../plansApi.js';
 import usePlanSelection from '../usePlanSelection.jsx';
-import useUserSetup from '../useUserSetup.js';
 import { OnboardingShell, StepHeader } from './parts.jsx';
 
 const GOAL_LABELS = { strength: 'strength', fat_loss: 'fat loss', aerobic: 'aerobic fitness' };
@@ -18,7 +17,7 @@ export default function RecommendedPlansPage() {
 
 function RecommendedPlans() {
   const selection = usePlanSelection();
-  const { setup, loaded } = useUserSetup();
+  const { setup, setupLoaded: loaded } = selection;
   const [plans, setPlans] = useState(null);
   const [error, setError] = useState('');
 
@@ -42,6 +41,11 @@ function RecommendedPlans() {
         }
       />
 
+      {selection.loggedOut && (
+        <p className="ob-message ob-message--error" role="alert">
+          Your session ended. <Link to="/login">Log in</Link> to choose a plan.
+        </p>
+      )}
       {selection.notice && <p className="ob-message ob-message--error" role="alert">{selection.notice}</p>}
       {error && <p className="ob-message ob-message--error" role="alert">Couldn't load plans: {error}</p>}
       {!error && !ready && <p className="ob-loading" role="status">Finding plans for you…</p>}
@@ -73,7 +77,7 @@ function RecommendedPlans() {
                 onClick={() => selection.requestSelect(plan)}
                 disabled={!selection.canSelect}
               >
-                Choose plan
+                {selection.busyPlanId === plan.id ? 'Choosing...' : 'Choose plan'}
               </button>
             </li>
           ))}

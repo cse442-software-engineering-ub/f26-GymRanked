@@ -10,14 +10,13 @@ import { planMeta } from './planFormat.js'
 import PlanSelectionStatus from './PlanSelectionStatus.jsx'
 import { fetchPlan } from './plansApi.js'
 import usePlanSelection from './usePlanSelection.jsx'
-import useUserSetup from './useUserSetup.js'
 
 function PlanDetails() {
   const { id } = useParams()
   const [plan, setPlan] = useState(null)
   const [error, setError] = useState(null)
   const selection = usePlanSelection()
-  const { setup } = useUserSetup()
+  const { setup } = selection
 
   useEffect(() => {
     setPlan(null)
@@ -97,7 +96,11 @@ function PlanDetails() {
               onClick={() => selection.requestSelect(plan)}
               disabled={!selection.canSelect || selection.currentPlanId === plan.id}
             >
-              {selection.currentPlanId === plan.id ? 'This is your current plan' : 'Start this plan'}
+              {selection.currentPlanId === plan.id
+                ? 'This is your current plan'
+                : selection.busyPlanId === plan.id
+                  ? 'Starting...'
+                  : 'Start this plan'}
             </button>
           </>
         )}
