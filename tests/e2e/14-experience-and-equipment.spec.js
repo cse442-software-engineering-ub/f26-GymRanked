@@ -48,12 +48,30 @@ async function turnOffAllEquipment(page) {
   }
 }
 
+const SAVED_MESSAGE = 'Account setup saved. Log in to continue.'
+
+// "Save setup" ends the temporary sign-in from registration and opens the login page.
+async function saveSetupAndExpectLoginPage(page) {
+  await saveSetup(page).click()
+  await expect(page).toHaveURL(/#\/login$/)
+  await expect(page.getByText(SAVED_MESSAGE)).toBeVisible()
+}
+
+// After saving, signs back in and opens the setup page again.
+async function saveAndReopenSetup(page, account) {
+  await saveSetupAndExpectLoginPage(page)
+  await logIn(page, account)
+  await openSetupPage(page)
+}
+
 acceptanceTests(
   '14-experience-and-equipment.md',
   {
     1: async ({ page }) => {
+      let account
+
       await step('Setup: create an account and log in', async () => {
-        await createAccountAndLogIn(page, 'Sam Setup')
+        account = await createAccountAndLogIn(page, 'Sam Setup')
       })
 
       await step('Step 1: the setup page shows the experience levels, equipment and a greyed-out "Save setup"', async () => {
@@ -89,10 +107,16 @@ acceptanceTests(
         await expect(saveSetup(page)).toBeEnabled()
       })
 
-      await step('Step 4: "Save setup" opens the workout plan library', async () => {
-        await saveSetup(page).click()
-        await expect(page).toHaveURL(/#\/plans$/)
-        await expect(page.getByRole('heading', { name: 'Workout plan library' })).toBeVisible()
+      await step('Step 4: "Save setup" opens the login page with the account email filled in', async () => {
+        await saveSetupAndExpectLoginPage(page)
+        await expect(page.getByLabel('Email')).toHaveValue(account.email)
+        await expect(page.getByLabel('Password', { exact: true })).toHaveValue('')
+      })
+
+      await step('Step 5: logging in opens the Dashboard greeting Sam', async () => {
+        await logIn(page, account)
+        await expect(page.getByRole('heading', { name: 'Welcome, Sam' })).toBeVisible()
+        await expect(page.getByRole('button', { name: 'Open account menu' })).toHaveText('SS')
       })
     },
 
@@ -132,41 +156,45 @@ acceptanceTests(
     3: async ({ page }) => {
       let account
 
-      await step('Setup: log in and open the setup page', async () => {
-        account = await createAccountAndLogIn(page, 'Sam Setup')
+      await step('Setup: create an account and open the setup page', async () => {
+        account = await createAccountAndLogIn(page, 'Sam Saved')
         await openSetupPage(page)
       })
 
       await step('Step 1: save "Advanced" with a pull-up bar and full gym access', async () => {
         await levelCard(page, 'Advanced').click()
-        await turnOffAllEquipment(page)
         await chip(page, 'Pull-up bar').click()
         await chip(page, 'Full gym access').click()
-        await saveSetup(page).click()
-        await expect(page).toHaveURL(/#\/plans$/)
+        await expect(planImpact(page)).toHaveText('Advanced programming using pull-up bar and full gym access.')
+        await saveSetupAndExpectLoginPage(page)
       })
 
-      await step('Step 2: the setup page opens with those choices already selected', async () => {
+      await step('Step 2: after logging in, the setup page opens with those choices already selected', async () => {
+        await logIn(page, account)
         await openSetupPage(page)
         await expectLevel(page, 'Advanced')
         await expectEquipment(page, ['Pull-up bar', 'Full gym access'])
         await expect(planImpact(page)).toHaveText('Advanced programming using pull-up bar and full gym access.')
       })
 
-      await step('Step 3: after logging out and back in, the choices are still there', async () => {
+      await step('Step 3: logging out shows "You are logged out."', async () => {
         await logOut(page)
+      })
+
+      await step('Step 4: after logging back in, the choices are still there', async () => {
         await logIn(page, account)
         await openSetupPage(page)
         await expectLevel(page, 'Advanced')
         await expectEquipment(page, ['Pull-up bar', 'Full gym access'])
       })
 
-      await step('Step 4: a second account starts with nothing selected', async () => {
+      await step('Steps 5-7: a second account starts with nothing selected', async () => {
         await logOut(page)
         await createAccountAndLogIn(page, 'Sam Second')
         await openSetupPage(page)
         await expectLevel(page, null)
         await expectEquipment(page, [])
+        await expect(planImpact(page)).toHaveText(NOTHING_CHOSEN)
         await expect(saveSetup(page)).toBeDisabled()
       })
     },
@@ -176,6 +204,60 @@ acceptanceTests(
         await page.goto('#/setup')
         await expect(page).toHaveURL(/#\/login$/)
         await expect(page.getByRole('heading', { name: 'Log in to GymRank' })).toBeVisible()
+      })
+    },
+
+    5: async ({ page }) => {
+      let account
+
+      await step('Setup: create an account and open the setup page', async () => {
+        account = await createAccountAndLogIn(page, 'Sam Change')
+        await openSetupPage(page)
+      })
+
+      await step('Step 1: save "Beginner" with dumbbells and kettlebells', async () => {
+        await levelCard(page, 'Beginner').click()
+        await chip(page, 'Dumbbells').click()
+        await chip(page, 'Kettlebells').click()
+        await expect(planImpact(page)).toHaveText('Beginner programming using dumbbells and kettlebells.')
+        await saveSetupAndExpectLoginPage(page)
+      })
+
+      await step('Step 2: after logging in, both choices are remembered', async () => {
+        await logIn(page, account)
+        await openSetupPage(page)
+        await expectLevel(page, 'Beginner')
+        await expectEquipment(page, ['Dumbbells', 'Kettlebells'])
+        await expect(planImpact(page)).toHaveText('Beginner programming using dumbbells and kettlebells.')
+      })
+
+      await step('Step 3: changing only the experience to "Advanced" keeps the equipment', async () => {
+        await levelCard(page, 'Advanced').click()
+        await expect(planImpact(page)).toHaveText('Advanced programming using dumbbells and kettlebells.')
+        await saveAndReopenSetup(page, account)
+        await expectLevel(page, 'Advanced')
+        await expectEquipment(page, ['Dumbbells', 'Kettlebells'])
+      })
+
+      await step('Step 4: changing only the equipment keeps "Advanced"', async () => {
+        await chip(page, 'Dumbbells').click()
+        await chip(page, 'Barbell').click()
+        await expect(planImpact(page)).toHaveText('Advanced programming using barbell and kettlebells.')
+        await saveAndReopenSetup(page, account)
+        await expectLevel(page, 'Advanced')
+        await expectEquipment(page, ['Barbell', 'Kettlebells'])
+      })
+
+      await step('Step 5: an unsaved change disappears when the page is reloaded', async () => {
+        await levelCard(page, 'Beginner').click()
+        await chip(page, 'Barbell').click()
+        await chip(page, 'Kettlebells').click()
+        await expectEquipment(page, [])
+        await expect(saveSetup(page)).toBeDisabled()
+        await page.reload()
+        await expect(page.locator('.ob-step')).toHaveAttribute('aria-busy', 'false')
+        await expectLevel(page, 'Advanced')
+        await expectEquipment(page, ['Barbell', 'Kettlebells'])
       })
     },
   },
