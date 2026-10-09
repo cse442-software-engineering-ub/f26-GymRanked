@@ -22,9 +22,26 @@
   line-height: 1.5;
 }
 
-/* Logo on the photo band */
+/* Logo on the photo band. It reuses the NavBar's logo classes, so these rules keep the band's own order and
+   size where the mobile NavBar changes them (src/index.css, max-width 640px). */
 .ob-brand {
   align-self: flex-start;
+}
+
+.gym-backdrop .ob-brand {
+  order: 0;
+}
+
+.ob-brand .nav-bar__logo {
+  width: 32px;
+  height: 32px;
+  background: var(--gr-brand);
+}
+
+.ob-brand .nav-bar__brand-name {
+  color: var(--gr-text);
+  font-size: 16px;
+  font-weight: 500;
 }
 
 /* Step indicator on the photo band's lower edge: a bar and a name for each step */
