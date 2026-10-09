@@ -390,6 +390,22 @@ button.nav-bar__avatar {
   gap: 4px 8px;
 }
 
+.dashboard-today__plan {
+  margin: 12px 0 0;
+  color: var(--gr-text-soft);
+  font-size: 13px;
+}
+
+.dashboard-today__plan a {
+  color: var(--gr-action-text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.dashboard-today__plan a:hover {
+  text-decoration: underline;
+}
+
 .dashboard-card__meta {
   color: #8b8d94;
   font-size: 13px;
