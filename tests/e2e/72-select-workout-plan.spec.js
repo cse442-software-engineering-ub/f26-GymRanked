@@ -13,6 +13,57 @@ function topNav(page) {
   return page.getByRole('navigation', { name: 'Primary' })
 }
 
+// "Plans" or "Workouts" in the top navigation. On phones the links sit in the menu behind the three lines.
+async function goTo(page, label) {
+  const link = topNav(page).getByRole('link', { name: label })
+  if (await link.isVisible()) {
+    await link.click()
+  } else {
+    await page.getByRole('button', { name: 'Open navigation menu' }).click()
+    await page.getByRole('navigation', { name: 'Mobile navigation' }).getByRole('link', { name: label }).click()
+  }
+}
+
+// The current page is marked in the top navigation, or in the phone menu (which is closed again afterwards).
+async function expectCurrentNavLink(page, label) {
+  const link = topNav(page).getByRole('link', { name: label })
+  if (await link.isVisible()) {
+    await expect(link).toHaveClass(/nav-bar__link--current/)
+  } else {
+    await page.getByRole('button', { name: 'Open navigation menu' }).click()
+    const menu = page.getByRole('navigation', { name: 'Mobile navigation' })
+    await expect(menu.getByRole('link', { name: label })).toHaveAttribute('aria-current', 'page')
+    await page.getByRole('button', { name: 'Close navigation menu' }).first().click()
+  }
+}
+
+// The onboarding every setup goes through after logging in: "Strength", "Intermediate" and "Full gym access"
+// (so no plan needs equipment you don't have), ending on "Choose your workout plan".
+async function finishOnboarding(page) {
+  await expect(page).toHaveURL(/#\/goal$/)
+  await expect(page.locator('.ob-step')).toHaveAttribute('aria-busy', 'false')
+  await page.getByRole('button', { name: /^Strength/ }).click()
+  await page.getByRole('button', { name: 'Save goal' }).click()
+  await expect(page.getByRole('heading', { name: 'How experienced are you?' })).toBeVisible()
+  await expect(page.locator('.ob-step')).toHaveAttribute('aria-busy', 'false')
+  await page.getByRole('button', { name: /^Intermediate/ }).click()
+  await page.getByRole('button', { name: 'Save and continue' }).click()
+  await expect(page.getByRole('heading', { name: 'What equipment can you use?' })).toBeVisible()
+  await expect(page.locator('.ob-step')).toHaveAttribute('aria-busy', 'false')
+  await page.getByRole('button', { name: 'Full gym access' }).click()
+  await page.getByRole('button', { name: 'Save and continue' }).click()
+  await expect(page).toHaveURL(/#\/recommended$/)
+  await expect(page.getByRole('heading', { name: 'Choose your workout plan' })).toBeVisible()
+}
+
+const YOUR_SETUP = 'Strength · Intermediate · Full gym access'
+
+async function newOnboardedAccount(page, fullName) {
+  const account = await createAccountAndLogIn(page, fullName)
+  await finishOnboarding(page)
+  return account
+}
+
 function dayCards(page) {
   return page.locator('.weekly-plan__days > li')
 }
@@ -62,11 +113,16 @@ acceptanceTests(
     1: async ({ page }) => {
       const split = page.locator('.plan-split__day')
 
-      await step('Setup: log in, then "Plans" in the top navigation opens the plan library', async () => {
-        // A logged-out visitor is sent to the login page, so Test 1 logs in first.
-        await createAccountAndLogIn(page, 'Plans Viewer')
-        await topNav(page).getByRole('link', { name: 'Plans' }).click()
+      await step('Setup: log in, finish onboarding, then "Browse all plans" opens the plan library', async () => {
+        await newOnboardedAccount(page, 'Plans Viewer')
+        await expect(page.getByRole('status').filter({ hasText: 'Your setup is saved.' })).toContainText(
+          'Pick a plan to start your first week.',
+        )
+        await expect(page.locator('.your-setup .your-setup__value')).toHaveText(YOUR_SETUP)
+        await expect(page.locator('.your-setup').getByRole('link', { name: 'Edit' })).toBeVisible()
+        await page.getByRole('link', { name: 'Browse all plans' }).click()
         await expect(page).toHaveURL(/#\/plans$/)
+        await expect(page.locator('.your-setup .your-setup__value')).toHaveText(YOUR_SETUP)
         await expect(planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Select' })).toBeEnabled()
         await expect(page.getByText('to choose a plan')).toHaveCount(0)
       })
@@ -86,8 +142,11 @@ acceptanceTests(
         await expect(planRow(page, 'Push Pull Legs')).toContainText('5 days/wk')
       })
 
-      await step('Step 2: clicking the "Push Pull Legs" row opens its details', async () => {
-        await planRow(page, 'Push Pull Legs').getByRole('link').click()
+      await step('Step 2: clicking the "Push Pull Legs" card opens its details', async () => {
+        // An empty spot on the card, right of its middle, away from the name, the dot and the button.
+        const card = planRow(page, 'Push Pull Legs')
+        const { width, height } = await card.boundingBox()
+        await card.click({ position: { x: width - 24, y: height / 2 } })
         await expect(page).toHaveURL(/#\/plans\/\d+$/)
         await expect(page.getByRole('heading', { level: 1 })).toHaveText('Push Pull Legs')
         await expect(page.getByText('5 days/wk')).toBeVisible()
@@ -125,13 +184,13 @@ acceptanceTests(
     2: async ({ page }) => {
       const today = wednesdayThisWeek()
 
-      await step('Setup: create an account and log in', async () => {
+      await step('Setup: create an account, log in and finish onboarding', async () => {
         await page.clock.setFixedTime(today)
-        await createAccountAndLogIn(page, 'Plans Tester A')
+        await newOnboardedAccount(page, 'Plans Tester A')
       })
 
-      await step('Step 1: "Plans" in the top navigation opens the library, with working Select buttons', async () => {
-        await topNav(page).getByRole('link', { name: 'Plans' }).click()
+      await step('Step 1: "Browse all plans" opens the library, with working Select buttons', async () => {
+        await page.getByRole('link', { name: 'Browse all plans' }).click()
         await expect(page).toHaveURL(/#\/plans$/)
         await expect(planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Select' })).toBeEnabled()
         await expect(page.getByText('to choose a plan')).toHaveCount(0)
@@ -141,10 +200,10 @@ acceptanceTests(
         await planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Select' }).click()
         await expect(switchDialog(page)).toHaveCount(0)
         await expectDashboardFollowing(page, 'Push Pull Legs')
-        await topNav(page).getByRole('link', { name: 'Workouts' }).click()
+        await goTo(page, 'Workouts')
         await expectWeeklyPlan(page, 'Push Pull Legs')
         await expect(page.getByText(weekOfLabel(today))).toBeVisible()
-        await expect(topNav(page).getByRole('link', { name: 'Workouts' })).toHaveClass(/nav-bar__link--current/)
+        await expectCurrentNavLink(page, 'Workouts')
 
         const cards = dayCards(page)
         await expect(cards.locator('.day-card__weekday')).toHaveText(['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'])
@@ -160,11 +219,13 @@ acceptanceTests(
         await expect(page.locator('#today-workout-name')).toHaveText(todaysWorkout)
       })
 
-      await step('Step 3: the library now shows "Current plan", greyed out', async () => {
-        await topNav(page).getByRole('link', { name: 'Plans' }).click()
+      await step('Step 3: the library now shows "Current plan", greyed out, on an orange-bordered card', async () => {
+        await goTo(page, 'Plans')
         const current = planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Current plan' })
         await expect(current).toBeVisible()
         await expect(current).toBeDisabled()
+        await expect(current.locator('svg')).toBeVisible()
+        await expect(planRow(page, 'Push Pull Legs')).toHaveCSS('border-top-color', 'rgb(224, 112, 63)')
       })
 
       await step('Step 4: its details page shows "This is your current plan", greyed out', async () => {
@@ -175,7 +236,7 @@ acceptanceTests(
       })
 
       await step('Step 5: "Workouts" returns to the weekly plan', async () => {
-        await topNav(page).getByRole('link', { name: 'Workouts' }).click()
+        await goTo(page, 'Workouts')
         await expectWeeklyPlan(page, 'Push Pull Legs')
       })
     },
@@ -185,12 +246,12 @@ acceptanceTests(
       const selectFullBody = planRow(page, 'Full Body Strength').getByRole('button', { name: 'Select' })
 
       await step('Setup: log in with "Push Pull Legs" as your plan (where Acceptance Test 2 ends)', async () => {
-        await createAccountAndLogIn(page, 'Plans Tester A')
+        await newOnboardedAccount(page, 'Plans Tester A')
         await selectFirstPlan(page, 'Push Pull Legs')
       })
 
       await step('Step 1: selecting "Full Body Strength" shows the switch warning', async () => {
-        await topNav(page).getByRole('link', { name: 'Plans' }).click()
+        await goTo(page, 'Plans')
         await selectFullBody.click()
         await expect(dialog.getByRole('heading')).toHaveText('Switch to Full Body Strength?')
         await expect(dialog).toContainText(
@@ -217,7 +278,7 @@ acceptanceTests(
       await step('Step 4: clicking the dark area outside closes it without changing the plan', async () => {
         await selectFullBody.click()
         await expect(dialog).toBeVisible()
-        // The nav bar stays above the backdrop, so click the dark area near the bottom-left corner.
+        // The dark area near the bottom-left corner (the backdrop now also covers the nav bar).
         const backdrop = page.locator('.modal-backdrop')
         const { height } = await backdrop.boundingBox()
         await backdrop.click({ position: { x: 20, y: height - 20 } })
@@ -234,14 +295,14 @@ acceptanceTests(
       await step('Step 6: "Switch plan" opens the Dashboard, then "Workouts" shows the "Full Body Strength" week', async () => {
         await dialog.getByRole('button', { name: 'Switch plan' }).click()
         await expectDashboardFollowing(page, 'Full Body Strength')
-        await topNav(page).getByRole('link', { name: 'Workouts' }).click()
+        await goTo(page, 'Workouts')
         await expectWeeklyPlan(page, 'Full Body Strength')
         const names = await dayCards(page).locator('.day-card__name').allTextContents()
         expect(names).toEqual(expect.arrayContaining(['Full body A', 'Full body B', 'Full body C']))
       })
 
       await step('Step 7: the library shows the new current plan, and the old one can be selected', async () => {
-        await topNav(page).getByRole('link', { name: 'Plans' }).click()
+        await goTo(page, 'Plans')
         await expect(planRow(page, 'Full Body Strength').getByRole('button', { name: 'Current plan' })).toBeDisabled()
         await expect(planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Select' })).toBeEnabled()
       })
@@ -251,12 +312,12 @@ acceptanceTests(
       let accountA
 
       await step('Setup: log in with "Full Body Strength" as your plan (where Acceptance Test 3 ends)', async () => {
-        accountA = await createAccountAndLogIn(page, 'Plans Tester A')
+        accountA = await newOnboardedAccount(page, 'Plans Tester A')
         await selectFirstPlan(page, 'Full Body Strength')
       })
 
       await step('Step 1: "Workouts" shows the plan, and it stays after a refresh', async () => {
-        await topNav(page).getByRole('link', { name: 'Workouts' }).click()
+        await goTo(page, 'Workouts')
         await expectWeeklyPlan(page, 'Full Body Strength')
         await page.reload()
         await expectWeeklyPlan(page, 'Full Body Strength')
@@ -293,6 +354,7 @@ acceptanceTests(
         await logOut(page)
         const accountB = await createAccount(page, 'Plans Tester B')
         await logIn(page, accountB)
+        await finishOnboarding(page)
         await page.goto('#/weekly-plan')
         await expect(page.getByRole('heading', { name: 'No workout plan selected yet' })).toBeVisible()
         await expect(page.getByRole('link', { name: 'Browse workout plans' })).toBeVisible()
