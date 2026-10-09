@@ -77,6 +77,7 @@ From the login page's feedback messages (`.login-feedback`, cirexlul, PRs #37 an
 | `success` | `#63c792` | `rgba(99, 199, 146, 0.08)` | `#8de0ad` (11.3:1) | "Account setup saved. Log in to continue.", saved confirmations |
 | `error` | `#ff968b` | `rgba(255, 150, 139, 0.08)` | `#ffb4aa` (10.4:1) | Form-level errors, failed requests |
 | `danger` | n/a | hover `rgba(255, 92, 92, 0.12)` | `#ff5c5c` (5.9:1) | Destructive actions: "Log out" |
+| `warning` | `#f0cf65` | `rgba(240, 207, 101, 0.08)` | `#f5dc8c` (11.0:1) | The "Intermediate" level badge on plan cards (Suryamur10, `.level-badge--intermediate`; Beginner uses `success`) |
 
 Field-level errors use the `error` colours: a 2px `#ff968b` outline on the input and `#ffb4aa` text under it (`.input-wrap.invalid`, `.field-error`).
 
@@ -130,7 +131,7 @@ Layout patterns:
 - **Metric row:** 3 equal columns (`repeat(3, minmax(0, 1fr))`), one column at 900px or less.
 - **Overview:** 2 equal columns, one column at 900px or less.
 - **Option cards** (onboarding): 3 columns on desktop, 2 at 960px or less, 1 at 640px or less.
-- **Tile grid** (equipment): `repeat(auto-fill, minmax(150px, 1fr))` on desktop, 2 columns on phones.
+- **Tile grid** (equipment): 4 columns on desktop and tablets, 2 columns on phones.
 
 ### Breakpoints
 
@@ -244,7 +245,7 @@ import GymBackdrop from './components/GymBackdrop.jsx'
 
 ### Selectable option card (onboarding addition)
 
-Used for training goal and experience level.
+Used for training goal and experience level. The experience cards' icon is three bars lit up to the level (one for Beginner, three for Advanced).
 
 - A `<button>` with `aria-pressed`, 12px corners (`ChoiceCard` in `src/onboarding/parts.jsx`).
 - Computers: cards side by side, at least 180px tall with 20px padding. The 44px icon tile is top left and the tick circle top right; under them the title (16px / 500), the description (14px `text-soft`) and the "Select" / "Selected" pill at the bottom.
@@ -253,10 +254,16 @@ Used for training goal and experience level.
 
 ### Equipment tile (onboarding addition)
 
-- Square-ish button, at least 84px tall (104px on desktop): a 28–32px stroke icon on top, the label underneath (15px / 500), and a 20px tick circle in the top-right corner.
+- Square-ish button with `aria-pressed`, at least 84px tall (104px on desktop): a 28–32px stroke icon on top, the label underneath (15px / 500), and a 20px tick circle in the top-right corner. Selected: the same border, tint and filled tick as option cards, with the icon in `action-text`.
 - Several can be selected.
-- "Bodyweight only" is a full-width option card above the grid. Choosing it clears the others, and choosing any tile clears it.
+- "Bodyweight only" is a full-width option row above the grid (icon tile, title 16px / 600 with a one-line description, tick circle on the right), then the divider "or pick what you have". Choosing it clears the others, and choosing any tile clears it.
 - Every tile has a text label. Never show an icon without one.
+
+### Onboarding page parts (`src/onboarding/parts.jsx`)
+
+- `SaveBar`: the step's primary button ("Save goal", "Save and continue") with the reason it's greyed out under it ("Pick one goal to continue."). Top right next to the heading on computers; a full-width bar fixed to the bottom of the screen on phones, at least 48px tall.
+- `BackLink`: "Back to …" with a chevron, above the heading, at least 44px tall.
+- The step indicator shows Training goal, Experience, Equipment and Choose plan as bars with names on the photo band. The current step is `text` and bold; finished steps have an `action` bar.
 
 ### Empty, loading and error states
 
@@ -307,11 +314,10 @@ Third-party logos live in `public/brand/`, with their source and usage rules in 
 
 ## Known differences in the current code
 
-As of task #93 (2026-10-08). These pages predate the Dashboard redesign and should move to the tokens above through upgrade tasks.
+As of task #94 (2026-10-09). These pages predate the Dashboard redesign and should move to the tokens above through upgrade tasks.
 
 | Area | What it uses now | Should use | File | Task |
 |---|---|---|---|---|
-| Onboarding setup page (experience and equipment) | Moved to the shared colours by #93, but still the old layout with equipment chips | Separate experience and equipment pages with option cards and equipment tiles | `src/onboarding/` | #94 |
 | Plan library and details | Rows `#1e2027`; light grey "Select" button (`#e3e3e3` with `#767676` border); page title 22–24px | `surface` cards; primary or text action; 28px title | `src/index.css` (`.plan-row`, `.plan-list__select`, `.plan-details`) | #95 |
 | Weekly plan | Title 22px; grey `.button-primary` (`#2c2c2c`) | 28px title; `action` primary | `src/index.css` (`.weekly-plan`, `.button-primary`) | #95 |
 | Switch plan dialog | 14px corners | 12px | `.switch-plan-modal` | #95 |
@@ -359,6 +365,9 @@ Defined once in `src/index.css` (task #93), so every stylesheet can share the to
   --gr-error-text: #ffb4aa;
   --gr-error-bg: rgba(255, 150, 139, 0.08);
   --gr-danger: #ff5c5c;
+  --gr-warning: #f0cf65;
+  --gr-warning-text: #f5dc8c;
+  --gr-warning-bg: rgba(240, 207, 101, 0.08);
 
   /* Shape */
   --gr-radius-card: 12px;
