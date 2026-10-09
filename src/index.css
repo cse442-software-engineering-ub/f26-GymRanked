@@ -699,6 +699,43 @@ button.nav-bar__avatar {
   color: var(--gr-action-text);
 }
 
+.plan-icons {
+  list-style: none;
+  margin: 12px 0 4px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.plan-icons__item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.plan-icons__tile {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--gr-radius-inner);
+  background: var(--gr-surface-raised);
+  box-shadow: inset 0 0 0 1px var(--gr-border);
+  color: var(--gr-text);
+}
+
+.plan-icons__tile svg {
+  width: 24px;
+  height: 24px;
+}
+
+.plan-icons__label {
+  font-size: 11px;
+  color: var(--gr-text-muted);
+}
+
 .plan-list__select {
   background: var(--gr-action);
   color: var(--gr-text-on-orange);
