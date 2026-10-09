@@ -80,7 +80,7 @@ function EquipmentStep() {
       body: JSON.stringify({ equipment }),
     });
     if (result.ok) {
-      navigate('/recommended'); // Next onboarding step: pick from the recommended plans.
+      navigate('/recommended', { state: { setupSaved: true } }); // Last onboarding step: pick a plan.
       return;
     }
     setStatus('ready');

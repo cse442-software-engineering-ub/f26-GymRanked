@@ -729,6 +729,36 @@ button.nav-bar__avatar {
   background: var(--gr-surface-raised);
 }
 
+/* "Your setup: Strength · Intermediate · Full gym access — Edit" (YourSetup.jsx), on the plan library and
+   on "Choose your workout plan". */
+.your-setup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin: 0 0 16px;
+  color: var(--gr-text-soft);
+  font-size: 14px;
+}
+
+.your-setup__label {
+  color: var(--gr-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.your-setup__value {
+  color: var(--gr-text);
+}
+
+.your-setup__edit {
+  color: var(--gr-action-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .plan-row {
   flex: 1;
   min-width: 0;

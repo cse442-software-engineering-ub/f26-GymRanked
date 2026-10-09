@@ -1,18 +1,23 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import PlanIcons from '../PlanIcons.jsx';
 import PlanEquipmentDot from '../PlanEquipmentDot.jsx';
 import PlanMeta from '../PlanMeta.jsx';
 import { recommendPlans } from '../planEquipment.js';
 import { fetchPlans } from '../plansApi.js';
 import usePlanSelection from '../usePlanSelection.jsx';
+import YourSetup from '../YourSetup.jsx';
 import { OnboardingShell, StepHeader } from './parts.jsx';
 
 const GOAL_LABELS = { strength: 'strength', fat_loss: 'fat loss', aerobic: 'aerobic fitness' };
 
 // Route: #/recommended (registered in src/App.jsx). Onboarding step 4 of 4.
 export default function RecommendedPlansPage() {
-  return <OnboardingShell step={3}>{() => <RecommendedPlans />}</OnboardingShell>;
+  return (
+    <OnboardingShell step={3} backdrop="backdrops/rack.webp">
+      {() => <RecommendedPlans />}
+    </OnboardingShell>
+  );
 }
 
 function RecommendedPlans() {
@@ -20,6 +25,14 @@ function RecommendedPlans() {
   const { setup, setupLoaded: loaded } = selection;
   const [plans, setPlans] = useState(null);
   const [error, setError] = useState('');
+  const location = useLocation();
+  const navigate = useNavigate();
+  // The equipment page sends { setupSaved: true } when onboarding is finished. Show the confirmation for this
+  // visit only: clear it from the history entry, which a reload would otherwise keep.
+  const [justSaved] = useState(() => Boolean(location.state?.setupSaved));
+  useEffect(() => {
+    if (location.state?.setupSaved) navigate(location.pathname, { replace: true, state: null });
+  }, [location, navigate]);
 
   useEffect(() => {
     fetchPlans()
@@ -32,6 +45,17 @@ function RecommendedPlans() {
 
   return (
     <section className="ob-step" aria-busy={!ready && !error}>
+      {justSaved && (
+        <div className="ob-message ob-message--success ob-handoff" role="status">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M5 12.5l4.5 4.5L19 7.5" />
+          </svg>
+          <p>
+            <strong>Your setup is saved.</strong> Pick a plan to start your first week.
+          </p>
+        </div>
+      )}
+
       <StepHeader
         title="Choose your workout plan"
         subtitle={
@@ -40,6 +64,8 @@ function RecommendedPlans() {
             : 'Plans that fit your experience and equipment. Pick one to start.'
         }
       />
+
+      <YourSetup setup={setup} />
 
       {selection.loggedOut && (
         <p className="ob-message ob-message--error" role="alert">

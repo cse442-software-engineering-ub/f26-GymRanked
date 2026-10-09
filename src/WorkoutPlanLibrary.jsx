@@ -6,6 +6,7 @@ import PlanSelectionStatus from './PlanSelectionStatus.jsx'
 import { fetchPlans } from './plansApi.js'
 import { missingEquipment } from './planEquipment.js'
 import usePlanSelection from './usePlanSelection.jsx'
+import YourSetup from './YourSetup.jsx'
 
 function WorkoutPlanLibrary() {
   const [plans, setPlans] = useState(null)
@@ -28,6 +29,7 @@ function WorkoutPlanLibrary() {
           <h1>Workout plan library</h1>
           <p>Browse all training programs.</p>
         </div>
+        <YourSetup setup={setup} />
         <PlanSelectionStatus loggedOut={selection.loggedOut} notice={selection.notice} />
         {error && <p className="status">Error loading plans: {error}</p>}
         {!error && plans === null && <p className="status">Loading plans...</p>}
