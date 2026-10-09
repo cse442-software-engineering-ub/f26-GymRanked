@@ -4,12 +4,14 @@ import NavBar from './NavBar.jsx'
 import PlanListRow from './PlanListRow.jsx'
 import PlanSelectionStatus from './PlanSelectionStatus.jsx'
 import { fetchPlans } from './plansApi.js'
+import { missingEquipment } from './planEquipment.js'
 import usePlanSelection from './usePlanSelection.jsx'
 
 function WorkoutPlanLibrary() {
   const [plans, setPlans] = useState(null)
   const [error, setError] = useState(null)
   const selection = usePlanSelection()
+  const { setup } = selection
 
   useEffect(() => {
     fetchPlans()
@@ -38,14 +40,14 @@ function WorkoutPlanLibrary() {
               const isCurrent = selection.currentPlanId === plan.id
               return (
                 <li key={plan.id} className="plan-list__item">
-                  <PlanListRow plan={plan} />
+                  <PlanListRow plan={plan} missing={setup ? missingEquipment(plan, setup.equipment) : null} />
                   <button
                     type="button"
                     className="plan-list__select"
                     onClick={() => selection.requestSelect(plan)}
                     disabled={!selection.canSelect || isCurrent}
                   >
-                    {isCurrent ? 'Current plan' : 'Select'}
+                    {isCurrent ? 'Current plan' : selection.busyPlanId === plan.id ? 'Selecting...' : 'Select'}
                   </button>
                 </li>
               )

@@ -10,7 +10,7 @@ function PlanSelectionStatus({ loggedOut, notice }) {
         </p>
       )}
       {notice && (
-        <p className="status" role="status">
+        <p className="status" role="alert">
           {notice}
         </p>
       )}

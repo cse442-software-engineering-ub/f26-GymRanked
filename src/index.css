@@ -1,3 +1,53 @@
+/* GymRank design tokens (DESIGN.md, "CSS variables"). Use var(--gr-…) instead of writing a hex value. */
+:root {
+  /* Backgrounds */
+  --gr-bg-page: #0e1015;
+  --gr-bg-nav: #14161b;
+  --gr-surface: #161820;
+  --gr-surface-raised: #1d2029;
+  --gr-surface-sunken: #12131a;
+  --gr-track: #2a2d38;
+
+  /* Text */
+  --gr-text: #e8e9ec;
+  --gr-text-soft: #a2a5ad;
+  --gr-text-muted: #8b8d94;
+  --gr-nav-inactive: #8a8f99;
+  --gr-text-on-orange: #14161b;
+
+  /* Oranges */
+  --gr-brand: #f2652e;
+  --gr-action: #e0703f;
+  --gr-action-text: #f2865a;
+  --gr-selected-bg: color-mix(in srgb, #e0703f 16%, #161820);
+
+  /* Lines */
+  --gr-border: rgba(255, 255, 255, 0.06);
+  --gr-border-strong: rgba(255, 255, 255, 0.08);
+  --gr-control-outline: #6b6f7a;
+
+  /* Feedback */
+  --gr-success: #63c792;
+  --gr-success-text: #8de0ad;
+  --gr-success-bg: rgba(99, 199, 146, 0.08);
+  --gr-error: #ff968b;
+  --gr-error-text: #ffb4aa;
+  --gr-error-bg: rgba(255, 150, 139, 0.08);
+  --gr-danger: #ff5c5c;
+  --gr-warning: #f0cf65;
+  --gr-warning-text: #f5dc8c;
+  --gr-warning-bg: rgba(240, 207, 101, 0.08);
+
+  /* Shape */
+  --gr-radius-card: 12px;
+  --gr-radius-inner: 10px;
+  --gr-radius-button: 8px;
+  --gr-shadow-menu: 0 12px 30px rgba(0, 0, 0, 0.3);
+
+  /* Type */
+  --gr-font: system-ui, sans-serif;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -357,6 +407,53 @@ button.nav-bar__avatar {
   gap: 4px 8px;
 }
 
+.dashboard-notice {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--gr-success);
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.dashboard-notice p {
+  margin: 0;
+}
+
+.dashboard-notice button {
+  flex: none;
+  min-width: 44px;
+  min-height: 44px;
+  margin: -12px -12px -12px 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.dashboard-today__plan {
+  margin: 12px 0 0;
+  color: var(--gr-text-soft);
+  font-size: 13px;
+}
+
+.dashboard-today__plan a {
+  color: var(--gr-action-text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.dashboard-today__plan a:hover {
+  text-decoration: underline;
+}
+
 .dashboard-card__meta {
   color: #8b8d94;
   font-size: 13px;
@@ -549,7 +646,7 @@ button.nav-bar__avatar {
 
 .plan-library__heading h1 {
   margin: 0;
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 500;
   color: #e8e9ec;
 }
@@ -595,68 +692,152 @@ button.nav-bar__avatar {
   color: #e8e9ec;
 }
 
+/* Plan cards: a responsive grid. Each li is a card (DESIGN.md "Card"): surface, 1px border, 12px corners. */
 .plan-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
 }
 
 .plan-list__item {
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  background: var(--gr-surface);
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+}
+
+.plan-list__item:hover {
+  border-color: var(--gr-border-strong);
+  background: var(--gr-surface-raised);
 }
 
 .plan-row {
   flex: 1;
   min-width: 0;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  background: #1e2027;
-  border-radius: 10px;
-  padding: 14px 16px;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.plan-row__info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 .plan-row__name {
   margin: 0;
-  font-size: 15px;
+  font-size: 16px;
+  line-height: 1.35;
   font-weight: 500;
-  color: #e8e9ec;
+  color: var(--gr-text);
+}
+
+.level-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.level-badge--beginner {
+  border-color: var(--gr-success);
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
+}
+
+.level-badge--intermediate {
+  border-color: var(--gr-warning);
+  background: var(--gr-warning-bg);
+  color: var(--gr-warning-text);
+}
+
+.level-badge--advanced {
+  border-color: var(--gr-error);
+  background: var(--gr-error-bg);
+  color: var(--gr-error-text);
 }
 
 .plan-row__meta {
-  margin: 2px 0 0;
-  font-size: 12px;
-  color: #8b8d94;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--gr-text-muted);
 }
 
+/* Days per week sits above the name, like the card eyebrows elsewhere. */
 .plan-row__frequency {
+  order: -1;
   margin: 0;
-  flex-shrink: 0;
   font-size: 12px;
-  font-weight: 500;
-  color: #f2865a;
+  font-weight: 600;
+  color: var(--gr-action-text);
+}
+
+.plan-icons {
+  list-style: none;
+  margin: 4px 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+}
+
+.plan-icons__item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.plan-icons__tile {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--gr-radius-inner);
+  background: var(--gr-surface-raised);
+  box-shadow: inset 0 0 0 1px var(--gr-border);
+  color: var(--gr-text);
+}
+
+.plan-icons__tile svg {
+  width: 24px;
+  height: 24px;
+}
+
+.plan-icons__label {
+  font-size: 12px;
+  color: var(--gr-text-muted);
 }
 
 .plan-list__select {
-  flex-shrink: 0;
-  background: #e3e3e3;
-  color: #1e1e1e;
-  border: 1px solid #767676;
-  border-radius: 8px;
-  padding: 6px 14px;
-  font-size: 13px;
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+  border: none;
+  border-radius: var(--gr-radius-button);
+  min-height: 44px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
 }
 
-.plan-list__select:disabled {
-  opacity: 0.6;
-  cursor: default;
+.plan-list__select:disabled,
+.button-primary:disabled {
+  background: var(--gr-surface-raised);
+  color: var(--gr-nav-inactive);
+  cursor: not-allowed;
 }
 
 .plan-library .status a {
@@ -668,8 +849,8 @@ a.plan-row {
   text-decoration: none;
 }
 
-a.plan-row:hover {
-  background: #262831;
+a.plan-row:hover .plan-row__name {
+  text-decoration: underline;
 }
 
 /* Plan details */
@@ -693,7 +874,7 @@ a.plan-row:hover {
 
 .plan-details__title h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 500;
   color: #e8e9ec;
 }
@@ -736,14 +917,72 @@ a.plan-row:hover {
   border-radius: 12px;
 }
 
+.plan-split__item {
+  background: var(--gr-surface-raised);
+  border-radius: var(--gr-radius-inner);
+}
+
 .plan-split__day {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   padding: 12px;
-  background: #1e2027;
-  border-radius: 8px;
+}
+
+/* Exercises under a day, each with a front/back body figure lighting up the muscles it works */
+.plan-exercises {
+  list-style: none;
+  margin: 0;
+  padding: 0 12px 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.plan-exercise {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--gr-border);
+}
+
+.plan-exercise__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.plan-exercise__name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--gr-text);
+}
+
+.plan-exercise__muscles {
+  font-size: 13px;
+  color: var(--gr-action-text);
+}
+
+.body-figure {
+  display: flex;
+  flex: none;
+  gap: 2px;
+}
+
+.body-figure__view {
+  width: 32px;
+  height: 77px;
+}
+
+.body-figure__base,
+.body-figure__muscle {
+  fill: color-mix(in srgb, var(--gr-text) 24%, var(--gr-surface-raised));
+}
+
+.body-figure__muscle.is-lit {
+  fill: var(--gr-action);
 }
 
 .plan-split__name {
@@ -779,7 +1018,7 @@ a.plan-row:hover {
 
 .weekly-plan__heading h1 {
   margin: 0;
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 500;
   color: #e8e9ec;
 }
@@ -882,10 +1121,12 @@ a.today-workout__action {
 }
 
 .button-primary {
+  min-height: 44px;
   padding: 12px;
-  background: #2c2c2c;
-  color: #f5f5f5;
-  border: 1px solid #2c2c2c;
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+  border: none;
+  font-weight: 600;
 }
 
 .button-subtle {
@@ -895,7 +1136,6 @@ a.today-workout__action {
   border: none;
 }
 
-.button-primary:disabled,
 .button-subtle:disabled {
   opacity: 0.6;
   cursor: default;
@@ -921,8 +1161,9 @@ a.today-workout__action {
   flex-direction: column;
   gap: 16px;
   padding: 24px;
-  background: #161820;
-  border-radius: 14px;
+  background: var(--gr-surface);
+  border-radius: var(--gr-radius-card);
+  box-shadow: var(--gr-shadow-menu);
 }
 
 .switch-plan-modal__title {
@@ -930,6 +1171,12 @@ a.today-workout__action {
   font-size: 16px;
   font-weight: 500;
   color: #e8e9ec;
+}
+
+.switch-plan-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .switch-plan-modal__warning {
@@ -961,14 +1208,6 @@ a.today-workout__action {
 
   .plan-library__content {
     padding: 8px 20px 32px;
-  }
-
-  .plan-list__item {
-    flex-wrap: wrap;
-  }
-
-  .plan-row {
-    width: 100%;
   }
 
   .plan-details {
@@ -1250,4 +1489,82 @@ a.today-workout__action {
   .dashboard-metric:not(:first-child) { grid-template-columns: 26px minmax(0, 1fr); gap: 7px; padding: 11px; }
   .dashboard-metric:not(:first-child) .dashboard-metric__icon { width: 26px; }
   .dashboard-metric:not(:first-child) .dashboard-metric__icon svg { width: 25px; height: 25px; }
+}
+
+/* Equipment a plan needs vs. what the user has (library, details and onboarding recommendations) */
+/* Equipment dot: green when the user has what a plan needs, red when not. The tooltip shows on hover and focus. */
+.equipment-dot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  vertical-align: middle;
+  cursor: help;
+}
+
+.plan-list__item > .equipment-dot,
+.ob-plan > .equipment-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.plan-details__equipment .equipment-dot {
+  width: 28px;
+  height: 28px;
+  margin-left: 4px;
+}
+
+.equipment-dot__mark {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.equipment-dot--ok .equipment-dot__mark {
+  background: var(--gr-success);
+}
+
+.equipment-dot--short .equipment-dot__mark {
+  background: var(--gr-error);
+}
+
+.equipment-dot__tip {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 5;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  width: max-content;
+  max-width: 220px;
+  padding: 8px 10px;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-surface-raised);
+  box-shadow: var(--gr-shadow-menu);
+  color: var(--gr-text);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.equipment-dot__need {
+  color: var(--gr-text-soft);
+  font-weight: 400;
+}
+
+.equipment-dot:hover .equipment-dot__tip,
+.equipment-dot:focus .equipment-dot__tip {
+  display: flex;
+}
+
+.plan-details__equipment {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: var(--gr-text-soft);
 }

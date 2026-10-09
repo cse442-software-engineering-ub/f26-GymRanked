@@ -1,8 +1,12 @@
 import { useEffect, useRef } from 'react'
+import { equipmentList } from './planEquipment.js'
 
 // Figma "Switch Plan Modal": confirms replacing the user's current plan with another one.
-function SwitchPlanModal({ plan, currentPlan, week, busy, error, onConfirm, onCancel }) {
+// Also used before starting a plan that needs equipment the user hasn't listed.
+// currentPlan is null when the user has no plan yet; missing is the equipment they'd still need.
+function SwitchPlanModal({ plan, currentPlan, week, missing = [], busy, error, onConfirm, onCancel }) {
   const confirmRef = useRef(null)
+  const switching = Boolean(currentPlan)
 
   useEffect(() => {
     confirmRef.current?.focus()
@@ -12,6 +16,10 @@ function SwitchPlanModal({ plan, currentPlan, week, busy, error, onConfirm, onCa
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [onCancel])
+
+  let confirmLabel = switching ? 'Switch plan' : 'Start plan'
+  if (missing.length > 0) confirmLabel = switching ? 'Switch anyway' : 'Start anyway'
+  if (busy) confirmLabel = switching ? 'Switching...' : 'Starting...'
 
   return (
     <div className="modal-backdrop" onClick={onCancel}>
@@ -24,13 +32,23 @@ function SwitchPlanModal({ plan, currentPlan, week, busy, error, onConfirm, onCa
         onClick={(event) => event.stopPropagation()}
       >
         <h2 id="switch-plan-title" className="switch-plan-modal__title">
-          Switch to {plan.name}?
+          {switching ? 'Switch to' : 'Start'} {plan.name}?
         </h2>
-        <p id="switch-plan-warning" className="switch-plan-modal__warning">
-          You&apos;re partway through Week {week} of {currentPlan.name}. Switching plans now will
-          reset this week&apos;s progress.
-        </p>
-        <p className="switch-plan-modal__note">Your finished workouts stay in your history.</p>
+        <div id="switch-plan-warning" className="switch-plan-modal__body">
+          {switching && (
+            <p className="switch-plan-modal__warning">
+              You&apos;re partway through Week {week} of {currentPlan.name}. Switching plans now will
+              reset this week&apos;s progress.
+            </p>
+          )}
+          {missing.length > 0 && (
+            <p className="switch-plan-modal__warning">
+              This plan needs equipment you haven&apos;t added: {equipmentList(missing)}. You can still
+              start it, but some exercises will need a substitute.
+            </p>
+          )}
+        </div>
+        {switching && <p className="switch-plan-modal__note">Your finished workouts stay in your history.</p>}
         {error && (
           <p className="switch-plan-modal__error" role="alert">
             {error}
@@ -43,7 +61,7 @@ function SwitchPlanModal({ plan, currentPlan, week, busy, error, onConfirm, onCa
           onClick={onConfirm}
           disabled={busy}
         >
-          {busy ? 'Switching...' : 'Switch plan'}
+          {confirmLabel}
         </button>
         <button type="button" className="button-subtle" onClick={onCancel} disabled={busy}>
           Cancel

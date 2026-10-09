@@ -1,80 +1,72 @@
-/* Onboarding styles, matched to the Figma "Training goal" and "Experience" frames.
-   Everything is scoped under .onboarding and prefixed ob- so it can't clash with other pages.
-
-   Scaling: .onboarding sets one base font size that grows with the window width
-   in proportion to the Figma (15px at 1440px wide, 20px at 1920px, 24px max on 2304px+ screens, 14px min).
-   Every size below is in em, so text, spacing and content width all scale together. */
+/* Onboarding styles (#/goal and #/setup), on the shared design tokens in DESIGN.md.
+   Colours, radii and the font come from the --gr- variables in src/index.css; sizes are the px values in DESIGN.md.
+   Everything is prefixed ob- so it can't clash with other pages. */
 
 /* Full-screen page: fills the whole browser window at any size (dvh handles mobile browser bars). */
 .ob-page {
-  --ob-bg: #0e0f13;
-  --ob-surface: #16181e;
-  --ob-surface-raised: #1f222a;
-  --ob-border: #2a2d36;
-  --ob-text: #ececef;
-  --ob-muted: #9a9ea9;
-  --ob-accent: #f26a2e;
-  --ob-accent-soft: rgba(242, 106, 46, 0.12);
-  --ob-success: #4fd18b;
-  --ob-danger: #ff8a80;
-
   display: flex;
   flex-direction: column;
   width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
-  background: var(--ob-bg);
-  color: var(--ob-text);
+  background: var(--gr-bg-page);
+  color: var(--gr-text);
+  font-family: var(--gr-font);
 }
 
 .onboarding {
-  box-sizing: border-box;
   flex: 1;
   width: 100%;
-  padding: 1.333em clamp(1em, 4vw, 3.2em) 3.2em;
-  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  font-size: clamp(14px, 1.0417vw, 24px);
+  padding: 24px 48px 48px;
+  font-size: 14px;
   line-height: 1.5;
 }
 
-.onboarding *,
-.onboarding *::before,
-.onboarding *::after {
-  box-sizing: inherit;
+/* Logo on the photo band */
+.ob-brand {
+  align-self: flex-start;
 }
 
-/* Step indicator */
+/* Step indicator on the photo band's lower edge: a bar and a name for each step */
 .ob-stepper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.615em;
-  margin: 0 0 2.154em;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  width: min(560px, 100%);
+  margin: 0;
   padding: 0;
   list-style: none;
-  font-size: 0.867em;
-  color: var(--ob-muted);
+  color: var(--gr-nav-inactive);
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .ob-stepper-item {
   display: flex;
-  align-items: center;
-  gap: 0.615em;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
 }
 
 .ob-stepper-item::before {
   content: '';
-  width: 0.538em;
-  height: 0.538em;
-  border-radius: 50%;
-  background: var(--ob-border);
+  height: 4px;
+  border-radius: 2px;
+  background: var(--gr-track);
 }
 
-.ob-stepper-item:not(:last-child)::after {
-  content: '';
-  width: 2.3em;
-  height: 1px;
-  margin-left: 0.3em;
-  background: var(--ob-border);
+.ob-stepper-item.is-done,
+.ob-stepper-item.is-current {
+  color: var(--gr-text);
+}
+
+.ob-stepper-item.is-done::before,
+.ob-stepper-item.is-current::before {
+  background: var(--gr-action);
+}
+
+.ob-stepper-item.is-current {
+  font-weight: 600;
 }
 
 .ob-stepper a {
@@ -83,120 +75,114 @@
 }
 
 .ob-stepper a:hover {
-  color: var(--ob-text);
+  color: var(--gr-text);
   text-decoration: underline;
-}
-
-.ob-stepper-item.is-done::before {
-  background: var(--ob-muted);
-}
-
-.ob-stepper-item.is-current {
-  color: var(--ob-text);
-}
-
-.ob-stepper-item.is-current::before {
-  background: var(--ob-accent);
 }
 
 /* Step layout */
 .ob-step {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
   width: 100%;
 }
 
 .ob-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 1.067em;
-  margin-bottom: 1.867em;
+  gap: 16px 32px;
 }
 
 .ob-title {
-  margin: 0 0 0.167em;
-  font-size: 1.6em;
+  margin: 0 0 6px;
+  font-size: 28px;
   font-weight: 500;
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 .ob-subtitle {
   margin: 0;
   max-width: 60ch;
-  color: var(--ob-muted);
-  font-size: 0.933em;
+  color: var(--gr-text-muted);
+  font-size: 15px;
 }
 
 .ob-actions {
   display: flex;
   flex-shrink: 0;
-  gap: 0.533em;
-}
-
-.ob-group {
-  margin-bottom: 1.867em;
+  gap: 8px;
 }
 
 .ob-group-label,
-.ob-impact-label {
-  margin: 0 0 0.923em;
-  color: var(--ob-muted);
-  font-size: 0.867em;
-  font-weight: 400;
+.ob-impact-label,
+.ob-panel-label {
+  margin: 0 0 12px;
+  color: var(--gr-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 /* Buttons */
 .ob-button {
-  padding: 0.643em 1.143em;
-  border: 1px solid var(--ob-border);
-  border-radius: 0.571em;
-  background: var(--ob-surface-raised);
-  color: var(--ob-text);
+  min-height: 44px;
+  padding: 0 20px;
+  border: none;
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-surface-raised);
+  color: var(--gr-text);
   font: inherit;
-  font-size: 0.933em;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
 }
 
 .ob-button--primary {
-  border-color: var(--ob-accent);
-  background: var(--ob-accent);
-  color: #fff;
-  font-weight: 500;
+  min-width: 160px;
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
 }
 
+/* Greyed out, and the page says why next to it (e.g. "Pick one goal to continue."). */
 .ob-button:disabled {
+  background: var(--gr-surface-raised);
+  color: var(--gr-nav-inactive);
   cursor: not-allowed;
-  opacity: 0.45;
 }
 
-/* Choice cards */
+/* Choice cards: one choice per group */
 .ob-card-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.067em;
+  gap: 16px;
 }
 
 .ob-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.4em;
-  padding: 1.2em;
-  border: 1px solid var(--ob-border);
-  border-radius: 0.8em;
-  background: var(--ob-surface);
-  color: var(--ob-text);
+  gap: 10px;
+  padding: 20px;
+  border: 1.5px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+  color: var(--gr-text);
   font: inherit;
   text-align: left;
   cursor: pointer;
 }
 
 .ob-card:not([aria-pressed='true']):not(:disabled):hover {
-  border-color: var(--ob-muted);
+  border-color: var(--gr-control-outline);
 }
 
 .ob-card[aria-pressed='true'] {
-  border-color: var(--ob-accent);
-  background: var(--ob-accent-soft);
+  border-color: var(--gr-action);
+  background: var(--gr-selected-bg);
 }
 
 .ob-card:disabled {
@@ -204,129 +190,174 @@
 }
 
 .ob-card-icon {
-  width: 1.6em;
-  height: 1.6em;
-  margin-bottom: 0.4em;
-  border-radius: 0.3em;
-  background: var(--ob-surface-raised);
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--gr-radius-inner);
+  background: var(--gr-surface-raised);
+  color: var(--gr-text);
+}
+
+.ob-card-icon svg {
+  width: 24px;
+  height: 24px;
 }
 
 .ob-card[aria-pressed='true'] .ob-card-icon {
-  background: var(--ob-accent);
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+}
+
+.ob-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+  padding-right: 28px;
+}
+
+.ob-card-icon + .ob-card-body {
+  padding-right: 0;
 }
 
 .ob-card-label {
-  font-size: 1.067em;
+  font-size: 16px;
   font-weight: 500;
 }
 
 .ob-card-description {
-  color: var(--ob-muted);
-  font-size: 0.867em;
+  color: var(--gr-text-soft);
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 .ob-card-state {
-  margin-top: 0.769em;
-  padding: 0.385em 0.923em;
+  margin-top: auto;
+  padding: 3px 10px;
   border: 1px solid transparent;
-  border-radius: 0.462em;
-  background: var(--ob-surface-raised);
-  color: var(--ob-muted);
-  font-size: 0.867em;
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-surface-raised);
+  color: var(--gr-text-muted);
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .ob-card[aria-pressed='true'] .ob-card-state {
-  border-color: var(--ob-accent);
+  border-color: var(--gr-action);
   background: transparent;
-  color: var(--ob-accent);
+  color: var(--gr-action-text);
 }
 
-/* Equipment chips */
+/* Tick circle: empty ring when not selected, filled orange with a dark tick when selected */
+.ob-card-tick {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--gr-control-outline);
+  border-radius: 50%;
+  color: var(--gr-text-on-orange);
+}
+
+.ob-card-tick svg {
+  width: 13px;
+  height: 13px;
+  opacity: 0;
+}
+
+.ob-card[aria-pressed='true'] .ob-card-tick {
+  border-color: var(--gr-action);
+  background: var(--gr-action);
+}
+
+.ob-card[aria-pressed='true'] .ob-card-tick svg {
+  opacity: 1;
+}
+
+/* Equipment chips (setup page, until #94 replaces them with tiles) */
 .ob-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.533em;
+  gap: 8px;
 }
 
 .ob-chip {
-  padding: 0.538em 0.923em;
-  border: 1px solid transparent;
-  border-radius: 0.462em;
-  background: var(--ob-surface-raised);
-  color: var(--ob-muted);
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1.5px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-surface);
+  color: var(--gr-text-soft);
   font: inherit;
-  font-size: 0.867em;
+  font-size: 14px;
   cursor: pointer;
 }
 
 .ob-chip:not([aria-pressed='true']):not(:disabled):hover {
-  color: var(--ob-text);
+  border-color: var(--gr-control-outline);
+  color: var(--gr-text);
 }
 
 .ob-chip[aria-pressed='true'] {
-  border-color: var(--ob-accent);
-  background: var(--ob-accent-soft);
-  color: var(--ob-accent);
+  border-color: var(--gr-action);
+  background: var(--gr-selected-bg);
+  color: var(--gr-text);
 }
 
 .ob-chip:disabled {
   cursor: default;
 }
 
-/* Plan impact panel */
-.ob-impact {
-  padding: 1.067em 1.2em;
-  border-radius: 0.8em;
-  background: var(--ob-surface);
+/* Panels: plan impact (setup), profile preview and plan impact (goal) */
+.ob-impact,
+.ob-panel {
+  padding: 20px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
 }
 
 .ob-impact-label {
-  margin-bottom: 0.308em;
+  margin-bottom: 8px;
 }
 
-.ob-impact-text {
+.ob-impact-text,
+.ob-panel-text {
   margin: 0;
+  font-size: 15px;
+  line-height: 1.45;
 }
 
-/* Goal step: profile preview and plan impact panels */
 .ob-panels {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: start;
-  gap: 1.067em;
-}
-
-.ob-panel {
-  padding: 1.067em 1.2em;
-  border-radius: 0.8em;
-  background: var(--ob-surface);
-}
-
-.ob-panel-label {
-  margin: 0 0 0.615em;
-  color: var(--ob-muted);
-  font-size: 0.867em;
-  font-weight: 400;
-}
-
-.ob-panel-text {
-  margin: 0;
+  gap: 16px;
 }
 
 .ob-profile {
   display: flex;
   align-items: center;
-  gap: 0.8em;
+  gap: 14px;
 }
 
 .ob-profile-text {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.4em;
+  gap: 6px;
 }
 
 .ob-profile-name {
+  font-size: 15px;
   font-weight: 500;
 }
 
@@ -334,62 +365,118 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 3.6em;
-  height: 3.6em;
-  border-radius: 50%;
-  background: var(--ob-accent);
-  color: #fff;
-  font-size: 1em;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: var(--gr-brand);
+  color: var(--gr-bg-page);
+  font-size: 16px;
   font-weight: 500;
 }
 
 .ob-tag {
-  padding: 0.357em 0.857em;
-  border: 1px solid var(--ob-accent);
-  border-radius: 0.5em;
-  background: var(--ob-accent-soft);
-  color: var(--ob-accent);
-  font-size: 0.933em;
+  padding: 2px 10px;
+  border: 1px solid var(--gr-action);
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-selected-bg);
+  color: var(--gr-action-text);
+  font-size: 13px;
 }
 
 .ob-tag--empty {
-  border-color: var(--ob-border);
+  border-color: var(--gr-border-strong);
   background: transparent;
-  color: var(--ob-muted);
+  color: var(--gr-text-muted);
+}
+
+/* Goal page: "Save goal" sits top right, next to the heading, with the reason it's greyed out under it */
+.ob-goal {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px 32px;
+  align-items: start;
+}
+
+.ob-goal > * {
+  grid-column: 1 / -1;
+}
+
+.ob-goal > .ob-header {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.ob-goal .ob-card {
+  min-height: 180px;
+}
+
+.ob-save {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.ob-goal > .ob-save {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.ob-save-help {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+
+.ob-save-help svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
 }
 
 /* Status messages */
 .ob-message {
-  margin: -0.857em 0 1.429em;
-  font-size: 0.933em;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid;
+  border-radius: var(--gr-radius-button);
+  font-size: 13px;
 }
 
 .ob-message--error {
-  color: var(--ob-danger);
+  border-color: var(--gr-error);
+  background: var(--gr-error-bg);
+  color: var(--gr-error-text);
 }
 
 .ob-message--success {
-  color: var(--ob-success);
+  border-color: var(--gr-success);
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
 }
 
 .ob-message a {
-  color: var(--ob-accent);
-  font-weight: 500;
+  color: var(--gr-action-text);
+  font-weight: 600;
 }
 
 .ob-loading {
-  color: var(--ob-muted);
+  color: var(--gr-text-muted);
 }
 
-/* Keyboard focus */
-.onboarding :focus-visible {
-  outline: 2px solid var(--ob-accent);
-  outline-offset: 2px;
+/* Keyboard focus: the app-wide 3px brand ring */
+.ob-page :focus-visible {
+  outline: 3px solid var(--gr-brand);
+  outline-offset: 3px;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .ob-card,
   .ob-card-icon,
+  .ob-card-tick,
   .ob-chip,
   .ob-button {
     transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease;
@@ -403,8 +490,23 @@
   }
 }
 
+@media (max-width: 900px) {
+  .onboarding {
+    padding: 24px 20px 32px;
+  }
+}
+
 /* Phones: one column, full-width buttons, bigger tap targets */
 @media (max-width: 640px) {
+  .ob-stepper {
+    gap: 6px;
+    font-size: 12px;
+  }
+
+  .ob-stepper-item {
+    gap: 6px;
+  }
+
   .ob-header {
     flex-direction: column;
   }
@@ -415,15 +517,134 @@
 
   .ob-actions .ob-button {
     flex: 1;
-    padding: 0.857em 1.143em;
   }
 
   .ob-card-grid,
   .ob-panels {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
 
-  .ob-chip {
-    padding: 0.769em 1.077em;
+  .ob-impact,
+  .ob-panel {
+    padding: 14px 16px;
   }
+
+  .ob-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+
+  /* Goal cards become rows: icon, text, tick */
+  .ob-goal .ob-card {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    min-height: 76px;
+    padding: 14px 16px;
+  }
+
+  .ob-goal .ob-card-body {
+    gap: 3px;
+  }
+
+  .ob-goal .ob-card-state {
+    margin-top: 6px;
+  }
+
+  .ob-goal .ob-card-tick {
+    position: static;
+    flex: none;
+  }
+
+  /* The goal page becomes one column, and "Save goal" a full-width bar fixed to the bottom while scrolling */
+  .ob-goal {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ob-goal > .ob-save {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    align-items: stretch;
+    margin: 0 -20px -32px;
+    padding: 12px 20px 24px;
+    border-top: 1px solid var(--gr-border);
+    background: var(--gr-bg-page);
+  }
+
+  .ob-save .ob-button {
+    min-height: 48px;
+  }
+
+  .ob-save-help {
+    order: -1;
+  }
+}
+
+/* Recommended plans (#/recommended): same card grid as the plan library */
+.ob-plans {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.ob-plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+  background: var(--gr-surface);
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+}
+.ob-plan:hover {
+  border-color: var(--gr-border-strong);
+  background: var(--gr-surface-raised);
+}
+.ob-plan-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.ob-plan-body .plan-icons {
+  margin: 0;
+}
+.ob-plan-days {
+  margin: 0;
+  color: var(--gr-action-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+.ob-plan-name {
+  color: var(--gr-text);
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.ob-plan-name:hover {
+  text-decoration: underline;
+}
+.ob-plan-meta {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+.ob-plan .ob-button {
+  width: 100%;
+  min-width: 0;
+}
+.ob-plans-footer a {
+  color: var(--gr-action-text);
 }
