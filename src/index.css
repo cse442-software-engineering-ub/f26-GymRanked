@@ -691,7 +691,7 @@ button.nav-bar__avatar {
 .plan-list__item {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   padding: 20px;
   background: var(--gr-surface);
   border: 1px solid var(--gr-border);
@@ -708,12 +708,20 @@ button.nav-bar__avatar {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 10px;
+}
+
+.plan-row__info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 .plan-row__name {
   margin: 0;
   font-size: 16px;
+  line-height: 1.35;
   font-weight: 500;
   color: var(--gr-text);
 }
@@ -748,13 +756,14 @@ button.nav-bar__avatar {
 .plan-row__meta {
   margin: 0;
   font-size: 13px;
+  line-height: 1.6;
   color: var(--gr-text-muted);
 }
 
 /* Days per week sits above the name, like the card eyebrows elsewhere. */
 .plan-row__frequency {
   order: -1;
-  margin: 0 0 4px;
+  margin: 0;
   font-size: 12px;
   font-weight: 600;
   color: var(--gr-action-text);
@@ -762,11 +771,11 @@ button.nav-bar__avatar {
 
 .plan-icons {
   list-style: none;
-  margin: 12px 0 4px;
+  margin: 4px 0;
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 12px;
+  gap: 12px 16px;
 }
 
 .plan-icons__item {
@@ -1209,7 +1218,12 @@ a.today-workout__action {
 .plan-equipment {
   margin: 6px 0 0;
   font-size: 12px;
+  line-height: 1.5;
 }
+.plan-row .plan-equipment {
+  margin: 0;
+}
+
 .plan-details .plan-equipment {
   align-self: flex-start;
 }

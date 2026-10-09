@@ -598,7 +598,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 16px;
+  gap: 20px;
   padding: 20px;
   background: var(--gr-surface);
   border: 1px solid var(--gr-border);
@@ -610,9 +610,18 @@
 }
 .ob-plan-body {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.ob-plan-body .plan-equipment,
+.ob-plan-body .plan-icons {
+  margin: 0;
 }
 .ob-plan-days {
-  margin: 0 0 4px;
+  margin: 0;
   color: var(--gr-action-text);
   font-size: 12px;
   font-weight: 600;
@@ -627,7 +636,8 @@
   text-decoration: underline;
 }
 .ob-plan-meta {
-  margin: 4px 0 0;
+  margin: 0;
+  line-height: 1.6;
   color: var(--gr-text-muted);
   font-size: 13px;
 }
