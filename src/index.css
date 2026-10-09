@@ -1182,9 +1182,11 @@ a.today-workout__action {
   .dashboard-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 8px; }
   .dashboard-metric { gap: 10px; min-height: 78px; padding: 14px; border-color: #2c3b4c; background: #162231; }
   .dashboard-metric:first-child { grid-column: 1 / -1; }
+  .dashboard-metric:not(:first-child) { min-height: 88px; }
+  .dashboard-metric:not(:first-child) .dashboard-metric__body { display: grid; grid-template-rows: 28px auto; align-content: center; gap: 2px; }
   .dashboard-metric__icon { display: grid; flex: 0 0 32px; place-items: center; width: 32px; height: 36px; border: 0; background: transparent; box-shadow: none; }
   .dashboard-metric__icon svg { display: block; width: 30px; height: 30px; color: #ff7035; stroke-width: 2.5; }
-  .dashboard-metric__label { color: #a6b4c7; font-size: 10px; letter-spacing: .03em; }
+  .dashboard-metric__label { color: #a6b4c7; font-size: 10px; line-height: 1.2; letter-spacing: .03em; }
   .dashboard-metric__value,
   .dashboard-metric__value--accent { color: #f4f6f9; font-size: clamp(18px, 5vw, 22px); line-height: 1.15; }
   .dashboard-metric__hint { display: none; }
@@ -1194,6 +1196,10 @@ a.today-workout__action {
   .dashboard-today__heading-label { gap: 3px 5px; }
   .dashboard-today__heading-label h2,
   .dashboard-today__heading-label span { color: #f4f6f9; font-size: clamp(13px, 4.2vw, 18px); font-weight: 700; letter-spacing: 0; text-transform: none; }
+  .dashboard-today:not(.dashboard-today--planned) { padding: 22px 20px; }
+  .dashboard-today:not(.dashboard-today--planned) .dashboard-card__heading { padding-bottom: 16px; border-bottom: 1px solid #2c3b4c; }
+  .dashboard-today:not(.dashboard-today--planned) .dashboard-card__text { margin-top: 10px; line-height: 1.5; }
+  .dashboard-today:not(.dashboard-today--planned) .dashboard-primary-action--spaced { margin-top: 24px; }
   .dashboard-today .dashboard-card__meta { display: none; }
   .dashboard-today--planned > .dashboard-card__title,
   .dashboard-today--planned > .dashboard-card__text { display: none; }
@@ -1205,7 +1211,7 @@ a.today-workout__action {
   .dashboard-today__mobile-summary span:not(.dashboard-today__mobile-icon) { color: #a6b4c7; font-size: 14px; }
   .dashboard-today__mobile-summary .dashboard-today__mobile-duration { display: flex; align-items: center; gap: 6px; }
   .dashboard-today__mobile-duration svg { width: 16px; height: 16px; }
-  .dashboard-today:not(.dashboard-today--planned) .dashboard-card__title { margin-top: 18px; font-size: 21px; font-weight: 700; }
+  .dashboard-today:not(.dashboard-today--planned) .dashboard-card__title { margin-top: 20px; font-size: 21px; font-weight: 700; }
 
   .dashboard-exercises { margin: 8px 0 12px; border: 0; border-radius: 0; background: transparent; }
   .dashboard-exercise { gap: 12px; min-height: 54px; padding: 7px 0; border-top: 1px solid #2c3b4c; }
@@ -1232,4 +1238,11 @@ a.today-workout__action {
   .dashboard-step__text strong { color: #f4f6f9; font-size: 15px; }
   .dashboard-step__text span { color: #a6b4c7; font-size: 13px; }
   .dashboard-tip { background: #101b29; }
+}
+
+@media (max-width: 380px) {
+  .dashboard-metric:not(:first-child) { gap: 7px; padding: 11px; }
+  .dashboard-metric:not(:first-child) .dashboard-metric__icon { flex-basis: 26px; width: 26px; }
+  .dashboard-metric:not(:first-child) .dashboard-metric__icon svg { width: 25px; height: 25px; }
+  .dashboard-metric:not(:first-child) .dashboard-metric__value { font-size: 16px; }
 }
