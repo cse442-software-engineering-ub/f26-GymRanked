@@ -5,11 +5,11 @@ import { authRequest } from '../auth/api.js';
 import GymBackdrop from '../components/GymBackdrop.jsx';
 import './onboarding.css';
 
-// Onboarding steps from the Figma, in order. "Choose plan" is the existing plan library.
+// Onboarding steps from the Figma, in order. "Choose plan" is the recommended plans page.
 const STEPS = [
   { label: 'Training goal', to: '/goal' },
   { label: 'Experience', to: '/setup' },
-  { label: 'Choose plan', to: '/plans' },
+  { label: 'Choose plan', to: '/recommended' },
 ];
 
 // Full-screen page frame shared by every onboarding step:

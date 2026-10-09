@@ -584,3 +584,49 @@
     order: -1;
   }
 }
+
+/* Recommended plans (#/recommended) */
+.ob-plans {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ob-plan {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  background: var(--gr-surface);
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-card);
+}
+.ob-plan-body {
+  min-width: 0;
+}
+.ob-plan-name {
+  color: var(--gr-text);
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.ob-plan-name:hover {
+  text-decoration: underline;
+}
+.ob-plan-meta {
+  margin: 2px 0 0;
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+.ob-plans-footer a {
+  color: var(--gr-action-text);
+}
+@media (max-width: 600px) {
+  .ob-plan {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

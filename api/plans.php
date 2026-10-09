@@ -1,5 +1,6 @@
 <?php
-// GET api/plans.php -> [{"id":1,"name":"...","level":"beginner","duration_weeks":"8","days_per_week":3}, ...]
+// GET api/plans.php -> [{"id":1,"name":"...","level":"beginner","duration_weeks":"8","days_per_week":3,
+//                         "goals":["strength"],"required_equipment":["barbell"]}, ...]
 //
 // Public catalog of workout plans for the workout plan library screen; not tied to a
 // logged-in user. One plan's details come from plan.php. Every response is JSON, including errors, so the frontend never gets
@@ -41,10 +42,22 @@ try {
         'SELECT id, name, level, duration_weeks, days_per_week FROM workout_plans ORDER BY id'
     );
 
+    // goals and required_equipment come from 008_plan_requirements.sql; [] when a plan has none.
+    $goals = [];
+    foreach ($db->query('SELECT plan_id, goal FROM workout_plan_goals ORDER BY goal')->fetch_all(MYSQLI_ASSOC) as $r) {
+        $goals[(int) $r['plan_id']][] = $r['goal'];
+    }
+    $equipment = [];
+    foreach ($db->query('SELECT plan_id, equipment FROM workout_plan_equipment ORDER BY equipment')->fetch_all(MYSQLI_ASSOC) as $r) {
+        $equipment[(int) $r['plan_id']][] = $r['equipment'];
+    }
+
     $plans = [];
     while ($row = $result->fetch_assoc()) {
         $row['id'] = (int) $row['id'];
         $row['days_per_week'] = (int) $row['days_per_week'];
+        $row['goals'] = $goals[$row['id']] ?? [];
+        $row['required_equipment'] = $equipment[$row['id']] ?? [];
         $plans[] = $row;
     }
 
