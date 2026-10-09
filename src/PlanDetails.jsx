@@ -6,7 +6,7 @@ import BodyFigure from './BodyFigure.jsx'
 import PlanEquipmentNote from './PlanEquipmentNote.jsx'
 import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
 import { EQUIPMENT_LABELS, missingEquipment } from './planEquipment.js'
-import { planMeta } from './planFormat.js'
+import PlanMeta from './PlanMeta.jsx'
 import PlanSelectionStatus from './PlanSelectionStatus.jsx'
 import { fetchPlan } from './plansApi.js'
 import usePlanSelection from './usePlanSelection.jsx'
@@ -43,7 +43,7 @@ function PlanDetails() {
               <h1>{plan.name}</h1>
               <p className="plan-details__frequency">{plan.days_per_week} days/wk</p>
             </div>
-            <p className="plan-details__meta">{planMeta(plan)}</p>
+            <p className="plan-details__meta"><PlanMeta plan={plan} /></p>
             {plan.description && <p className="plan-details__description">{plan.description}</p>}
             <p className="plan-details__equipment">
               Equipment:{' '}
