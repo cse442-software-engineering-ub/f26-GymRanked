@@ -1,6 +1,6 @@
 # Story 14: As a gym goer I want to be able to log my experience and available equipment, which is confirmed by a prompt allowing selection of different experience and equipment.
 
-- **Tasks:** #64 (experience and equipment), #77 (Playwright checks)
+- **Tasks:** #64 (experience and equipment), #77 (Playwright checks), #96 (save experience and equipment separately)
 - **Automated in:** `tests/e2e/14-experience-and-equipment.spec.js`
 
 ## Acceptance Test 1: Choose your experience and equipment and save them
@@ -72,3 +72,26 @@
 **Steps:**
 1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/setup. The login page should open instead,
    showing "Log in to GymRank".
+
+## Acceptance Test 5: Changing your experience keeps your equipment, and changing your equipment keeps your experience
+
+**Setup for this test:**
+1. Log in as setup-a-0930@example.com (from Acceptance Test 1) and open
+   https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/setup.
+
+**Steps:**
+1. Choose "Beginner", turn off any other equipment, and turn on "Dumbbells" and "Kettlebells". Plan impact should
+   read "Beginner programming using dumbbells and kettlebells." Click "Save setup". The login page should open
+   showing "Account setup saved. Log in to continue."
+2. Log in as setup-a-0930@example.com and open the #/setup link. "Beginner" should say "Selected", only
+   "Dumbbells" and "Kettlebells" should be highlighted, and Plan impact should read "Beginner programming using
+   dumbbells and kettlebells."
+3. Click "Advanced" and change nothing else. Plan impact should read "Advanced programming using dumbbells and
+   kettlebells." Click "Save setup", log in again, and open the #/setup link. "Advanced" should say "Selected" and
+   "Dumbbells" and "Kettlebells" should still be the only highlighted equipment.
+4. Click "Dumbbells" to turn it off and click "Barbell" to turn it on. Do not click an experience card. Plan impact
+   should read "Advanced programming using barbell and kettlebells." Click "Save setup", log in again, and open the
+   #/setup link. "Advanced" should still say "Selected" and only "Barbell" and "Kettlebells" should be highlighted.
+5. Click "Beginner", then turn off "Barbell" and "Kettlebells" so no equipment is highlighted. "Save setup" should be
+   greyed out. Reload the page. The saved choices from step 4 ("Advanced", "Barbell" and "Kettlebells") should be
+   shown again, because nothing was saved.

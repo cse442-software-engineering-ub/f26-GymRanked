@@ -1,6 +1,8 @@
 <?php
 // GET  api/setup.php -> {"experience": "beginner" | "intermediate" | "advanced" | null, "equipment": [...]}
-// POST api/setup.php  body {"experience": "...", "equipment": ["...", ...]} -> saves both for the logged-in user
+// POST api/setup.php  body {"experience": "..."} and/or {"equipment": ["...", ...]}
+//   -> saves whichever of the two is sent for the logged-in user and leaves the other as it was.
+//      Responds with the full saved setup, same shape as GET.
 //
 // The logged-in user comes from the gymrank_session cookie set by api/login.php,
 // checked against auth_sessions the same way api/session.php does (see AUTHENTICATION.md).
@@ -76,6 +78,8 @@ try {
     }
 
     // Validate POST input before writing anything, so a bad request never saves anything.
+    $saveExperience = false;
+    $saveEquipment = false;
     $experience = null;
     $equipment = [];
     if ($method === 'POST') {
@@ -89,26 +93,39 @@ try {
             respond(400, ['error' => 'Invalid JSON']);
         }
 
-        $experience = $data['experience'] ?? null;
-        if (!is_string($experience) || !in_array($experience, EXPERIENCE_LEVELS, true)) {
-            respond(400, ['error' => 'Invalid experience']);
+        // Each field is optional, but at least one must be sent. A key that is present must be valid,
+        // so {"experience": null} is rejected rather than treated as "not sent".
+        $saveExperience = array_key_exists('experience', $data);
+        $saveEquipment = array_key_exists('equipment', $data);
+        if (!$saveExperience && !$saveEquipment) {
+            respond(400, ['error' => 'Nothing to save']);
+        }
+
+        if ($saveExperience) {
+            $experience = $data['experience'];
+            if (!is_string($experience) || !in_array($experience, EXPERIENCE_LEVELS, true)) {
+                respond(400, ['error' => 'Invalid experience']);
+            }
         }
 
         // Must be a non-empty JSON array of known options. "bodyweight" covers users with no equipment.
-        $equipment = $data['equipment'] ?? null;
-        if (!is_array($equipment) || $equipment === [] || !array_is_list($equipment)) {
-            respond(400, ['error' => 'Invalid equipment']);
-        }
-        foreach ($equipment as $item) {
-            if (!is_string($item) || !in_array($item, EQUIPMENT_OPTIONS, true)) {
+        if ($saveEquipment) {
+            $equipment = $data['equipment'];
+            if (!is_array($equipment) || $equipment === [] || !array_is_list($equipment)) {
                 respond(400, ['error' => 'Invalid equipment']);
             }
+            foreach ($equipment as $item) {
+                if (!is_string($item) || !in_array($item, EQUIPMENT_OPTIONS, true)) {
+                    respond(400, ['error' => 'Invalid equipment']);
+                }
+            }
+            // Drop duplicates and put them in the standard order.
+            $equipment = array_values(array_intersect(EQUIPMENT_OPTIONS, $equipment));
         }
-        // Drop duplicates and put them in the standard order.
-        $equipment = array_values(array_intersect(EQUIPMENT_OPTIONS, $equipment));
     }
 
-    if ($method === 'GET') {
+    // Reads the saved setup; used by GET and to build the POST response.
+    $readSetup = function () use ($db, $userId): array {
         $stmt = $db->prepare('SELECT experience FROM user_setup WHERE user_id = ?');
         $stmt->bind_param('i', $userId);
         $stmt->execute();
@@ -126,38 +143,43 @@ try {
         }
         $stmt->close();
 
-        respond(200, [
-            'experience' => $found ? $savedExperience : null,
-            'equipment' => $savedEquipment,
-        ]);
+        return ['experience' => $found ? $savedExperience : null, 'equipment' => $savedEquipment];
+    };
+
+    if ($method === 'GET') {
+        respond(200, $readSetup());
     }
 
-    // POST: save experience and replace the equipment list together.
+    // POST: save only the fields that were sent.
     // The transaction means either everything saves or nothing does.
     $db->begin_transaction();
 
-    $stmt = $db->prepare(
-        'INSERT INTO user_setup (user_id, experience) VALUES (?, ?)
-         ON DUPLICATE KEY UPDATE experience = ?'
-    );
-    $stmt->bind_param('iss', $userId, $experience, $experience);
-    $stmt->execute();
-    $stmt->close();
-
-    $stmt = $db->prepare('DELETE FROM user_equipment WHERE user_id = ?');
-    $stmt->bind_param('i', $userId);
-    $stmt->execute();
-    $stmt->close();
-
-    $stmt = $db->prepare('INSERT INTO user_equipment (user_id, equipment) VALUES (?, ?)');
-    foreach ($equipment as $item) {
-        $stmt->bind_param('is', $userId, $item);
+    if ($saveExperience) {
+        $stmt = $db->prepare(
+            'INSERT INTO user_setup (user_id, experience) VALUES (?, ?)
+             ON DUPLICATE KEY UPDATE experience = ?'
+        );
+        $stmt->bind_param('iss', $userId, $experience, $experience);
         $stmt->execute();
+        $stmt->close();
     }
-    $stmt->close();
+
+    if ($saveEquipment) {
+        $stmt = $db->prepare('DELETE FROM user_equipment WHERE user_id = ?');
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $stmt->close();
+
+        $stmt = $db->prepare('INSERT INTO user_equipment (user_id, equipment) VALUES (?, ?)');
+        foreach ($equipment as $item) {
+            $stmt->bind_param('is', $userId, $item);
+            $stmt->execute();
+        }
+        $stmt->close();
+    }
 
     $db->commit();
-    respond(200, ['experience' => $experience, 'equipment' => $equipment]);
+    respond(200, $readSetup());
 } catch (mysqli_sql_exception $e) {
     if ($db instanceof mysqli) {
         try {
