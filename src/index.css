@@ -1006,6 +1006,8 @@ a.today-workout__action {
     background: #101a27;
   }
 
+  .nav-bar__brand { order: 2; }
+
   .nav-bar__logo {
     display: grid;
     place-items: center;
@@ -1035,6 +1037,7 @@ a.today-workout__action {
 
   .nav-bar__mobile-toggle {
     display: flex;
+    order: 1;
     flex-direction: column;
     justify-content: center;
     gap: 5px;
@@ -1079,7 +1082,7 @@ a.today-workout__action {
     display: flex;
     position: fixed;
     top: 57px;
-    right: 0;
+    left: 0;
     bottom: 0;
     z-index: 2;
     flex-direction: column;
@@ -1087,10 +1090,10 @@ a.today-workout__action {
     min-width: 185px;
     padding: 22px 12px;
     overflow-y: auto;
-    border-left: 1px solid #2c3b4c;
+    border-right: 1px solid #2c3b4c;
     background: #111c2a;
-    box-shadow: -14px 0 30px rgba(0, 0, 0, .22);
-    transform: translateX(100%);
+    box-shadow: 14px 0 30px rgba(0, 0, 0, .22);
+    transform: translateX(-100%);
     visibility: hidden;
     transition: transform .25s ease, visibility 0s linear .25s;
   }
