@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import PlanIcons from '../PlanIcons.jsx';
 import PlanEquipmentNote from '../PlanEquipmentNote.jsx';
 import { planMeta } from '../planFormat.js';
 import { recommendPlans } from '../planEquipment.js';
@@ -63,6 +64,7 @@ function RecommendedPlans() {
                 <p className="ob-plan-days">{plan.days_per_week} days/wk</p>
                 <Link className="ob-plan-name" to={`/plans/${plan.id}`}>{plan.name}</Link>
                 <p className="ob-plan-meta">{planMeta(plan)}</p>
+                <PlanIcons plan={plan} />
                 <PlanEquipmentNote missing={plan.missing_equipment} />
               </div>
               <button
