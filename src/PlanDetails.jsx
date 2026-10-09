@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import Breadcrumb from './Breadcrumb.jsx'
 import NavBar from './NavBar.jsx'
+import BodyFigure from './BodyFigure.jsx'
 import PlanEquipmentNote from './PlanEquipmentNote.jsx'
+import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
 import { EQUIPMENT_LABELS, missingEquipment } from './planEquipment.js'
 import { planMeta } from './planFormat.js'
 import PlanSelectionStatus from './PlanSelectionStatus.jsx'
@@ -57,12 +59,34 @@ function PlanDetails() {
             ) : (
               <ul className="plan-split">
                 {plan.days.map((day) => (
-                  <li key={day.name} className="plan-split__day">
-                    <span className="plan-split__name">{day.name}</span>
-                    <span className="plan-split__detail">
-                      <span className="plan-split__focus">{day.focus}</span>
-                      <span className="plan-split__duration">~{day.duration_minutes} min</span>
-                    </span>
+                  <li key={day.name} className="plan-split__item">
+                    <div className="plan-split__day">
+                      <span className="plan-split__name">{day.name}</span>
+                      <span className="plan-split__detail">
+                        <span className="plan-split__focus">{day.focus}</span>
+                        <span className="plan-split__duration">~{day.duration_minutes} min</span>
+                      </span>
+                    </div>
+                    {day.exercises.length > 0 && (
+                      <ul className="plan-exercises" aria-label={`${day.name} exercises`}>
+                        {day.exercises.map((exercise) => {
+                          const muscles = musclesFor(exercise)
+                          return (
+                            <li key={exercise} className="plan-exercise">
+                              <BodyFigure muscles={muscles} />
+                              <span className="plan-exercise__text">
+                                <span className="plan-exercise__name">{exercise}</span>
+                                {muscles.length > 0 && (
+                                  <span className="plan-exercise__muscles">
+                                    {muscles.map((muscle) => MUSCLE_LABELS[muscle]).join(', ')}
+                                  </span>
+                                )}
+                              </span>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    )}
                   </li>
                 ))}
               </ul>
