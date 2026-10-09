@@ -1,0 +1,53 @@
+/* Gym photo band (src/components/GymBackdrop.jsx). Colours come from the --gr- variables in src/index.css. */
+.gym-backdrop {
+  position: relative;
+  flex: none;
+  height: var(--backdrop-height, 220px);
+  overflow: hidden;
+  background-color: var(--gr-surface);
+  background-image: var(--backdrop-image, none);
+  background-position: center;
+  background-size: cover;
+}
+
+/* Fades the photo into the page background, so text on the lower edge stays readable. */
+.gym-backdrop::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(14, 16, 21, 0.2) 0%,
+    rgba(14, 16, 21, 0.65) 45%,
+    rgba(14, 16, 21, 0.9) 75%,
+    var(--gr-bg-page) 100%
+  );
+}
+
+.gym-backdrop__content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  height: 100%;
+  padding: 20px 48px 14px;
+}
+
+@media (max-width: 900px) {
+  .gym-backdrop__content {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .gym-backdrop {
+    height: var(--backdrop-height-phone, 168px);
+  }
+
+  .gym-backdrop__content {
+    padding-top: 16px;
+    padding-bottom: 10px;
+  }
+}
