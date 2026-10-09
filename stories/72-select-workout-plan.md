@@ -1,31 +1,35 @@
 # Story 72: As a new or existing user, I want to be able to select a workout plan and change my current workout plan, which is confirmed by having an option to save current workout plan and change current workout plan
 
-- **Tasks:** #67 (workout-plan library), #73 (Playwright checks)
+- **Tasks:** #67 (workout-plan library), #73 (Playwright checks), #95 (plan cards and onboarding-to-plan handoff)
 - **Automated in:** `tests/e2e/72-select-workout-plan.spec.js`
 
-(Note: in each test, a plan is a set of exercises.)
+(Note: in each test, a plan is a set of exercises. On a phone, "the top navigation" is the menu behind the three lines
+at the top left.)
 
 ## Acceptance Test 1: Browse the plan library and view a plan's details
 
 **Setup for this test:**
 1. Connect to the UB VPN, or use the campus network.
-2. The end-of-sprint release, with its plan data (migrations 004-006), must already be on cattle.
+2. The end-of-sprint release, with its plan data (migrations 004-008), must already be on cattle.
 3. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and click "Create an account". Create an account with these details, then click the
    "Create account" button:
    Full name: Plans Viewer
-   Email: plans-v-1002@example.com
+   Email: plans-v-1009@example.com
    Password and Confirm password: AcceptPlans12!
-4. Select any training goal and click "Save goal". Then select your experience and available equipment and click
-   "Save setup".
-5. You're sent to the login page with your email already filled in. Type your password and click "Log in".
-6. Click "Plans" in the top navigation. It should open the workout plan library. The Select buttons should be
-   clickable, and there should be no login message.
+4. The login page opens with "Account created. Log in to continue.". Type your password and click "Log in".
+5. On "Choose your training goal", click "Strength" and "Save goal". On "How experienced are you?", click
+   "Intermediate" and "Save and continue". On "What equipment can you use?", click "Full gym access" and
+   "Save and continue".
+6. "Choose your workout plan" should open with a green box saying "Your setup is saved." and "Pick a plan to start
+   your first week.", and under the heading "Your setup" reading "Strength · Intermediate · Full gym access" with
+   an "Edit" link. Click "Browse all plans". It should open the workout plan library, with the same "Your setup"
+   line. The Select buttons should be clickable, and there should be no login message.
 
 **Steps:**
 1. The page should show the heading "Workout plan library" and "Browse all training programs.", with a list of
    10 plans. Each plan should show its name, level, and length (e.g. "Intermediate · 6-8 weeks"), days per week
    (e.g. "5 days/wk"), and a Select button.
-2. Click the "Push Pull Legs" plan (the row itself, not its Select button). A details page for that plan should
+2. Click the "Push Pull Legs" card (anywhere on it except its Select button). A details page for that plan should
    open, showing "Push Pull Legs", "5 days/wk", "Intermediate · 6-8 weeks", and a description starting "A
    balanced strength split rotating push, pull, and leg days".
 3. Under "Weekly split", the page should list three training days, each with its focus and length: "Push"
@@ -42,15 +46,17 @@
 2. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login. If the Dashboard opens instead, you're still logged in: log out from the account menu.
 3. Click "Create an account". Create an account with these details, then click the "Create account" button:
    Full name: Plans Tester A
-   Email: plans-a-0929@example.com
+   Email: plans-a-1009@example.com
    Password and Confirm password: AcceptPlans12!
-4. Select any training goal and click "Save goal". Then select your experience and available equipment and click
-   "Save setup".
-5. You're sent to the login page with your email already filled in. Type your password and click "Log in".
+4. The login page opens with "Account created. Log in to continue.". Type your password and click "Log in".
+5. On "Choose your training goal", click "Strength" and "Save goal". On "How experienced are you?", click
+   "Intermediate" and "Save and continue". On "What equipment can you use?", click "Full gym access" and
+   "Save and continue".
+6. "Choose your workout plan" should open.
 
 **Steps:**
-1. Click "Plans" in the top navigation. It should open the workout plan library. The Select buttons should be
-   clickable, and there should be no login message.
+1. Click "Browse all plans". It should open the workout plan library. The Select buttons should be clickable, and
+   there should be no login message.
 2. Click Select next to "Push Pull Legs". No warning should appear. The Dashboard should open, and its "Getting
    started" checklist should say "You're following Push Pull Legs". Then click "Workouts" in the top navigation.
    Your weekly plan page should show:
@@ -59,8 +65,8 @@
    - Seven day cards from MON to SUN, with today's card highlighted in orange and labelled "Today". Training
      days show Push, Pull, or Legs; the other days show "Rest day".
    - A "Today's workout" section showing today's workout, or "Rest day".
-3. Click "Plans" in the top navigation. The button next to "Push Pull Legs" should now read "Current plan" and
-   be greyed out.
+3. Click "Plans" in the top navigation. The "Push Pull Legs" card should now have an orange border, and its
+   button should read "Current plan" with a tick and be greyed out.
 4. Click "Push Pull Legs" to open its details. The bottom button should read "This is your current plan" and be
    greyed out.
 5. Click "Workouts" in the top navigation. This should return to the "Push Pull Legs — Week 1" weekly plan.
@@ -68,7 +74,7 @@
 ## Acceptance Test 3: Switching plans warns you first
 
 **Setup for this test:**
-1. Complete Acceptance Test 2 first. Stay logged in as plans-a-0929@example.com with "Push Pull Legs" as your
+1. Complete Acceptance Test 2 first. Stay logged in as plans-a-1009@example.com with "Push Pull Legs" as your
    plan.
 
 **Steps:**
@@ -94,31 +100,31 @@
 ## Acceptance Test 4: Your chosen plan is saved to your account
 
 **Setup for this test:**
-1. Complete Acceptance Test 3 first. Stay logged in as plans-a-0929@example.com with "Full Body Strength" as
+1. Complete Acceptance Test 3 first. Stay logged in as plans-a-1009@example.com with "Full Body Strength" as
    your plan.
 
 **Steps:**
 1. Click "Workouts" in the top navigation, then refresh the page. It should still show "Full Body Strength —
    Week 1".
 2. Close the browser completely, reopen it, and open the weekly plan link: https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/weekly-plan. If you're asked to
-   log in, log in as plans-a-0929@example.com, then open the weekly plan link again. It should still show "Full
+   log in, log in as plans-a-1009@example.com, then open the weekly plan link again. It should still show "Full
    Body Strength — Week 1".
 3. Open the account menu and click "Log out". Then open the weekly plan link again. The login page should open
    instead, showing "Log in to GymRank".
-4. Log back in as plans-a-0929@example.com and open the weekly plan link. It should show "Full Body Strength —
+4. Log back in as plans-a-1009@example.com and open the weekly plan link. It should show "Full Body Strength —
    Week 1".
 5. Log out. On the login page, click "Create an account" and create a second account with these details, then
    click the "Create account" button:
    Full name: Plans Tester B
-   Email: plans-b-0929@example.com
+   Email: plans-b-1009@example.com
    Password and Confirm password: AcceptPlans12!
-   Save a training goal and setup as in Test 2's setup, then log in with the new account and open the weekly
-   plan link. It should show "No workout plan selected yet" with a "Browse workout plans" button. The first
+   Log in with the new account, finish the goal, experience and equipment pages as in Test 2's setup, and open
+   the weekly plan link. It should show "No workout plan selected yet" with a "Browse workout plans" button. The first
    account's plan must not appear here.
 6. Click "Browse workout plans" and click Select next to "Glute Focus". The Dashboard should open, and its
    "Getting started" checklist should say "You're following Glute Focus". Then open the weekly plan link. It
    should show "Glute Focus — Week 1".
-7. Log out, log back in as plans-a-0929@example.com, and open the weekly plan link. It should still show "Full
+7. Log out, log back in as plans-a-1009@example.com, and open the weekly plan link. It should still show "Full
    Body Strength — Week 1". The second account's choice must not have changed the first account's plan.
 
 ## Notes
@@ -167,3 +173,10 @@ the top navigation to the login page (Sam's decision: being logged in is require
 
 The automated version uses a new `e2e-…@example.com` account for each test instead of the fixed
 plans-a/plans-b accounts, so it can be run again and again.
+
+Changed on 2026-10-09 for card #95 and the onboarding changes before it (PR #45, card #94): "Create account" now
+opens the login page, onboarding is the goal, experience and equipment pages, and it ends on "Choose your workout
+plan", which shows "Your setup is saved." and a "Your setup" line; the setups choose "Full gym access" so no
+equipment warning appears, and reach the library with "Browse all plans". The current plan's card now has an
+orange border, and clicking anywhere on a card opens its details. Emails end in 1009 so the cattle accounts are
+new. The tests themselves are otherwise unchanged.
