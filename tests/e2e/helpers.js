@@ -38,17 +38,26 @@ export async function logIn(page, account) {
   await type(page.getByLabel('Email'), account.email)
   await type(page.getByLabel('Password', { exact: true }), account.password)
   await page.getByRole('button', { name: 'Log in' }).click()
-  // Wait for the dashboard's nav bar or a login error, then name the rate limit if that's what it was.
-  await page.locator('.nav-bar').or(page.getByRole('alert')).first().waitFor()
+  // Wait for a signed-in page or a login error, then name the rate limit if that's what it was.
+  // A finished account opens the Dashboard; one that hasn't finished onboarding opens its next step.
+  await page.locator('.nav-bar, .ob-page').or(page.getByRole('alert')).first().waitFor()
   if (await page.getByText('Too many attempts.').isVisible()) throw new Error(RATE_LIMITED)
-  await expect(page).toHaveURL(/#\/dashboard$/)
+  await expect(page).toHaveURL(/#\/(dashboard|goal|experience|equipment|recommended)$/)
 }
 
-// The account menu with "Log out" is on the dashboard.
+// A finished account logs out from the Dashboard's account menu. One that hasn't finished onboarding is sent
+// back to its next step, which has its own "Log out" in the top-right corner of the photo band.
 export async function logOut(page) {
   await page.goto('#/dashboard')
-  await page.getByRole('button', { name: 'Open account menu' }).click()
-  await page.getByRole('menuitem', { name: 'Log out' }).click()
+  const accountMenu = page.getByRole('button', { name: 'Open account menu' })
+  const onboardingLogOut = page.locator('.ob-page').getByRole('button', { name: 'Log out' })
+  await accountMenu.or(onboardingLogOut).first().waitFor()
+  if (await onboardingLogOut.isVisible()) {
+    await onboardingLogOut.click()
+  } else {
+    await accountMenu.click()
+    await page.getByRole('menuitem', { name: 'Log out' }).click()
+  }
   await expect(page.getByText('You are logged out.')).toBeVisible()
 }
 
