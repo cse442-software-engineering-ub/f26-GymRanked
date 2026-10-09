@@ -83,8 +83,11 @@ body {
   color: #555;
 }
 
-/* Failed loads (plan library, weekly plan): the error feedback colours from DESIGN.md. */
-.status.status--error {
+/* Failed loads (plan library, weekly plan): the error feedback colours from DESIGN.md. Page-level .status
+   rules (for example .plan-library .status) set grey text, so this rule names the pages too. */
+.status.status--error,
+.plan-library .status.status--error,
+.weekly-plan .status.status--error {
   padding: 10px 12px;
   border: 1px solid var(--gr-error);
   border-radius: var(--gr-radius-button);
