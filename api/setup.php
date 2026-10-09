@@ -152,33 +152,45 @@ try {
 
     // POST: save only the fields that were sent.
     // The transaction means either everything saves or nothing does.
-    $db->begin_transaction();
+    // Two users saving at the same moment can make MySQL abort one transaction as a deadlock
+    // (error 1213); nothing was written then, so it is safe to run it again.
+    for ($attempt = 1; ; $attempt++) {
+        try {
+            $db->begin_transaction();
 
-    if ($saveExperience) {
-        $stmt = $db->prepare(
-            'INSERT INTO user_setup (user_id, experience) VALUES (?, ?)
-             ON DUPLICATE KEY UPDATE experience = ?'
-        );
-        $stmt->bind_param('iss', $userId, $experience, $experience);
-        $stmt->execute();
-        $stmt->close();
-    }
+            if ($saveExperience) {
+                $stmt = $db->prepare(
+                    'INSERT INTO user_setup (user_id, experience) VALUES (?, ?)
+                     ON DUPLICATE KEY UPDATE experience = ?'
+                );
+                $stmt->bind_param('iss', $userId, $experience, $experience);
+                $stmt->execute();
+                $stmt->close();
+            }
 
-    if ($saveEquipment) {
-        $stmt = $db->prepare('DELETE FROM user_equipment WHERE user_id = ?');
-        $stmt->bind_param('i', $userId);
-        $stmt->execute();
-        $stmt->close();
+            if ($saveEquipment) {
+                $stmt = $db->prepare('DELETE FROM user_equipment WHERE user_id = ?');
+                $stmt->bind_param('i', $userId);
+                $stmt->execute();
+                $stmt->close();
 
-        $stmt = $db->prepare('INSERT INTO user_equipment (user_id, equipment) VALUES (?, ?)');
-        foreach ($equipment as $item) {
-            $stmt->bind_param('is', $userId, $item);
-            $stmt->execute();
+                $stmt = $db->prepare('INSERT INTO user_equipment (user_id, equipment) VALUES (?, ?)');
+                foreach ($equipment as $item) {
+                    $stmt->bind_param('is', $userId, $item);
+                    $stmt->execute();
+                }
+                $stmt->close();
+            }
+
+            $db->commit();
+            break;
+        } catch (mysqli_sql_exception $e) {
+            $db->rollback();
+            if ($e->getCode() !== 1213 || $attempt >= 3) {
+                throw $e;
+            }
         }
-        $stmt->close();
     }
-
-    $db->commit();
     respond(200, $readSetup());
 } catch (mysqli_sql_exception $e) {
     if ($db instanceof mysqli) {
