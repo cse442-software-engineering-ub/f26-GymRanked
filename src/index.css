@@ -830,14 +830,72 @@ a.plan-row:hover .plan-row__name {
   border-radius: 12px;
 }
 
+.plan-split__item {
+  background: var(--gr-surface-raised);
+  border-radius: 8px;
+}
+
 .plan-split__day {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   padding: 12px;
-  background: #1e2027;
-  border-radius: 8px;
+}
+
+/* Exercises under a day, each with a front/back body figure lighting up the muscles it works */
+.plan-exercises {
+  list-style: none;
+  margin: 0;
+  padding: 0 12px 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.plan-exercise {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+  border-top: 1px solid var(--gr-border);
+}
+
+.plan-exercise__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.plan-exercise__name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gr-text);
+}
+
+.plan-exercise__muscles {
+  font-size: 12px;
+  color: var(--gr-action-text);
+}
+
+.body-figure {
+  display: flex;
+  flex: none;
+  gap: 2px;
+}
+
+.body-figure__view {
+  width: 32px;
+  height: 77px;
+}
+
+.body-figure__base,
+.body-figure__muscle {
+  fill: color-mix(in srgb, var(--gr-text) 24%, var(--gr-surface-raised));
+}
+
+.body-figure__muscle.is-lit {
+  fill: var(--gr-action);
 }
 
 .plan-split__name {
