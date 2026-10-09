@@ -1,6 +1,6 @@
 <?php
 // GET api/plan.php?id=1 -> {"id":1,"name":"...","level":"intermediate","duration_weeks":"6-8","days_per_week":5,
-//                           "description":"...",
+//                           "description":"...","required_equipment":["barbell"],
 //                           "days":[{"name":"Push","focus":"...","duration_minutes":45,
 //                                    "exercises":["Bench press", "Overhead press", "Triceps pushdown"]}, ...]}
 //
@@ -56,6 +56,11 @@ try {
     }
     $plan['id'] = (int) $plan['id'];
     $plan['days_per_week'] = (int) $plan['days_per_week'];
+
+    $stmt = $db->prepare('SELECT equipment FROM workout_plan_equipment WHERE plan_id = ? ORDER BY equipment');
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $plan['required_equipment'] = array_column($stmt->get_result()->fetch_all(MYSQLI_ASSOC), 'equipment');
 
     $stmt = $db->prepare(
         'SELECT name, focus, duration_minutes, exercises FROM workout_plan_days WHERE plan_id = ? ORDER BY position'

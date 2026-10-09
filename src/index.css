@@ -1022,3 +1022,24 @@ a.today-workout__action {
     gap: 2px;
   }
 }
+
+/* Equipment a plan needs vs. what the user has (library, details and onboarding recommendations) */
+.plan-equipment {
+  margin: 6px 0 0;
+  font-size: 12px;
+}
+.plan-equipment--ok {
+  color: var(--gr-success-text);
+}
+.plan-equipment--needs {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: var(--gr-error-text);
+  background: var(--gr-error-bg);
+}
+.plan-details__equipment {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: var(--gr-text-soft);
+}
