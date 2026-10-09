@@ -137,6 +137,16 @@ function Dashboard() {
   const location = useLocation()
   const navigate = useNavigate()
   const [fullName, setFullName] = useState(location.state?.fullName?.trim() || '')
+  // One-time message from choosing a plan (src/usePlanSelection.jsx).
+  const [planNotice, setPlanNotice] = useState(location.state?.planNotice || '')
+
+  // Drop the message from the history entry so reloading the page doesn't show it again.
+  useEffect(() => {
+    if (location.state?.planNotice) {
+      navigate(location.pathname, { replace: true, state: { fullName: location.state.fullName } })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   // null while loading; {plan, goal} afterwards, where plan/goal are null if the user hasn't chosen one.
   const [setup, setSetup] = useState(null)
 
@@ -192,6 +202,14 @@ function Dashboard() {
     <div className="dashboard-page">
       <NavBar current="Dashboard" userName={fullName} />
       <main className="dashboard-content">
+        {planNotice && (
+          <div className="dashboard-notice" role="status">
+            <p>{planNotice}</p>
+            <button type="button" aria-label="Dismiss message" onClick={() => setPlanNotice('')}>
+              ×
+            </button>
+          </div>
+        )}
         <header className="dashboard-header">
           <div>
             <span className="dashboard-header__eyebrow">{plan ? `YOUR ${plan.level.toUpperCase()} PLAN` : 'WELCOME TO GYMRANK'}</span>

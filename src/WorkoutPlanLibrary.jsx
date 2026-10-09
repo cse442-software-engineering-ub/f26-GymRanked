@@ -6,13 +6,12 @@ import PlanSelectionStatus from './PlanSelectionStatus.jsx'
 import { fetchPlans } from './plansApi.js'
 import { missingEquipment } from './planEquipment.js'
 import usePlanSelection from './usePlanSelection.jsx'
-import useUserSetup from './useUserSetup.js'
 
 function WorkoutPlanLibrary() {
   const [plans, setPlans] = useState(null)
   const [error, setError] = useState(null)
   const selection = usePlanSelection()
-  const { setup } = useUserSetup()
+  const { setup } = selection
 
   useEffect(() => {
     fetchPlans()
@@ -48,7 +47,7 @@ function WorkoutPlanLibrary() {
                     onClick={() => selection.requestSelect(plan)}
                     disabled={!selection.canSelect || isCurrent}
                   >
-                    {isCurrent ? 'Current plan' : 'Select'}
+                    {isCurrent ? 'Current plan' : selection.busyPlanId === plan.id ? 'Selecting...' : 'Select'}
                   </button>
                 </li>
               )

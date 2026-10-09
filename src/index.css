@@ -390,6 +390,36 @@ button.nav-bar__avatar {
   gap: 4px 8px;
 }
 
+.dashboard-notice {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--gr-success);
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.dashboard-notice p {
+  margin: 0;
+}
+
+.dashboard-notice button {
+  flex: none;
+  min-width: 28px;
+  min-height: 28px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
 .dashboard-today__plan {
   margin: 12px 0 0;
   color: var(--gr-text-soft);
@@ -1082,6 +1112,12 @@ a.today-workout__action {
   font-size: 16px;
   font-weight: 500;
   color: #e8e9ec;
+}
+
+.switch-plan-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .switch-plan-modal__warning {
