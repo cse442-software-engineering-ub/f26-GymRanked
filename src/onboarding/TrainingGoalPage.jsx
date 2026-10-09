@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiRequest, errorMessage } from './api.js';
-import { Avatar, ChoiceCard, Message, OnboardingShell, StepHeader } from './parts.jsx';
+import { Avatar, ChoiceCard, Message, OnboardingShell, SaveBar, StepHeader } from './parts.jsx';
 
 // Goal icons: 24x24 stroke drawings (DESIGN.md, "Icons"). Dumbbell, flame, heart with a pulse line.
 const icon = (...paths) => (
@@ -37,7 +37,7 @@ const GOALS = [
   },
 ];
 
-// Route: #/goal (registered in src/App.jsx). Onboarding step 1 of 3.
+// Route: #/goal (registered in src/App.jsx). Onboarding step 1 of 4.
 export default function TrainingGoalPage() {
   return (
     <OnboardingShell step={0} backdrop="backdrops/rack.webp">
@@ -77,7 +77,7 @@ function TrainingGoalStep({ user }) {
       body: JSON.stringify({ training_goal: goal }),
     });
     if (result.ok) {
-      navigate('/setup'); // Next onboarding step: experience and equipment.
+      navigate('/experience'); // Next onboarding step.
       return;
     }
     setStatus('ready');
@@ -88,7 +88,7 @@ function TrainingGoalStep({ user }) {
   const selected = GOALS.find((option) => option.value === goal);
 
   return (
-    <section className="ob-step ob-goal" aria-busy={status === 'loading'}>
+    <section className="ob-step ob-form" aria-busy={status === 'loading'}>
       <StepHeader
         title="Choose your training goal"
         subtitle="This appears on your profile and shapes your training plan."
@@ -136,26 +136,13 @@ function TrainingGoalStep({ user }) {
         </div>
       </div>
 
-      {/* Top right next to the heading on computers; a full-width bar at the bottom on phones (onboarding.css). */}
-      <div className="ob-save">
-        <button
-          type="button"
-          className="ob-button ob-button--primary"
-          onClick={handleSave}
-          disabled={busy || !goal}
-        >
-          {status === 'saving' ? 'Saving…' : 'Save goal'}
-        </button>
-        {!goal && status !== 'loading' && (
-          <p className="ob-save-help">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 11v5M12 8h.01" />
-            </svg>
-            Pick one goal to continue.
-          </p>
-        )}
-      </div>
+      <SaveBar
+        label="Save goal"
+        saving={status === 'saving'}
+        disabled={busy || !goal}
+        help={!goal && status !== 'loading' ? 'Pick one goal to continue.' : ''}
+        onSave={handleSave}
+      />
     </section>
   );
 }

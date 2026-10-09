@@ -10,9 +10,9 @@ import { OnboardingShell, StepHeader } from './parts.jsx';
 
 const GOAL_LABELS = { strength: 'strength', fat_loss: 'fat loss', aerobic: 'aerobic fitness' };
 
-// Route: #/recommended (registered in src/App.jsx). Onboarding step 3 of 3.
+// Route: #/recommended (registered in src/App.jsx). Onboarding step 4 of 4.
 export default function RecommendedPlansPage() {
-  return <OnboardingShell step={2}>{() => <RecommendedPlans />}</OnboardingShell>;
+  return <OnboardingShell step={3}>{() => <RecommendedPlans />}</OnboardingShell>;
 }
 
 function RecommendedPlans() {
@@ -51,7 +51,7 @@ function RecommendedPlans() {
       {!error && !ready && <p className="ob-loading" role="status">Finding plans for you…</p>}
       {ready && !setup && (
         <p className="ob-message ob-message--error" role="alert">
-          Finish <Link to="/setup">your experience and equipment</Link> to see recommended plans.
+          Finish <Link to="/experience">your experience and equipment</Link> to see recommended plans.
         </p>
       )}
       {ready && setup && recommended.length === 0 && (
