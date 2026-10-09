@@ -47,13 +47,17 @@ function WeeklyPlan() {
   return (
     <div className="plan-library">
       <NavBar current="Workouts" />
-      <main className="weekly-plan">
+      <main className="weekly-plan" aria-busy={!loggedOut && !error && current === null}>
         {loggedOut && (
           <p className="status">
             <Link to="/login">Log in</Link> to see your weekly plan.
           </p>
         )}
-        {error && <p className="status">Error loading your plan: {error}</p>}
+        {error && (
+          <p className="status status--error" role="alert">
+            Error loading your plan: {error}. Refresh the page to try again.
+          </p>
+        )}
         {!loggedOut && !error && current === null && <p className="status">Loading your plan...</p>}
         {current && !plan && (
           <section className="today-workout" aria-labelledby="no-plan-title">
@@ -63,7 +67,7 @@ function WeeklyPlan() {
               Start by selecting a plan from the library. Your week, with a workout for each training day, will appear here.
             </p>
             <Link to="/plans" className="button-primary today-workout__action">
-              Browse workout plans
+              Browse workout plans ›
             </Link>
           </section>
         )}
@@ -91,7 +95,7 @@ function WeeklyPlan() {
                   : 'Recovery'}
               </p>
               <Link to={`/plans/${plan.id}`} className="button-primary today-workout__action">
-                View plan details
+                View plan details ›
               </Link>
             </section>
           </>
