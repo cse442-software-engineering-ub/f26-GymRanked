@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import Breadcrumb from './Breadcrumb.jsx'
 import NavBar from './NavBar.jsx'
 import BodyFigure from './BodyFigure.jsx'
-import PlanEquipmentNote from './PlanEquipmentNote.jsx'
+import PlanEquipmentDot from './PlanEquipmentDot.jsx'
 import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
 import { EQUIPMENT_LABELS, missingEquipment } from './planEquipment.js'
 import PlanMeta from './PlanMeta.jsx'
@@ -50,8 +50,8 @@ function PlanDetails() {
               {plan.required_equipment.length === 0
                 ? 'none needed'
                 : plan.required_equipment.map((item) => EQUIPMENT_LABELS[item]).join(', ')}
+              <PlanEquipmentDot missing={setup ? missingEquipment(plan, setup.equipment) : null} />
             </p>
-            <PlanEquipmentNote missing={setup ? missingEquipment(plan, setup.equipment) : null} />
             <h2 className="plan-details__subheading">Weekly split</h2>
             {plan.days.length === 0 ? (
               <p className="status">No weekly split yet</p>

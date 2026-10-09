@@ -689,6 +689,7 @@ button.nav-bar__avatar {
 }
 
 .plan-list__item {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -1215,30 +1216,77 @@ a.today-workout__action {
 }
 
 /* Equipment a plan needs vs. what the user has (library, details and onboarding recommendations) */
-.plan-equipment {
-  margin: 6px 0 0;
-  font-size: 12px;
-  line-height: 1.5;
-}
-.plan-row .plan-equipment {
-  margin: 0;
+/* Equipment dot: green when the user has what a plan needs, red when not. The tooltip shows on hover and focus. */
+.equipment-dot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  vertical-align: middle;
+  cursor: help;
 }
 
-.plan-details .plan-equipment {
-  align-self: flex-start;
+.plan-list__item > .equipment-dot,
+.ob-plan > .equipment-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
 }
 
-.plan-equipment--ok {
-  color: var(--gr-success-text);
+.plan-details__equipment .equipment-dot {
+  width: 28px;
+  height: 28px;
+  margin-left: 4px;
 }
-.plan-equipment--needs {
-  display: inline-block;
-  padding: 3px 8px;
-  border: 1px solid var(--gr-error);
+
+.equipment-dot__mark {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.equipment-dot--ok .equipment-dot__mark {
+  background: var(--gr-success);
+}
+
+.equipment-dot--short .equipment-dot__mark {
+  background: var(--gr-error);
+}
+
+.equipment-dot__tip {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 5;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  width: max-content;
+  max-width: 220px;
+  padding: 8px 10px;
+  border: 1px solid var(--gr-border-strong);
   border-radius: var(--gr-radius-button);
-  color: var(--gr-error-text);
-  background: var(--gr-error-bg);
+  background: var(--gr-surface-raised);
+  box-shadow: var(--gr-shadow-menu);
+  color: var(--gr-text);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: left;
 }
+
+.equipment-dot__need {
+  color: var(--gr-text-soft);
+  font-weight: 400;
+}
+
+.equipment-dot:hover .equipment-dot__tip,
+.equipment-dot:focus .equipment-dot__tip {
+  display: flex;
+}
+
 .plan-details__equipment {
   margin: 0 0 6px;
   font-size: 14px;

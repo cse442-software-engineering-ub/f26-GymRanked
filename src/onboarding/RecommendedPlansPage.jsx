@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import PlanIcons from '../PlanIcons.jsx';
-import PlanEquipmentNote from '../PlanEquipmentNote.jsx';
+import PlanEquipmentDot from '../PlanEquipmentDot.jsx';
 import PlanMeta from '../PlanMeta.jsx';
 import { recommendPlans } from '../planEquipment.js';
 import { fetchPlans } from '../plansApi.js';
@@ -69,8 +69,8 @@ function RecommendedPlans() {
                 <Link className="ob-plan-name" to={`/plans/${plan.id}`}>{plan.name}</Link>
                 <p className="ob-plan-meta"><PlanMeta plan={plan} /></p>
                 <PlanIcons plan={plan} />
-                <PlanEquipmentNote missing={plan.missing_equipment} />
               </div>
+              <PlanEquipmentDot missing={plan.missing_equipment} />
               <button
                 type="button"
                 className="ob-button ob-button--primary"
