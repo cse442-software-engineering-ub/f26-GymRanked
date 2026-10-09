@@ -400,7 +400,7 @@ button.nav-bar__avatar {
   border-radius: var(--gr-radius-button);
   background: var(--gr-success-bg);
   color: var(--gr-success-text);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -410,8 +410,9 @@ button.nav-bar__avatar {
 
 .dashboard-notice button {
   flex: none;
-  min-width: 28px;
-  min-height: 28px;
+  min-width: 44px;
+  min-height: 44px;
+  margin: -12px -12px -12px 0;
   border: none;
   background: transparent;
   color: inherit;
@@ -628,7 +629,7 @@ button.nav-bar__avatar {
 
 .plan-library__heading h1 {
   margin: 0;
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 500;
   color: #e8e9ec;
 }
@@ -709,7 +710,7 @@ button.nav-bar__avatar {
 
 .plan-row__name {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--gr-text);
 }
@@ -748,8 +749,8 @@ button.nav-bar__avatar {
 .plan-icons__tile {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--gr-radius-inner);
   background: var(--gr-surface-raised);
   box-shadow: inset 0 0 0 1px var(--gr-border);
@@ -762,7 +763,7 @@ button.nav-bar__avatar {
 }
 
 .plan-icons__label {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--gr-text-muted);
 }
 
@@ -771,16 +772,18 @@ button.nav-bar__avatar {
   color: var(--gr-text-on-orange);
   border: none;
   border-radius: var(--gr-radius-button);
+  min-height: 44px;
   padding: 12px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
 }
 
-.plan-list__select:disabled {
+.plan-list__select:disabled,
+.button-primary:disabled {
   background: var(--gr-surface-raised);
-  color: var(--gr-text-muted);
-  cursor: default;
+  color: var(--gr-nav-inactive);
+  cursor: not-allowed;
 }
 
 .plan-library .status a {
@@ -817,7 +820,7 @@ a.plan-row:hover .plan-row__name {
 
 .plan-details__title h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 500;
   color: #e8e9ec;
 }
@@ -862,7 +865,7 @@ a.plan-row:hover .plan-row__name {
 
 .plan-split__item {
   background: var(--gr-surface-raised);
-  border-radius: 8px;
+  border-radius: var(--gr-radius-inner);
 }
 
 .plan-split__day {
@@ -886,7 +889,7 @@ a.plan-row:hover .plan-row__name {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 10px 0;
+  padding: 12px 0;
   border-top: 1px solid var(--gr-border);
 }
 
@@ -898,13 +901,13 @@ a.plan-row:hover .plan-row__name {
 }
 
 .plan-exercise__name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--gr-text);
 }
 
 .plan-exercise__muscles {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--gr-action-text);
 }
 
@@ -961,7 +964,7 @@ a.plan-row:hover .plan-row__name {
 
 .weekly-plan__heading h1 {
   margin: 0;
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 500;
   color: #e8e9ec;
 }
@@ -1064,10 +1067,12 @@ a.today-workout__action {
 }
 
 .button-primary {
+  min-height: 44px;
   padding: 12px;
-  background: #2c2c2c;
-  color: #f5f5f5;
-  border: 1px solid #2c2c2c;
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+  border: none;
+  font-weight: 600;
 }
 
 .button-subtle {
@@ -1077,7 +1082,6 @@ a.today-workout__action {
   border: none;
 }
 
-.button-primary:disabled,
 .button-subtle:disabled {
   opacity: 0.6;
   cursor: default;
@@ -1103,8 +1107,9 @@ a.today-workout__action {
   flex-direction: column;
   gap: 16px;
   padding: 24px;
-  background: #161820;
-  border-radius: 14px;
+  background: var(--gr-surface);
+  border-radius: var(--gr-radius-card);
+  box-shadow: var(--gr-shadow-menu);
 }
 
 .switch-plan-modal__title {
@@ -1175,13 +1180,18 @@ a.today-workout__action {
   margin: 6px 0 0;
   font-size: 12px;
 }
+.plan-details .plan-equipment {
+  align-self: flex-start;
+}
+
 .plan-equipment--ok {
   color: var(--gr-success-text);
 }
 .plan-equipment--needs {
   display: inline-block;
   padding: 3px 8px;
-  border-radius: 6px;
+  border: 1px solid var(--gr-error);
+  border-radius: var(--gr-radius-button);
   color: var(--gr-error-text);
   background: var(--gr-error-bg);
 }
