@@ -185,7 +185,7 @@ acceptanceTests(
       await step('Step 3: "Log out" shows "You are logged out."', async () => {
         await page.locator('.ob-page').getByRole('button', { name: 'Log out' }).click()
         await expect(page).toHaveURL(/#\/login$/)
-        await expect(page.getByText('You are logged out.')).toBeVisible()
+        await expect(page.locator('.login-panel').getByText('You are logged out.')).toBeVisible()
       })
 
       await step('Step 4: after logging back in, the choices are still there', async () => {
@@ -201,7 +201,7 @@ acceptanceTests(
 
       await step('Steps 5-7: a second account starts with nothing selected', async () => {
         await page.locator('.ob-page').getByRole('button', { name: 'Log out' }).click()
-        await expect(page.getByText('You are logged out.')).toBeVisible()
+        await expect(page.locator('.login-panel').getByText('You are logged out.')).toBeVisible()
         await setUpAccount(page, 'Sam Second')
         await expectLevel(page, null)
         await expect(page.locator('.ob-card .ob-card-state')).toHaveText(['Select', 'Select', 'Select'])
