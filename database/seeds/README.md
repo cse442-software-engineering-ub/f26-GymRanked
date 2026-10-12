@@ -14,7 +14,7 @@ These are `example.com` addresses, which can never belong to a real person. Only
 
 ## Add them to the database
 
-Apply the migration first if you haven't, then load the seed from the repo root:
+Apply the migrations first if you haven't (all of `database/migrations/`, in order), then load the seed from the repo root:
 
 ```bash
 mysql -u root cse442_2026_fall_team_y_db < database/migrations/001_auth.sql
@@ -23,7 +23,9 @@ mysql -u root cse442_2026_fall_team_y_db < database/seeds/test_users.sql
 
 On the dev server, use your own MySQL user instead of `root` (see `ServerOperationsGuide.md`), e.g. `mysql -u <ubit> -p cse442_2026_fall_team_y_db < database/seeds/test_users.sql`.
 
-Rerunning the seed is safe: it resets these five accounts' names and passwords to the ones above and doesn't touch any other account.
+Each account has also finished onboarding (goal Strength, experience Beginner, equipment Full gym access) and has no workout plan, so logging in opens the Dashboard with "Welcome, <first name>". The seed needs migrations 001 to 006 applied first.
+
+Rerunning the seed is safe: it resets these five accounts' names, passwords, setup and plan to the ones above and doesn't touch any other account.
 
 ## Check they're there
 
