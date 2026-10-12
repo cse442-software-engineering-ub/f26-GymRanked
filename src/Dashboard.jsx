@@ -22,7 +22,7 @@ function MetricCard({ label, value, hint, accent = false, icon }) {
   )
 }
 
-function metricsFor(plan) {
+function metricsFor(plan, planError = '') {
   return [
     {
       label: 'RANK',
@@ -34,8 +34,8 @@ function metricsFor(plan) {
     {
       label: 'WORKOUTS THIS WEEK',
       icon: 'dumbbell',
-      value: plan ? `0 of ${plan.days_per_week}` : 'No plan yet',
-      hint: plan ? 'Hit every session to build your streak' : 'Select a workout plan to set a weekly goal',
+      value: planError ? 'Unavailable' : plan ? `0 of ${plan.days_per_week}` : 'No plan yet',
+      hint: planError ? 'Try loading your workout summary again' : plan ? 'Hit every session to build your streak' : 'Select a workout plan to set a weekly goal',
     },
     {
       label: 'WEEKLY CONSISTENCY',
@@ -165,6 +165,8 @@ function Dashboard() {
   }, [])
   // null while loading; {plan, goal} afterwards, where plan/goal are null if the user hasn't chosen one.
   const [setup, setSetup] = useState(null)
+  const [planError, setPlanError] = useState('')
+  const [loadAttempt, setLoadAttempt] = useState(0)
 
   useEffect(() => {
     let active = true
@@ -180,14 +182,25 @@ function Dashboard() {
 
   useEffect(() => {
     let active = true
-    Promise.all([
-      fetchCurrentPlan().then(async ({ plan }) => (plan ? fetchPlan(plan.id) : null)).catch(() => null),
+    Promise.allSettled([
+      fetchCurrentPlan().then(async ({ plan }) => (plan ? fetchPlan(plan.id) : null)),
       apiRequest('preferences.php').then((result) => (result.ok ? result.data.training_goal : null)),
-    ]).then(([plan, goal]) => {
-      if (active) setSetup({ plan, goal })
+    ]).then(([planResult, goalResult]) => {
+      if (!active) return
+      setPlanError(planResult.status === 'rejected' ? "Couldn't load your workout summary. Check your connection and try again." : '')
+      setSetup({
+        plan: planResult.status === 'fulfilled' ? planResult.value : null,
+        goal: goalResult.status === 'fulfilled' ? goalResult.value : null,
+      })
     })
     return () => { active = false }
-  }, [])
+  }, [loadAttempt])
+
+  function retryPlan() {
+    setSetup(null)
+    setPlanError('')
+    setLoadAttempt((attempt) => attempt + 1)
+  }
 
   const plan = setup?.plan ?? null
   const goal = setup?.goal ?? null
@@ -203,10 +216,10 @@ function Dashboard() {
     },
     {
       title: 'Select a workout plan',
-      detail: plan ? `You're following ${plan.name}` : 'Browse the library and pick the plan that fits you',
+      detail: planError ? "Couldn't check your saved plan" : plan ? `You're following ${plan.name}` : 'Browse the library and pick the plan that fits you',
       done: Boolean(plan),
-      action: 'Browse plans',
-      onAction: () => navigate('/plans'),
+      action: planError ? 'Try again' : 'Browse plans',
+      onAction: planError ? retryPlan : () => navigate('/plans'),
     },
     { title: 'Log your first lift', detail: 'Record weight and reps to track progress' },
   ]
@@ -228,11 +241,13 @@ function Dashboard() {
         )}
         <header className="dashboard-header">
           <div>
-            <span className="dashboard-header__eyebrow">{plan ? `YOUR ${plan.level.toUpperCase()} PLAN` : 'WELCOME TO GYMRANK'}</span>
-            <h1>{plan || setup === null ? `Welcome back, ${firstName}` : `Welcome, ${firstName}`}</h1>
+            <span className="dashboard-header__eyebrow">{planError ? 'WORKOUT SUMMARY UNAVAILABLE' : plan ? `YOUR ${plan.level.toUpperCase()} PLAN` : 'WELCOME TO GYMRANK'}</span>
+            <h1>{plan || planError || setup === null ? `Welcome back, ${firstName}` : `Welcome, ${firstName}`}</h1>
             <p className="dashboard-header__desktop-copy">
               {setup === null
                 ? 'Loading your dashboard...'
+                : planError
+                  ? 'Your workout summary could not be loaded. Try again below.'
                 : plan
                   ? 'You are one workout away from starting your first week.'
                   : 'Start by selecting a workout plan — it takes a minute and sets up your week.'}
@@ -242,13 +257,21 @@ function Dashboard() {
         </header>
 
         <section className="dashboard-metrics" aria-label="Weekly summary">
-          {metricsFor(plan).map((metric) => <MetricCard key={metric.label} {...metric} />)}
+          {metricsFor(plan, planError).map((metric) => <MetricCard key={metric.label} {...metric} />)}
         </section>
 
         <section className="dashboard-overview" aria-label="Workout overview">
           {setup === null ? (
             <article className="dashboard-card dashboard-today" aria-busy="true">
               <p className="dashboard-card__text">Loading today's workout...</p>
+            </article>
+          ) : planError ? (
+            <article className="dashboard-card dashboard-today" aria-label="Today's workout" role="alert">
+              <header className="dashboard-card__heading">
+                <div className="dashboard-today__heading-label"><h2>Today's workout</h2><span aria-hidden="true">·</span><span>{weekRangeLabel(currentDate)}</span></div>
+              </header>
+              <p className="dashboard-card__text">{planError}</p>
+              <button type="button" className="dashboard-primary-action dashboard-primary-action--spaced" onClick={retryPlan}>Try again</button>
             </article>
           ) : (
             <TodayWorkoutCard
