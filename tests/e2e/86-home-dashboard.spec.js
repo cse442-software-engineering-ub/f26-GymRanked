@@ -4,6 +4,8 @@ import { createAccountAndLogIn, logIn } from './helpers.js'
 import { step } from './banner.js'
 import { acceptanceTests } from './stories.js'
 
+// Story 86's shared-server target is https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/.
+// Playwright uses its configured baseURL; set E2E_BASE_URL to that URL when running against cattle.
 const todayCard = (page) => page.locator('.dashboard-today')
 const greeting = (page, name) => page.getByRole('heading', { level: 1, name: `Welcome back, ${name}` })
 
