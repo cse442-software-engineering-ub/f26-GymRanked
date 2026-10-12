@@ -3,7 +3,7 @@
 - **Tasks:** #65 (registration page), #68 (account creation backend), #74 (Playwright checks)
 - **Automated in:** `tests/e2e/17-create-account.spec.js`
 
-## Acceptance Test 1: Create an account and start onboarding
+## Acceptance Test 1: Create an account and go to the login page
 
 **Setup for this test:**
 1. Connect to the UB VPN, or use the campus network.
@@ -22,17 +22,20 @@
    - under it, "Already have an account? Log in"
 3. Type "Jamie Lee" in "Full name" and "jamie-a-1001@example.com" in "Email".
 4. Type "Lift!ng2Gether99" in "Password". The line under it should change to "Password strength: Strong".
-5. Type "Lift!ng2Gether99" in "Confirm password", then click "Create account". The first onboarding step should open: "Choose your training goal", with "Training goal" as the current step in the progress bar, followed by "Experience" and "Choose plan". The "Profile preview" should show "JL", "Jamie Lee" and "No goal yet".
+5. Type "Lift!ng2Gether99" in "Confirm password", then click "Create account". The "Log in to GymRank" card should show again, with:
+   - a green box above the boxes reading "Account created. Log in to continue."
+   - "jamie-a-1001@example.com" already filled in "Email"
+   - an empty "Password" box
 
 ## Acceptance Test 2: Your new account is really saved
 
 **Setup for this test:**
-1. Complete Acceptance Test 1 first. You should be on "Choose your training goal" as Jamie Lee.
+1. Complete Acceptance Test 1 first. You should be on "Log in to GymRank" with "Account created. Log in to continue."
 
 **Steps:**
-1. Click the "GymRank" logo in the top-left corner. The Dashboard should open.
-2. Open the account menu and click "Log out". The "Log in to GymRank" card should show.
-3. Type "jamie-a-1001@example.com" in "Email" and "Lift!ng2Gether99" in "Password", then click "Log in". The Dashboard should open with "Welcome, Jamie" near the top-left, and no "Invalid email or password." message should appear.
+1. Check that "Email" says "jamie-a-1001@example.com" (type it if the box is empty). Type "Lift!ng2Gether99" in "Password", then click "Log in". No "Invalid email or password." message should appear, and the first onboarding step should open: "Choose your training goal", with a progress bar showing "Training goal" (the current step), "Experience", "Equipment" and "Choose plan".
+2. Look at the "Profile preview" on the same page. It should show "JL", "Jamie Lee" and "No goal yet".
+3. Click "Log out" in the top-right corner. The "Log in to GymRank" card should show with "You are logged out."
 
 ## Acceptance Test 3: Empty and incomplete boxes are refused
 
@@ -57,7 +60,7 @@
 ## Acceptance Test 4: An email that already has an account is refused
 
 **Setup for this test:**
-1. Complete Acceptance Test 1 first, so jamie-a-1001@example.com is already registered. Log out from the account menu on the Dashboard.
+1. Complete Acceptance Test 1 first, so jamie-a-1001@example.com is already registered. If you're logged in (for example after Acceptance Test 2), click "Log out" in the top-right corner.
 
 **Steps:**
 1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and click "Create an account".
@@ -78,6 +81,12 @@
 3. On a phone, or in a browser window 850 pixels wide or narrower: repeat step 1, then tap the small "×" in the top-right corner instead. The "Log in to GymRank" card should show again, and no account should have been created.
 
 ## Notes
+
+Tests 1, 2 and 4 were changed on 2026-10-12 (Test 1 was "Create an account and start onboarding") to follow the
+sign-up flow from PR #45 (card #99): "Create account" now opens the login page with "Account created. Log in to
+continue." and the email filled in, and logging in opens "Choose your training goal" (four steps since card #94). Test
+2 used to open the Dashboard from the logo; an account without a goal is now sent back to "Choose your training goal",
+so it logs out with the onboarding "Log out" instead.
 
 Test 2 step 3 was changed on 2026-10-06: the Dashboard redesign (commit 5718a5e, merged in PR #36) greets a new
 account with "Welcome, Jamie" instead of "Let's move weight, Jamie.". Nothing else in the story changed.
