@@ -129,13 +129,22 @@ body {
 }
 
 .nav-bar__logo {
+  display: grid;
+  place-items: center;
   width: 32px;
   height: 32px;
   border-radius: 8px;
   background: #f2652e;
 }
 
-.nav-bar__logo svg,
+.nav-bar__logo svg {
+  display: block;
+  width: 22px;
+  height: 22px;
+  color: #fff;
+  stroke-width: 2.6;
+}
+
 .dashboard-metric__icon svg,
 .dashboard-mobile-only,
 .dashboard-today__mobile-summary,
@@ -1328,7 +1337,7 @@ a.today-workout__action {
 /* Dashboard and signed-in navigation at phone widths. Desktop rules above stay intact. */
 @media (max-width: 640px) {
   .dashboard-page {
-    background: linear-gradient(115deg, #0c1420, #111c2a 65%, #0d1724);
+    background: var(--gr-bg-page);
   }
 
   .nav-bar {
@@ -1338,7 +1347,7 @@ a.today-workout__action {
     min-height: 57px;
     flex-wrap: nowrap;
     padding: 10px 18px;
-    background: #101a27;
+    background: var(--gr-bg-nav);
   }
 
   .nav-bar__brand { order: 2; }
@@ -1426,7 +1435,7 @@ a.today-workout__action {
     padding: 22px 12px;
     overflow-y: auto;
     border-right: 1px solid #2c3b4c;
-    background: #111c2a;
+    background: var(--gr-bg-nav);
     box-shadow: 14px 0 30px rgba(0, 0, 0, .22);
     transform: translateX(-100%);
     visibility: hidden;
