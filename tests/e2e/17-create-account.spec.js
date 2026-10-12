@@ -133,7 +133,7 @@ acceptanceTests(
         await page.locator('.ob-page').getByRole('button', { name: 'Log out' }).click()
         await expect(page).toHaveURL(/#\/login$/)
         await expect(loginCard(page)).toBeVisible()
-        await expect(page.getByText('You are logged out.')).toBeVisible()
+        await expect(page.locator('.login-panel').getByText('You are logged out.')).toBeVisible()
       })
     },
 
