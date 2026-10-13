@@ -1,4 +1,6 @@
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
+
 import LoginPage from './auth/LoginPage.jsx'
 import RegistrationPage from './auth/RegistrationPage.jsx'
 import Dashboard from './Dashboard.jsx'
@@ -16,6 +18,9 @@ function App() {
     <HashRouter><Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegistrationPage />} />
+         {WorkoutLogPreview && (
+     <Route path="/dev/workout-log" element={<Suspense fallback={null}><WorkoutLogPreview /></Suspense>} />
+   )}
       <Route element={<OnboardingGate />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/plans" element={<WorkoutPlanLibrary />} />
