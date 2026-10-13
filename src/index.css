@@ -1571,7 +1571,7 @@ a.today-workout__action {
   .dashboard-exercise__mobile-icon svg { width: 22px; height: 22px; color: #f4f6f9; }
   .dashboard-exercise strong { color: #f4f6f9; font-size: 15px; }
   .dashboard-exercise__chevron { display: block; width: 18px; height: 18px; margin-left: auto; color: #a6b4c7; }
-  .dashboard-primary-action { padding: 13px; background: #f2652e; color: #fff; font-size: 16px; }
+  .dashboard-primary-action { padding: 13px; background: #f2652e; color: var(--gr-text-on-orange); font-size: 16px; }
   .dashboard-primary-action--spaced { margin-top: 10px; }
   .dashboard-desktop-only { display: none; }
   .dashboard-mobile-only { display: inline; }
