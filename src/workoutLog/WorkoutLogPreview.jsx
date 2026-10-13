@@ -1,74 +1,61 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import NavBar from '../NavBar.jsx'
 import WorkoutLogger from './WorkoutLogger.jsx'
 import { createMockWorkoutLogApi } from './mockWorkoutLogApi.js'
-import { summaryPath } from './setLog.js'
 
-// Test page at #/dev/workout-log, used by the story #7 frontend task tests. App.jsx only allows it on aptitude
-// and on your own computer, never on cattle (production). Shows the set logging pieces on their own, backed by
-// the in-memory stand-in instead of the server, so they can be tested before the active workout screen and the
-// backend endpoints exist.
+// Today's workout page for story #7 at #/dev/workout-log, laid out like the rest of the signed-in site
+// (nav bar, page header, cards). Until the real active workout screen and backend exist it shows a fixed
+// session (Push day of Push Pull Legs) and saves to an in-memory stand-in, so the task tests can run on
+// aptitude. App.jsx only allows it on aptitude and on your own computer, never on cattle (production).
+//
+// The task tests trigger failures from the address instead of from anything on screen:
+//   #/dev/workout-log?simulate=offline        every save and Complete fails as if the connection dropped
+//   #/dev/workout-log?simulate=logged-out     the server says the session ended
+//   #/dev/workout-log?simulate=server-error   the server returns 500
+// Removing ?simulate=… from the address (and pressing Enter) turns it off without reloading the page.
 
-const SESSION_ID = 1
-const EXERCISES = ['Bench press', 'Overhead press', 'Push-up']
+const SESSION = {
+  id: 1,
+  plan: 'Push Pull Legs',
+  name: 'Push',
+  focus: 'Chest, shoulders, triceps',
+  minutes: 45,
+  exercises: ['Bench press', 'Overhead press', 'Triceps pushdown'],
+}
 
-const SWITCHES = [
-  ['offline', 'Simulate being offline'],
-  ['loggedOut', 'Simulate a logged-out session'],
-  ['serverError', 'Simulate a server error (500)'],
-]
+const SIMULATIONS = { offline: 'offline', 'logged-out': 'loggedOut', 'server-error': 'serverError' }
 
 export default function WorkoutLogPreview() {
-  const [run, setRun] = useState(0)
-  const api = useMemo(() => createMockWorkoutLogApi(), [run])
-  const [switches, setSwitches] = useState({ offline: false, loggedOut: false, serverError: false })
-  const [completedAt, setCompletedAt] = useState(null)
+  const api = useMemo(() => createMockWorkoutLogApi(), [])
+  const [searchParams] = useSearchParams()
+  const simulate = searchParams.get('simulate')
+  const [completed, setCompleted] = useState(false)
 
-  function toggle(name) {
-    const value = !switches[name]
-    api.switches[name] = value
-    setSwitches((current) => ({ ...current, [name]: value }))
-  }
-
-  function startOver() {
-    setSwitches({ offline: false, loggedOut: false, serverError: false })
-    setCompletedAt(null)
-    setRun((value) => value + 1)
-  }
+  useEffect(() => {
+    for (const name of Object.values(SIMULATIONS)) api.switches[name] = false
+    if (SIMULATIONS[simulate]) api.switches[SIMULATIONS[simulate]] = true
+  }, [api, simulate])
 
   return (
-    <main style={{ minHeight: '100vh', background: 'var(--gr-bg-page)', color: 'var(--gr-text)', fontFamily: 'var(--gr-font)', padding: '24px 16px' }}>
-      <div style={{ maxWidth: 640, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <header>
-          <p style={{ margin: 0, fontSize: 13, color: 'var(--gr-warning-text)' }}>TEST PAGE · in-memory data, nothing is saved</p>
-          <h1 style={{ margin: '4px 0 0', fontSize: 22, fontWeight: 500 }}>Workout logging (story #7)</h1>
+    <div className="dashboard-page">
+      <NavBar current="Workouts" />
+      <main className="dashboard-content">
+        <header className="dashboard-header">
+          <div>
+            <span className="dashboard-header__eyebrow">TODAY'S WORKOUT</span>
+            <h1>{SESSION.name}</h1>
+            <p>{SESSION.plan} · {SESSION.focus} · About {SESSION.minutes} min</p>
+          </div>
         </header>
-
-        <fieldset style={{ border: '1px solid var(--gr-border-strong)', borderRadius: 'var(--gr-radius-card)', padding: 12, display: 'flex', flexWrap: 'wrap', gap: '8px 16px' }}>
-          <legend style={{ fontSize: 13, color: 'var(--gr-text-soft)', padding: '0 4px' }}>Test switches</legend>
-          {SWITCHES.map(([name, label]) => (
-            <label key={name} style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: 44, fontSize: 14 }}>
-              <input type="checkbox" checked={switches[name]} onChange={() => toggle(name)} />
-              {label}
-            </label>
-          ))}
-          <button type="button" className="wl-button" onClick={startOver}>Start over</button>
-        </fieldset>
-
-        {completedAt && (
-          <p className="wl-message wl-message--success" role="status">
-            Completed at {new Date(completedAt).toLocaleTimeString()}. In the app this opens #{summaryPath(SESSION_ID)}.
-          </p>
-        )}
-
         <WorkoutLogger
-          key={run}
-          sessionId={SESSION_ID}
-          exercises={EXERCISES}
-          completed={completedAt !== null}
+          sessionId={SESSION.id}
+          exercises={SESSION.exercises}
+          completed={completed}
           api={api}
-          onCompleted={(result) => setCompletedAt(result.completed_at ?? new Date().toISOString())}
+          onCompleted={() => setCompleted(true)}
         />
-      </div>
-    </main>
+      </main>
+    </div>
   )
 }

@@ -249,7 +249,7 @@ export default function SetLogger({
               <li key={set.id} className="wl-set">
                 <span className="wl-set__number">Set {set.set_number}</span>
                 <span className="wl-set__value">{formatSet(set)}</span>
-                {notice?.id === set.id && (
+                {notice?.id === set.id && !locked && (
                   <span className="wl-set__notice" role="status">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
                     {notice.text}
@@ -273,7 +273,7 @@ export default function SetLogger({
       )}
 
       {locked ? (
-        <p className="wl-locked">Workout completed — these sets can no longer be changed.</p>
+        <p className="wl-locked">{sets.length === 0 ? 'No sets logged.' : 'Workout completed — these sets can no longer be changed.'}</p>
       ) : (
         <form
           className="wl-set-form wl-set-form--new"
