@@ -6,7 +6,7 @@ import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
 import MobileDashboardIcon from './MobileDashboardIcon.jsx'
 import NavBar from './NavBar.jsx'
 import CompleteWorkoutButton from './workoutLog/CompleteWorkoutButton.jsx'
-import { formatSet } from './workoutLog/setLog.js'
+import { formatSet, summaryPath } from './workoutLog/setLog.js'
 import { loadFinished } from './finishedExercises.js'
 import { startSession } from './workoutSessionApi.js'
 
@@ -232,7 +232,7 @@ function ActiveWorkout() {
               sessionId={session.id}
               setCount={setCount}
               completed={completed}
-              onCompleted={() => setCompleted(true)}
+              onCompleted={() => navigate(summaryPath(session.id))}
               onSessionEnded={() => setStatus('loggedOut')}
             />
             {completed && <Link to="/weekly-plan" className="active-workout__back">Back to weekly plan</Link>}

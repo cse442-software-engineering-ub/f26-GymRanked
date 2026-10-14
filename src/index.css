@@ -499,6 +499,43 @@ button.nav-bar__avatar {
   font-size: 14px;
 }
 
+.dashboard-today__completed {
+  margin: 10px 0 0;
+  color: var(--gr-success-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dashboard-history-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--gr-error);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-error-bg);
+  color: var(--gr-error-text);
+  font-size: 14px;
+}
+
+.dashboard-history-error button {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid currentColor;
+  border-radius: var(--gr-radius-button);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.dashboard-history-error button:focus-visible {
+  outline: 4px solid var(--gr-action-text);
+  outline-offset: 0;
+}
+
 .dashboard-exercises {
   display: flex;
   flex-direction: column;
@@ -1534,7 +1571,7 @@ a.today-workout__details:hover {
   .nav-bar__mobile-link[aria-disabled="true"] { cursor: default; }
   .nav-bar__mobile-link:not([aria-disabled="true"]):hover,
   .nav-bar__mobile-link:not([aria-disabled="true"]):focus-visible { background: rgba(242, 101, 46, .15); }
-  .nav-bar__mobile-link[data-future-route="/today"] { margin-top: 8px; padding-top: 8px; border-top: 1px solid #2c3b4c; border-radius: 0; }
+  .nav-bar__mobile-link[href$="/workouts/today"] { margin-top: 8px; padding-top: 8px; border-top: 1px solid #2c3b4c; border-radius: 0; }
 
   .nav-bar__mobile-account {
     display: flex;

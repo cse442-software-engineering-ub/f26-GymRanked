@@ -12,7 +12,7 @@ const NAV_LINKS = [
   { label: 'Plans', to: '/plans', icon: 'calendar' },
   { label: 'Progress', futurePath: '/progress', icon: 'progress' },
   { label: 'Leaderboard', futurePath: '/leaderboard', icon: 'trophy' },
-  { label: 'Today', futurePath: '/today', icon: 'today' },
+  { label: 'Today', to: '/workouts/today', icon: 'today' },
 ]
 
 function NavBar({ current, userName = '' }) {
@@ -90,7 +90,7 @@ function NavBar({ current, userName = '' }) {
         })}
       </nav>
       <div className="nav-bar__actions">
-        <button type="button" className="nav-bar__start-workout" onClick={() => navigate('/weekly-plan')}>
+        <button type="button" className="nav-bar__start-workout" onClick={() => navigate('/workouts/today')}>
           Start Workout
         </button>
         {(
