@@ -13,7 +13,8 @@ backend backed by MySQL.
 ├── api/
 │   ├── config.example.php # template, copy to config.php and fill in credentials
 │   ├── config.php         # gitignored, holds your real DB credentials (not committed)
-│   └── workouts.php       # PHP endpoint, returns workouts as JSON
+│   ├── workouts.php       # PHP endpoint, returns workouts as JSON
+│   └── workout_*.php      # workout logging: sessions, sets, completion, history (see ARCHITECTURE.md)
 ├── src/
 │   ├── App.jsx
 │   ├── WorkoutList.jsx    # fetches and renders workout data
