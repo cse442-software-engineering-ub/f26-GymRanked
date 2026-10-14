@@ -3,8 +3,8 @@ import { fileURLToPath } from 'node:url'
 
 const REPO_ROOT = fileURLToPath(new URL('../../', import.meta.url))
 
-// Local runs only: check the database is ready, then reset this machine's login and sign-up counters, so
-// repeated runs don't hit the API's 15-minute limit. Prints no credentials.
+// Local runs only: check the database is ready, then reset this machine's login and sign-up counters and the
+// seeded Riley Brooks's login counter, so repeated runs don't hit the API's 15-minute limits. Prints no credentials.
 const CHECK_LOCAL_DATABASE = `
 require 'api/config.php';
 mysqli_report(MYSQLI_REPORT_OFF);
@@ -21,6 +21,8 @@ $keys = [];
 foreach (['login', 'register'] as $action) {
     foreach (['127.0.0.1', '::1'] as $address) $keys[] = "'" . hash('sha256', "$action:ip:$address") . "'";
 }
+// Story 9's spec logs in as the seeded Riley Brooks several times per run; the limit there is 10 per email.
+$keys[] = "'" . hash('sha256', 'login:email:riley.brooks@example.com') . "'";
 $db->query('DELETE FROM auth_attempts WHERE attempt_key IN (' . implode(',', $keys) . ')');
 echo "ok";
 `
