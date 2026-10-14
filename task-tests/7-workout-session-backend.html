@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Story 7 backend task tests</title>
+<style>
+:root{--bg:#fff;--fg:#1c1c1e;--muted:#5f6368;--line:#e3e5e8;--code:#f3f4f6;--accent:#c2410c}
+@media(prefers-color-scheme:dark){:root{--bg:#141416;--fg:#ececee;--muted:#9a9ca3;--line:#2b2d31;--code:#222428;--accent:#fb923c}}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:1.4rem;line-height:1.3}
+h2{font-size:1.15rem;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+a{color:var(--accent);word-break:break-all}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.88em;overflow-wrap:anywhere}
+pre{background:var(--code);padding:12px 14px;border-radius:6px;overflow-x:auto}
+pre code{padding:0;background:none;overflow-wrap:normal}
+li{margin:.35rem 0}
+p.cont{margin:.3rem 0}
+p.result{margin:.8rem 0}
+hr{border:0;border-top:1px solid var(--line);margin:2rem 0}
+.table{overflow-x:auto;margin:1rem 0}
+table{border-collapse:collapse;font-size:.92rem;width:100%}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+th{background:var(--code)}
+</style></head><body><main>
+<h1>Task tests: Story #7 backend (workout sessions, sets, completion, history)</h1>
+<p>Paste these into the backend task card's description before it moves to In Progress. Format and rules:</p>
+<p><code>TestingAndDebuggingGuide.md</code> section 5. Run every test in order on aptitude, as written.</p>
+<p>The backend (card #105) is built and <code>node tests/workout-session-api.mjs</code> runs the same scenarios against a local server and database (see</p>
+<p><code>TestingAndDebuggingGuide.md</code> → Checks). Run that script first; these steps are the by-hand version for aptitude.</p>
+<h2>Contract these tests assume (agree on it with Nicholas and the other feature owners before coding)</h2>
+<p>Units: weight is pounds (<code>weight_lb</code>, number, 0 to 1500, at most 2 decimal places, 0 = bodyweight). Reps is a whole</p>
+<p>number from 1 to 100. Times are set by the server only (any time the client sends is ignored) and are UTC strings like <code>2026-10-13T19:27:47Z</code>. All responses are JSON; errors are <code>{"error": "...", "errors"?: {...}}</code>.</p>
+<p>The frontend already codes against the first three rows (<code>src/workoutLog/workoutLogApi.js</code> on branch</p>
+<p><code>102-Daily-Logging-Frontend</code>); the other rows are proposed here and need Nicholas's OK.</p>
+<div class="table"><table><thead><tr><th>Endpoint</th><th>Request</th><th>Success</th><th>Status</th></tr></thead><tbody>
+<tr><td><code>POST api/workout_sets.php</code></td><td><code>{session_id, exercise, set_number, weight_lb, reps}</code></td><td><code>{"set": {id, exercise, set_number, weight_lb, reps, logged_at, updated_at}}</code></td><td>201</td></tr>
+<tr><td><code>POST api/workout_sets.php</code></td><td><code>{id, weight_lb, reps}</code> (correction)</td><td><code>{"set": {...}}</code></td><td>200</td></tr>
+<tr><td><code>POST api/complete_workout.php</code></td><td><code>{session_id}</code></td><td><code>{session_id, completed_at}</code></td><td>200</td></tr>
+<tr><td><code>POST api/workout_session.php</code></td><td><code>{}</code> or <code>{"day_position": 1}</code></td><td><code>{"session": {...}}</code>: creates today's session, or returns the unfinished (or already completed) one</td><td>201 new, 200 existing</td></tr>
+<tr><td><code>GET api/workout_session.php?id=N</code></td><td></td><td><code>{"session": {...}}</code></td><td>200</td></tr>
+<tr><td><code>GET api/workout_history.php</code></td><td></td><td><code>{"sessions": [...]}</code> completed only, newest first</td><td>200</td></tr>
+</tbody></table></div>
+<p><code>session</code> = <code>{id, plan, name, focus, started_at, completed_at, exercises: [{name, sets: [{id, set_number, weight_lb, reps, logged_at, updated_at}]}], summary}</code>.</p>
+<p><code>logged_at</code> is when the set was first saved and never changes; <code>updated_at</code> is the last correction (equal to <code>logged_at</code> until corrected).</p>
+<p><code>summary</code> is <code>null</code> until the workout is completed, then <code>{exercise_count, set_count, total_reps, total_volume_lb, duration_seconds}</code></p>
+<p>(<code>total_volume_lb</code> = sum of weight × reps; <code>exercise_count</code> counts exercises with at least one set; <code>duration_seconds</code> = <code>completed_at</code> − <code>started_at</code>, a whole number).</p>
+<p>The user's current session is their most recent session that started within the last 24 hours, finished or not: <code>POST workout_session.php</code> returns it (200),</p>
+<p>and creates a new one (201) only when there is none, so a user gets one workout per 24 hours and the answer doesn't depend on time zones.</p>
+<p><code>exercises</code> come from the user's current plan day, in order. Without <code>day_position</code> the day is today's scheduled</p>
+<p>training day; on a rest day the server answers 409 <code>{"error":"Rest day"}</code>. <code>day_position</code> (1, 2, 3...) picks that plan</p>
+<p>day instead, so tests don't depend on the weekday.</p>
+<p>History item = <code>{id, name, plan, started_at, completed_at, duration_seconds, exercise_count, set_count, total_volume_lb}</code>, ordered by <code>completed_at</code>, newest first.</p>
+<p>Errors: 400 bad input (per-field <code>errors.weight_lb</code> / <code>errors.reps</code>), 401 not logged in, 404 unknown session or set</p>
+<p>(including another user's), 405 wrong method, 409 workout already completed, duplicate set, rest day or no workout plan selected, 415 body isn't JSON, 500 <code>{"error":"Database error"}</code>.</p>
+<h2>Setup for all tests</h2>
+<ol>
+<li>Connect to the UB VPN or the campus network.</li>
+<li>Load the seed in <code>database/seeds/README.md</code> on aptitude (Marcus Malone and Dana Lee are used below), then apply the new migration <code>database/migrations/009_workout_sessions.sql</code> (Test 1 does this).</li>
+<li>In a terminal, set the variables and log both users in. Each user gets their own cookie file:<pre><code>API=https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/api
+J='Content-Type: application/json'
+curl -s -c marcus.jar -H "$J" -d '{"email":"marcus.malone@example.com","password":"Marcus-Bench225!"}' $API/login.php
+curl -s -c dana.jar   -H "$J" -d '{"email":"dana.lee@example.com","password":"Dana-Squat315!"}' $API/login.php</code></pre>
+</li>
+<li>Give both users the "Push Pull Legs" plan (its <code>id</code> is in <code>$API/plans.php</code>; it is <code>1</code> after migration 004):<pre><code>curl -s -b marcus.jar -H "$J" -d '{"plan_id":1}' $API/current_plan.php
+curl -s -b dana.jar   -H "$J" -d '{"plan_id":1}' $API/current_plan.php</code></pre>
+</li>
+<li>Run <code>DELETE FROM workout_sessions;</code> in phpMyAdmin (team database) so every run starts clean. Before Test 1 the table doesn't exist yet, so skip this step the first time.</li>
+</ol>
+<p>Write <code>M</code> for Marcus's commands (<code>curl -s -b marcus.jar -H "$J"</code>) and <code>D</code> for Dana's (<code>curl -s -b dana.jar -H "$J"</code>).</p>
+<hr>
+<h2 class="test">Test 1: Migration creates the tables and can be re-run</h2>
+<ol>
+<li>In phpMyAdmin (aptitude, team database) open the SQL tab and paste <code>database/migrations/009_workout_sessions.sql</code>. Click Go.</li>
+<li>Run <code>SHOW TABLES LIKE 'workout_%';</code></li>
+<li>Run <code>DESCRIBE workout_sets;</code> and <code>DESCRIBE workout_sessions;</code></li>
+<li>Paste and run the migration file a second time.</li>
+<li>Run <code>SELECT COUNT(*) FROM workout_sessions;</code></li>
+</ol>
+<p class="result"><strong>Expected outcome:</strong> step 1 reports success. Step 2 lists <code>workout_sessions</code> and <code>workout_sets</code> (plus the existing</p>
+<p><code>workout_plans</code>, <code>workout_plan_days</code>, <code>workouts</code>). Step 3: <code>workout_sets</code> has <code>id</code>, <code>session_id</code>, <code>exercise</code>,</p>
+<p><code>set_number</code>, <code>weight_lb</code> (DECIMAL(6,2)), <code>reps</code> (a whole-number type), <code>logged_at</code> and <code>updated_at</code> (timestamps, set by the database), and a unique key on</p>
+<p>(<code>session_id</code>, <code>exercise</code>, <code>set_number</code>); <code>workout_sessions</code> has <code>id</code>, <code>user_id</code>, <code>plan_id</code>, <code>day_name</code>, <code>started_at</code> (set by the server in UTC),</p>
+<p><code>completed_at</code> (NULL allowed), with a foreign key from <code>user_id</code> to <code>users</code> that deletes the sessions when the user</p>
+<p>is deleted. Step 4 reports no error and changes nothing. Step 5 returns <code>0</code>. The file's top comment says how to apply it</p>
+<p>locally, on aptitude and on cattle, as the other migrations do.</p>
+<h2 class="test">Test 2: Every endpoint requires a logged-in user</h2>
+<ol>
+<li>Run each of these with no cookie: <code>curl -s -w ' %{http_code}\n' -H "$J" -d '{}' $API/workout_session.php</code> <code>curl -s -w ' %{http_code}\n' "$API/workout_session.php?id=1"</code> <code>curl -s -w ' %{http_code}\n' -H "$J" -d '{"session_id":1,"exercise":"Bench press","set_number":1,"weight_lb":135,"reps":8}' $API/workout_sets.php</code> <code>curl -s -w ' %{http_code}\n' -H "$J" -d '{"session_id":1}' $API/complete_workout.php</code> <code>curl -s -w ' %{http_code}\n' $API/workout_history.php</code></li>
+<li>Repeat the first command with a made-up cookie: <code>curl -s -w ' %{http_code}\n' -b 'gymrank_session=abc' -H "$J" -d '{}' $API/workout_session.php</code></li>
+<li>Log Marcus out (<code>curl -s -b marcus.jar -c marcus.jar -X POST $API/logout.php</code>) and run <code>M -w ' %{http_code}\n' $API/workout_history.php</code>, then log him back in as in Setup step 3.</li>
+</ol>
+<p class="result"><strong>Expected outcome:</strong> every command in steps 1 to 3 prints <code>{"error":"Please log in."} 401</code>, and no row is added to any <code>workout_*</code> table.</p>
+<h2 class="test">Test 3: Start today's session with the plan's exercises in order</h2>
+<ol>
+<li>Run <code>M -w ' %{http_code}\n' -d '{"day_position":1}' $API/workout_session.php</code></li>
+<li>Run <code>D -w ' %{http_code}\n' -d '{"day_position":2}' $API/workout_session.php</code></li>
+<li>Run <code>M -w ' %{http_code}\n' -d '{"day_position":9}' $API/workout_session.php</code></li>
+<li>Run <code>M -w ' %{http_code}\n' -d '{"day_position":"one"}' $API/workout_session.php</code></li>
+<li>Log Priya Shah in (<code>priya.jar</code>, password <code>Priya-Deadlift405!</code>; she has no plan) and run <code>curl -s -b priya.jar -H "$J" -w ' %{http_code}\n' -d '{}' $API/workout_session.php</code>.</li>
+<li>Log Sean O'Brien in (<code>sean.jar</code>, password <code>Sean-Press135!</code>), give him plan <code>1</code> as in Setup step 4, and run <code>curl -s -b sean.jar -H "$J" -w ' %{http_code}\n' -d '{}' $API/workout_session.php</code> (no <code>day_position</code>: today's scheduled day, by Eastern time).</li>
+</ol>
+<p class="result"><strong>Expected outcome:</strong> step 1 returns status <code>201</code> and a <code>session</code> with <code>"plan":"Push Pull Legs"</code>, <code>"name":"Push"</code>,</p>
+<p><code>"focus":"Chest, shoulders, triceps"</code>, <code>"completed_at":null</code>, <code>"summary":null</code>, a <code>started_at</code> in the <code>...Z</code> format within a few seconds of now (UTC), and <code>exercises</code> exactly</p>
+<p><code>Bench press</code>, <code>Overhead press</code>, <code>Triceps pushdown</code> in that order, each with <code>"sets":[]</code>. Note the <code>id</code> as <code>S1</code>.</p>
+<p>Step 2 returns <code>201</code> with Dana's own session (<code>"name":"Pull"</code>, exercises <code>Barbell row</code>, <code>Lat pulldown</code>, <code>Dumbbell curl</code>) and a different <code>id</code>, <code>D1</code>.</p>
+<p>Step 3 returns <code>404</code> with <code>{"error":"Plan day not found"}</code>. Step 4 returns <code>400</code> with <code>{"error":"day_position must be a whole number."}</code>. Neither creates a row.</p>
+<p>Step 5 returns <code>409</code> with <code>{"error":"No workout plan selected"}</code>. Step 6 returns <code>201</code> with the day for today's weekday on Push Pull Legs: Monday and Thursday <code>Push</code>, Tuesday and Friday <code>Pull</code>, Wednesday <code>Legs</code>; on Saturday and Sunday it returns <code>409</code> with <code>{"error":"Rest day"}</code>.</p>
+<p><code>SELECT user_id, day_name FROM workout_sessions;</code> shows rows only for Marcus (Push), Dana (Pull) and, on a training day, Sean.</p>
+<h2 class="test">Test 4: Starting again reopens the unfinished session instead of creating a second one</h2>
+<ol>
+<li>Run <code>M -w ' %{http_code}\n' -d '{"day_position":1}' $API/workout_session.php</code> again.</li>
+<li>Log Marcus out and back in (new cookie, as in Setup step 3), then run the same command once more.</li>
+<li>Run <code>SELECT COUNT(*) FROM workout_sessions WHERE user_id = (SELECT id FROM users WHERE email='marcus.malone@example.com');</code></li>
+</ol>
+<p class="result"><strong>Expected outcome:</strong> steps 1 and 2 return status <code>200</code> (not 201) and the same <code>session.id</code> as <code>S1</code>, with the same exercises.</p>
+<p>Step 3 returns <code>1</code>.</p>
+<h2 class="test">Test 5: Saving sets stores the right numbers, units and order</h2>
+<ol>
+<li>Run <code>M -w ' %{http_code}\n' -d "{\"session_id\":$S1,\"exercise\":\"Bench press\",\"set_number\":1,\"weight_lb\":135,\"reps\":8}" $API/workout_sets.php</code> (replace <code>$S1</code> with the id from Test 3).</li>
+<li>Same with <code>"set_number":2,"weight_lb":135,"reps":6</code>.</li>
+<li>Same with <code>"exercise":"Overhead press","set_number":1,"weight_lb":65,"reps":10</code>.</li>
+<li>Same with <code>"exercise":"Triceps pushdown","set_number":1,"weight_lb":0,"reps":12</code>.</li>
+<li>Run <code>M $API/workout_session.php?id=$S1</code> (the <code>-w</code> flag isn't needed) and read <code>exercises</code>.</li>
+<li>Run <code>SELECT exercise, set_number, weight_lb, reps FROM workout_sets ORDER BY id;</code></li>
+</ol>
+<p class="result"><strong>Expected outcome:</strong> steps 1 to 4 each return <code>201</code> and <code>{"set":{"id":&lt;number&gt;,"exercise":"...","set_number":&lt;n&gt;,"weight_lb":&lt;number&gt;,"reps":&lt;number&gt;,"logged_at":"&lt;UTC time&gt;","updated_at":"&lt;same as logged_at&gt;"}}</code>,</p>
+<p>where <code>weight_lb</code> and <code>reps</code> are JSON numbers, not strings (e.g. <code>"weight_lb":135</code>, <code>"reps":8</code>), and the set ids increase.</p>
+<p>Step 5 lists Bench press with sets 1 (135 × 8) and 2 (135 × 6) in that order, Overhead press with set 1 (65 × 10),</p>
+<p>and Triceps pushdown with set 1 (0 × 12). Step 6 shows the same four rows, weights as <code>135.00</code>, <code>135.00</code>, <code>65.00</code>, <code>0.00</code>.</p>
+<h2 class="test">Test 6: Wrong values are refused, with per-field messages, and nothing is saved</h2>
+<p>For each row, run the Test 5 step 1 command with the changed values for Bench press set 3. Then run <code>SELECT COUNT(*) FROM workout_sets;</code></p>
+<div class="table"><table><thead><tr><th>weight_lb</th><th>reps</th><th>Expected status and body</th></tr></thead><tbody>
+<tr><td>(omitted)</td><td>8</td><td><code>400</code>, <code>errors.weight_lb</code> = <code>Enter a weight (0 for bodyweight).</code></td></tr>
+<tr><td>135</td><td>(omitted)</td><td><code>400</code>, <code>errors.reps</code> = <code>Enter your reps.</code></td></tr>
+<tr><td><code>"abc"</code></td><td>8</td><td><code>400</code>, <code>errors.weight_lb</code> = <code>Enter a weight as a number.</code></td></tr>
+<tr><td>-1</td><td>8</td><td><code>400</code>, <code>errors.weight_lb</code> = <code>Weight must be between 0 and 1500 lb.</code></td></tr>
+<tr><td>1501</td><td>8</td><td><code>400</code>, <code>errors.weight_lb</code> = <code>Weight must be between 0 and 1500 lb.</code></td></tr>
+<tr><td>135.555</td><td>8</td><td><code>400</code>, <code>errors.weight_lb</code> = <code>Use at most 2 decimal places, like 137.25.</code></td></tr>
+<tr><td>135</td><td>0</td><td><code>400</code>, <code>errors.reps</code> = <code>Reps must be between 1 and 100.</code></td></tr>
+<tr><td>135</td><td>101</td><td><code>400</code>, <code>errors.reps</code> = <code>Reps must be between 1 and 100.</code></td></tr>
+<tr><td>135</td><td>8.5</td><td><code>400</code>, <code>errors.reps</code> = <code>Reps must be a whole number.</code></td></tr>
+<tr><td><code>"1e3"</code></td><td>8</td><td><code>400</code>, <code>errors.weight_lb</code> = <code>Enter a weight as a number.</code></td></tr>
+<tr><td>1500</td><td>100</td><td><code>201</code> (the limits themselves are allowed; delete this set afterwards with <code>DELETE FROM workout_sets WHERE reps = 100;</code>)</td></tr>
+<tr><td>135</td><td><code>""</code></td><td><code>400</code>, <code>errors.reps</code> = <code>Enter your reps.</code></td></tr>
+<tr><td><code>""</code> and 135</td><td><code>""</code></td><td><code>400</code> with both <code>errors.weight_lb</code> and <code>errors.reps</code> in the same response</td></tr>
+</tbody></table></div>
+<p>These messages are the same strings as <code>src/workoutLog/setValidation.js</code> on branch <code>102-Daily-Logging-Frontend</code>.</p>
+<p>Other bad input, each returning <code>400</code> with an <code>error</code> and no new row: a <code>set_number</code> of <code>0</code>, <code>-1</code>, <code>1.5</code> or <code>"x"</code>; an</p>
+<p><code>exercise</code> that is not in the session (<code>"Deadlift"</code>); a missing or empty <code>exercise</code>; an <code>exercise</code> longer than 100 characters;</p>
+<p><code>"exercise":"Bench press'; DROP TABLE workout_sets;--"</code> (must be refused as not in the session, never a 500); a <code>set_number</code> of <code>51</code>.</p>
+<p>Numbers sent as text (<code>"weight_lb":"137.25","reps":"5"</code>) are accepted and saved as numbers.</p>
+<p class="result"><strong>Expected outcome:</strong> every row returns exactly the status and message above, and after all the 400 rows</p>
+<p><code>SELECT COUNT(*) FROM workout_sets;</code> still returns <code>4</code>.</p>
+<h2 class="test">Test 7: Saving the same set number twice is refused, and a correction changes the existing set</h2>
+<ol>
+<li>Repeat Test 5 step 1 (Bench press set 1 again) with weight 140.</li>
+<li>Run <code>M -w ' %{http_code}\n' -d "{\"id\":$SET2,\"weight_lb\":137.25,\"reps\":6}" $API/workout_sets.php</code>, where <code>$SET2</code> is the id of Bench press set 2 from Test 5.</li>
+<li>Run <code>M -w ' %{http_code}\n' -d "{\"id\":$SET2,\"weight_lb\":137.25,\"reps\":0}" $API/workout_sets.php</code></li>
+<li>Run <code>M -w ' %{http_code}\n' -d '{"id":999999,"weight_lb":100,"reps":5}' $API/workout_sets.php</code></li>
+<li>Run <code>M $API/workout_session.php?id=$S1</code> and read Bench press.</li>
+</ol>
+<p class="result"><strong>Expected outcome:</strong> step 1 returns <code>409</code> with <code>{"error":"Set already logged"}</code> and set 1 still says 135 × 8. Step 2 returns <code>200</code></p>
+<p>with <code>{"set":{"id":&lt;SET2&gt;,"exercise":"Bench press","set_number":2,"weight_lb":137.25,"reps":6}}</code>. Step 3 returns <code>400</code> with</p>
+<p><code>errors.reps</code> = <code>Reps must be between 1 and 100.</code>. Step 4 returns <code>404</code> with <code>{"error":"Set not found"}</code>. Step 5 shows Bench press as</p>
+<p>set 1 (135 × 8) and set 2 (137.25 × 6), and <code>SELECT COUNT(*) FROM workout_sets;</code> still returns <code>4</code>.</p>
+<h2 class="test">Test 8: Another user can't see or change a session (accounts stay separate)</h2>
+<ol>
+<li>Run <code>D -w ' %{http_code}\n' $API/workout_session.php?id=$S1</code> (Dana reads Marcus's session).</li>
+<li>Run <code>D -w ' %{http_code}\n' -d "{\"session_id\":$S1,\"exercise\":\"Bench press\",\"set_number\":3,\"weight_lb\":100,\"reps\":5}" $API/workout_sets.php</code></li>
+<li>Run <code>D -w ' %{http_code}\n' -d "{\"id\":$SET2,\"weight_lb\":1,\"reps\":1}" $API/workout_sets.php</code> (Dana edits Marcus's set).</li>
+<li>Run <code>D -w ' %{http_code}\n' -d "{\"session_id\":$S1}" $API/complete_workout.php</code></li>
+<li>Run <code>D -w ' %{http_code}\n' -d "{\"session_id\":$D1,\"exercise\":\"Barbell row\",\"set_number\":1,\"weight_lb\":95,\"reps\":10}" $API/workout_sets.php</code> (Dana's own session works).</li>
+<li>Run <code>D $API/workout_session.php?id=$D1</code> and <code>M $API/workout_session.php?id=$D1</code>.</li>
+</ol>
+<p class="result"><strong>Expected outcome:</strong> steps 1 to 4 each return <code>404</code> (<code>Session not found</code> or <code>Set not found</code>), the same status as an id that</p>
+<p>doesn't exist, so Dana can't tell Marcus's ids exist. Marcus's rows are unchanged: Bench press set 2 is still 137.25 × 6, and</p>
+<p><code>completed_at</code> for <code>S1</code> is still NULL. Step 5 returns <code>201</code>. Step 6: Dana's read shows her Barbell row set; Marcus's read of</p>
+<p>Dana's session returns <code>404</code>.</p>
+<h2 class="test">Test 9: Complete Workout needs at least one set</h2>
+<ol>
+<li>Dana's session <code>D1</code> has one set (Test 8 step 5). Remove it: run <code>DELETE FROM workout_sets WHERE session_id = &lt;D1&gt;;</code> in phpMyAdmin.</li>
+<li>Run <code>D -w ' %{http_code}\n' -d "{\"session_id\":$D1}" $API/complete_workout.php</code></li>
+<li>Run <code>D -w ' %{http_code}\n' -d '{"session_id":999999}' $API/complete_workout.php</code></li>
+<li>Run <code>D -w ' %{http_code}\n' -d '{"session_id":"abc"}' $API/complete_workout.php</code></li>
+<li>Run <code>SELECT completed_at FROM workout_sessions WHERE id = &lt;D1&gt;;</code></li>
+<li>Run <code>D -w ' %{http_code}\n' -d '{"day_position":2}' $API/workout_session.php</code></li>
+<li>Run <code>D $API/workout_history.php</code></li>
+</ol>
+<p class="result"><strong>Expected outcome:</strong> step 2 returns <code>400</code> with <code>{"error":"Log at least one set"}</code>. Step 3 returns <code>404</code>. Step 4 returns <code>400</code> with an <code>error</code></p>
+<p>saying <code>session_id</code> must be a whole number. Step 5 returns NULL (the session stays open). Step 6 returns <code>200</code> and the same id <code>D1</code></p>
+<p>(Dana's current session is picked up again, not duplicated). Step 7 returns <code>{"sessions":[]}</code>: an unfinished workout is not in history.</p>
+<h2 class="test">Test 10: Completing marks the workout done once, with a summary, and locks it</h2>
+<ol>
+<li>Run <code>M -w ' %{http_code}\n' -d "{\"session_id\":$S1}" $API/complete_workout.php</code></li>
+<li>Note <code>completed_at</code>, then run <code>M -w ' %{http_code}\n' -d "{\"session_id\":$S1}" $API/complete_workout.php</code> again.</li>
+<li>Run <code>SELECT completed_at FROM workout_sessions WHERE id = &lt;S1&gt;;</code></li>
+<li>Run <code>M -w ' %{http_code}\n' -d "{\"session_id\":$S1,\"exercise\":\"Bench press\",\"set_number\":3,\"weight_lb\":135,\"reps\":5}" $API/workout_sets.php</code></li>
+<li>Run <code>M -w ' %{http_code}\n' -d "{\"id\":$SET2,\"weight_lb\":100,\"reps\":5}" $API/workout_sets.php</code></li>
+<li>Run <code>M $API/workout_session.php?id=$S1</code></li>
+<li>Run <code>M -w ' %{http_code}\n' -d '{"day_position":1}' $API/workout_session.php</code></li>
+</ol>
+<p class="result"><strong>Expected outcome:</strong> step 1 returns <code>200</code> and <code>{"session_id":&lt;S1&gt;,"completed_at":"&lt;UTC time within the last minute&gt;"}</code>. Step 2 returns <code>409</code></p>
+<p>with <code>{"error":"Workout already completed"}</code>. Step 3 shows the same time as step 1, not a later one. Steps 4 and 5 return <code>409</code> with the same</p>
+<p>error, and no set changes. Step 6 shows <code>completed_at</code> set and <code>"summary":{"exercise_count":3,"set_count":4,"total_reps":36,"total_volume_lb":2553.5,"duration_seconds":&lt;completed_at minus started_at&gt;}</code></p>
+<p>(1080 + 823.5 + 650 + 0), with the sets unchanged. Step 7 returns <code>200</code> with the same completed session (it does not start a new one).</p>
+<h2 class="test">Test 11: Two Complete requests at once complete the workout exactly once</h2>
+<ol>
+<li>Save one set into Dana's open session <code>D1</code>: <code>D -d "{\"session_id\":$D1,\"exercise\":\"Barbell row\",\"set_number\":1,\"weight_lb\":95,\"reps\":10}" $API/workout_sets.php</code></li>
+<li>Send two Complete requests at the same time:<pre><code>for i in 1 2; do
+  curl -s -b dana.jar -H "$J" -w ' %{http_code}\n' -d "{\"session_id\":$D1}" $API/complete_workout.php &amp;
+done; wait</code></pre>
+</li>
+<li>Run <code>SELECT completed_at FROM workout_sessions WHERE id = &lt;D1&gt;;</code></li>
+</ol>
+<p class="result"><strong>Expected outcome:</strong> exactly one request prints status <code>200</code> and the other <code>409</code>. Step 3 returns one time, equal to the <code>completed_at</code> in the <code>200</code> response.</p>
+<h2 class="test">Test 12: History lists only the user's completed workouts, newest first</h2>
+<ol>
+<li>Run <code>M $API/workout_history.php</code></li>
+<li>Run <code>D $API/workout_history.php</code> (Dana completed her Pull session in Test 11).</li>
+<li>Run <code>curl -s -b priya.jar $API/workout_history.php</code> (Priya has never logged a workout).</li>
+</ol>
+<p class="result"><strong>Expected outcome:</strong> step 1 returns <code>{"sessions":[{"id":&lt;S1&gt;,"name":"Push","plan":"Push Pull Legs","started_at":"&lt;S1's&gt;","completed_at":"&lt;same as Test 10&gt;","duration_seconds":&lt;same as Test 10&gt;,"exercise_count":3,"set_count":4,"total_volume_lb":2553.5}]}</code></p>
+<p>and nothing from Dana. Step 2 returns one item, her Pull session, with <code>set_count</code> 1 and <code>total_volume_lb</code> 950, and nothing from Marcus. Step 3 returns <code>{"sessions":[]}</code> with status <code>200</code>. Unfinished workouts are never listed (Tests 9 and 16)</p>
+<p>and with several completed workouts the one completed last comes first (Test 16).</p>
+<h2 class="test">Test 13: Bad requests get JSON errors, never a PHP error page</h2>
+<ol>
+<li>Run <code>M -w ' %{http_code}\n' $API/workout_sets.php</code> (GET).</li>
+<li>Run <code>M -w ' %{http_code}\n' -X POST $API/workout_history.php</code>.</li>
+<li>Run <code>M -w ' %{http_code}\n' -d 'not json' $API/workout_sets.php</code>.</li>
+<li>Run <code>curl -s -b marcus.jar -w ' %{http_code}\n' -d 'session_id=1' $API/complete_workout.php</code> (form data instead of JSON).</li>
+<li>Run <code>M -w ' %{http_code}\n' $API/workout_session.php</code> (GET with no <code>id</code>), then with <code>?id=abc</code>, then with <code>?id=999999</code>.</li>
+<li>Run <code>php -l api/workout_session.php</code>, <code>php -l api/workout_sets.php</code>, <code>php -l api/complete_workout.php</code>, <code>php -l api/workout_history.php</code>.</li>
+</ol>
+<p class="result"><strong>Expected outcome:</strong> steps 1 and 2 return <code>405</code> with <code>{"error":"Method not allowed."}</code> (same wording as the existing endpoints). Step 3 returns <code>400</code> with <code>{"error":"Send a valid JSON object."}</code> and step 4 returns <code>415</code> with <code>{"error":"Send application/json."}</code>. Step 5 returns <code>400</code>, <code>400</code>, then <code>404</code>, all JSON. Step 6 prints <code>No syntax errors detected</code> for each file. Every response has <code>Content-Type: application/json</code>, and no response body contains <code>&lt;br /&gt;</code>, <code>Warning:</code> or a file path.</p>
+<h2 class="test">Test 14: A database failure returns a JSON 500 and nothing half-saved</h2>
+<ol>
+<li>Locally, start both servers as in <code>TestingAndDebuggingGuide.md</code> → Local testing, log in with curl against <code><a href="http://localhost:8000">http://localhost:8000</a></code> (cookie file <code>local.jar</code>), start a session and save one set.</li>
+<li>Stop MySQL, then run <code>curl -s -b local.jar -H "$J" -w ' %{http_code}\n' -d '{"session_id":1}' <a href="http://localhost:8000/complete_workout.php">http://localhost:8000/complete_workout.php</a></code></li>
+<li>Start MySQL again and repeat the command from step 2.</li>
+<li>Run <code>SELECT id FROM workout_sessions WHERE completed_at IS NOT NULL AND id NOT IN (SELECT session_id FROM workout_sets);</code></li>
+</ol>
+<p class="result"><strong>Expected outcome:</strong> step 2 returns <code>{"error":"Database error"} 500</code>, with no stack trace and no password or host name in the body.</p>
+<p>Step 3 returns a normal answer (<code>200</code>) without restarting PHP. Step 4 returns no rows: a completed session never has zero sets.</p>
+<h2 class="test">Test 15: Times are recorded by the server, in UTC, and agree everywhere</h2>
+<ol>
+<li>Log Jordan Kim in (<code>curl -s -c jordan.jar -H "$J" -d '{"email":"jordan.kim@example.com","password":"Jordan-Row185!"}' $API/login.php</code>), give him plan <code>1</code> as in Setup step 4, and write <code>JK</code> for <code>curl -s -b jordan.jar -H "$J"</code>. Run <code>date -u +%Y-%m-%dT%H:%M:%SZ</code> and note it as <code>T0</code>.</li>
+<li>Run <code>JK -d '{"day_position":1,"started_at":"2020-01-01T00:00:00Z"}' $API/workout_session.php</code> and note <code>started_at</code> and the session id <code>J1</code>.</li>
+<li>Run <code>sleep 5</code>, then save Bench press set 1 (135 × 8) into <code>J1</code> with an extra field <code>"logged_at":"2020-01-01T00:00:00Z"</code>.</li>
+<li>Run <code>sleep 3</code>, then correct that set to 140 × 8 with <code>{"id":&lt;set id&gt;,"weight_lb":140,"reps":8}</code>.</li>
+<li>Save Bench press set 2 (140 × 6).</li>
+<li>Run <code>sleep 5</code>, then complete <code>J1</code>. Note <code>completed_at</code>, then run <code>JK $API/workout_session.php?id=&lt;J1&gt;</code> and <code>JK $API/workout_history.php</code>.</li>
+<li>Complete <code>J1</code> a second time and read the session again.</li>
+<li>Run <code>SELECT UTC_TIMESTAMP(), started_at, completed_at, TIMESTAMPDIFF(SECOND, started_at, completed_at) FROM workout_sessions WHERE id = &lt;J1&gt;;</code> and <code>SELECT set_number, logged_at, updated_at FROM workout_sets WHERE session_id = &lt;J1&gt; ORDER BY set_number;</code></li>
+</ol>
+<p class="result"><strong>Expected outcome:</strong> every time string in every response matches <code>^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$</code>. Step 2: <code>started_at</code> is between <code>T0</code> and <code>T0</code> + 10 seconds, not 2020 (the client's time is ignored). Step 3: the</p>
+<p>set's <code>logged_at</code> is at least 5 seconds after the session's <code>started_at</code> and still not 2020; <code>updated_at</code> equals <code>logged_at</code>. Step 4: <code>logged_at</code> is unchanged and <code>updated_at</code> is at least 3 seconds</p>
+<p>later. Step 5: set 2's <code>logged_at</code> is later than set 1's <code>logged_at</code>. Step 6: <code>completed_at</code> is at least 5 seconds after set 2's <code>logged_at</code>, is later than <code>started_at</code>, and is no later than now;</p>
+<p>the session's <code>summary.duration_seconds</code> equals <code>completed_at</code> minus <code>started_at</code> (about 13 to 25 seconds); the history item has the same <code>started_at</code>, <code>completed_at</code> and <code>duration_seconds</code>.</p>
+<p>Step 7: returns <code>409</code>, and <code>completed_at</code> and <code>duration_seconds</code> are exactly as in step 6. Step 8: the database times are the same clock readings as the API strings (no hour offset, i.e. stored in UTC),</p>
+<p><code>UTC_TIMESTAMP()</code> is within a minute of <code>T0</code>, the difference column equals <code>duration_seconds</code>, and the two set rows show <code>logged_at</code> for set 1 earlier than <code>updated_at</code>, and equal for set 2.</p>
+<h2 class="test">Test 16: Only the last 24 hours count as "today", and history is ordered by completion time</h2>
+<ol>
+<li>In phpMyAdmin clear Jordan's sessions from Test 15: <code>DELETE FROM workout_sessions WHERE user_id = (SELECT id FROM users WHERE email='jordan.kim@example.com');</code>. Then run <code>JK -d '{"day_position":2}' $API/workout_session.php</code>. Note the id as <code>K1</code>.</li>
+<li>In phpMyAdmin run <code>UPDATE workout_sessions SET started_at = UTC_TIMESTAMP() - INTERVAL 23 HOUR WHERE id = &lt;K1&gt;;</code> then repeat step 1's start request.</li>
+<li>Run <code>UPDATE workout_sessions SET started_at = UTC_TIMESTAMP() - INTERVAL 25 HOUR WHERE id = &lt;K1&gt;;</code> then repeat the start request. Note the id as <code>K2</code>.</li>
+<li>Save one set into <code>K2</code> (Barbell row, set 1, 95 × 10) and complete it. Then run <code>UPDATE workout_sessions SET started_at = UTC_TIMESTAMP() - INTERVAL 30 HOUR, completed_at = UTC_TIMESTAMP() - INTERVAL 29 HOUR WHERE id = &lt;K2&gt;;</code> and repeat the start request. Note the id as <code>K3</code>.</li>
+<li>Save one set into <code>K3</code> (Barbell row, set 1, 135 × 5) and complete it. Run <code>JK $API/workout_history.php</code>.</li>
+<li>Run <code>SELECT id, started_at, completed_at FROM workout_sessions WHERE user_id = (SELECT id FROM users WHERE email='jordan.kim@example.com') ORDER BY id;</code></li>
+</ol>
+<p class="result"><strong>Expected outcome:</strong> step 1 returns <code>201</code>. Step 2 returns <code>200</code> and <code>K1</code> (23 hours old, still current). Step 3 returns <code>201</code> and a new id <code>K2</code>; <code>K1</code> stays unfinished</p>
+<p>(<code>completed_at</code> NULL). Step 4: the start request returns <code>201</code> and a new id <code>K3</code> (a workout completed 29 hours ago does not block today's). Step 5: the history lists <code>K3</code> first and <code>K2</code> second with</p>
+<p><code>duration_seconds</code> <code>3600</code> for <code>K2</code>, and does not list <code>K1</code>. Step 6 shows three rows, where only <code>K2</code> and <code>K3</code> have a <code>completed_at</code>, and <code>K3</code>'s <code>completed_at</code> is the later one.</p>
+<h2 class="test">Test 17: Existing features still work and the data agrees with the frontend</h2>
+<ol>
+<li>Run <code>M $API/current_plan.php</code>, <code>M $API/session.php</code> and <code>curl -s $API/workouts.php</code>.</li>
+<li>Deleting a user removes their workout data: in phpMyAdmin run <code>DELETE FROM users WHERE email='dana.lee@example.com';</code> then <code>SELECT COUNT(*) FROM workout_sessions WHERE user_id NOT IN (SELECT id FROM users);</code> (re-run the seed afterwards to restore Dana).</li>
+<li>Compare the JSON from Tests 3, 5, 10, 12 and 15 with the contract table above and with the comment block at the top of <code>src/workoutLog/workoutLogApi.js</code> (branch <code>102-Daily-Logging-Frontend</code>). Check every field name and that weights are in pounds.</li>
+<li>Add the comment block at the top of each new PHP file in the style of <code>api/current_plan.php</code> (request, response, status codes), and confirm that <code>ARCHITECTURE.md</code> lists the four new endpoints and the two new tables.</li>
+</ol>
+<p class="result"><strong>Expected outcome:</strong> step 1 returns the same shapes as before this task (<code>plan</code> and <code>week</code>, <code>user</code>, the workouts array). Step 2 returns <code>0</code>. Step 3: the field names and types match exactly; any difference is fixed in the backend or agreed with Nicholas in writing on the card. Step 4: the comment blocks exist and match what the endpoints do, and <code>ARCHITECTURE.md</code> has the new endpoints and tables.</p>
+</main></body></html>

@@ -75,6 +75,8 @@ Open `http://localhost:5173/CSE442/2026-Fall/cse-442y/`. (`http://localhost:5173
 | --- | --- | --- |
 | PHP syntax | `php -l api/workouts.php` | `No syntax errors detected in api/workouts.php` |
 | PHP syntax | `php -l api/config.example.php` | `No syntax errors detected in api/config.example.php` |
+| PHP syntax | `for f in api/workout_*.php api/complete_workout.php; do php -l $f; done` | `No syntax errors detected in …` for each of the five files |
+| Workout logging API | With migrations 001 to 009 and `database/seeds/test_users.sql` applied, start PHP with `PHP_CLI_SERVER_WORKERS=4 php -S localhost:8000 -t api`, then run `node tests/workout-session-api.mjs` | Ends with `PASS: workout sessions, sets, validation, accounts, completion, history, times` (takes about 20 seconds) |
 | API directly | `curl -s http://localhost:8000/workouts.php` | `[{"id":"1","exercise":"Squat","reps":"5","weight":"225"},{"id":"2","exercise":"Bench Press","reps":"8","weight":"135"},{"id":"3","exercise":"Deadlift","reps":"3","weight":"315"}]` |
 | API through Vite | `curl -s -o /dev/null -w "%{http_code}\n" http://localhost:5173/CSE442/2026-Fall/cse-442y/api/workouts.php` | `200` |
 | Page | Open the URL above in Chrome | Heading "GymRank" and three cards: "Squat — 5 reps @ 225 lbs", "Bench Press — 8 reps @ 135 lbs", "Deadlift — 3 reps @ 315 lbs" |
@@ -83,6 +85,7 @@ Open `http://localhost:5173/CSE442/2026-Fall/cse-442y/`. (`http://localhost:5173
 
 Notes:
 
+- `tests/workout-session-api.mjs` logs in as the seeded `@example.com` test users and deletes only their workout sessions. It reads and backdates rows with the `mysql` command: set `WORKOUT_TEST_DB`, `WORKOUT_TEST_MYSQL_USER` and `MYSQL_PWD` if your local database isn't `cse442_2026_fall_team_y_db` with a passwordless `root`, and `WORKOUT_TEST_BASE` for a server other than `http://localhost:8000`. It refuses to run against anything but localhost.
 - The API returns every value as a string (`"reps":"5"`), not a number. Expect strings when writing tests
   against the JSON.
 - `npm run build` prints deprecation warnings (`esbuild` option, `optimizeDeps.rollupOptions`,
