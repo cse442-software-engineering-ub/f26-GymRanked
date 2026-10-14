@@ -1202,6 +1202,28 @@ a.today-workout__action {
   text-decoration: none;
 }
 
+.today-workout__start {
+  align-self: stretch;
+  min-height: 44px;
+  padding: 12px;
+  border: 1px solid var(--gr-action);
+  border-radius: var(--gr-radius-button);
+  color: var(--gr-action-text);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+}
+
+.today-workout__start:hover {
+  background: var(--gr-selected-bg);
+}
+
+.today-workout__start:focus-visible {
+  outline: 4px solid var(--gr-action-text);
+  outline-offset: 0;
+}
+
 /* Buttons (Figma Simple Design System "Primary" and the local subtle "Cancel" button) */
 
 .button-primary,
@@ -1491,7 +1513,7 @@ a.today-workout__action {
   .nav-bar__mobile-link[aria-disabled="true"] { cursor: default; }
   .nav-bar__mobile-link:not([aria-disabled="true"]):hover,
   .nav-bar__mobile-link:not([aria-disabled="true"]):focus-visible { background: rgba(242, 101, 46, .15); }
-  .nav-bar__mobile-link[data-future-route="/today"] { margin-top: 8px; padding-top: 8px; border-top: 1px solid #2c3b4c; border-radius: 0; }
+  .nav-bar__mobile-link[href$="/workouts/today"] { margin-top: 8px; padding-top: 8px; border-top: 1px solid #2c3b4c; border-radius: 0; }
 
   .nav-bar__mobile-account {
     display: flex;

@@ -8,11 +8,11 @@ import defaultApi from './workoutLogApi.js'
 // is still unsaved. The active workout screen renders it like this:
 //
 //   <WorkoutLogger sessionId={session.id} exercises={['Bench press', 'Overhead press']}
-//                  savedSets={session.sets} completed={session.completed} />
+//                  savedSets={flattenedSessionSets} completed={Boolean(session.completed_at)} />
 //
 // savedSets is every set already saved in the session (any exercise); each exercise gets its own.
 
-export default function WorkoutLogger({ sessionId, exercises, savedSets = [], completed = false, api = defaultApi, onCompleted }) {
+export default function WorkoutLogger({ sessionId, exercises, savedSets = [], completed = false, api = defaultApi, onCompleted, onSessionEnded }) {
   const [counts, setCounts] = useState(() => countByExercise(savedSets))
   const [unsaved, setUnsaved] = useState({})
 
@@ -31,6 +31,7 @@ export default function WorkoutLogger({ sessionId, exercises, savedSets = [], co
           api={api}
           onSetsChange={(sets) => setCounts((current) => ({ ...current, [exercise]: sets.length }))}
           onUnsavedChange={(value) => setUnsaved((current) => ({ ...current, [exercise]: value }))}
+          onSessionEnded={onSessionEnded}
         />
       ))}
       <CompleteWorkoutButton
@@ -40,6 +41,7 @@ export default function WorkoutLogger({ sessionId, exercises, savedSets = [], co
         completed={completed}
         api={api}
         onCompleted={onCompleted}
+        onSessionEnded={onSessionEnded}
       />
     </div>
   )

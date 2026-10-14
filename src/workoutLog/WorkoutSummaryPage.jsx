@@ -1,7 +1,9 @@
-import { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import NavBar from '../NavBar.jsx'
 import MobileDashboardIcon from '../MobileDashboardIcon.jsx'
+import workoutLogApi from './workoutLogApi.js'
+import { displaySummary } from './workoutSummary.js'
 import './workoutSummary.css'
 
 // Sample content for the design preview only. Real sessions never display these example numbers.
@@ -45,17 +47,37 @@ function Metric({ label, value, icon, accent = false }) {
   )
 }
 
-// A future summary response can be passed as location.state.summary with the same display fields.
-// Until that data exists, the completed-session route shows an honest unavailable state.
 export default function WorkoutSummaryPage({ preview = false }) {
-  const location = useLocation()
+  const { sessionId } = useParams()
   const navigate = useNavigate()
   const [shareStatus, setShareStatus] = useState('')
-  const summary = preview ? PREVIEW_SUMMARY : location.state?.summary
+  const [attempt, setAttempt] = useState(0)
+  const [state, setState] = useState({ status: preview ? 'ready' : 'loading' })
+
+  useEffect(() => {
+    if (preview) return undefined
+    let active = true
+    setState({ status: 'loading' })
+    workoutLogApi.getSession(sessionId).then((session) => {
+      if (!active) return
+      if (!session?.id || !Array.isArray(session.exercises)) {
+        setState({ status: 'error', message: 'This workout could not be loaded.' })
+      } else {
+        setState({ status: 'ready', session })
+      }
+    }).catch((error) => {
+      if (!active) return
+      if (error.status === 401) navigate('/login', { replace: true })
+      else setState({ status: 'error', message: error.status === 404 ? 'This workout was not found.' : "Couldn't load this workout. Check your connection and try again." })
+    })
+    return () => { active = false }
+  }, [preview, sessionId, attempt, navigate])
+
+  const summary = preview ? PREVIEW_SUMMARY : displaySummary(state.session)
   const highlights = Array.isArray(summary?.highlights) ? summary.highlights : []
 
   async function shareSummary() {
-    const text = `${preview ? 'Sample GymRank workout: ' : 'GymRank workout: '}${summary.workoutName} · ${summary.duration} · ${summary.totalVolume} total volume · ${summary.newPrs} new PRs`
+    const text = `${preview ? 'Sample GymRank workout: ' : 'GymRank workout: '}${summary.workoutName} · ${summary.duration} · ${summary.totalVolume} total volume · ${summary.setsCompleted} sets${preview ? ` · ${summary.newPrs} new PRs` : ''}`
     try {
       if (navigator.share) {
         await navigator.share({ title: 'GymRank workout summary', text })
@@ -75,12 +97,20 @@ export default function WorkoutSummaryPage({ preview = false }) {
       <NavBar current="Workouts" />
       <main className="workout-summary">
         {preview && <p className="workout-summary__preview">Design preview · Example workout data</p>}
-        {!summary ? (
-          <section className="workout-summary__empty" aria-labelledby="workout-summary-title">
-            <span className="workout-summary__check"><SummaryIcon name="check" /></span>
-            <h1 id="workout-summary-title">Workout complete</h1>
-            <p>Your workout is complete. Session details are not available yet.</p>
-            <button type="button" className="workout-summary__primary" onClick={() => navigate('/dashboard')}>Return home <SummaryIcon name="arrow" /></button>
+        {!preview && state.status === 'loading' ? (
+          <section className="workout-summary__empty" role="status"><h1>Loading workout summary…</h1></section>
+        ) : !preview && state.status === 'error' ? (
+          <section className="workout-summary__empty" role="alert">
+            <h1>Workout summary unavailable</h1>
+            <p>{state.message}</p>
+            <button type="button" className="workout-summary__primary" onClick={() => setAttempt((value) => value + 1)}>Try again</button>
+            <Link to="/workout-history">View workout history</Link>
+          </section>
+        ) : !summary ? (
+          <section className="workout-summary__empty">
+            <h1>Workout still in progress</h1>
+            <p>Complete this workout to see its summary.</p>
+            <Link to={`/workouts/${sessionId}`}>Return to workout</Link>
           </section>
         ) : (
           <>
@@ -95,7 +125,7 @@ export default function WorkoutSummaryPage({ preview = false }) {
                   </div>
                 </div>
               </div>
-              {summary.newPrs > 0 && (
+              {preview && summary.newPrs > 0 && (
                 <aside className="workout-summary__pr" aria-label="Personal records">
                   <SummaryIcon name="trophy" />
                   <div><strong>{summary.newPrs} new personal records</strong><span>Great work! You set {summary.newPrs} new PRs in this session.</span></div>
@@ -107,32 +137,33 @@ export default function WorkoutSummaryPage({ preview = false }) {
               <Metric label="Total volume" value={summary.totalVolume} icon="volume" />
               <Metric label="Sets completed" value={summary.setsCompleted} icon="sets" />
               <Metric label="Exercises" value={summary.exerciseCount} icon="dumbbell" />
-              <Metric label="New PRs" value={summary.newPrs} icon="trophy" accent />
+              {preview ? <Metric label="New PRs" value={summary.newPrs} icon="trophy" accent /> : <Metric label="Total reps" value={summary.totalReps} icon="list" />}
             </section>
 
             <section className="workout-summary__highlights" aria-labelledby="workout-summary-highlights">
               <header className="workout-summary__section-heading">
                 <SummaryIcon name="list" />
-                <div><h2 id="workout-summary-highlights">Session highlights</h2><p>Your strongest sets and progress from last time.</p></div>
+                <div><h2 id="workout-summary-highlights">Session highlights</h2><p>{preview ? 'Your strongest sets and progress from last time.' : 'Your top logged set for each exercise.'}</p></div>
               </header>
               {highlights.length > 0 ? (
                 <table>
-                  <thead><tr><th scope="col">Exercise</th><th scope="col">Top set</th><th scope="col">Vs last</th></tr></thead>
+                  <thead><tr><th scope="col">Exercise</th><th scope="col">Top set</th><th scope="col">{preview ? 'Vs last' : 'Sets logged'}</th></tr></thead>
                   <tbody>
                     {highlights.map((item) => (
                       <tr key={item.exercise}>
                         <th scope="row"><SummaryIcon name="dumbbell" />{item.exercise}</th>
                         <td data-label="Top set">{item.topSet}</td>
-                        <td data-label="Vs last" className={item.improved ? 'workout-summary__improved' : 'workout-summary__no-change'}>{item.versusLast}</td>
+                        {preview ? <td data-label="Vs last" className={item.improved ? 'workout-summary__improved' : 'workout-summary__no-change'}>{item.versusLast}</td> : <td data-label="Sets logged">{item.setCount}</td>}
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              ) : <p className="workout-summary__no-highlights">Exercise comparisons are not available for this workout.</p>}
+              ) : <p className="workout-summary__no-highlights">No sets were recorded for this workout.</p>}
             </section>
 
             <div className="workout-summary__actions">
-              <button type="button" className="workout-summary__primary" onClick={() => navigate('/dashboard')}>Save and return home <SummaryIcon name="arrow" /></button>
+              <button type="button" className="workout-summary__primary" onClick={() => navigate('/dashboard')}>Return to dashboard <SummaryIcon name="arrow" /></button>
+              <button type="button" className="workout-summary__secondary" onClick={() => navigate('/workout-history')}>View workout history</button>
               <button type="button" className="workout-summary__secondary" onClick={shareSummary}><SummaryIcon name="share" /> Share summary</button>
             </div>
             {shareStatus && <p className="workout-summary__share-status" role="status">{shareStatus}</p>}

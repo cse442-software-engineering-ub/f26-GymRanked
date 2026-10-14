@@ -272,6 +272,7 @@
 .workout-summary__actions {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 14px;
 }
 
@@ -354,6 +355,89 @@
 
 .workout-summary__empty p {
   color: var(--gr-text-soft);
+}
+
+.workout-summary__empty a,
+.workout-history a {
+  color: var(--gr-action-text);
+}
+
+.workout-history h1 {
+  margin-bottom: 8px;
+  font-size: clamp(30px, 3vw, 42px);
+}
+
+.workout-history__intro {
+  margin-bottom: 30px;
+  color: var(--gr-text-soft);
+}
+
+.workout-history__empty {
+  padding: 28px;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+}
+
+.workout-history__empty h2 {
+  margin-bottom: 8px;
+}
+
+.workout-history__empty p {
+  color: var(--gr-text-soft);
+}
+
+.workout-history__list {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 28px;
+  padding: 0;
+  list-style: none;
+}
+
+.workout-history__list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 86px;
+  padding: 18px 22px;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+  color: var(--gr-text);
+  text-decoration: none;
+}
+
+.workout-history__list a:hover,
+.workout-history__list a:focus-visible {
+  border-color: var(--gr-action);
+  outline: none;
+}
+
+.workout-history__list a > div {
+  display: grid;
+  gap: 5px;
+}
+
+.workout-history__list strong {
+  font-size: 17px;
+}
+
+.workout-history__list a > div span,
+.workout-history__list a > span:nth-child(2) {
+  color: var(--gr-text-soft);
+  font-size: 14px;
+}
+
+.workout-history__list a > span:last-child {
+  color: var(--gr-action-text);
+  font-size: 28px;
+}
+
+.workout-history__back {
+  display: inline-block;
+  margin-top: 12px;
 }
 
 @media (max-width: 900px) {
@@ -467,8 +551,14 @@
     flex-direction: column;
   }
 
+  .workout-history__list a {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
   .workout-summary__primary,
   .workout-summary__secondary {
     width: 100%;
+    min-width: 0;
   }
 }

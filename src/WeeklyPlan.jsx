@@ -98,6 +98,7 @@ function WeeklyPlan() {
               <Link to={`/plans/${plan.id}`} className="button-primary today-workout__action">
                 View plan details ›
               </Link>
+              {todayWorkout && <Link to="/workouts/today" className="today-workout__start">Start workout ›</Link>}
             </section>
           </>
         )}
