@@ -104,7 +104,7 @@ export default function WorkoutSummaryPage({ preview = false }) {
             <h1>Workout summary unavailable</h1>
             <p>{state.message}</p>
             <button type="button" className="workout-summary__primary" onClick={() => setAttempt((value) => value + 1)}>Try again</button>
-            <Link to="/workout-history">View workout history</Link>
+            <Link to="/dashboard">Return to dashboard</Link>
           </section>
         ) : !summary ? (
           <section className="workout-summary__empty">
@@ -163,7 +163,6 @@ export default function WorkoutSummaryPage({ preview = false }) {
 
             <div className="workout-summary__actions">
               <button type="button" className="workout-summary__primary" onClick={() => navigate('/dashboard')}>Return to dashboard <SummaryIcon name="arrow" /></button>
-              <button type="button" className="workout-summary__secondary" onClick={() => navigate('/workout-history')}>View workout history</button>
               <button type="button" className="workout-summary__secondary" onClick={shareSummary}><SummaryIcon name="share" /> Share summary</button>
             </div>
             {shareStatus && <p className="workout-summary__share-status" role="status">{shareStatus}</p>}

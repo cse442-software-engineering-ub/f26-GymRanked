@@ -13,10 +13,9 @@ import OnboardingGate from './onboarding/OnboardingGate.jsx'
 import WorkoutLogPreview from './workoutLog/WorkoutLogPreview.jsx'
 import WorkoutSummaryPage from './workoutLog/WorkoutSummaryPage.jsx'
 import ActiveWorkoutPage from './workoutLog/ActiveWorkoutPage.jsx'
-import WorkoutHistoryPage from './workoutLog/WorkoutHistoryPage.jsx'
 
 // The sample logging and summary pages are available only on the test server and locally.
-// The real session, summary and history routes below use the PHP workout endpoints.
+// The real session and summary routes below use the PHP workout endpoints.
 const TEST_PAGE_HOSTS = ['aptitude.cse.buffalo.edu', 'localhost', '127.0.0.1']
 const testPagesAllowed = import.meta.env.DEV || TEST_PAGE_HOSTS.includes(window.location.hostname)
 
@@ -31,7 +30,6 @@ function App() {
         <Route path="/workouts/today" element={<ActiveWorkoutPage />} />
         <Route path="/workouts/:sessionId" element={<ActiveWorkoutPage />} />
         <Route path="/workouts/:sessionId/summary" element={<WorkoutSummaryPage />} />
-        <Route path="/workout-history" element={<WorkoutHistoryPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/plans" element={<WorkoutPlanLibrary />} />
         <Route path="/plans/:id" element={<PlanDetails />} />
