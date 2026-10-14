@@ -1,6 +1,8 @@
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import LoginPage from './auth/LoginPage.jsx'
 import RegistrationPage from './auth/RegistrationPage.jsx'
+import ActiveWorkout from './ActiveWorkout.jsx'
+import ExerciseSession from './ExerciseSession.jsx'
 import Dashboard from './Dashboard.jsx'
 import PlanDetails from './PlanDetails.jsx'
 import WeeklyPlan from './WeeklyPlan.jsx'
@@ -29,6 +31,8 @@ function App() {
         <Route path="/plans" element={<WorkoutPlanLibrary />} />
         <Route path="/plans/:id" element={<PlanDetails />} />
         <Route path="/weekly-plan" element={<WeeklyPlan />} />
+        <Route path="/workout/active" element={<ActiveWorkout />} />
+        <Route path="/workout/active/:exerciseIndex" element={<ExerciseSession />} />
         <Route path="/experience" element={<ExperiencePage />} />
         <Route path="/equipment" element={<EquipmentPage />} />
         {/* The old single setup page is now the experience and equipment pages. */}
