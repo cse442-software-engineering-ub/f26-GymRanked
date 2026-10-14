@@ -21,7 +21,7 @@ export function fetchPlan(id) {
   return getJson(`${API_BASE}/plan.php?id=${encodeURIComponent(id)}`)
 }
 
-// Resolves to {plan, week}; plan is null when the user hasn't picked one yet.
+// Resolves to {plan, week}; the plan includes started_at_epoch so weekly progress resets on a plan switch.
 export function fetchCurrentPlan() {
   return getJson(`${API_BASE}/current_plan.php`)
 }
