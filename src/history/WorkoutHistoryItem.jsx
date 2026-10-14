@@ -10,8 +10,10 @@ function WorkoutHistoryItem({ workout, open, detail, onToggle, onRetry }) {
   return (
     <li className={open ? 'history-item history-item--open' : 'history-item'}>
       <button type="button" className="history-item__toggle" aria-expanded={open} aria-controls={panelId} onClick={onToggle}>
-        <span className="history-item__name">{workout.name}</span>
-        <span className="history-item__date">{date}</span>
+        <span className="history-item__title">
+          <span className="history-item__name">{workout.name}</span>
+          <span className="history-item__date">{date}</span>
+        </span>
         <span className="history-item__size">{sizeLabel(workout.exercise_count, workout.set_count)}</span>
         <svg className="history-item__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M6 9l6 6 6-6" />
