@@ -1,0 +1,79 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { completeErrorMessage, summaryPath } from './setLog.js'
+import defaultApi from './workoutLogApi.js'
+import './workoutLog.css'
+
+// The Complete Workout button for the active workout screen (story #7). Checks that there is something to
+// complete, sends the completion to the server, and opens the workout summary once it succeeds.
+//
+// Props:
+//   sessionId       the workout session to complete
+//   setCount        how many sets are saved across all exercises
+//   hasUnsaved      true while the user has typed values that aren't saved yet
+//   completed       true if the workout is already completed (the button then says so and does nothing)
+//   api             {completeWorkout}; defaults to the real server (workoutLogApi.js)
+//   onCompleted     called with the server's reply instead of opening the summary (used by the preview page)
+//   onSessionEnded  called when the server says the user is no longer logged in
+
+export default function CompleteWorkoutButton({
+  sessionId,
+  setCount,
+  hasUnsaved = false,
+  completed = false,
+  api = defaultApi,
+  onCompleted,
+  onSessionEnded,
+}) {
+  const navigate = useNavigate()
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState('')
+
+  function finish(result) {
+    if (onCompleted) onCompleted(result)
+    else navigate(summaryPath(sessionId))
+  }
+
+  async function complete() {
+    if (busy || completed) return
+    if (setCount === 0) {
+      setMessage('Log at least one set before completing.')
+      return
+    }
+    if (hasUnsaved) {
+      setMessage("Save or clear the set you're still editing before completing.")
+      return
+    }
+    setMessage('')
+    setBusy(true)
+    try {
+      finish(await api.completeWorkout(sessionId))
+    } catch (err) {
+      setBusy(false)
+      // Completed already (for example in another tab): the summary is still the right place to go.
+      if (err.status === 409) {
+        finish({ session_id: sessionId })
+        return
+      }
+      if (err.status === 401) onSessionEnded?.()
+      setMessage(completeErrorMessage(err))
+    }
+  }
+
+  if (completed) {
+    return (
+      <div className="wl-complete">
+        <p className="wl-message wl-message--success" role="status">Workout completed</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="wl-complete">
+      <button type="button" className="wl-button wl-button--primary wl-button--wide" onClick={complete} disabled={busy}>
+        {busy ? 'Completing…' : 'Complete workout'}
+      </button>
+      {message && <p className="wl-message wl-message--error" role="alert">{message}</p>}
+    </div>
+  )
+}
