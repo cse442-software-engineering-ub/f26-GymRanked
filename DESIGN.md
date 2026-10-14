@@ -232,6 +232,13 @@ A box above the form: 10px 12px padding, 8px corners, 1px border, 13px text, col
 
 `surface`, 10px corners. Today: `brand` border, `brand` at 15% background, weekday and status in `action-text`, and the word "Today" (not colour alone). Rest days show "Rest day" in `text-muted`. Computers show seven cards in a row (four per row at 900px or less); phones show a stacked list, one row per day with the weekday, the workout and its status.
 
+### Workout history row and set tables (`src/history/`, added by #106)
+
+- The page is a 900px column centred under the nav (Figma "1 — Workout history"), with 20px between the breadcrumb, heading, rows and pager.
+- Each finished workout is a `surface` card with 12px corners whose top is one button: the name (16/500) over the date in `text-soft` ("Friday, October 9, 2026", New York time) on the left, and the size in `text-muted` ("3 exercises · 9 sets") and a chevron that turns when open on the right. `aria-expanded` says whether it is open. Phones move the size under the date.
+- Open, it shows one table per exercise on `surface-sunken` with 10px corners: the exercise name as the caption, then Set, Reps and Weight (right-aligned). A 0 lb set reads "Bodyweight". Computers fit up to three tables per row; phones show one.
+- Pager: "Showing 1–4 of 6 workouts" in `text-muted`, then Previous, page numbers and Next, each at least 44 × 44px. The current page is an `action` button; disabled ends are at 40% opacity.
+
 ### Gym backdrop (`src/components/GymBackdrop.jsx`, added by #93)
 
 A gym photo band for the top of a page, as one component so every page uses the same one.
@@ -279,7 +286,7 @@ Used for training goal and experience level. The experience cards' icon is three
 |---|---|---|
 | Empty | Card title saying what's missing, one line on what to do, a primary action | "No workout selected yet" / "Start by selecting a workout plan…" / "Browse workout plans ›" |
 | Loading | A plain line in `text-muted` where the content will appear, with `aria-busy="true"` on the card | "Loading your dashboard..." |
-| Error | A message in place of the content that names what failed; add what to do next | "Error loading your plan: …" (weekly plan) |
+| Error | A message in place of the content that names what failed; add what to do next | "Error loading your plan: …" (weekly plan); "Couldn't load your workout history. Check your connection and try again." with Try again (workout history) |
 
 ## Icons and imagery
 

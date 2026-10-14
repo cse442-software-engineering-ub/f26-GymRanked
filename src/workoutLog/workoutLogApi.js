@@ -1,11 +1,13 @@
-// The only file in the set logging feature (story #7) that talks to the server. The components take an
-// `api` prop with these three functions, so the in-memory stand-in (mockWorkoutLogApi.js) can replace it
-// until the backend endpoints exist.
+// Workout session, set, completion and history requests. The logging components take an `api` prop, so the
+// in-memory stand-in (mockWorkoutLogApi.js) can still replace the set and completion requests in the preview.
 //
 // Contract agreed with the backend task:
+//   POST api/workout_session.php {}                                         -> {session}
+//   GET  api/workout_session.php?id=N                                       -> {session}
 //   POST api/workout_sets.php     {session_id, exercise, set_number, weight_lb, reps} -> 201 {set}
 //   POST api/workout_sets.php     {id, weight_lb, reps}                               -> 200 {set}  (correction)
 //   POST api/complete_workout.php {session_id}                                        -> 200 {session_id, completed_at}
+//   GET  api/workout_history.php                                            -> {sessions}
 //   set = {id, exercise, set_number, weight_lb, reps}
 //   Errors are JSON {error, errors?}: 400 bad input (errors.weight_lb / errors.reps per field),
 //   401 not logged in, 404 unknown set or session, 409 workout already completed.
@@ -34,14 +36,16 @@ function formFieldErrors(errors) {
 export function createWorkoutLogApi({ baseUrl, fetchImpl = (...args) => fetch(...args) } = {}) {
   const apiBase = `${baseUrl ?? import.meta.env?.BASE_URL ?? '/'}api/`
 
-  async function post(path, body) {
+  async function request(path, { method = 'GET', body } = {}) {
     let response
     try {
       response = await fetchImpl(apiBase + path, {
-        method: 'POST',
+        method,
         credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        ...(body === undefined ? {} : {
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }),
       })
     } catch {
       throw new ApiError(0, "Can't reach the server.")
@@ -60,7 +64,24 @@ export function createWorkoutLogApi({ baseUrl, fetchImpl = (...args) => fetch(..
     return data
   }
 
+  const post = (path, body) => request(path, { method: 'POST', body })
+
   return {
+    async startSession() {
+      const data = await post('workout_session.php', {})
+      return data.session
+    },
+
+    async getSession(sessionId) {
+      const data = await request(`workout_session.php?id=${encodeURIComponent(sessionId)}`)
+      return data.session
+    },
+
+    async getHistory() {
+      const data = await request('workout_history.php')
+      return data.sessions
+    },
+
     async saveSet({ sessionId, exercise, setNumber, weightLb, reps }) {
       const data = await post('workout_sets.php', {
         session_id: sessionId,
