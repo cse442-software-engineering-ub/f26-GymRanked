@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import NavBar from './NavBar.jsx'
 import { fetchCurrentPlan, fetchPlan } from './plansApi.js'
+import { fetchUnfinishedSession } from './workoutSessionApi.js'
 import { buildWeek, weekRangeLabel } from './weeklySchedule.js'
 
 const STATUS_LABELS = { past: 'Earlier this week', today: 'Today', upcoming: 'Upcoming' }
@@ -22,12 +23,22 @@ function DayCard({ day }) {
   )
 }
 
+// "3 sets logged · 1 of 3 exercises started", for the Resume workout button.
+function unfinishedSummary(session) {
+  const setCount = session.exercises.reduce((total, exercise) => total + exercise.sets.length, 0)
+  const started = session.exercises.filter((exercise) => exercise.sets.length > 0).length
+  return `${setCount} ${setCount === 1 ? 'set' : 'sets'} logged · ${started} of ${session.exercises.length} exercises started`
+}
+
 // Figma "Weekly workout-plan": the logged-in user's current plan laid out over this week.
 function WeeklyPlan() {
+  const navigate = useNavigate()
   // {plan, week} with the plan's days filled in; plan is null when the user hasn't picked one.
   const [current, setCurrent] = useState(null)
   const [error, setError] = useState(null)
   const [loggedOut, setLoggedOut] = useState(false)
+  // The workout started but not completed, if there is one: the start button then offers to resume it.
+  const [unfinished, setUnfinished] = useState(null)
 
   useEffect(() => {
     fetchCurrentPlan()
@@ -38,6 +49,10 @@ function WeeklyPlan() {
         if (err.status === 401) setLoggedOut(true)
         else setError(err.message)
       })
+  }, [])
+
+  useEffect(() => {
+    fetchUnfinishedSession().then(setUnfinished)
   }, [])
 
   const today = new Date()
@@ -95,10 +110,22 @@ function WeeklyPlan() {
                   ? `${todayWorkout.focus} · ~${todayWorkout.duration_minutes} min`
                   : 'Recovery'}
               </p>
-              <Link to={`/plans/${plan.id}`} className="button-primary today-workout__action">
+              {todayWorkout && (
+                <button type="button" className="button-primary today-workout__action today-workout__start" onClick={() => navigate('/workout/active')}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z" />
+                  </svg>
+                  {unfinished ? 'Resume workout' : "Start today's workout"}
+                </button>
+              )}
+              {todayWorkout && unfinished && (
+                <p className="today-workout__resume" role="status">
+                  {unfinishedSummary(unfinished)}
+                </p>
+              )}
+              <Link to={`/plans/${plan.id}`} className="today-workout__action today-workout__details">
                 View plan details ›
               </Link>
-              {todayWorkout && <Link to="/workouts/today" className="today-workout__start">Start workout ›</Link>}
             </section>
           </>
         )}
