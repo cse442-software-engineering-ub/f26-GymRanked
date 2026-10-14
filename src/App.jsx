@@ -11,6 +11,7 @@ import EquipmentPage from './onboarding/EquipmentPage.jsx'
 import TrainingGoalPage from './onboarding/TrainingGoalPage.jsx'
 import OnboardingGate from './onboarding/OnboardingGate.jsx'
 import WorkoutLogPreview from './workoutLog/WorkoutLogPreview.jsx'
+import WorkoutSummaryPage from './workoutLog/WorkoutSummaryPage.jsx'
 
 // Today's workout page for story #7 (set logging), used by that task's task tests until the real active
 // workout screen exists. Its route only exists on the aptitude test server and on your own computer, for
@@ -25,6 +26,8 @@ function App() {
       <Route path="/register" element={<RegistrationPage />} />
       <Route element={<OnboardingGate />}>
         {testPagesAllowed && <Route path="/dev/workout-log" element={<WorkoutLogPreview />} />}
+        {testPagesAllowed && <Route path="/dev/workout-summary" element={<WorkoutSummaryPage preview />} />}
+        <Route path="/workouts/:sessionId/summary" element={<WorkoutSummaryPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/plans" element={<WorkoutPlanLibrary />} />
         <Route path="/plans/:id" element={<PlanDetails />} />
