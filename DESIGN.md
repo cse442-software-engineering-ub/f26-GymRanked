@@ -234,7 +234,8 @@ A box above the form: 10px 12px padding, 8px corners, 1px border, 13px text, col
 
 ### Workout history row and set tables (`src/history/`, added by #106)
 
-- Each finished workout is a `surface` card with 12px corners whose top is one button: name (16/500), date in `text-soft` ("Friday, October 9, 2026", New York time), size in `text-muted` ("3 exercises · 9 sets") and a chevron that turns when open. `aria-expanded` says whether it is open. Phones stack the three lines.
+- The page is a 900px column centred under the nav (Figma "1 — Workout history"), with 20px between the breadcrumb, heading, rows and pager.
+- Each finished workout is a `surface` card with 12px corners whose top is one button: the name (16/500) over the date in `text-soft` ("Friday, October 9, 2026", New York time) on the left, and the size in `text-muted` ("3 exercises · 9 sets") and a chevron that turns when open on the right. `aria-expanded` says whether it is open. Phones move the size under the date.
 - Open, it shows one table per exercise on `surface-sunken` with 10px corners: the exercise name as the caption, then Set, Reps and Weight (right-aligned). A 0 lb set reads "Bodyweight". Computers fit up to three tables per row; phones show one.
 - Pager: "Showing 1–4 of 6 workouts" in `text-muted`, then Previous, page numbers and Next, each at least 44 × 44px. The current page is an `action` button; disabled ends are at 40% opacity.
 
