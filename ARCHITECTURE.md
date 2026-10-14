@@ -41,6 +41,11 @@ In production, the proxy is not involved — the built frontend and the PHP API 
 | Path | Purpose |
 |---|---|
 | `api/workouts.php` | PHP JSON endpoint that queries the `workouts` MySQL table. |
+| `api/workout_session.php` | Starts today's workout session (or reopens the current one) and reads a session back, with its sets and, once completed, its summary. |
+| `api/workout_sets.php` | Saves or corrects one set (weight in pounds, reps) in the user's session. |
+| `api/complete_workout.php` | Marks a session completed, once. |
+| `api/workout_history.php` | The user's completed workouts, newest first. |
+| `api/workout_common.php` | Shared helpers for the four endpoints above (login check, set validation, JSON shapes); not an endpoint. |
 | `api/config.example.php` | Template for local database settings — copy to `api/config.php` (gitignored) and edit there. Never commit real credentials; the example file must only ever contain placeholders. |
 
 - The backend is plain PHP, run locally via `php -S localhost:8000 -t api` — no framework in place.
@@ -56,6 +61,28 @@ In production, the proxy is not involved — the built frontend and the PHP API 
   1. Updating the API contract (endpoint output shape).
   2. Recording the required SQL change in a dedicated, versioned file (e.g. `database.sql` or a migration script) — never as an undocumented manual edit to a live database.
   3. Documenting how existing local and shared databases must be brought up to date with that change.
+
+## Workout logging API (story #7)
+
+Saves what a user lifts. Migration `database/migrations/009_workout_sessions.sql` adds two tables: `workout_sessions` (one row per workout, with the plan, day and exercises copied from the user's plan when it starts) and `workout_sets` (one row per set: `exercise`, `set_number`, `weight_lb`, `reps`, `logged_at`, `updated_at`). Deleting a user deletes their sessions and sets. The step-by-step checks are in `task-tests/7-workout-session-backend.md`; `node tests/workout-session-api.mjs` runs them against a local server.
+
+| Endpoint | Request | Success |
+|---|---|---|
+| `POST api/workout_session.php` | `{}` or `{"day_position": 1}` | 201 `{"session": {...}}` for a new session, 200 for the current one |
+| `GET api/workout_session.php?id=N` | | 200 `{"session": {...}}` |
+| `POST api/workout_sets.php` | `{session_id, exercise, set_number, weight_lb, reps}` | 201 `{"set": {...}}` |
+| `POST api/workout_sets.php` | `{id, weight_lb, reps}` (correction) | 200 `{"set": {...}}` |
+| `POST api/complete_workout.php` | `{session_id}` | 200 `{session_id, completed_at}` |
+| `GET api/workout_history.php` | | 200 `{"sessions": [...]}` |
+
+- `session` = `{id, plan, name, focus, started_at, completed_at, exercises: [{name, sets: [{id, set_number, weight_lb, reps, logged_at, updated_at}]}], summary}`. `summary` is `null` until the workout is completed, then `{exercise_count, set_count, total_reps, total_volume_lb, duration_seconds}`. A history item is `{id, name, plan, started_at, completed_at, duration_seconds, exercise_count, set_count, total_volume_lb}`.
+- **Units and times:** weight is pounds (0 to 1500, at most 2 decimal places, 0 = bodyweight), reps 1 to 100. All times are UTC (`2026-10-13T19:27:47Z`) written by the server; times sent by the client are ignored.
+- **Current session:** the user's most recent session started in the last 24 hours, finished or not. Starting returns it (200) instead of creating another, which is how an unfinished workout is reopened. Without `day_position`, today's scheduled plan day is used (Eastern time, the same schedule as `src/weeklySchedule.js`; a rest day answers 409).
+- **Accounts:** every query is scoped to the logged-in user; another user's session or set is a 404.
+- **Completion:** done once under a row lock (two requests at once give one 200 and one 409). After it, sets can't be saved or corrected (409).
+- **Errors:** JSON `{"error": "..."}`, plus `errors.weight_lb` / `errors.reps` on a 400 for a bad set. The wording matches `src/workoutLog/setValidation.js`. 401 not logged in, 404 not found, 405 wrong method, 409 conflict, 500 `{"error":"Database error"}`.
+- **Frontend contract:** `src/workoutLog/workoutLogApi.js` uses `workout_sets.php` and `complete_workout.php`. The extra fields (`logged_at`, `updated_at`, `summary`) are additions, so it keeps working.
+- **Workout history (story #9):** `src/history/` reads `workout_history.php` for the list and `workout_session.php?id=` for one workout's sets, through `workoutLogApi.js` (`getHistory`, `getSession`), for the page at `#/progress/history`. Test data: `database/seeds/workout_history.sql`.
 
 ## Data flow
 

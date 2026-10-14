@@ -1,0 +1,892 @@
+/* Onboarding styles (#/goal, #/experience, #/equipment, #/recommended), on the shared design tokens in DESIGN.md.
+   Colours, radii and the font come from the --gr- variables in src/index.css; sizes are the px values in DESIGN.md.
+   Everything is prefixed ob- so it can't clash with other pages. */
+
+/* Full-screen page: fills the whole browser window at any size (dvh handles mobile browser bars). */
+.ob-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--gr-bg-page);
+  color: var(--gr-text);
+  font-family: var(--gr-font);
+}
+
+.onboarding {
+  flex: 1;
+  width: 100%;
+  padding: 24px 48px 48px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Logo on the photo band. It reuses the NavBar's logo classes, so these rules keep the band's own order and
+   size where the mobile NavBar changes them (src/index.css, max-width 640px). */
+.ob-brand {
+  align-self: flex-start;
+}
+
+.gym-backdrop .ob-brand {
+  order: 0;
+}
+
+.ob-brand .nav-bar__logo {
+  width: 32px;
+  height: 32px;
+  background: var(--gr-brand);
+}
+
+.ob-brand .nav-bar__brand-name {
+  color: var(--gr-text);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Top of the photo band: the logo on the left, "Log out" on the right */
+.ob-band-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ob-logout {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+/* A dark backing keeps the text readable on any part of the photo. */
+.ob-logout-button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-button);
+  background: rgba(14, 16, 21, 0.7);
+  color: var(--gr-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.ob-logout-button:hover:not(:disabled) {
+  border-color: var(--gr-control-outline);
+}
+
+.ob-logout-button:disabled {
+  color: var(--gr-nav-inactive);
+  cursor: not-allowed;
+}
+
+.ob-logout-error {
+  margin: 0;
+  padding: 4px 8px;
+  border-radius: var(--gr-radius-button);
+  background: rgba(14, 16, 21, 0.85);
+  color: var(--gr-error-text);
+  font-size: 13px;
+}
+
+/* Step indicator on the photo band's lower edge: a bar and a name for each step */
+.ob-stepper {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  width: min(720px, 100%);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--gr-nav-inactive);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ob-stepper-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ob-stepper-item::before {
+  content: '';
+  height: 4px;
+  border-radius: 2px;
+  background: var(--gr-track);
+}
+
+.ob-stepper-item.is-done,
+.ob-stepper-item.is-current {
+  color: var(--gr-text);
+}
+
+.ob-stepper-item.is-done::before,
+.ob-stepper-item.is-current::before {
+  background: var(--gr-action);
+}
+
+.ob-stepper-item.is-current {
+  font-weight: 600;
+}
+
+.ob-stepper a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ob-stepper a:hover {
+  color: var(--gr-text);
+  text-decoration: underline;
+}
+
+/* Step layout */
+.ob-step {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.ob-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px 32px;
+}
+
+.ob-title {
+  margin: 0 0 6px;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.ob-subtitle {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--gr-text-muted);
+  font-size: 15px;
+}
+
+.ob-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.ob-panel-label {
+  margin: 0 0 12px;
+  color: var(--gr-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Buttons */
+.ob-button {
+  min-height: 44px;
+  padding: 0 20px;
+  border: none;
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-surface-raised);
+  color: var(--gr-text);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ob-button--primary {
+  min-width: 160px;
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+}
+
+/* Greyed out, and the page says why next to it (e.g. "Pick one goal to continue."). */
+.ob-button:disabled {
+  background: var(--gr-surface-raised);
+  color: var(--gr-nav-inactive);
+  cursor: not-allowed;
+}
+
+/* Choice cards: one choice per group */
+.ob-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.ob-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 20px;
+  border: 1.5px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+  color: var(--gr-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ob-card:not([aria-pressed='true']):not(:disabled):hover {
+  border-color: var(--gr-control-outline);
+}
+
+.ob-card[aria-pressed='true'] {
+  border-color: var(--gr-action);
+  background: var(--gr-selected-bg);
+}
+
+.ob-card:disabled {
+  cursor: default;
+}
+
+.ob-card-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--gr-radius-inner);
+  background: var(--gr-surface-raised);
+  color: var(--gr-text);
+}
+
+.ob-card-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.ob-card[aria-pressed='true'] .ob-card-icon {
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+}
+
+.ob-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+  padding-right: 28px;
+}
+
+.ob-card-icon + .ob-card-body {
+  padding-right: 0;
+}
+
+.ob-card-label {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.ob-card-description {
+  color: var(--gr-text-soft);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.ob-card-state {
+  margin-top: auto;
+  padding: 3px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-surface-raised);
+  color: var(--gr-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ob-card[aria-pressed='true'] .ob-card-state {
+  border-color: var(--gr-action);
+  background: transparent;
+  color: var(--gr-action-text);
+}
+
+/* Tick circle: empty ring when not selected, filled orange with a dark tick when selected */
+.ob-card-tick {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--gr-control-outline);
+  border-radius: 50%;
+  color: var(--gr-text-on-orange);
+}
+
+.ob-card-tick svg {
+  width: 13px;
+  height: 13px;
+  opacity: 0;
+}
+
+.ob-card[aria-pressed='true'] .ob-card-tick {
+  border-color: var(--gr-action);
+  background: var(--gr-action);
+}
+
+.ob-card[aria-pressed='true'] .ob-card-tick svg {
+  opacity: 1;
+}
+
+/* "Back to …" link above the heading */
+.ob-back {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 4px;
+  min-height: 44px;
+  color: var(--gr-text-soft);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.ob-back:hover {
+  color: var(--gr-text);
+  text-decoration: underline;
+}
+
+.ob-back svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Experience level icon: three bars, lit up to the level */
+.ob-level-bars path {
+  stroke: var(--gr-track);
+}
+
+.ob-level-bars path.is-lit {
+  stroke: var(--gr-action);
+}
+
+.ob-card[aria-pressed='true'] .ob-level-bars path {
+  stroke: rgba(14, 16, 21, 0.3);
+}
+
+.ob-card[aria-pressed='true'] .ob-level-bars path.is-lit {
+  stroke: var(--gr-text-on-orange);
+}
+
+/* Equipment: "Bodyweight only" as a full-width option, then a divider and the tiles */
+.ob-option,
+.ob-tile {
+  position: relative;
+  border: 1.5px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+  color: var(--gr-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ob-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 68px;
+  padding: 12px 16px;
+}
+
+.ob-option .ob-card-tick {
+  position: static;
+  flex: none;
+}
+
+.ob-option-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ob-option-label {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.ob-option-description {
+  color: var(--gr-text-soft);
+  font-size: 14px;
+}
+
+.ob-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0;
+  color: var(--gr-text-muted);
+  font-size: 12px;
+}
+
+.ob-divider::before,
+.ob-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gr-border);
+}
+
+.ob-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ob-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 104px;
+  padding: 14px;
+}
+
+.ob-tile > svg {
+  width: 30px;
+  height: 30px;
+}
+
+.ob-tile-label {
+  padding-right: 24px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.ob-tile .ob-card-tick {
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+}
+
+.ob-option:not([aria-pressed='true']):not(:disabled):hover,
+.ob-tile:not([aria-pressed='true']):not(:disabled):hover {
+  border-color: var(--gr-control-outline);
+}
+
+.ob-option[aria-pressed='true'],
+.ob-tile[aria-pressed='true'] {
+  border-color: var(--gr-action);
+  background: var(--gr-selected-bg);
+}
+
+.ob-option[aria-pressed='true'] .ob-card-icon {
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+}
+
+.ob-tile[aria-pressed='true'] > svg {
+  color: var(--gr-action-text);
+}
+
+.ob-option[aria-pressed='true'] .ob-card-tick,
+.ob-tile[aria-pressed='true'] .ob-card-tick {
+  border-color: var(--gr-action);
+  background: var(--gr-action);
+}
+
+.ob-option[aria-pressed='true'] .ob-card-tick svg,
+.ob-tile[aria-pressed='true'] .ob-card-tick svg {
+  opacity: 1;
+}
+
+.ob-option:disabled,
+.ob-tile:disabled {
+  cursor: default;
+}
+
+/* Panels: profile preview and plan impact */
+.ob-panel {
+  padding: 20px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+}
+
+.ob-panel-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.ob-panels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 16px;
+}
+
+.ob-profile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ob-profile-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.ob-profile-name {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.ob-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: var(--gr-brand);
+  color: var(--gr-bg-page);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.ob-tag {
+  padding: 2px 10px;
+  border: 1px solid var(--gr-action);
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-selected-bg);
+  color: var(--gr-action-text);
+  font-size: 13px;
+}
+
+.ob-tag--empty {
+  border-color: var(--gr-border-strong);
+  background: transparent;
+  color: var(--gr-text-muted);
+}
+
+/* Goal, experience and equipment pages: the main button sits top right, next to the heading, with the reason
+   it's greyed out under it. A "Back to …" link, if there is one, sits above the heading. */
+.ob-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px 32px;
+  align-items: start;
+}
+
+.ob-form > * {
+  grid-column: 1 / -1;
+}
+
+.ob-form > .ob-header {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.ob-form > .ob-back {
+  grid-row: 1;
+  margin-bottom: -16px;
+}
+
+.ob-form:has(> .ob-back) > .ob-header,
+.ob-form:has(> .ob-back) > .ob-save {
+  grid-row: 2;
+}
+
+.ob-form .ob-card {
+  min-height: 180px;
+}
+
+.ob-save {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.ob-form > .ob-save {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.ob-save-help {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+
+.ob-save-help svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+/* Status messages */
+.ob-message {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid;
+  border-radius: var(--gr-radius-button);
+  font-size: 13px;
+}
+
+.ob-message--error {
+  border-color: var(--gr-error);
+  background: var(--gr-error-bg);
+  color: var(--gr-error-text);
+}
+
+.ob-message--success {
+  border-color: var(--gr-success);
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
+}
+
+.ob-message a {
+  color: var(--gr-action-text);
+  font-weight: 600;
+}
+
+.ob-loading {
+  color: var(--gr-text-muted);
+}
+
+/* Keyboard focus: the app-wide 3px brand ring */
+.ob-page :focus-visible {
+  outline: 3px solid var(--gr-brand);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ob-card,
+  .ob-card-icon,
+  .ob-card-tick,
+  .ob-option,
+  .ob-tile,
+  .ob-button {
+    transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease;
+  }
+}
+
+/* Tablets and narrow windows: two cards per row */
+@media (max-width: 960px) {
+  .ob-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .onboarding {
+    padding: 24px 20px 32px;
+  }
+}
+
+/* Phones: one column, full-width buttons, bigger tap targets */
+@media (max-width: 640px) {
+  .ob-stepper {
+    gap: 6px;
+    font-size: 12px;
+  }
+
+  .ob-stepper-item {
+    gap: 6px;
+  }
+
+  .ob-header {
+    flex-direction: column;
+  }
+
+  .ob-actions {
+    width: 100%;
+  }
+
+  .ob-actions .ob-button {
+    flex: 1;
+  }
+
+  .ob-card-grid,
+  .ob-panels {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .ob-panel {
+    padding: 14px 16px;
+  }
+
+  .ob-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .ob-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .ob-tile {
+    min-height: 84px;
+    padding: 12px 14px;
+  }
+
+  .ob-tile > svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Goal cards become rows: icon, text, tick */
+  .ob-form .ob-card {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    min-height: 76px;
+    padding: 14px 16px;
+  }
+
+  .ob-form .ob-card-body {
+    gap: 3px;
+  }
+
+  .ob-form .ob-card-state {
+    margin-top: 6px;
+  }
+
+  .ob-form .ob-card .ob-card-tick {
+    position: static;
+    flex: none;
+  }
+
+  /* The goal page becomes one column, and "Save goal" a full-width bar fixed to the bottom while scrolling */
+  .ob-form {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ob-form > .ob-save {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    align-items: stretch;
+    margin: 0 -20px -32px;
+    padding: 12px 20px 24px;
+    border-top: 1px solid var(--gr-border);
+    background: var(--gr-bg-page);
+  }
+
+  .ob-save .ob-button {
+    min-height: 48px;
+  }
+
+  .ob-save-help {
+    order: -1;
+  }
+}
+
+/* "Your setup is saved." on arrival from the equipment page */
+.ob-handoff {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.ob-handoff svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+}
+
+.ob-handoff p {
+  margin: 0;
+}
+
+.ob-handoff strong {
+  font-weight: 600;
+}
+
+/* Recommended plans (#/recommended): same card grid as the plan library */
+.ob-plans {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.ob-plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+  background: var(--gr-surface);
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+}
+.ob-plan:hover {
+  border-color: var(--gr-border-strong);
+  background: var(--gr-surface-raised);
+}
+.ob-plan-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.ob-plan-body .plan-icons {
+  margin: 0;
+}
+.ob-plan-days {
+  margin: 0;
+  color: var(--gr-action-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+.ob-plan-name {
+  color: var(--gr-text);
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.ob-plan-name:hover {
+  text-decoration: underline;
+}
+.ob-plan-meta {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+.ob-plan .ob-button {
+  width: 100%;
+  min-width: 0;
+}
+.ob-plans-footer a {
+  color: var(--gr-action-text);
+}

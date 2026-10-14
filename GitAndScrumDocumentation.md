@@ -11,7 +11,7 @@ Follow this document exactly as the steps it contains are not a choice, they are
 3. Verify there are task tests written in the description, if they are not written write them NOW as cards should NEVER be in "In Progress" without task tests.
 4. Once you have verified tests are written and are ready to begin drag the card from the Planned pipeline to the In Progress pipeline.
       - Only do this once you are ready to start working as cards can NEVER be moved from In Progress backwards.
-      - If this card does not require creation, deletion or updating any files skip to step 5 (Rare).
+      - If this card does not require creation, deletion or updating any files skip to step 5 (Rare). 
   
 ## 2: Create a branch from dev
 
