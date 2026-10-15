@@ -464,6 +464,27 @@
   max-width: 360px;
 }
 
+.confirm-workout-modal {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+  box-shadow: var(--gr-shadow-menu);
+  color: var(--gr-text);
+}
+
+.confirm-workout-modal h2 { margin: 0; font-size: 22px; font-weight: 500; }
+.confirm-workout-modal > p:not(.wl-message) { margin: 0; color: var(--gr-text-muted); font-size: 13px; line-height: 1.5; }
+.confirm-workout-modal .wl-button { width: 100%; }
+.confirm-workout-modal__cancel { padding: 10px; border: 0; background: none; color: var(--gr-text); font: inherit; cursor: pointer; }
+.confirm-workout-modal__cancel:disabled { opacity: .5; cursor: not-allowed; }
+.confirm-workout-modal :is(button):focus-visible { outline: 3px solid var(--gr-brand); outline-offset: 2px; }
+
 .wl-sr-only {
   position: absolute;
   width: 1px;
