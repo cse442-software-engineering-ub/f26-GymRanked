@@ -16,6 +16,7 @@ import OnboardingGate from './onboarding/OnboardingGate.jsx'
 import WorkoutLogPreview from './workoutLog/WorkoutLogPreview.jsx'
 import WorkoutSummaryPage from './workoutLog/WorkoutSummaryPage.jsx'
 import ActiveWorkoutPage from './workoutLog/ActiveWorkoutPage.jsx'
+import ProfilePage, { EditTrainingPreferencesPage } from './profile/ProfilePage.jsx'
 
 // The sample logging and summary pages are available only on the test server and locally.
 // The real session and summary routes below use the PHP workout endpoints.
@@ -34,6 +35,8 @@ function App() {
         <Route path="/workouts/:sessionId" element={<ActiveWorkoutPage />} />
         <Route path="/workouts/:sessionId/summary" element={<WorkoutSummaryPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile/training-preferences" element={<EditTrainingPreferencesPage />} />
         <Route path="/plans" element={<WorkoutPlanLibrary />} />
         <Route path="/plans/:id" element={<PlanDetails />} />
         <Route path="/weekly-plan" element={<WeeklyPlan />} />
