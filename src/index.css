@@ -270,6 +270,13 @@ button.nav-bar__avatar {
 
 .nav-bar__account-item {
   color: #e8e9ec;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nav-bar__account-item:hover,
+.nav-bar__account-item:focus-visible {
+  background: var(--gr-surface-raised);
 }
 
 .nav-bar__account-item[aria-disabled="true"] {
