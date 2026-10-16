@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import NavBar from '../NavBar.jsx'
 import { authRequest } from '../auth/api.js'
 import { apiRequest, errorMessage } from '../onboarding/api.js'
 import { EQUIPMENT, LEVELS, toggleEquipment } from '../onboarding/setupOptions.js'
+import ThemeToggle from '../theme/ThemeToggle.jsx'
 import './profile.css'
 
 const GOALS = [
@@ -70,10 +71,22 @@ export default function ProfilePage() {
   const [logoutBusy, setLogoutBusy] = useState(false)
   const [logoutError, setLogoutError] = useState('')
   const [saved] = useState(() => Boolean(location.state?.saved))
+  // "Account Settings" in the account menu opens this page at the Appearance card.
+  // It also works when this page is already open, because the link only changes location.state.
+  const [openSection, setOpenSection] = useState(() => location.state?.section ?? null)
+  const appearanceRef = useRef(null)
 
   useEffect(() => {
-    if (location.state?.saved) navigate(location.pathname, { replace: true, state: null })
+    if (location.state?.section) setOpenSection(location.state.section)
+    if (location.state?.saved || location.state?.section) navigate(location.pathname, { replace: true, state: null })
   }, [location.pathname, location.state, navigate])
+
+  useEffect(() => {
+    if (status !== 'ready' || openSection !== 'appearance' || !appearanceRef.current) return
+    appearanceRef.current.scrollIntoView?.({ block: 'start' })
+    appearanceRef.current.focus({ preventScroll: true })
+    setOpenSection(null)
+  }, [status, openSection])
 
   async function logout() {
     setLogoutBusy(true)
@@ -108,6 +121,11 @@ export default function ProfilePage() {
       <section className="profile-card" aria-labelledby="account-settings-title">
         <p className="profile-eyebrow">ACCOUNT</p><h2 id="account-settings-title">Account Settings</h2>
         <dl className="profile-details"><div><dt>Full name</dt><dd>{user.full_name}</dd></div><div><dt>Email</dt><dd>{user.email}</dd></div></dl>
+      </section>
+      <section className="profile-card profile-appearance" id="appearance" aria-labelledby="appearance-title" ref={appearanceRef} tabIndex={-1}>
+        <p className="profile-eyebrow">DISPLAY</p><h2 id="appearance-title">Appearance</h2>
+        <p className="profile-card-intro">Choose how GymRank looks. It changes right away and is saved to your account.</p>
+        <ThemeToggle />
       </section>
       <button type="button" className="profile-logout" onClick={logout} disabled={logoutBusy}>{logoutBusy ? 'Logging out…' : 'Log out'}</button>
       {logoutError && <p className="profile-message profile-message--error" role="alert">{logoutError}</p>}

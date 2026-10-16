@@ -31,34 +31,34 @@ Every screen supports two themes: **dark**, the default, and **light**. Text on 
 - **Colours come only from the `--gr-` variables** in `src/index.css`. Never write a hex, `rgb()`, `rgba()` or named colour (`white`) in a component's CSS, an inline `style`, or an SVG `fill`/`stroke`. Use `var(--gr-…)`, or `color-mix(in srgb, var(--gr-…) N%, transparent)` for a see-through tint. This is the rule that makes a new page work in light mode with no extra code.
 - **How the switch works:** `<html data-theme="light">` turns on the `:root[data-theme="light"]` block in `src/index.css`, which gives every variable its light value. `src/theme/theme.js` sets the attribute, remembers it in the browser and saves it to the account through `api/theme.php`. Don't add per-page theme code or read the theme in a component to pick colours.
 - **Need a new colour?** Add a variable to BOTH blocks in `src/index.css`: the dark value in `:root` and the light value in `:root[data-theme="light"]`. Then add a row to the tables below with both values. A variable left out of the light block keeps its dark value in light mode.
-- **Light-mode values:** pages are light greys, never pure white (white is only for form inputs). Orange *fills* (`brand`, `action`) are the same in both themes; orange and feedback *text* is darker in light mode so it keeps 4.5:1.
-- **Check both themes.** Before opening a pull request for UI work, look at the page in light mode too. Without a theme control, run `document.documentElement.dataset.theme = 'light'` in the browser console (`'dark'` to switch back).
+- **Light-mode values:** pages are mid-light greys (page `#c9cdd4`, cards `#dde0e5`), never white. Orange *fills* (`brand`, `action`) are the same in both themes; orange and feedback *text* is darker in light mode so it keeps 4.5:1.
+- **Check both themes.** Before opening a pull request for UI work, look at the page in light mode too: avatar menu → **Account Settings** → Appearance → **Light** (this saves to your account; select **Dark** to switch back). For a quick look without saving, run `document.documentElement.dataset.theme = 'light'` in the browser console.
 
 ### Backgrounds
 
 | Token | Dark | Light | Use | Source |
 |---|---|---|---|---|
-| `bg-page` | `#0e1015` | `#e7e9ed` | Page background | `.dashboard-page`, `body` (auth.css) |
-| `bg-nav` | `#14161b` | `#f5f6f8` | Top nav bar | `.nav-bar` |
-| `surface` | `#161820` | `#f5f6f8` | Cards, metric tiles, panels, dialogs | `.dashboard-card`, `.dashboard-metric` |
-| `surface-raised` | `#1d2029` | `#eceef2` | Icon tiles, numbered step markers, chips | `.dashboard-metric__icon`, `.dashboard-step__marker` |
-| `surface-hover` | `#2a2e38` | `#e1e4ea` | Hover on a raised button (sign-in buttons) | `.social-buttons button:hover` |
-| `surface-sunken` | `#12131a` | `#eef0f3` | Tip box, list inside a card | `.dashboard-tip`, `.dashboard-exercises` |
-| `track` | `#2a2d38` | `#dcdfe5` | Empty part of a progress bar or meter | `.dashboard-progress` |
-| `mobile-surface`, `mobile-raised`, `mobile-sunken` | `#162231`, `#243244`, `#101b29` | `#f5f6f8`, `#eceef2`, `#eef0f3` | The phone Dashboard's navy cards, icon tiles and tip box | `index.css`, `@media (max-width: 640px)` |
+| `bg-page` | `#0e1015` | `#c9cdd4` | Page background | `.dashboard-page`, `body` (auth.css) |
+| `bg-nav` | `#14161b` | `#dde0e5` | Top nav bar | `.nav-bar` |
+| `surface` | `#161820` | `#dde0e5` | Cards, metric tiles, panels, dialogs | `.dashboard-card`, `.dashboard-metric` |
+| `surface-raised` | `#1d2029` | `#d3d7dd` | Icon tiles, numbered step markers, chips | `.dashboard-metric__icon`, `.dashboard-step__marker` |
+| `surface-hover` | `#2a2e38` | `#c8ccd3` | Hover on a raised button (sign-in buttons) | `.social-buttons button:hover` |
+| `surface-sunken` | `#12131a` | `#d6d9df` | Tip box, list inside a card | `.dashboard-tip`, `.dashboard-exercises` |
+| `track` | `#2a2d38` | `#bfc4cc` | Empty part of a progress bar or meter | `.dashboard-progress` |
+| `mobile-surface`, `mobile-raised`, `mobile-sunken` | `#162231`, `#243244`, `#101b29` | `#dde0e5`, `#d3d7dd`, `#d6d9df` | The phone Dashboard's navy cards, icon tiles and tip box | `index.css`, `@media (max-width: 640px)` |
 
 ### Text
 
 | Token | Dark | Light | Use | Contrast (dark / light) |
 |---|---|---|---|---|
-| `text` | `#e8e9ec` | `#16181d` | Titles, values, item names | 14.6:1 / 16.4:1 on `surface` |
+| `text` | `#e8e9ec` | `#16181d` | Titles, values, item names | 14.6:1 / 13.4:1 on `surface` |
 | `text-strong` | `#f4f6f9` | `#111318` | Phone headings and names | 15:1+ |
-| `text-label` | `#b4b6bf` | `#4b505b` | Form field labels | 8:1+ |
-| `text-subtle` | `#d2d3d7` | `#3a3e47` | Subtle buttons ("Cancel") | 9:1+ |
-| `text-soft` | `#a2a5ad` | `#4b505b` | Body text inside cards | 7.2:1 / 6.7:1 on `bg-page` |
-| `text-muted` | `#8b8d94` | `#5d626d` | Eyebrow labels, hints, intro lines | 5.3:1 / 5.0:1 on `bg-page` |
-| `nav-inactive` | `#8a8f99` | `#5d626d` | Nav links that aren't the current page | 5.6:1 / 5.7:1 on `bg-nav` |
-| `mobile-text-soft` | `#a6b4c7` | `#5d626d` | Secondary text on the phone Dashboard | 7:1+ / 5.7:1 |
+| `text-label` | `#b4b6bf` | `#3f444e` | Form field labels | 8:1+ |
+| `text-subtle` | `#d2d3d7` | `#33373f` | Subtle buttons ("Cancel") | 9:1+ |
+| `text-soft` | `#a2a5ad` | `#3f444e` | Body text inside cards | 7.2:1 / 6.1:1 on `bg-page` |
+| `text-muted` | `#8b8d94` | `#4a4f59` | Eyebrow labels, hints, intro lines | 5.3:1 / 5.2:1 on `bg-page` |
+| `nav-inactive` | `#8a8f99` | `#4a4f59` | Nav links that aren't the current page | 5.6:1 / 6.2:1 on `bg-nav` |
+| `mobile-text-soft` | `#a6b4c7` | `#4a4f59` | Secondary text on the phone Dashboard | 7:1+ / 6.2:1 |
 | `text-on-orange` | `#14161b` | `#14161b` | Text and ticks on `action` or `brand` | 5.7:1 |
 | `on-brand` | `#ffffff` | `#ffffff` | Icons (not text) on the orange logo square | icon only, 3.1:1 |
 
@@ -70,10 +70,12 @@ GymRank uses three oranges, each with one job. Don't swap them.
 |---|---|---|---|---|
 | `brand` | `#f2652e` | `#f2652e` | Logo square, "Start Workout" nav button, avatar, focus ring, today's day card border | `text-on-orange` (6.0:1) |
 | `action` | `#e0703f` | `#e0703f` | Primary buttons, progress fill, completed step markers, selected borders | `text-on-orange` (5.7:1) |
-| `action-text` | `#f2865a` | `#a8441a` | Orange text: text actions ("Choose goal"), accent values ("Getting started"), counts ("1 of 3") | n/a (7.0:1 on `surface` / 4.9:1 on `bg-page`) |
-| `brand-text` | `#ff7035` | `#a8441a` | Orange eyebrows on the phone Dashboard | n/a |
-| `brand-icon` | `#f2652e` | `#d14f1c` | Orange icons, such as the current page in the phone menu | n/a (3:1+ for icons) |
-| `mobile-icon` | `#f4f6f9` | `#a8441a` | Exercise icons on the phone Dashboard | n/a |
+| `action-text` | `#f2865a` | `#8a3410` | Orange text: text actions ("Choose goal"), accent values ("Getting started"), counts ("1 of 3") | n/a (7.0:1 on `surface` / 5.1:1 on `bg-page`) |
+| `brand-text` | `#ff7035` | `#8a3410` | Orange eyebrows on the phone Dashboard | n/a |
+| `link` | `#f2652e` | `#8a3410` | Links and text buttons on the sign-in pages ("Forgot password?", "Create an account"), the orange "rank." headline | n/a (5.1:1 on `bg-page` in light) |
+| `brand-icon` | `#f2652e` | `#b8441a` | Orange icons, such as the current page in the phone menu | n/a (3:1+ for icons) |
+| `mobile-icon` | `#f4f6f9` | `#8a3410` | Exercise icons on the phone Dashboard | n/a |
+| `icon-invert` | `1` | `0` | Used as `filter: invert(var(--gr-icon-invert))` on single-colour black icons (the Apple logo) so they are white in dark mode and black in light | — |
 | `selected-bg` | 16% `action` over `surface` | same formula | Selected option cards and chips | — |
 
 White text on orange fails contrast (3.1:1 on `#f26a2e`), so it is not allowed.
@@ -82,13 +84,13 @@ White text on orange fails contrast (3.1:1 on `#f26a2e`), so it is not allowed.
 
 | Token | Dark | Light | Use |
 |---|---|---|---|
-| `border` | `rgba(255, 255, 255, 0.06)` | `rgba(17, 19, 24, 0.09)` | Card and tile outlines, dividers between list rows |
-| `border-strong` | `rgba(255, 255, 255, 0.08)` | `rgba(17, 19, 24, 0.13)` | Nav bar bottom edge; outline of an unselected option card |
-| `control-outline` | `#6b6f7a` | `#7d828c` | Empty tick circle or checkbox ring (3:1+ on `surface` in both, the rule for controls) |
-| `control-border`, `divider` | `#444958`, `#1e2027` | `#c9cdd5`, `#d6dae1` | Sign-in button outlines, the "or" divider |
-| `mobile-border`, `mobile-raised-border`, `mobile-line` | `#2c3b4c`, `#344558`, `#708196` | `#dcdfe5`, `#d6dae1`, `#a3a8b3` | Lines on the phone Dashboard |
-| `input-bg`, `input-text`, `input-placeholder`, `input-border` | white, `#1e1e1e`, `#aaaaaa`, `#d9d9d9` | white, `#16181d`, `#6e737e`, `#c4c8d0` | Sign-in form inputs, which stay white in both themes |
-| `neutral-button`, `neutral-button-hover`, `on-neutral` | `#2c2c2c`, `#3b3b3b`, `#f5f5f5` | `#16181d`, `#2e323a`, `#f5f6f8` | The grey "Log in" button and its text |
+| `border` | `rgba(255, 255, 255, 0.06)` | `rgba(17, 19, 24, 0.12)` | Card and tile outlines, dividers between list rows |
+| `border-strong` | `rgba(255, 255, 255, 0.08)` | `rgba(17, 19, 24, 0.17)` | Nav bar bottom edge; outline of an unselected option card |
+| `control-outline` | `#6b6f7a` | `#6a6f79` | Empty tick circle or checkbox ring (3:1+ on `surface` in both, the rule for controls) |
+| `control-border`, `divider` | `#444958`, `#1e2027` | `#b4b9c2`, `#c0c5cc` | Sign-in button outlines, the "or" divider |
+| `mobile-border`, `mobile-raised-border`, `mobile-line` | `#2c3b4c`, `#344558`, `#708196` | `#bfc4cc`, `#c0c5cc`, `#6a7079` | Lines on the phone Dashboard |
+| `input-bg`, `input-text`, `input-placeholder`, `input-border` | white, `#1e1e1e`, `#aaaaaa`, `#d9d9d9` | `#e9ebee`, `#16181d`, `#555a64`, `#aeb3bc` | Sign-in and workout form inputs (white in dark mode, pale grey in light mode) |
+| `neutral-button`, `neutral-button-hover`, `on-neutral` | `#2c2c2c`, `#3b3b3b`, `#f5f5f5` | `#16181d`, `#2e323a`, `#dde0e5` | The grey "Log in" button and its text |
 | `backdrop`, `backdrop-strong` | `rgba(0, 0, 0, 0.5)`, `0.65` | `rgba(17, 19, 24, 0.35)`, `0.45` | Behind dialogs (`.modal-backdrop`) and the phone menu |
 | `shadow-menu` | `0 12px 30px` `shadow-color` | same, lighter shadow | Account menu, dialogs (`shadow-color`, `shadow-soft`, `shadow-drawer` hold the shadow colours) |
 
@@ -100,10 +102,10 @@ Dark values first, light values second.
 
 | Token | Border | Background | Text | Use |
 |---|---|---|---|---|
-| `success` | `#63c792` / `#2f9e63` | 8% / 10% tint | `#8de0ad` (11.3:1) / `#1d6f43` (5.1:1) | "Account setup saved. Log in to continue.", saved confirmations |
-| `error` | `#ff968b` / `#d9443a` | 8% tint | `#ffb4aa` (10.4:1) / `#b42318` (5.4:1) | Form-level errors, failed requests |
-| `danger` | n/a | hover: 12% `danger` | `#ff5c5c` (5.9:1) / `#d92d20`; `danger-text` `#ff6670` / `#b42318` | Destructive actions: "Log out" |
-| `warning` | `#f0cf65` / `#c08a06` | 8% / 10% tint | `#f5dc8c` (11.0:1) / `#7a5600` (6.2:1) | The "Intermediate" level badge on plan cards (Suryamur10, `.level-badge--intermediate`; Beginner uses `success`) |
+| `success` | `#63c792` / `#1f7547` | 8% / 10% tint | `#8de0ad` (11.3:1) / `#155a35` (5.2:1) | "Account setup saved. Log in to continue.", saved confirmations |
+| `error` | `#ff968b` / `#b8302a` | 8% tint | `#ffb4aa` (10.4:1) / `#9a1d12` (5.1:1) | Form-level errors, failed requests |
+| `danger` | n/a | hover: 12% `danger` | `#ff5c5c` (5.9:1) / `#9a1d12` (5.1:1); `danger-text` `#ff6670` / `#9a1d12` | Destructive actions: "Log out" |
+| `warning` | `#f0cf65` / `#8a6300` | 8% / 10% tint | `#f5dc8c` (11.0:1) / `#634500` (5.5:1) | The "Intermediate" level badge on plan cards (Suryamur10, `.level-badge--intermediate`; Beginner uses `success`) |
 
 Field-level errors use the `error` colours: a 2px `var(--gr-error)` outline on the input and `var(--gr-error-text)` text under it (`.input-wrap.invalid`, `.field-error`).
 
@@ -378,7 +380,7 @@ Defined once in `src/index.css` (task #93; light values added by the Persistent 
 }
 
 :root[data-theme="light"] {  /* light: the same names with light values */
-  --gr-bg-page: #e7e9ed;
+  --gr-bg-page: #c9cdd4;
   --gr-text: #16181d;
   /* … */
 }
