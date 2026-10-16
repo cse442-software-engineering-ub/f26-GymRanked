@@ -383,7 +383,7 @@
   font: inherit;
   font-size: 15px;
   font-weight: 600;
-  color: #d2d3d7;
+  color: var(--gr-text-subtle);
   background: none;
   border: 1px solid var(--gr-border-strong);
   border-radius: var(--gr-radius-button);

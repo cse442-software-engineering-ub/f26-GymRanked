@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { authRequest } from '../auth/api.js'
+import { syncAccountTheme } from '../theme/theme.js'
 import { apiRequest } from './api.js'
 import { allowedOnboardingPaths, requiredOnboardingRoute } from './onboardingRoute.js'
 
@@ -16,7 +17,9 @@ export default function OnboardingGate() {
 
     async function checkAccount() {
       try {
-        await authRequest('session')
+        const { user } = await authRequest('session')
+        // The account's saved theme beats the one this browser remembered (once per signed-in user).
+        syncAccountTheme(user?.id)
         const [goalResult, setupResult] = await Promise.all([
           apiRequest('preferences.php'),
           apiRequest('setup.php'),
