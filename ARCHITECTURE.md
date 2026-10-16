@@ -27,13 +27,15 @@ In production, the proxy is not involved — the built frontend and the PHP API 
 | `src/main.jsx` | React entry point — mounts the app into `index.html`. |
 | `src/App.jsx` | Root component. |
 | `src/WorkoutList.jsx` | Fetches `api/workouts.php` and renders loading, error, empty, and data states. |
-| `src/index.css` | Global and component styles for the current proof of concept. |
-| `index.html` | Vite HTML entry point. |
+| `src/index.css` | Global and component styles, and the `--gr-` colour variables for both themes (dark `:root`, light `:root[data-theme="light"]`). |
+| `src/theme/theme.js` | The colour theme: applies `data-theme` on `<html>`, remembers it in the browser (`gymrank.theme`), and loads/saves it for the account through `api/theme.php`. `useTheme.js` gives components the current theme. |
+| `index.html` | Vite HTML entry point; a small inline script applies the remembered theme before the app loads, so a light page never flashes dark. |
 
 - Built with **React** function components and JSX, using **Vite** as the dev server and bundler.
 - `WorkoutList.jsx` is currently the only component that talks to the backend; it owns its own loading/error/empty/success UI state rather than lifting that state into `App.jsx`.
 - No router is in place yet. As navigation grows to cover dashboard, workouts, plans, and leaderboard screens, a client-side routing library (e.g. React Router) should be introduced rather than hand-rolling view switching in `App.jsx`.
 - No modal/dialog components exist yet; when added, their state should live with the feature that owns them, not in the root component.
+- **Dark and light mode:** every colour comes from a `--gr-` variable, and `<html data-theme="light">` swaps in the light values, so pages need no theme code of their own. `OnboardingGate` calls `syncAccountTheme()` after it confirms the session, so the account's saved theme replaces the browser's remembered one (once per signed-in user). Rules for colours are in `DESIGN.md`, "Dark and light mode".
 - All URLs to backend endpoints must be built from `import.meta.env.BASE_URL`, not hardcoded, so requests resolve correctly both in local dev (proxied) and in production (same-path).
 
 ## Backend
@@ -45,6 +47,7 @@ In production, the proxy is not involved — the built frontend and the PHP API 
 | `api/workout_sets.php` | Saves or corrects one set (weight in pounds, reps) in the user's session. |
 | `api/complete_workout.php` | Marks a session completed, once. |
 | `api/workout_history.php` | The user's completed workouts, newest first. |
+| `api/theme.php` | GET/POST the signed-in account's colour theme (`dark` or `light`, default `dark`), stored in `user_theme`. |
 | `api/workout_common.php` | Shared helpers for the four endpoints above (login check, set validation, JSON shapes); not an endpoint. |
 | `api/config.example.php` | Template for local database settings — copy to `api/config.php` (gitignored) and edit there. Never commit real credentials; the example file must only ever contain placeholders. |
 
@@ -117,6 +120,7 @@ There is no caching, client-side state management library, or write path (POST/P
 | New reusable UI (modal, dialog, card, etc.) | A focused, standalone component — do not grow `App.jsx` or `WorkoutList.jsx` into a single large component. Keep the component's own state and behavior with it. |
 | New API endpoint | A new PHP file under `api/`, returning JSON with appropriate HTTP status codes, reading credentials from `api/config.php`. |
 | New/changed database schema | A versioned migration file (e.g. `database.sql`) documenting the exact SQL change and the steps to apply it to existing local and shared databases — never an undocumented manual database edit. |
+| New colour | A `--gr-` variable in `src/index.css` with a dark value in `:root` and a light value in `:root[data-theme="light"]`, listed in `DESIGN.md`. Never a hex or rgb value in a component. |
 | New global style | `src/index.css`, matching existing formatting; the repo has no formatter/linter, so avoid unrelated reformatting elsewhere while you're in the file. |
 
 For anything not covered above, or for the day-to-day mechanics of branching, committing, and testing a change, follow `AGENTS.md`'s "Instructions for coding agents" section and `GitAndScrumDocumentation.md` (when available) rather than duplicating that process here.
