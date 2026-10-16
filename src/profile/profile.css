@@ -19,6 +19,10 @@
 .profile-button--primary:hover:not(:disabled) { background: var(--gr-brand); }
 .profile-button--subtle { color: var(--gr-text); background: var(--gr-surface-raised); }
 .profile-button:disabled { background: var(--gr-surface-raised); color: var(--gr-nav-inactive); cursor: not-allowed; }
+.profile-card-intro { margin: 6px 0 18px; color: var(--gr-text-soft); font-size: 14px; }
+.profile-appearance { scroll-margin-top: 96px; }
+.profile-appearance:focus { outline: none; }
+.profile-appearance:focus-visible { outline: 3px solid var(--gr-brand); outline-offset: 2px; }
 .profile-logout { margin-top: 8px; padding: 10px 0; border: 0; background: none; color: var(--gr-danger); font: inherit; font-weight: 600; cursor: pointer; }
 .profile-message { padding: 10px 12px; border: 1px solid; border-radius: var(--gr-radius-button); font-size: 13px; }
 .profile-message--success { border-color: var(--gr-success); background: var(--gr-success-bg); color: var(--gr-success-text); }

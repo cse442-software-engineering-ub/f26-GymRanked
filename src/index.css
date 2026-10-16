@@ -31,6 +31,8 @@
   --gr-brand-icon: #f2652e;
   --gr-action: #e0703f;
   --gr-action-text: #f2865a;
+  --gr-link: #f2652e;
+  --gr-icon-invert: 1;
   --gr-selected-bg: color-mix(in srgb, var(--gr-action) 16%, var(--gr-surface));
 
   /* Lines */
@@ -92,59 +94,62 @@
 /* Light mode: the same variables with light values. Orange fills stay; orange and feedback TEXT is darker so it
    keeps at least 4.5:1 on the light greys. Nothing is pure white except form inputs. */
 :root[data-theme="light"] {
-  --gr-bg-page: #e7e9ed;
-  --gr-bg-nav: #f5f6f8;
-  --gr-surface: #f5f6f8;
-  --gr-surface-raised: #eceef2;
-  --gr-surface-hover: #e1e4ea;
-  --gr-surface-sunken: #eef0f3;
-  --gr-track: #dcdfe5;
+  --gr-bg-page: #c9cdd4;
+  --gr-bg-nav: #dde0e5;
+  --gr-surface: #dde0e5;
+  --gr-surface-raised: #d3d7dd;
+  --gr-surface-hover: #c8ccd3;
+  --gr-surface-sunken: #d6d9df;
+  --gr-track: #bfc4cc;
 
   --gr-text: #16181d;
   --gr-text-strong: #111318;
-  --gr-text-label: #4b505b;
-  --gr-text-subtle: #3a3e47;
-  --gr-text-soft: #4b505b;
-  --gr-text-muted: #5d626d;
-  --gr-nav-inactive: #5d626d;
+  --gr-text-label: #3f444e;
+  --gr-text-subtle: #33373f;
+  --gr-text-soft: #3f444e;
+  --gr-text-muted: #4a4f59;
+  --gr-nav-inactive: #4a4f59;
 
-  --gr-brand-text: #a8441a;
-  --gr-brand-icon: #d14f1c;
-  --gr-action-text: #a8441a;
+  --gr-brand-text: #8a3410;
+  --gr-brand-icon: #b8441a;
+  --gr-action-text: #8a3410;
+  --gr-link: #8a3410;
+  --gr-icon-invert: 0;
 
-  --gr-border: rgba(17, 19, 24, 0.09);
-  --gr-border-strong: rgba(17, 19, 24, 0.13);
-  --gr-control-outline: #7d828c;
-  --gr-control-border: #c9cdd5;
-  --gr-divider: #d6dae1;
+  --gr-border: rgba(17, 19, 24, 0.12);
+  --gr-border-strong: rgba(17, 19, 24, 0.17);
+  --gr-control-outline: #6a6f79;
+  --gr-control-border: #b4b9c2;
+  --gr-divider: #c0c5cc;
 
+  --gr-input-bg: #e9ebee;
   --gr-input-text: #16181d;
-  --gr-input-placeholder: #6e737e;
-  --gr-input-border: #c4c8d0;
+  --gr-input-placeholder: #555a64;
+  --gr-input-border: #aeb3bc;
   --gr-neutral-button: #16181d;
   --gr-neutral-button-hover: #2e323a;
-  --gr-on-neutral: #f5f6f8;
+  --gr-on-neutral: #dde0e5;
 
-  --gr-success: #2f9e63;
-  --gr-success-text: #1d6f43;
+  --gr-success: #1f7547;
+  --gr-success-text: #155a35;
   --gr-success-bg: rgba(47, 158, 99, 0.10);
-  --gr-error: #d9443a;
-  --gr-error-text: #b42318;
+  --gr-error: #b8302a;
+  --gr-error-text: #9a1d12;
   --gr-error-bg: rgba(217, 68, 58, 0.08);
-  --gr-danger: #d92d20;
-  --gr-danger-text: #b42318;
-  --gr-warning: #c08a06;
-  --gr-warning-text: #7a5600;
+  --gr-danger: #9a1d12;
+  --gr-danger-text: #9a1d12;
+  --gr-warning: #8a6300;
+  --gr-warning-text: #634500;
   --gr-warning-bg: rgba(192, 138, 6, 0.10);
 
-  --gr-mobile-surface: #f5f6f8;
-  --gr-mobile-raised: #eceef2;
-  --gr-mobile-raised-border: #d6dae1;
-  --gr-mobile-sunken: #eef0f3;
-  --gr-mobile-border: #dcdfe5;
-  --gr-mobile-line: #a3a8b3;
-  --gr-mobile-text-soft: #5d626d;
-  --gr-mobile-icon: #a8441a;
+  --gr-mobile-surface: #dde0e5;
+  --gr-mobile-raised: #d3d7dd;
+  --gr-mobile-raised-border: #c0c5cc;
+  --gr-mobile-sunken: #d6d9df;
+  --gr-mobile-border: #bfc4cc;
+  --gr-mobile-line: #6a7079;
+  --gr-mobile-text-soft: #4a4f59;
+  --gr-mobile-icon: #8a3410;
 
   --gr-backdrop: rgba(17, 19, 24, 0.35);
   --gr-backdrop-strong: rgba(17, 19, 24, 0.45);
