@@ -32,7 +32,7 @@ Every screen supports two themes: **dark**, the default, and **light**. Text on 
 - **How the switch works:** `<html data-theme="light">` turns on the `:root[data-theme="light"]` block in `src/index.css`, which gives every variable its light value. `src/theme/theme.js` sets the attribute, remembers it in the browser and saves it to the account through `api/theme.php`. Don't add per-page theme code or read the theme in a component to pick colours.
 - **Need a new colour?** Add a variable to BOTH blocks in `src/index.css`: the dark value in `:root` and the light value in `:root[data-theme="light"]`. Then add a row to the tables below with both values. A variable left out of the light block keeps its dark value in light mode.
 - **Light-mode values:** pages are mid-light greys (page `#c9cdd4`, cards `#dde0e5`), never white. Orange *fills* (`brand`, `action`) are the same in both themes; orange and feedback *text* is darker in light mode so it keeps 4.5:1.
-- **Check both themes.** Before opening a pull request for UI work, look at the page in light mode too: avatar menu → **Account Settings** → Appearance → **Light** (this saves to your account; select **Dark** to switch back). For a quick look without saving, run `document.documentElement.dataset.theme = 'light'` in the browser console.
+- **Check both themes.** Before opening a pull request for UI work, look at the page in light mode too: avatar menu → **Profile** → Appearance → **Light** (this saves to your account; select **Dark** to switch back). For a quick look without saving, run `document.documentElement.dataset.theme = 'light'` in the browser console.
 
 ### Backgrounds
 

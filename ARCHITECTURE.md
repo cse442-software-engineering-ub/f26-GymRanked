@@ -28,7 +28,7 @@ In production, the proxy is not involved — the built frontend and the PHP API 
 | `src/App.jsx` | Root component. |
 | `src/WorkoutList.jsx` | Fetches `api/workouts.php` and renders loading, error, empty, and data states. |
 | `src/index.css` | Global and component styles, and the `--gr-` colour variables for both themes (dark `:root`, light `:root[data-theme="light"]`). |
-| `src/theme/theme.js` | The colour theme: applies `data-theme` on `<html>`, remembers it in the browser (`gymrank.theme`), and loads/saves it for the account through `api/theme.php`. `useTheme.js` gives components the current theme. `ThemeToggle.jsx` is the Dark / Light control in the Profile page's Appearance card, opened from **Account Settings** in the account menu. |
+| `src/theme/theme.js` | The colour theme: applies `data-theme` on `<html>`, remembers it in the browser (`gymrank.theme`), and loads/saves it for the account through `api/theme.php`. `useTheme.js` gives components the current theme. `ThemeToggle.jsx` is the Dark / Light control in the Profile page's Appearance card, opened from **Profile** in the account menu. |
 | `index.html` | Vite HTML entry point; a small inline script applies the remembered theme before the app loads, so a light page never flashes dark. |
 
 - Built with **React** function components and JSX, using **Vite** as the dev server and bundler.

@@ -117,7 +117,6 @@ function NavBar({ current, userName = '' }) {
                 />
                 <div className="nav-bar__account-menu" role="menu">
                   <Link className="nav-bar__account-item" role="menuitem" to="/profile" onClick={() => setAccountMenuOpen(false)}>Profile</Link>
-                  <Link className="nav-bar__account-item" role="menuitem" to="/profile" state={{ section: 'appearance' }} onClick={() => setAccountMenuOpen(false)}>Account Settings</Link>
                   <button
                     type="button"
                     className="nav-bar__logout"
@@ -151,7 +150,6 @@ function NavBar({ current, userName = '' }) {
         })}
         <div className="nav-bar__mobile-account"><span className="nav-bar__mobile-avatar">{avatarInitials}</span><span>{sessionUserName}</span></div>
         <Link to="/profile" className="nav-bar__mobile-link" tabIndex={mobileMenuOpen ? 0 : -1} onClick={() => setMobileMenuOpen(false)}>Profile</Link>
-        <Link to="/profile" state={{ section: 'appearance' }} className="nav-bar__mobile-link" tabIndex={mobileMenuOpen ? 0 : -1} onClick={() => setMobileMenuOpen(false)}>Account Settings</Link>
         <button type="button" className="nav-bar__mobile-logout" disabled={logoutBusy} tabIndex={mobileMenuOpen ? 0 : -1} onClick={onLogout}>
           <MobileDashboardIcon name="logout" />{logoutBusy ? 'Logging out…' : 'Log out'}
         </button>
