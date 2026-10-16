@@ -2,7 +2,7 @@
 
 This is GymRank's design system: the colours, type, spacing, shapes, components and writing rules every screen should use, so pages built by different people look and behave like one app. The values are taken from the signed-in Home Dashboard on `dev` (commit `a27a98e`, 2026-10-06: Suryamur10's redesign with cirexlul's tweaks), measured from the running app and from `src/index.css`. The Dashboard is the reference because it is the newest and most complete screen.
 
-**Status note:** the tokens are shared in code as CSS variables in `src/index.css` (see [CSS variables](#css-variables)), added with this file by task #93. The training goal page uses them. Other pages still write their own hex values, and some older ones use different values (see [Known differences in the current code](#known-differences-in-the-current-code)); move them to the variables when each page gets its upgrade task.
+**Status note:** the tokens are shared in code as CSS variables in `src/index.css` (see [CSS variables](#css-variables)), added with this file by task #93. Since the Persistent User Theme Preference task every stylesheet uses them and no page writes its own hex values, which is what lets every page switch between dark and light mode (see [Dark and light mode](#dark-and-light-mode)). Some older pages still use different sizes or layouts (see [Known differences in the current code](#known-differences-in-the-current-code)).
 
 ## How to use this guide
 
@@ -24,68 +24,94 @@ These come from the course [UI/UX checklist](https://webdev.cse.buffalo.edu/cse4
 
 ## Colour
 
-All screens are dark. Text on any orange is dark, never white.
+Every screen supports two themes: **dark**, the default, and **light**. Text on any orange is dark, never white, in both.
+
+### Dark and light mode
+
+- **Colours come only from the `--gr-` variables** in `src/index.css`. Never write a hex, `rgb()`, `rgba()` or named colour (`white`) in a component's CSS, an inline `style`, or an SVG `fill`/`stroke`. Use `var(--gr-…)`, or `color-mix(in srgb, var(--gr-…) N%, transparent)` for a see-through tint. This is the rule that makes a new page work in light mode with no extra code.
+- **How the switch works:** `<html data-theme="light">` turns on the `:root[data-theme="light"]` block in `src/index.css`, which gives every variable its light value. `src/theme/theme.js` sets the attribute, remembers it in the browser and saves it to the account through `api/theme.php`. Don't add per-page theme code or read the theme in a component to pick colours.
+- **Need a new colour?** Add a variable to BOTH blocks in `src/index.css`: the dark value in `:root` and the light value in `:root[data-theme="light"]`. Then add a row to the tables below with both values. A variable left out of the light block keeps its dark value in light mode.
+- **Light-mode values:** pages are light greys, never pure white (white is only for form inputs). Orange *fills* (`brand`, `action`) are the same in both themes; orange and feedback *text* is darker in light mode so it keeps 4.5:1.
+- **Check both themes.** Before opening a pull request for UI work, look at the page in light mode too. Without a theme control, run `document.documentElement.dataset.theme = 'light'` in the browser console (`'dark'` to switch back).
 
 ### Backgrounds
 
-| Token | Value | Use | Source |
-|---|---|---|---|
-| `bg-page` | `#0e1015` | Page background | `.dashboard-page`, `body` (auth.css) |
-| `bg-nav` | `#14161b` | Top nav bar; also the dark text colour on action orange | `.nav-bar` |
-| `surface` | `#161820` | Cards, metric tiles, panels, dialogs | `.dashboard-card`, `.dashboard-metric` |
-| `surface-raised` | `#1d2029` | Icon tiles, numbered step markers, chips | `.dashboard-metric__icon`, `.dashboard-step__marker` |
-| `surface-sunken` | `#12131a` | Tip box, list inside a card | `.dashboard-tip`, `.dashboard-exercises` |
-| `track` | `#2a2d38` | Empty part of a progress bar | `.dashboard-progress` |
+| Token | Dark | Light | Use | Source |
+|---|---|---|---|---|
+| `bg-page` | `#0e1015` | `#e7e9ed` | Page background | `.dashboard-page`, `body` (auth.css) |
+| `bg-nav` | `#14161b` | `#f5f6f8` | Top nav bar | `.nav-bar` |
+| `surface` | `#161820` | `#f5f6f8` | Cards, metric tiles, panels, dialogs | `.dashboard-card`, `.dashboard-metric` |
+| `surface-raised` | `#1d2029` | `#eceef2` | Icon tiles, numbered step markers, chips | `.dashboard-metric__icon`, `.dashboard-step__marker` |
+| `surface-hover` | `#2a2e38` | `#e1e4ea` | Hover on a raised button (sign-in buttons) | `.social-buttons button:hover` |
+| `surface-sunken` | `#12131a` | `#eef0f3` | Tip box, list inside a card | `.dashboard-tip`, `.dashboard-exercises` |
+| `track` | `#2a2d38` | `#dcdfe5` | Empty part of a progress bar or meter | `.dashboard-progress` |
+| `mobile-surface`, `mobile-raised`, `mobile-sunken` | `#162231`, `#243244`, `#101b29` | `#f5f6f8`, `#eceef2`, `#eef0f3` | The phone Dashboard's navy cards, icon tiles and tip box | `index.css`, `@media (max-width: 640px)` |
 
 ### Text
 
-| Token | Value | Use | Contrast on `surface` |
-|---|---|---|---|
-| `text` | `#e8e9ec` | Titles, values, item names | 14.6:1 |
-| `text-soft` | `#a2a5ad` | Body text inside cards | 7.2:1 |
-| `text-muted` | `#8b8d94` | Eyebrow labels, hints, intro lines | 5.3:1 |
-| `nav-inactive` | `#8a8f99` | Nav links that aren't the current page | 5.6:1 on `bg-nav` |
+| Token | Dark | Light | Use | Contrast (dark / light) |
+|---|---|---|---|---|
+| `text` | `#e8e9ec` | `#16181d` | Titles, values, item names | 14.6:1 / 16.4:1 on `surface` |
+| `text-strong` | `#f4f6f9` | `#111318` | Phone headings and names | 15:1+ |
+| `text-label` | `#b4b6bf` | `#4b505b` | Form field labels | 8:1+ |
+| `text-subtle` | `#d2d3d7` | `#3a3e47` | Subtle buttons ("Cancel") | 9:1+ |
+| `text-soft` | `#a2a5ad` | `#4b505b` | Body text inside cards | 7.2:1 / 6.7:1 on `bg-page` |
+| `text-muted` | `#8b8d94` | `#5d626d` | Eyebrow labels, hints, intro lines | 5.3:1 / 5.0:1 on `bg-page` |
+| `nav-inactive` | `#8a8f99` | `#5d626d` | Nav links that aren't the current page | 5.6:1 / 5.7:1 on `bg-nav` |
+| `mobile-text-soft` | `#a6b4c7` | `#5d626d` | Secondary text on the phone Dashboard | 7:1+ / 5.7:1 |
+| `text-on-orange` | `#14161b` | `#14161b` | Text and ticks on `action` or `brand` | 5.7:1 |
+| `on-brand` | `#ffffff` | `#ffffff` | Icons (not text) on the orange logo square | icon only, 3.1:1 |
 
 ### Brand and action
 
 GymRank uses three oranges, each with one job. Don't swap them.
 
-| Token | Value | Use | Text on it |
-|---|---|---|---|
-| `brand` | `#f2652e` | Logo square, "Start Workout" nav button, avatar, focus ring, today's day card border | `#0e1015` (6.0:1) |
-| `action` | `#e0703f` | Primary buttons, progress fill, completed step markers, selected borders | `#14161b` (5.7:1) |
-| `action-text` | `#f2865a` | Orange text: text actions ("Choose goal"), accent values ("Getting started"), counts ("1 of 3") | n/a (7.0:1 on `surface`) |
+| Token | Dark | Light | Use | Text on it |
+|---|---|---|---|---|
+| `brand` | `#f2652e` | `#f2652e` | Logo square, "Start Workout" nav button, avatar, focus ring, today's day card border | `text-on-orange` (6.0:1) |
+| `action` | `#e0703f` | `#e0703f` | Primary buttons, progress fill, completed step markers, selected borders | `text-on-orange` (5.7:1) |
+| `action-text` | `#f2865a` | `#a8441a` | Orange text: text actions ("Choose goal"), accent values ("Getting started"), counts ("1 of 3") | n/a (7.0:1 on `surface` / 4.9:1 on `bg-page`) |
+| `brand-text` | `#ff7035` | `#a8441a` | Orange eyebrows on the phone Dashboard | n/a |
+| `brand-icon` | `#f2652e` | `#d14f1c` | Orange icons, such as the current page in the phone menu | n/a (3:1+ for icons) |
+| `mobile-icon` | `#f4f6f9` | `#a8441a` | Exercise icons on the phone Dashboard | n/a |
+| `selected-bg` | 16% `action` over `surface` | same formula | Selected option cards and chips | — |
 
 White text on orange fails contrast (3.1:1 on `#f26a2e`), so it is not allowed.
 
 ### Borders and overlays
 
-| Token | Value | Use |
-|---|---|---|
-| `border` | `rgba(255, 255, 255, 0.06)` | Card and tile outlines, dividers between list rows |
-| `border-strong` | `rgba(255, 255, 255, 0.08)` | Nav bar bottom edge; outline of an unselected option card |
-| `control-outline` | `#6b6f7a` | Empty tick circle or checkbox ring (3.5:1 on `surface`, meets the 3:1 rule for controls) |
-| `backdrop` | `rgba(0, 0, 0, 0.5)` | Behind dialogs (`.modal-backdrop`) |
-| `shadow-menu` | `0 12px 30px rgba(0, 0, 0, 0.3)` | Account menu, dialogs |
+| Token | Dark | Light | Use |
+|---|---|---|---|
+| `border` | `rgba(255, 255, 255, 0.06)` | `rgba(17, 19, 24, 0.09)` | Card and tile outlines, dividers between list rows |
+| `border-strong` | `rgba(255, 255, 255, 0.08)` | `rgba(17, 19, 24, 0.13)` | Nav bar bottom edge; outline of an unselected option card |
+| `control-outline` | `#6b6f7a` | `#7d828c` | Empty tick circle or checkbox ring (3:1+ on `surface` in both, the rule for controls) |
+| `control-border`, `divider` | `#444958`, `#1e2027` | `#c9cdd5`, `#d6dae1` | Sign-in button outlines, the "or" divider |
+| `mobile-border`, `mobile-raised-border`, `mobile-line` | `#2c3b4c`, `#344558`, `#708196` | `#dcdfe5`, `#d6dae1`, `#a3a8b3` | Lines on the phone Dashboard |
+| `input-bg`, `input-text`, `input-placeholder`, `input-border` | white, `#1e1e1e`, `#aaaaaa`, `#d9d9d9` | white, `#16181d`, `#6e737e`, `#c4c8d0` | Sign-in form inputs, which stay white in both themes |
+| `neutral-button`, `neutral-button-hover`, `on-neutral` | `#2c2c2c`, `#3b3b3b`, `#f5f5f5` | `#16181d`, `#2e323a`, `#f5f6f8` | The grey "Log in" button and its text |
+| `backdrop`, `backdrop-strong` | `rgba(0, 0, 0, 0.5)`, `0.65` | `rgba(17, 19, 24, 0.35)`, `0.45` | Behind dialogs (`.modal-backdrop`) and the phone menu |
+| `shadow-menu` | `0 12px 30px` `shadow-color` | same, lighter shadow | Account menu, dialogs (`shadow-color`, `shadow-soft`, `shadow-drawer` hold the shadow colours) |
 
 ### Feedback
 
 From the login page's feedback messages (`.login-feedback`, cirexlul, PRs #37 and #40).
 
+Dark values first, light values second.
+
 | Token | Border | Background | Text | Use |
 |---|---|---|---|---|
-| `success` | `#63c792` | `rgba(99, 199, 146, 0.08)` | `#8de0ad` (11.3:1) | "Account setup saved. Log in to continue.", saved confirmations |
-| `error` | `#ff968b` | `rgba(255, 150, 139, 0.08)` | `#ffb4aa` (10.4:1) | Form-level errors, failed requests |
-| `danger` | n/a | hover `rgba(255, 92, 92, 0.12)` | `#ff5c5c` (5.9:1) | Destructive actions: "Log out" |
-| `warning` | `#f0cf65` | `rgba(240, 207, 101, 0.08)` | `#f5dc8c` (11.0:1) | The "Intermediate" level badge on plan cards (Suryamur10, `.level-badge--intermediate`; Beginner uses `success`) |
+| `success` | `#63c792` / `#2f9e63` | 8% / 10% tint | `#8de0ad` (11.3:1) / `#1d6f43` (5.1:1) | "Account setup saved. Log in to continue.", saved confirmations |
+| `error` | `#ff968b` / `#d9443a` | 8% tint | `#ffb4aa` (10.4:1) / `#b42318` (5.4:1) | Form-level errors, failed requests |
+| `danger` | n/a | hover: 12% `danger` | `#ff5c5c` (5.9:1) / `#d92d20`; `danger-text` `#ff6670` / `#b42318` | Destructive actions: "Log out" |
+| `warning` | `#f0cf65` / `#c08a06` | 8% / 10% tint | `#f5dc8c` (11.0:1) / `#7a5600` (6.2:1) | The "Intermediate" level badge on plan cards (Suryamur10, `.level-badge--intermediate`; Beginner uses `success`) |
 
-Field-level errors use the `error` colours: a 2px `#ff968b` outline on the input and `#ffb4aa` text under it (`.input-wrap.invalid`, `.field-error`).
+Field-level errors use the `error` colours: a 2px `var(--gr-error)` outline on the input and `var(--gr-error-text)` text under it (`.input-wrap.invalid`, `.field-error`).
 
 ### Selected state (onboarding addition)
 
 The Dashboard has no selectable cards, so the onboarding screens add one rule, based on the Dashboard's colours:
 
-- Selected: 1.5px `action` border, background `action` at 16% over `surface` (`color-mix(in srgb, #e0703f 16%, #161820)`), and a filled `action` circle with a dark tick.
+- Selected: 1.5px `action` border, background `action` at 16% over `surface` (`var(--gr-selected-bg)`), and a filled `action` circle with a dark tick.
 - Not selected: 1.5px `border-strong` outline on `surface`, and an empty `control-outline` circle.
 - Toggle buttons set `aria-pressed="true"` or `"false"`, so screen readers hear the state too.
 
@@ -184,10 +210,10 @@ Card styling with 16px padding: a 44px `surface-raised` icon tile (10px corners,
 
 | Kind | Look | Use | Class today |
 |---|---|---|---|
-| Primary | `action` background, `#14161b` text, 15px / 600, 12px padding, 8px corners, full width in cards | The one main action on a card or page | `.dashboard-primary-action` |
-| Nav action | `brand` background, `#0e1015` text, 14px / 600, 8px 16px padding | "Start Workout" only | `.nav-bar__start-workout` |
+| Primary | `action` background, `text-on-orange` text, 15px / 600, 12px padding, 8px corners, full width in cards | The one main action on a card or page | `.dashboard-primary-action` |
+| Nav action | `brand` background, `text-on-orange` text, 14px / 600, 8px 16px padding | "Start Workout" only | `.nav-bar__start-workout` |
 | Text action | No background, `action-text`, 13px / 600 | Secondary actions in lists ("Choose goal") | `.dashboard-step__action` |
-| Subtle | No background, `#d2d3d7` text | "Cancel" in dialogs | `.button-subtle` |
+| Subtle | No background, `text-subtle` text | "Cancel" in dialogs | `.button-subtle` |
 
 - Forward-moving actions may end in " ›" ("Browse workout plans ›"), as on the Dashboard.
 - Disabled: keep the shape, grey it out (`surface-raised` background, `nav-inactive` text) and use `cursor: not-allowed`. Also say why near the button ("Pick one goal to continue.").
@@ -214,7 +240,7 @@ A box above the form: 10px 12px padding, 8px corners, 1px border, 13px text, col
 - Label above the input, 13px.
 - Input: 42px minimum height, 8px corners, 16px text, so phones don't zoom.
 - Focus: 4px `brand` outline.
-- Invalid: 2px `#ff968b` outline, `aria-invalid="true"`, and the message in `#ffb4aa` under the field, linked with `aria-describedby`.
+- Invalid: 2px `error` outline, `aria-invalid="true"`, and the message in `error-text` under the field, linked with `aria-describedby`.
 - Mark required fields as required, and show any format rule before the user submits (course checklist).
 
 ### Dialog (`src/SwitchPlanModal.jsx`)
@@ -326,6 +352,7 @@ Third-party logos live in `public/brand/`, with their source and usage rules in 
 - [ ] Every input has a visible `<label>`.
 - [ ] Animations are short (120ms for colour changes in onboarding) and sit inside `@media (prefers-reduced-motion: no-preference)`.
 - [ ] The page works at 375px wide with no sideways scrolling.
+- [ ] The page looks right in both dark and light mode, at desktop and phone width, and its CSS has no hex, rgb or named colours (see [Dark and light mode](#dark-and-light-mode)).
 
 ## Known differences in the current code
 
@@ -333,64 +360,31 @@ As of task #95 (2026-10-09). These pages predate the Dashboard redesign and shou
 
 | Area | What it uses now | Should use | File | Task |
 |---|---|---|---|---|
-| Login and sign-up | Grey "Log in" / "Create account" button (`#2c2c2c`) on desktop; white input fields; brand square 24px; sign-up card 16px corners | `action` primary; 32px brand square; 12px corners | `src/auth/auth.css` | #97, #99 |
+| Login and sign-up | Grey "Log in" / "Create account" button (`neutral-button`) on desktop; white input fields; brand square 24px; sign-up card 16px corners | `action` primary; 32px brand square; 12px corners | `src/auth/auth.css` | #97, #99 |
 | Font setup | `:root` in auth.css still names Inter. `body` in index.css sets system-ui, so Inter shows nowhere (onboarding moved to `--gr-font` in #93), but the rule is misleading | Drop Inter from `:root` | `src/auth/auth.css` | #99 |
 | Breakpoints | 960, 900, 850, 640 and 480px | 900px and 640px | all three stylesheets | as each page is upgraded |
 
 ## CSS variables
 
-Defined once in `src/index.css` (task #93), so every stylesheet can share the tokens. Use `var(--gr-…)` instead of writing a hex value. Names use a `--gr-` prefix so they can't clash with the onboarding's older `--ob-` variables while both exist.
+Defined once in `src/index.css` (task #93; light values added by the Persistent User Theme Preference task), so every stylesheet shares them. Use `var(--gr-…)` instead of writing a colour. Names use a `--gr-` prefix so they can't clash with the onboarding's older `--ob-` variables while both exist.
+
+`src/index.css` is the source of truth for the full list; the tables above give each one's dark and light value and its use. The file has two blocks, and every colour variable appears in both:
 
 ```css
-:root {
-  /* Backgrounds */
+:root {                      /* dark, the default */
   --gr-bg-page: #0e1015;
-  --gr-bg-nav: #14161b;
-  --gr-surface: #161820;
-  --gr-surface-raised: #1d2029;
-  --gr-surface-sunken: #12131a;
-  --gr-track: #2a2d38;
-
-  /* Text */
   --gr-text: #e8e9ec;
-  --gr-text-soft: #a2a5ad;
-  --gr-text-muted: #8b8d94;
-  --gr-nav-inactive: #8a8f99;
-  --gr-text-on-orange: #14161b;
+  /* …every other --gr- variable… */
+}
 
-  /* Oranges */
-  --gr-brand: #f2652e;
-  --gr-action: #e0703f;
-  --gr-action-text: #f2865a;
-  --gr-selected-bg: color-mix(in srgb, #e0703f 16%, #161820);
-
-  /* Lines */
-  --gr-border: rgba(255, 255, 255, 0.06);
-  --gr-border-strong: rgba(255, 255, 255, 0.08);
-  --gr-control-outline: #6b6f7a;
-
-  /* Feedback */
-  --gr-success: #63c792;
-  --gr-success-text: #8de0ad;
-  --gr-success-bg: rgba(99, 199, 146, 0.08);
-  --gr-error: #ff968b;
-  --gr-error-text: #ffb4aa;
-  --gr-error-bg: rgba(255, 150, 139, 0.08);
-  --gr-danger: #ff5c5c;
-  --gr-warning: #f0cf65;
-  --gr-warning-text: #f5dc8c;
-  --gr-warning-bg: rgba(240, 207, 101, 0.08);
-
-  /* Shape */
-  --gr-radius-card: 12px;
-  --gr-radius-inner: 10px;
-  --gr-radius-button: 8px;
-  --gr-shadow-menu: 0 12px 30px rgba(0, 0, 0, 0.3);
-
-  /* Type */
-  --gr-font: system-ui, sans-serif;
+:root[data-theme="light"] {  /* light: the same names with light values */
+  --gr-bg-page: #e7e9ed;
+  --gr-text: #16181d;
+  /* … */
 }
 ```
+
+Variables that are the same in both themes (`brand`, `action`, `text-on-orange`, `on-brand`, the radii and the font) are only in the first block.
 
 ## References
 
@@ -401,7 +395,7 @@ Defined once in `src/index.css` (task #93), so every stylesheet can share the to
   - Experience level cards with one-line descriptions: [Strava](https://mobbin.com/screens/9abe1e4c-91ff-46bd-8304-247f8ff09446), [Bevel](https://mobbin.com/screens/ca012035-d801-42fb-bf6b-89954314cfe6).
   - Equipment tiles with icons, plus a separate "no equipment" option: [Peloton](https://mobbin.com/screens/222b1212-1f9e-4ccf-a4c1-351e9dd47144), [Future](https://mobbin.com/screens/4d08977f-bcee-4881-a6b1-6df84287ebb9).
   - Plan cards showing level, length and days per week: [Tempo](https://mobbin.com/screens/3b6166f4-9ea0-46a3-b1c0-5c27047344d4), [Hevy](https://mobbin.com/screens/e9573e72-406e-476d-9218-b7902620154a).
-- Source files: `src/index.css` (nav bar, Dashboard, plans, weekly plan, dialog), `src/auth/auth.css` (login, sign-up, form fields, feedback), `src/onboarding/onboarding.css` (goal and setup steps).
+- Source files: `src/index.css` (colour variables for both themes, nav bar, Dashboard, plans, weekly plan, dialog), `src/theme/theme.js` (switching, remembering and saving the theme), `src/auth/auth.css` (login, sign-up, form fields, feedback), `src/onboarding/onboarding.css` (goal and setup steps).
 
 ## Changing this guide
 
