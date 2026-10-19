@@ -65,11 +65,14 @@ async function asRiley(page) {
 // "Select Progress": the top navigation on a computer, the menu (three lines) on a phone.
 async function openHistory(page) {
   const menu = page.getByRole('button', { name: 'Open navigation menu' })
+  const topLink = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Progress' })
+  // isVisible() doesn't wait, so wait until the navigation has drawn one of the two before choosing.
+  await menu.or(topLink).filter({ visible: true }).waitFor()
   if (await menu.isVisible()) {
     await menu.click()
     await page.getByRole('navigation', { name: 'Mobile navigation' }).getByRole('link', { name: 'Progress' }).click()
   } else {
-    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Progress' }).click()
+    await topLink.click()
   }
   await expect(page).toHaveURL(/#\/progress\/history$/)
   await expect(page.getByRole('heading', { level: 1, name: 'Workout history' })).toBeVisible()
