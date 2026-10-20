@@ -79,7 +79,7 @@ function NavBar({ current, userName = '' }) {
           const className =
             label === current ? 'nav-bar__link nav-bar__link--current' : 'nav-bar__link'
           return to ? (
-            <Link key={label} to={to} className={className}>
+            <Link key={label} to={to} className={className} aria-current={label === current ? 'page' : undefined}>
               {label}
             </Link>
           ) : (
