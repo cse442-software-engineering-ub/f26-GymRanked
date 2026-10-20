@@ -47,8 +47,9 @@ In production, the proxy is not involved — the built frontend and the PHP API 
 | `api/workout_sets.php` | Saves or corrects one set (weight in pounds, reps) in the user's session. |
 | `api/complete_workout.php` | Marks a session completed, once. |
 | `api/workout_history.php` | The user's completed workouts, newest first. |
+| `api/exercise_progress.php` | The user's performance totals and trends over their completed workouts (volume, estimated 1RM, strength change, personal records, per-exercise points). See [Exercise progress API](#exercise-progress-api-story-8). |
 | `api/theme.php` | GET/POST the signed-in account's colour theme (`dark` or `light`, default `dark`), stored in `user_theme`. |
-| `api/workout_common.php` | Shared helpers for the four endpoints above (login check, set validation, JSON shapes); not an endpoint. |
+| `api/workout_common.php` | Shared helpers for the workout endpoints above (login check, set validation, JSON shapes); not an endpoint. |
 | `api/config.example.php` | Template for local database settings — copy to `api/config.php` (gitignored) and edit there. Never commit real credentials; the example file must only ever contain placeholders. |
 
 - The backend is plain PHP, run locally via `php -S localhost:8000 -t api` — no framework in place.
@@ -86,6 +87,16 @@ Saves what a user lifts. Migration `database/migrations/009_workout_sessions.sql
 - **Errors:** JSON `{"error": "..."}`, plus `errors.weight_lb` / `errors.reps` on a 400 for a bad set. The wording matches `src/workoutLog/setValidation.js`. 401 not logged in, 404 not found, 405 wrong method, 409 conflict, 500 `{"error":"Database error"}`.
 - **Frontend contract:** `src/workoutLog/workoutLogApi.js` uses `workout_sets.php` and `complete_workout.php`. The extra fields (`logged_at`, `updated_at`, `summary`) are additions, so it keeps working.
 - **Workout history (story #9):** `src/history/` reads `workout_history.php` for the list and `workout_session.php?id=` for one workout's sets, through `workoutLogApi.js` (`getHistory`, `getSession`), for the page at `#/progress/history`. Test data: `database/seeds/workout_history.sql`.
+
+## Exercise progress API (story #8)
+
+`GET api/exercise_progress.php` reads every completed workout and set of the logged-in user (the tables from migration 009; no new migration) and returns totals and trends for the progress dashboard. The step-by-step checks and the expected values are in `task-tests/8-exercise-progress-backend.html`; test data is `database/seeds/exercise_progress.sql`.
+
+- **Request:** optional `from` and `to` (`YYYY-MM-DD`, both inclusive; neither means all history) and `bucket` (`week` or `month`, default `week`). Any other parameter is ignored, so a user id can never come from the URL. Errors: 400 `{"error":"Invalid request.","errors":{"from"|"to"|"bucket": "..."}}`, 401 not logged in, 405 not GET.
+- **Response:** `{from, to, bucket, summary: {workouts, sets, total_volume_lb, new_prs, strength_gain_pct}, exercises: [{exercise, sessions, sets, total_reps, volume_lb, best_weight_lb, best_reps, first_e1rm_lb, last_e1rm_lb, strength_change_lb, strength_change_pct, new_prs, points: [{date, best_weight_lb, reps, e1rm_lb, best_reps, volume_lb}]}], volume_trend: [{period_start, volume_lb, workouts}], prs: [{exercise, date, weight_lb, reps}]}`.
+- **Units and days:** weight is pounds. Every date (`from`, `to`, buckets, PR and point dates) is an America/New_York calendar day, converted from the stored UTC `completed_at` in PHP with `DateTimeZone` (not MySQL `CONVERT_TZ`, which needs time zone tables). Weeks start on Monday.
+- **Definitions:** volume is the sum of weight x reps (a 0 lb bodyweight set adds 0). Estimated 1RM is Epley, weight x (1 + reps / 30), rounded half up to 1 decimal. Strength change is the last minus the first workout's 1RM in the range (null with fewer than two weighted workouts). A weight PR is a workout whose heaviest weight beats every earlier workout's, of any date; a bodyweight exercise (heaviest weight 0 lb) has a rep PR instead (most reps in one set). The first time an exercise is logged and ties are not PRs. The full list is the header comment of `api/exercise_progress.php`.
+- **No cut-off:** unlike `workout_history.php` (100 workouts), every completed workout is read. Totals are computed in PHP from whole cents and tenths of a pound, so rounding never depends on floats. Unfinished workouts are never counted.
 
 ## Data flow
 
