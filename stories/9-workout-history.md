@@ -14,7 +14,7 @@ Test account: `Riley Brooks`, email `riley.brooks@example.com`, password `Riley-
 
 ### Steps:
 
-1. Select **Progress** in the top navigation. Confirm that the address ends in `#/progress/history`, that **Progress** is highlighted in the navigation, that the path above the heading reads `Progress › Workout history`, that the heading says `Workout history`, and that the line under it says `6 completed workouts`.
+1. Select **Progress** in the top navigation, then **Workout history**. Confirm that the address ends in `#/progress/history`, that **Progress** is highlighted in the navigation, that the path above the heading reads `Progress › Workout history`, that the heading says `Workout history`, and that the line under it says `6 completed workouts`.
 2. Confirm that four workouts are listed in this order, each closed, showing its name, date, and size:
    - `Full body C`, `Friday, October 9, 2026`, `3 exercises · 9 sets`
    - `Full body B`, `Wednesday, October 7, 2026`, `3 exercises · 8 sets`
@@ -26,7 +26,7 @@ Test account: `Riley Brooks`, email `riley.brooks@example.com`, password `Riley-
 
 ### Setup for this test:
 
-1. Log in as Riley as in Acceptance Test 1, then select **Progress** in the top navigation. Confirm that `Workout history` opens.
+1. Log in as Riley as in Acceptance Test 1, then select **Progress** in the top navigation, then **Workout history**. Confirm that `Workout history` opens.
 
 ### Steps:
 
@@ -41,7 +41,7 @@ Test account: `Riley Brooks`, email `riley.brooks@example.com`, password `Riley-
 
 ### Setup for this test:
 
-1. Log in as Riley as in Acceptance Test 1, then select **Progress** in the top navigation. Confirm that `Showing 1–4 of 6 workouts` appears.
+1. Log in as Riley as in Acceptance Test 1, then select **Progress** in the top navigation, then **Workout history**. Confirm that `Showing 1–4 of 6 workouts` appears.
 
 ### Steps:
 
@@ -58,12 +58,12 @@ Test account: `Riley Brooks`, email `riley.brooks@example.com`, password `Riley-
 
 ### Setup for this test:
 
-1. Log in as Riley as in Acceptance Test 1, then select **Progress** in the top navigation. Confirm that `6 completed workouts` appears.
+1. Log in as Riley as in Acceptance Test 1, then select **Progress** in the top navigation, then **Workout history**. Confirm that `6 completed workouts` appears.
 
 ### Steps:
 
 1. Open the account menu (the round `RB` button, top right) and select **Log out**. Confirm that the Login page says `You are logged out.`
-2. Log in again with `riley.brooks@example.com` and `Riley-Curl95!`, then select **Progress**. Confirm that it still says `6 completed workouts` and lists the same four workouts as in Acceptance Test 1, step 2, in the same order.
+2. Log in again with `riley.brooks@example.com` and `Riley-Curl95!`, then select **Progress**, then **Workout history**. Confirm that it still says `6 completed workouts` and lists the same four workouts as in Acceptance Test 1, step 2, in the same order.
 3. Refresh the page. Confirm that the same heading, count, and four workouts appear again.
 
 ## Acceptance Test 5: A new account has an empty history and can't see anyone else's workouts
@@ -75,10 +75,10 @@ Test account: `Riley Brooks`, email `riley.brooks@example.com`, password `Riley-
 
 ### Steps:
 
-1. Select **Progress** in the top navigation. Confirm that `Workout history` and `0 completed workouts` appear, followed by `No workouts logged yet`, `Finish your first workout and it will show up here with every exercise, set, and weight you logged.`, and a **Start a workout** button.
+1. Select **Progress** in the top navigation, then **Workout history**. Confirm that `Workout history` and `0 completed workouts` appear, followed by `No workouts logged yet`, `Finish your first workout and it will show up here with every exercise, set, and weight you logged.`, and a **Start a workout** button.
 2. Confirm that there is no list of workouts and no page buttons, and that none of Riley's workouts (such as `Full body C` or `Friday, October 9, 2026`) appear.
 3. Select **Start a workout**. Confirm that the weekly plan opens with the heading `Beginner Fundamentals — Week 1`.
-4. Log out. Log in with `riley.brooks@example.com` and `Riley-Curl95!` and select **Progress**. Confirm that Riley still has `6 completed workouts`.
+4. Log out. Log in with `riley.brooks@example.com` and `Riley-Curl95!` and select **Progress**, then **Workout history**. Confirm that Riley still has `6 completed workouts`.
 
 ## Acceptance Test 6: Workout history works on a phone
 
@@ -89,7 +89,7 @@ Test account: `Riley Brooks`, email `riley.brooks@example.com`, password `Riley-
 
 ### Steps:
 
-1. Open the menu (the three lines, top right) and select **Progress**. Confirm that `Workout history` and `6 completed workouts` appear.
+1. Open the menu (the three lines, top right) and select **Progress**, then **Workout history**. Confirm that `Workout history` and `6 completed workouts` appear.
 2. Confirm that each of the four workouts shows its name, date, and size (for example `3 exercises · 9 sets`), and that the page does not need to be scrolled sideways.
 3. Select **Full body C**, **Friday, October 9, 2026**. Confirm that its three exercise tables, with every set's reps and weight from Acceptance Test 2, fit the screen width without sideways scrolling.
 4. Scroll down and select page **2**. Confirm that `Showing 5–6 of 6 workouts` appears.
@@ -103,9 +103,9 @@ Test account: `Riley Brooks`, email `riley.brooks@example.com`, password `Riley-
 
 ### Steps:
 
-1. In Network, check **Disable cache** and choose **Slow 3G** throttling. Select **Progress**. Confirm that `Loading your workout history...` appears before the workouts, and then the list from Acceptance Test 1 appears. Return to **No throttling**.
+1. In Network, check **Disable cache** and choose **Slow 3G** throttling. Select **Progress**, then **Workout history**. Confirm that `Loading your workout history...` appears before the workouts, and then the list from Acceptance Test 1 appears. Return to **No throttling**.
 2. Select **Dashboard**. In DevTools, open Network request blocking (press Ctrl+Shift+P on Windows or Cmd+Shift+P on a Mac, type `Show Network request blocking`, and press Enter), check **Enable network request blocking**, and add the pattern `*workout_history.php*`.
-3. Select **Progress**. Confirm that, instead of the list, the page says `Couldn't load your workout history. Check your connection and try again.` with a **Try again** button, and that it does not say `No workouts logged yet`.
+3. Select **Progress**, then **Workout history**. Confirm that, instead of the list, the page says `Couldn't load your workout history. Check your connection and try again.` with a **Try again** button, and that it does not say `No workouts logged yet`.
 4. Uncheck **Enable network request blocking** and select **Try again**. Confirm that the message disappears and `6 completed workouts` and the four workouts appear.
 
 ## Acceptance Test 8: Workout history needs you to be logged in
@@ -117,4 +117,4 @@ Test account: `Riley Brooks`, email `riley.brooks@example.com`, password `Riley-
 ### Steps:
 
 1. Visit the [Workout history page](https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/progress/history) directly. Confirm that the Login page opens (the address ends in `#/login`) and that no workouts are shown.
-2. Log in with `riley.brooks@example.com` and `Riley-Curl95!`, then select **Progress**. Confirm that `6 completed workouts` appears.
+2. Log in with `riley.brooks@example.com` and `Riley-Curl95!`, then select **Progress**, then **Workout history**. Confirm that `6 completed workouts` appears.
