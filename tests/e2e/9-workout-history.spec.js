@@ -62,7 +62,8 @@ async function asRiley(page) {
   await logInAsRiley(page)
 }
 
-// "Select Progress": the top navigation on a computer, the menu (three lines) on a phone.
+// "Select Progress, then Workout history": Progress is in the top navigation on a computer and in the menu (three
+// lines) on a phone; it opens story #8's Progress page, which links to the history.
 async function openHistory(page) {
   const menu = page.getByRole('button', { name: 'Open navigation menu' })
   const topLink = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Progress' })
@@ -74,6 +75,8 @@ async function openHistory(page) {
   } else {
     await topLink.click()
   }
+  await expect(page).toHaveURL(/#\/progress$/)
+  await page.locator('main').getByRole('link', { name: /Workout history/ }).click()
   await expect(page).toHaveURL(/#\/progress\/history$/)
   await expect(page.getByRole('heading', { level: 1, name: 'Workout history' })).toBeVisible()
 }
