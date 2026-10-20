@@ -29,6 +29,7 @@ In production, the proxy is not involved — the built frontend and the PHP API 
 | `src/WorkoutList.jsx` | Fetches `api/workouts.php` and renders loading, error, empty, and data states. |
 | `src/index.css` | Global and component styles, and the `--gr-` colour variables for both themes (dark `:root`, light `:root[data-theme="light"]`). |
 | `src/theme/theme.js` | The colour theme: applies `data-theme` on `<html>`, remembers it in the browser (`gymrank.theme`), and loads/saves it for the account through `api/theme.php`. `useTheme.js` gives components the current theme. `ThemeToggle.jsx` is the Dark / Light control in the Profile page's Appearance card, opened from **Profile** in the account menu. |
+| `src/progress/` | The Progress page at `#/progress` (story #8): totals for 30 days, 90 days or all time, an Exercise drop-down, and the chosen exercise's numbers, trend chart, workouts and personal records, all from `api/exercise_progress.php` through `workoutLogApi.getExerciseProgress`. `progressFormat.js` holds the display text (unit tested in `tests/progressFormat.test.js`). It links to the workout history at `#/progress/history`. Test data: `database/seeds/exercise_progress.sql` and `exercise_progress_ranges.sql`. |
 | `index.html` | Vite HTML entry point; a small inline script applies the remembered theme before the app loads, so a light page never flashes dark. |
 
 - Built with **React** function components and JSX, using **Vite** as the dev server and bundler.

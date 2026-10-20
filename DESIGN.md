@@ -267,6 +267,15 @@ A box above the form: 10px 12px padding, 8px corners, 1px border, 13px text, col
 - Open, it shows one table per exercise on `surface-sunken` with 10px corners: the exercise name as the caption, then Set, Reps and Weight (right-aligned). A 0 lb set reads "Bodyweight". Computers fit up to three tables per row; phones show one.
 - Pager: "Showing 1–4 of 6 workouts" in `text-muted`, then Previous, page numbers and Next, each at least 44 × 44px. The current page is an `action` button; disabled ends are at 40% opacity.
 
+### Progress page (`src/progress/`, added by #110)
+
+- The same 900px column as the history page (Figma "1 — Progress (30 days · Bench press)", narrowed to one exercise at a time). Heading "Your progress", then "<name> · All time" in `text-muted`.
+- Range control: "30 days", "90 days" and "All time" in one `surface` box; the selected one is `surface-raised` with `aria-pressed="true"`. Each button is at least 44px tall and the three stay on one line on a phone.
+- Four total tiles (Volume, Strength gain, New PRs, Workouts logged): `surface` cards with a 13px `text-muted` label over a 22px value, 4 across on a computer and 2 × 2 below 900px. A value that can't be worked out is "—".
+- "Workout history" is a full-width `surface` link card with a caption and a chevron, opening `#/progress/history`.
+- The "Exercise" drop-down lists every exercise A to Z. The chosen exercise is one `surface` card: metric tiles on `surface-sunken` (3 across, 2 on a phone), a line chart in `action-text` with one point per workout and a text label for screen readers, a table of its workouts (Date, Heaviest set, Est. 1RM, Volume; numbers right-aligned), and its personal records with the new best in `success-text`. A bodyweight exercise says so and shows reps instead of weights.
+- Empty, loading and error states follow the history page: "No progress to track yet" with "Start a workout", "Loading your progress...", and the `error` box with "Try again".
+
 ### Gym backdrop (`src/components/GymBackdrop.jsx`, added by #93)
 
 A gym photo band for the top of a page, as one component so every page uses the same one.
