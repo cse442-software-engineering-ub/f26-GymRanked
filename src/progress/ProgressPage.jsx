@@ -14,7 +14,8 @@ function ProgressPage() {
   const navigate = useNavigate()
   const [range, setRange] = useState('all')
   const [attempt, setAttempt] = useState(0)
-  const [result, setResult] = useState({ status: 'loading', progress: null })
+  // The answer for one range and attempt; while another is wanted, the page shows loading, never stale numbers.
+  const [result, setResult] = useState({ key: null, status: 'loading', progress: null })
   // Completed workouts in all history, known from the first (All time) answer; 0 shows the empty page.
   const [allTimeWorkouts, setAllTimeWorkouts] = useState(null)
   const [chosen, setChosen] = useState(null)
@@ -28,24 +29,25 @@ function ProgressPage() {
     return () => { active = false }
   }, [])
 
+  const key = `${range}:${attempt}`
+
   useEffect(() => {
     let active = true
-    setResult({ status: 'loading', progress: null })
     workoutLogApi.getExerciseProgress(rangeDates(range))
       .then((progress) => {
         if (!active) return
-        setResult({ status: 'ready', progress })
+        setResult({ key, status: 'ready', progress })
         if (range === 'all') setAllTimeWorkouts(progress.summary.workouts)
       })
       .catch((error) => {
         if (!active) return
         if (error.status === 401) navigate('/login', { replace: true })
-        else setResult({ status: 'error', progress: null })
+        else setResult({ key, status: 'error', progress: null })
       })
     return () => { active = false }
-  }, [range, attempt, navigate])
+  }, [key, range, navigate])
 
-  const { status, progress } = result
+  const { status, progress } = result.key === key ? result : { status: 'loading', progress: null }
   const noHistory = allTimeWorkouts === 0
   const exercises = progress?.exercises ?? []
   // The chosen exercise stays while it is in the range; otherwise the first one, A to Z.
