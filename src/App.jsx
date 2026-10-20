@@ -7,6 +7,7 @@ import Dashboard from './Dashboard.jsx'
 import PlanDetails from './PlanDetails.jsx'
 import WeeklyPlan from './WeeklyPlan.jsx'
 import WorkoutHistoryPage from './history/WorkoutHistoryPage.jsx'
+import ProgressPage from './progress/ProgressPage.jsx'
 import WorkoutPlanLibrary from './WorkoutPlanLibrary.jsx'
 import RecommendedPlansPage from './onboarding/RecommendedPlansPage.jsx'
 import ExperiencePage from './onboarding/ExperiencePage.jsx'
@@ -40,8 +41,8 @@ function App() {
         <Route path="/plans" element={<WorkoutPlanLibrary />} />
         <Route path="/plans/:id" element={<PlanDetails />} />
         <Route path="/weekly-plan" element={<WeeklyPlan />} />
-        {/* Progress has only the workout history so far; story #8's progress dashboard can take /progress later. */}
-        <Route path="/progress" element={<Navigate to="/progress/history" replace />} />
+        {/* Progress (story #8) links to the workout history (story #9) below it. */}
+        <Route path="/progress" element={<ProgressPage />} />
         <Route path="/progress/history" element={<WorkoutHistoryPage />} />
         <Route path="/workout/active" element={<ActiveWorkout />} />
         <Route path="/workout/active/:exerciseIndex" element={<ExerciseSession />} />
