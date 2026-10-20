@@ -38,6 +38,23 @@ mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < datab
 
 Rerunning it is safe: it resets Riley's account and replaces Riley's workouts with the same six, and doesn't touch any other account.
 
+## Exercise progress data
+
+`exercise_progress.sql` gives four of the test accounts known workouts for story #8 (`api/exercise_progress.php`), whose task tests are in `task-tests/8-exercise-progress-backend.html`. It needs every migration up to `009_workout_sessions.sql`. Load it after `test_users.sql`:
+
+```bash
+mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < database/seeds/exercise_progress.sql
+```
+
+| Account | Workouts it gets |
+| --- | --- |
+| Marcus Malone | 7 finished workouts (August 31 to October 14, 2026) and 1 unfinished one on October 5, with Bench press, Back squat and Pull-up |
+| Dana Lee | 2 finished workouts |
+| Sean O'Brien | 120 finished workouts (one a day, June 1 to September 28), more than the 100 the history list returns |
+| Priya Shah | none (empty history) |
+
+Rerunning it is safe, but it replaces **all** workouts of these four accounts (Marcus's setup and login are untouched). Any other account, including Riley and Jordan, keeps its workouts. The story #7 backend checks (`node tests/workout-session-api.mjs`) delete every `@example.com` account's workouts, so load this seed again after running them.
+
 ## Check they're there
 
 ```bash
