@@ -5,7 +5,7 @@ import NavBar from './NavBar.jsx'
 import PlanListRow from './PlanListRow.jsx'
 import PlanSelectionStatus from './PlanSelectionStatus.jsx'
 import { fetchPlans } from './plansApi.js'
-import { missingEquipment } from './planEquipment.js'
+import { missingEquipment, orderByRecommendation } from './planEquipment.js'
 import usePlanSelection from './usePlanSelection.jsx'
 import YourSetup from './YourSetup.jsx'
 
@@ -20,6 +20,40 @@ function WorkoutPlanLibrary() {
   function openDetails(event, plan) {
     if (event.target.closest('button, a, .equipment-dot')) return
     navigate(`/plans/${plan.id}`)
+  }
+
+  const { recommended, others } = orderByRecommendation(plans ?? [], setup)
+
+  function renderPlan(plan) {
+    const isCurrent = selection.currentPlanId === plan.id
+    return (
+      <li
+        key={plan.id}
+        className={`plan-list__item${isCurrent ? ' plan-list__item--current' : ''}`}
+        onClick={(event) => openDetails(event, plan)}
+      >
+        <PlanListRow plan={plan} missing={setup ? missingEquipment(plan, setup.equipment) : null} />
+        <button
+          type="button"
+          className="plan-list__select"
+          onClick={() => selection.requestSelect(plan)}
+          disabled={!selection.canSelect || isCurrent}
+        >
+          {isCurrent ? (
+            <>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M5 12.5l4.5 4.5L19 7.5" />
+              </svg>
+              Current plan
+            </>
+          ) : selection.busyPlanId === plan.id ? (
+            'Selecting...'
+          ) : (
+            'Select'
+          )}
+        </button>
+      </li>
+    )
   }
 
   useEffect(() => {
@@ -49,39 +83,12 @@ function WorkoutPlanLibrary() {
           <p className="status">No plans found</p>
         )}
         {!error && plans !== null && plans.length > 0 && (
-          <ul className="plan-list">
-            {plans.map((plan) => {
-              const isCurrent = selection.currentPlanId === plan.id
-              return (
-                <li
-                  key={plan.id}
-                  className={`plan-list__item${isCurrent ? ' plan-list__item--current' : ''}`}
-                  onClick={(event) => openDetails(event, plan)}
-                >
-                  <PlanListRow plan={plan} missing={setup ? missingEquipment(plan, setup.equipment) : null} />
-                  <button
-                    type="button"
-                    className="plan-list__select"
-                    onClick={() => selection.requestSelect(plan)}
-                    disabled={!selection.canSelect || isCurrent}
-                  >
-                    {isCurrent ? (
-                      <>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <path d="M5 12.5l4.5 4.5L19 7.5" />
-                        </svg>
-                        Current plan
-                      </>
-                    ) : selection.busyPlanId === plan.id ? (
-                      'Selecting...'
-                    ) : (
-                      'Select'
-                    )}
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
+          <>
+            {recommended.length > 0 && <h2 className="plan-library__group">Recommended for you</h2>}
+            {recommended.length > 0 && <ul className="plan-list">{recommended.map(renderPlan)}</ul>}
+            {recommended.length > 0 && others.length > 0 && <h2 className="plan-library__group">More plans</h2>}
+            {others.length > 0 && <ul className="plan-list">{others.map(renderPlan)}</ul>}
+          </>
         )}
       </main>
       {selection.switchModal}

@@ -27,13 +27,16 @@ In production, the proxy is not involved — the built frontend and the PHP API 
 | `src/main.jsx` | React entry point — mounts the app into `index.html`. |
 | `src/App.jsx` | Root component. |
 | `src/WorkoutList.jsx` | Fetches `api/workouts.php` and renders loading, error, empty, and data states. |
-| `src/index.css` | Global and component styles for the current proof of concept. |
-| `index.html` | Vite HTML entry point. |
+| `src/index.css` | Global and component styles, and the `--gr-` colour variables for both themes (dark `:root`, light `:root[data-theme="light"]`). |
+| `src/theme/theme.js` | The colour theme: applies `data-theme` on `<html>`, remembers it in the browser (`gymrank.theme`), and loads/saves it for the account through `api/theme.php`. `useTheme.js` gives components the current theme. `ThemeToggle.jsx` is the Dark / Light control in the Profile page's Appearance card, opened from **Profile** in the account menu. |
+| `src/progress/` | The Progress page at `#/progress` (story #8): totals for 30 days, 90 days or all time, an Exercise drop-down, and the chosen exercise's numbers, trend chart, workouts and personal records, all from `api/exercise_progress.php` through `workoutLogApi.getExerciseProgress`. `progressFormat.js` holds the display text (unit tested in `tests/progressFormat.test.js`). It links to the workout history at `#/progress/history`. Test data: `database/seeds/exercise_progress.sql` and `exercise_progress_ranges.sql`. |
+| `index.html` | Vite HTML entry point; a small inline script applies the remembered theme before the app loads, so a light page never flashes dark. |
 
 - Built with **React** function components and JSX, using **Vite** as the dev server and bundler.
 - `WorkoutList.jsx` is currently the only component that talks to the backend; it owns its own loading/error/empty/success UI state rather than lifting that state into `App.jsx`.
 - No router is in place yet. As navigation grows to cover dashboard, workouts, plans, and leaderboard screens, a client-side routing library (e.g. React Router) should be introduced rather than hand-rolling view switching in `App.jsx`.
 - No modal/dialog components exist yet; when added, their state should live with the feature that owns them, not in the root component.
+- **Dark and light mode:** every colour comes from a `--gr-` variable, and `<html data-theme="light">` swaps in the light values, so pages need no theme code of their own. `OnboardingGate` calls `syncAccountTheme()` after it confirms the session, so the account's saved theme replaces the browser's remembered one (once per signed-in user). Rules for colours are in `DESIGN.md`, "Dark and light mode".
 - All URLs to backend endpoints must be built from `import.meta.env.BASE_URL`, not hardcoded, so requests resolve correctly both in local dev (proxied) and in production (same-path).
 
 ## Backend
@@ -45,7 +48,9 @@ In production, the proxy is not involved — the built frontend and the PHP API 
 | `api/workout_sets.php` | Saves or corrects one set (weight in pounds, reps) in the user's session. |
 | `api/complete_workout.php` | Marks a session completed, once. |
 | `api/workout_history.php` | The user's completed workouts, newest first. |
-| `api/workout_common.php` | Shared helpers for the four endpoints above (login check, set validation, JSON shapes); not an endpoint. |
+| `api/exercise_progress.php` | The user's performance totals and trends over their completed workouts (volume, estimated 1RM, strength change, personal records, per-exercise points). See [Exercise progress API](#exercise-progress-api-story-8). |
+| `api/theme.php` | GET/POST the signed-in account's colour theme (`dark` or `light`, default `dark`), stored in `user_theme`. |
+| `api/workout_common.php` | Shared helpers for the workout endpoints above (login check, set validation, JSON shapes); not an endpoint. |
 | `api/config.example.php` | Template for local database settings — copy to `api/config.php` (gitignored) and edit there. Never commit real credentials; the example file must only ever contain placeholders. |
 
 - The backend is plain PHP, run locally via `php -S localhost:8000 -t api` — no framework in place.
@@ -84,6 +89,16 @@ Saves what a user lifts. Migration `database/migrations/009_workout_sessions.sql
 - **Frontend contract:** `src/workoutLog/workoutLogApi.js` uses `workout_sets.php` and `complete_workout.php`. The extra fields (`logged_at`, `updated_at`, `summary`) are additions, so it keeps working.
 - **Workout history (story #9):** `src/history/` reads `workout_history.php` for the list and `workout_session.php?id=` for one workout's sets, through `workoutLogApi.js` (`getHistory`, `getSession`), for the page at `#/progress/history`. Test data: `database/seeds/workout_history.sql`.
 
+## Exercise progress API (story #8)
+
+`GET api/exercise_progress.php` reads every completed workout and set of the logged-in user (the tables from migration 009; no new migration) and returns totals and trends for the progress dashboard. The step-by-step checks and the expected values are in `task-tests/8-exercise-progress-backend.html`; test data is `database/seeds/exercise_progress.sql`.
+
+- **Request:** optional `from` and `to` (`YYYY-MM-DD`, both inclusive; neither means all history) and `bucket` (`week` or `month`, default `week`). Any other parameter is ignored, so a user id can never come from the URL. Errors: 400 `{"error":"Invalid request.","errors":{"from"|"to"|"bucket": "..."}}`, 401 not logged in, 405 not GET.
+- **Response:** `{from, to, bucket, summary: {workouts, sets, total_volume_lb, new_prs, strength_gain_pct}, exercises: [{exercise, sessions, sets, total_reps, volume_lb, best_weight_lb, best_reps, first_e1rm_lb, last_e1rm_lb, strength_change_lb, strength_change_pct, new_prs, points: [{date, best_weight_lb, reps, e1rm_lb, best_reps, volume_lb}]}], volume_trend: [{period_start, volume_lb, workouts}], prs: [{exercise, date, weight_lb, reps}]}`.
+- **Units and days:** weight is pounds. Every date (`from`, `to`, buckets, PR and point dates) is an America/New_York calendar day, converted from the stored UTC `completed_at` in PHP with `DateTimeZone` (not MySQL `CONVERT_TZ`, which needs time zone tables). Weeks start on Monday.
+- **Definitions:** volume is the sum of weight x reps (a 0 lb bodyweight set adds 0). Estimated 1RM is Epley, weight x (1 + reps / 30), rounded half up to 1 decimal. Strength change is the last minus the first workout's 1RM in the range (null with fewer than two weighted workouts). A weight PR is a workout whose heaviest weight beats every earlier workout's, of any date; a bodyweight exercise (heaviest weight 0 lb) has a rep PR instead (most reps in one set). The first time an exercise is logged and ties are not PRs. The full list is the header comment of `api/exercise_progress.php`.
+- **No cut-off:** unlike `workout_history.php` (100 workouts), every completed workout is read. Totals are computed in PHP from whole cents and tenths of a pound, so rounding never depends on floats. Unfinished workouts are never counted.
+
 ## Data flow
 
 Walking a single request end-to-end, using the one flow that currently exists:
@@ -117,6 +132,7 @@ There is no caching, client-side state management library, or write path (POST/P
 | New reusable UI (modal, dialog, card, etc.) | A focused, standalone component — do not grow `App.jsx` or `WorkoutList.jsx` into a single large component. Keep the component's own state and behavior with it. |
 | New API endpoint | A new PHP file under `api/`, returning JSON with appropriate HTTP status codes, reading credentials from `api/config.php`. |
 | New/changed database schema | A versioned migration file (e.g. `database.sql`) documenting the exact SQL change and the steps to apply it to existing local and shared databases — never an undocumented manual database edit. |
+| New colour | A `--gr-` variable in `src/index.css` with a dark value in `:root` and a light value in `:root[data-theme="light"]`, listed in `DESIGN.md`. Never a hex or rgb value in a component. |
 | New global style | `src/index.css`, matching existing formatting; the repo has no formatter/linter, so avoid unrelated reformatting elsewhere while you're in the file. |
 
 For anything not covered above, or for the day-to-day mechanics of branching, committing, and testing a change, follow `AGENTS.md`'s "Instructions for coding agents" section and `GitAndScrumDocumentation.md` (when available) rather than duplicating that process here.

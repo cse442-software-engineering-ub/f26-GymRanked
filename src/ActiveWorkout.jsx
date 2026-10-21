@@ -8,6 +8,7 @@ import NavBar from './NavBar.jsx'
 import CompleteWorkoutButton from './workoutLog/CompleteWorkoutButton.jsx'
 import { formatSet, summaryPath } from './workoutLog/setLog.js'
 import { loadFinished } from './finishedExercises.js'
+import { clearUnloggedSets, findUnloggedExercise } from './setDraft.js'
 import { startSession } from './workoutSessionApi.js'
 
 // Active workout screen: the user steps through the exercises of today's workout, saving each set with the
@@ -232,6 +233,9 @@ function ActiveWorkout() {
               sessionId={session.id}
               setCount={setCount}
               completed={completed}
+              findUnlogged={() => findUnloggedExercise(session.id, exercises.map(({ name }) => name))}
+              onLogUnlogged={(name) => navigate(`/workout/active/${exercises.findIndex((exercise) => exercise.name === name)}`)}
+              onEndUnlogged={() => clearUnloggedSets(session.id, exercises.map(({ name }) => name))}
               onCompleted={() => navigate(summaryPath(session.id))}
               onSessionEnded={() => setStatus('loggedOut')}
             />

@@ -65,7 +65,7 @@
   padding: 0 14px;
   border: 1px solid var(--gr-border-strong);
   border-radius: var(--gr-radius-button);
-  background: rgba(14, 16, 21, 0.7);
+  background: color-mix(in srgb, var(--gr-bg-page) 70%, transparent);
   color: var(--gr-text);
   font: inherit;
   font-size: 14px;
@@ -86,7 +86,7 @@
   margin: 0;
   padding: 4px 8px;
   border-radius: var(--gr-radius-button);
-  background: rgba(14, 16, 21, 0.85);
+  background: color-mix(in srgb, var(--gr-bg-page) 85%, transparent);
   color: var(--gr-error-text);
   font-size: 13px;
 }
@@ -376,7 +376,7 @@
 }
 
 .ob-card[aria-pressed='true'] .ob-level-bars path {
-  stroke: rgba(14, 16, 21, 0.3);
+  stroke: color-mix(in srgb, var(--gr-bg-page) 30%, transparent);
 }
 
 .ob-card[aria-pressed='true'] .ob-level-bars path.is-lit {
