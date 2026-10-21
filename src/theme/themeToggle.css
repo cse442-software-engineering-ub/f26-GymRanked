@@ -1,0 +1,13 @@
+/* Dark / Light buttons. Colours are --gr- variables only (DESIGN.md), so the control itself follows the theme. */
+.theme-toggle__options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; max-width: 360px; }
+.theme-toggle__option { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 10px 16px; border: 1.5px solid var(--gr-border-strong); border-radius: var(--gr-radius-button); background: var(--gr-surface-raised); color: var(--gr-text); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+.theme-toggle__option:hover { border-color: var(--gr-action); }
+.theme-toggle__option[aria-pressed="true"] { border-color: var(--gr-action); background: var(--gr-action); color: var(--gr-text-on-orange); }
+.theme-toggle__option:focus-visible { outline: 3px solid var(--gr-brand); outline-offset: 2px; }
+.theme-toggle__options[aria-busy="true"] .theme-toggle__option { cursor: progress; }
+.theme-toggle__icon { flex: none; }
+.theme-toggle__status { margin: 12px 0 0; color: var(--gr-text-soft); font-size: 14px; }
+.theme-toggle__error { margin: 12px 0 0; padding: 10px 12px; border: 1px solid var(--gr-error); border-radius: var(--gr-radius-button); background: var(--gr-error-bg); color: var(--gr-error-text); font-size: 13px; }
+@media (max-width: 600px) {
+  .theme-toggle__options { max-width: none; }
+}

@@ -1,10 +1,17 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GymRank</title>
     <link rel="icon" href="data:," />
+    <script>
+      // Apply the remembered colour theme before anything is drawn, so a light page never flashes dark.
+      // Same storage key as src/theme/theme.js; the account's saved theme is loaded after sign-in.
+      try {
+        if (localStorage.getItem('gymrank.theme') === 'light') document.documentElement.dataset.theme = 'light'
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

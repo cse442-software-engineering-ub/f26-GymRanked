@@ -1,6 +1,168 @@
 /* Set logging on the active workout screen (story #7). Uses the shared tokens and rules in DESIGN.md:
    42px inputs with 16px text, 44px tap targets, 8px button corners, error outline and text colours. */
 
+/* Page title on the gym photo band (the band itself is src/components/GymBackdrop.jsx). */
+.wl-hero h1 {
+  margin: 4px 0 0;
+  color: var(--gr-text);
+  font-size: 30px;
+  font-weight: 600;
+}
+
+.wl-hero__eyebrow {
+  color: var(--gr-action-text);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.wl-hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin: 6px 0 0;
+  color: var(--gr-text-soft);
+  font-size: 14px;
+}
+
+.wl-hero__time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wl-hero__time svg {
+  width: 15px;
+  height: 15px;
+}
+
+.wl-page {
+  padding-top: 8px;
+}
+
+.wl-session {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Live stats for the session, styled like the Dashboard's metric tiles. */
+.wl-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 16px;
+}
+
+.wl-stat {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+}
+
+.wl-stat__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--gr-radius-inner);
+  background: var(--gr-surface-raised);
+  box-shadow: inset 0 0 0 1px var(--gr-border);
+  color: var(--gr-action-text);
+}
+
+.wl-stat__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.wl-stat__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.wl-stat__label {
+  color: var(--gr-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+.wl-stat__value {
+  color: var(--gr-text);
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.wl-stat__hint {
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+
+.wl-progress {
+  height: 4px;
+  margin-top: 6px;
+  border-radius: 2px;
+  background: var(--gr-track);
+  overflow: hidden;
+}
+
+.wl-progress span {
+  display: block;
+  height: 100%;
+  background: var(--gr-action);
+  transition: width 0.3s ease;
+}
+
+/* Shown in place of the stats once the workout is completed. */
+.wl-done {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--gr-success);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-success-bg);
+}
+
+.wl-done__icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: var(--gr-success);
+  color: var(--gr-text-on-orange);
+}
+
+.wl-done__icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.wl-done h2 {
+  margin: 0;
+  color: var(--gr-success-text);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.wl-done p {
+  margin: 4px 0 0;
+  color: var(--gr-text-soft);
+  font-size: 14px;
+}
+
 /* Exercise cards sit side by side on wide screens, like the Dashboard's cards, and stack on narrow ones. */
 .wl-workout {
   display: grid;
@@ -21,21 +183,57 @@
 
 .wl-exercise__header {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  align-items: flex-start;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
-.wl-exercise__header h3 {
-  margin: 0;
-  font-size: 16px;
+/* Numbered circle like the Dashboard's checklist markers; turns orange once the exercise has a set. */
+.wl-exercise__badge {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--gr-surface-raised);
+  color: var(--gr-text-muted);
+  font-size: 14px;
   font-weight: 600;
+}
+
+.wl-exercise__badge--started {
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+}
+
+.wl-exercise__title {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.wl-exercise__title h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.wl-exercise__muscles {
+  font-size: 13px;
+  color: var(--gr-action-text);
 }
 
 .wl-exercise__count {
   font-size: 13px;
   color: var(--gr-text-muted);
+}
+
+.wl-exercise .body-figure__view {
+  width: 26px;
+  height: 62px;
 }
 
 .wl-sets {
@@ -185,7 +383,7 @@
   font: inherit;
   font-size: 15px;
   font-weight: 600;
-  color: #d2d3d7;
+  color: var(--gr-text-subtle);
   background: none;
   border: 1px solid var(--gr-border-strong);
   border-radius: var(--gr-radius-button);
@@ -266,6 +464,27 @@
   max-width: 360px;
 }
 
+.confirm-workout-modal {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+  box-shadow: var(--gr-shadow-menu);
+  color: var(--gr-text);
+}
+
+.confirm-workout-modal h2 { margin: 0; font-size: 22px; font-weight: 500; }
+.confirm-workout-modal > p:not(.wl-message) { margin: 0; color: var(--gr-text-muted); font-size: 13px; line-height: 1.5; }
+.confirm-workout-modal .wl-button { width: 100%; }
+.confirm-workout-modal__cancel { padding: 10px; border: 0; background: none; color: var(--gr-text); font: inherit; cursor: pointer; }
+.confirm-workout-modal__cancel:disabled { opacity: .5; cursor: not-allowed; }
+.confirm-workout-modal :is(button):focus-visible { outline: 3px solid var(--gr-brand); outline-offset: 2px; }
+
 .wl-sr-only {
   position: absolute;
   width: 1px;
@@ -277,6 +496,34 @@
 
 /* Phones: inputs and buttons take the full width so nothing is cramped or needs sideways scrolling. */
 @media (max-width: 640px) {
+  .wl-hero h1 {
+    font-size: 26px;
+  }
+
+  /* Phones: the three stats share one compact row so the first exercise stays near the top. */
+  .wl-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .wl-stat {
+    padding: 12px;
+  }
+
+  .wl-stat__icon,
+  .wl-stat__hint {
+    display: none;
+  }
+
+  .wl-stat__label {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+
+  .wl-stat__value {
+    font-size: 18px;
+  }
+
   .wl-complete {
     align-items: stretch;
   }

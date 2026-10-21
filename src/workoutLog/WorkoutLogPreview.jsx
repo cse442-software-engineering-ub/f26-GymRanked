@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import NavBar from '../NavBar.jsx'
+import MobileDashboardIcon from '../MobileDashboardIcon.jsx'
+import GymBackdrop from '../components/GymBackdrop.jsx'
 import WorkoutLogger from './WorkoutLogger.jsx'
 import { createMockWorkoutLogApi } from './mockWorkoutLogApi.js'
 
@@ -40,14 +42,21 @@ export default function WorkoutLogPreview() {
   return (
     <div className="dashboard-page">
       <NavBar current="Workouts" />
-      <main className="dashboard-content">
-        <header className="dashboard-header">
-          <div>
-            <span className="dashboard-header__eyebrow">TODAY'S WORKOUT</span>
-            <h1>{SESSION.name}</h1>
-            <p>{SESSION.plan} · {SESSION.focus} · About {SESSION.minutes} min</p>
-          </div>
+      <GymBackdrop image="backdrops/dumbbells.webp" height={210} phoneHeight={180}>
+        <span />
+        <header className="wl-hero">
+          <span className="wl-hero__eyebrow">TODAY'S WORKOUT</span>
+          <h1>{SESSION.name}</h1>
+          <p className="wl-hero__meta">
+            <span>{SESSION.plan}</span>
+            <span aria-hidden="true">·</span>
+            <span>{SESSION.focus}</span>
+            <span aria-hidden="true">·</span>
+            <span className="wl-hero__time"><MobileDashboardIcon name="clock" /> About {SESSION.minutes} min</span>
+          </p>
         </header>
+      </GymBackdrop>
+      <main className="dashboard-content wl-page">
         <WorkoutLogger
           sessionId={SESSION.id}
           exercises={SESSION.exercises}

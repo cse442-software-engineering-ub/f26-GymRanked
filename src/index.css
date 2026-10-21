@@ -1,30 +1,55 @@
-/* GymRank design tokens (DESIGN.md, "CSS variables"). Use var(--gr-…) instead of writing a hex value. */
+/* GymRank design tokens (DESIGN.md, "Colour"). Every colour on the site comes from these variables; never write a
+   hex or rgb value anywhere else. Dark is the default. <html data-theme="light"> switches on the light values in
+   the block below (src/theme/theme.js sets it), so any page built with var(--gr-…) works in both themes.
+   Adding a colour? Add a variable here with a dark value AND a light value, and list it in DESIGN.md. */
 :root {
   /* Backgrounds */
   --gr-bg-page: #0e1015;
   --gr-bg-nav: #14161b;
   --gr-surface: #161820;
   --gr-surface-raised: #1d2029;
+  --gr-surface-hover: #2a2e38;
   --gr-surface-sunken: #12131a;
   --gr-track: #2a2d38;
 
   /* Text */
   --gr-text: #e8e9ec;
+  --gr-text-strong: #f4f6f9;
+  --gr-text-label: #b4b6bf;
+  --gr-text-subtle: #d2d3d7;
   --gr-text-soft: #a2a5ad;
   --gr-text-muted: #8b8d94;
   --gr-nav-inactive: #8a8f99;
   --gr-text-on-orange: #14161b;
+  --gr-on-brand: #ffffff;
 
   /* Oranges */
   --gr-brand: #f2652e;
+  --gr-brand-light: #ff792e;
+  --gr-brand-deep: #f25724;
+  --gr-brand-text: #ff7035;
+  --gr-brand-icon: #f2652e;
   --gr-action: #e0703f;
   --gr-action-text: #f2865a;
-  --gr-selected-bg: color-mix(in srgb, #e0703f 16%, #161820);
+  --gr-link: #f2652e;
+  --gr-icon-invert: 1;
+  --gr-selected-bg: color-mix(in srgb, var(--gr-action) 16%, var(--gr-surface));
 
   /* Lines */
   --gr-border: rgba(255, 255, 255, 0.06);
   --gr-border-strong: rgba(255, 255, 255, 0.08);
   --gr-control-outline: #6b6f7a;
+  --gr-control-border: #444958;
+  --gr-divider: #1e2027;
+
+  /* Form inputs (white boxes in both themes) and the neutral Login button */
+  --gr-input-bg: #ffffff;
+  --gr-input-text: #1e1e1e;
+  --gr-input-placeholder: #aaaaaa;
+  --gr-input-border: #d9d9d9;
+  --gr-neutral-button: #2c2c2c;
+  --gr-neutral-button-hover: #3b3b3b;
+  --gr-on-neutral: #f5f5f5;
 
   /* Feedback */
   --gr-success: #63c792;
@@ -34,18 +59,103 @@
   --gr-error-text: #ffb4aa;
   --gr-error-bg: rgba(255, 150, 139, 0.08);
   --gr-danger: #ff5c5c;
+  --gr-danger-text: #ff6670;
   --gr-warning: #f0cf65;
   --gr-warning-text: #f5dc8c;
   --gr-warning-bg: rgba(240, 207, 101, 0.08);
+
+  /* Phone Dashboard (its navy cards) */
+  --gr-mobile-surface: #162231;
+  --gr-mobile-raised: #243244;
+  --gr-mobile-raised-border: #344558;
+  --gr-mobile-sunken: #101b29;
+  --gr-mobile-border: #2c3b4c;
+  --gr-mobile-line: #708196;
+  --gr-mobile-text-soft: #a6b4c7;
+  --gr-mobile-icon: #f4f6f9;
+
+  /* Overlays and shadows */
+  --gr-backdrop: rgba(0, 0, 0, 0.5);
+  --gr-backdrop-strong: rgba(0, 0, 0, 0.65);
+  --gr-shadow-color: rgba(0, 0, 0, 0.3);
+  --gr-shadow-soft: rgba(0, 0, 0, 0.1);
+  --gr-shadow-drawer: rgba(0, 0, 0, 0.22);
 
   /* Shape */
   --gr-radius-card: 12px;
   --gr-radius-inner: 10px;
   --gr-radius-button: 8px;
-  --gr-shadow-menu: 0 12px 30px rgba(0, 0, 0, 0.3);
+  --gr-shadow-menu: 0 12px 30px var(--gr-shadow-color);
 
   /* Type */
   --gr-font: system-ui, sans-serif;
+}
+
+/* Light mode: the same variables with light values. Orange fills stay; orange and feedback TEXT is darker so it
+   keeps at least 4.5:1 on the light greys. Nothing is pure white except form inputs. */
+:root[data-theme="light"] {
+  --gr-bg-page: #c9cdd4;
+  --gr-bg-nav: #dde0e5;
+  --gr-surface: #dde0e5;
+  --gr-surface-raised: #d3d7dd;
+  --gr-surface-hover: #c8ccd3;
+  --gr-surface-sunken: #d6d9df;
+  --gr-track: #bfc4cc;
+
+  --gr-text: #16181d;
+  --gr-text-strong: #111318;
+  --gr-text-label: #3f444e;
+  --gr-text-subtle: #33373f;
+  --gr-text-soft: #3f444e;
+  --gr-text-muted: #4a4f59;
+  --gr-nav-inactive: #4a4f59;
+
+  --gr-brand-text: #8a3410;
+  --gr-brand-icon: #b8441a;
+  --gr-action-text: #8a3410;
+  --gr-link: #8a3410;
+  --gr-icon-invert: 0;
+
+  --gr-border: rgba(17, 19, 24, 0.12);
+  --gr-border-strong: rgba(17, 19, 24, 0.17);
+  --gr-control-outline: #6a6f79;
+  --gr-control-border: #b4b9c2;
+  --gr-divider: #c0c5cc;
+
+  --gr-input-bg: #e9ebee;
+  --gr-input-text: #16181d;
+  --gr-input-placeholder: #555a64;
+  --gr-input-border: #aeb3bc;
+  --gr-neutral-button: #16181d;
+  --gr-neutral-button-hover: #2e323a;
+  --gr-on-neutral: #dde0e5;
+
+  --gr-success: #1f7547;
+  --gr-success-text: #155a35;
+  --gr-success-bg: rgba(47, 158, 99, 0.10);
+  --gr-error: #b8302a;
+  --gr-error-text: #9a1d12;
+  --gr-error-bg: rgba(217, 68, 58, 0.08);
+  --gr-danger: #9a1d12;
+  --gr-danger-text: #9a1d12;
+  --gr-warning: #8a6300;
+  --gr-warning-text: #634500;
+  --gr-warning-bg: rgba(192, 138, 6, 0.10);
+
+  --gr-mobile-surface: #dde0e5;
+  --gr-mobile-raised: #d3d7dd;
+  --gr-mobile-raised-border: #c0c5cc;
+  --gr-mobile-sunken: #d6d9df;
+  --gr-mobile-border: #bfc4cc;
+  --gr-mobile-line: #6a7079;
+  --gr-mobile-text-soft: #4a4f59;
+  --gr-mobile-icon: #8a3410;
+
+  --gr-backdrop: rgba(17, 19, 24, 0.35);
+  --gr-backdrop-strong: rgba(17, 19, 24, 0.45);
+  --gr-shadow-color: rgba(17, 19, 24, 0.14);
+  --gr-shadow-soft: rgba(17, 19, 24, 0.08);
+  --gr-shadow-drawer: rgba(17, 19, 24, 0.12);
 }
 
 * {
@@ -55,7 +165,7 @@
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
-  background: #f5f5f5;
+  background: var(--gr-bg-page);
 }
 
 .app {
@@ -73,14 +183,14 @@ body {
 }
 
 .workout-card {
-  background: white;
+  background: var(--gr-surface);
   border-radius: 8px;
   padding: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px var(--gr-shadow-soft);
 }
 
 .status {
-  color: #555;
+  color: var(--gr-text-muted);
 }
 
 /* Failed loads (plan library, weekly plan): the error feedback colours from DESIGN.md. Page-level .status
@@ -117,8 +227,8 @@ body {
   justify-content: space-between;
   gap: 12px;
   padding: 20px 48px;
-  background: #14161b;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--gr-bg-nav);
+  border-bottom: 1px solid var(--gr-border-strong);
 }
 
 .nav-bar__brand {
@@ -134,14 +244,14 @@ body {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: #f2652e;
+  background: var(--gr-brand);
 }
 
 .nav-bar__logo svg {
   display: block;
   width: 22px;
   height: 22px;
-  color: #fff;
+  color: var(--gr-on-brand);
   stroke-width: 2.6;
 }
 
@@ -159,7 +269,7 @@ body {
 }
 
 .nav-bar__brand-name {
-  color: #e8e9ec;
+  color: var(--gr-text);
   font-size: 16px;
   font-weight: 500;
 }
@@ -173,13 +283,13 @@ body {
 }
 
 .nav-bar__link {
-  color: #8a8f99;
+  color: var(--gr-nav-inactive);
   font-weight: 500;
   text-decoration: none;
 }
 
 .nav-bar__link--current {
-  color: #e8e9ec;
+  color: var(--gr-text);
   font-weight: 600;
 }
 
@@ -194,8 +304,8 @@ body {
 }
 
 .nav-bar__start-workout {
-  background: #f2652e;
-  color: #0e1015;
+  background: var(--gr-brand);
+  color: var(--gr-text-on-orange);
   font-size: 14px;
   font-weight: 600;
   border: none;
@@ -210,8 +320,8 @@ body {
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background: #f2652e;
-  color: #0e1015;
+  background: var(--gr-brand);
+  color: var(--gr-text-on-orange);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -238,7 +348,7 @@ button.nav-bar__avatar {
   z-index: 20;
   padding: 0;
   border: 0;
-  background: rgba(0, 0, 0, 0.01);
+  background: transparent;
   cursor: default;
 }
 
@@ -251,8 +361,8 @@ button.nav-bar__avatar {
   padding: 6px 0;
   overflow: hidden;
   border-radius: 8px;
-  background: #161820;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  background: var(--gr-surface);
+  box-shadow: 0 12px 30px var(--gr-shadow-color);
 }
 
 .nav-bar__account-item,
@@ -269,21 +379,28 @@ button.nav-bar__avatar {
 }
 
 .nav-bar__account-item {
-  color: #e8e9ec;
+  color: var(--gr-text);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nav-bar__account-item:hover,
+.nav-bar__account-item:focus-visible {
+  background: var(--gr-surface-raised);
 }
 
 .nav-bar__account-item[aria-disabled="true"] {
-  color: #8a8f99;
+  color: var(--gr-nav-inactive);
 }
 
 .nav-bar__logout {
-  color: #ff5c5c;
+  color: var(--gr-danger);
   cursor: pointer;
 }
 
 .nav-bar__logout:hover:not(:disabled),
 .nav-bar__logout:focus-visible {
-  background: rgba(255, 92, 92, 0.12);
+  background: color-mix(in srgb, var(--gr-danger) 12%, transparent);
 }
 
 .nav-bar__logout:disabled {
@@ -295,8 +412,8 @@ button.nav-bar__avatar {
 
 .dashboard-page {
   min-height: 100vh;
-  background: #0e1015;
-  color: #e8e9ec;
+  background: var(--gr-bg-page);
+  color: var(--gr-text);
 }
 
 .dashboard-content {
@@ -317,7 +434,7 @@ button.nav-bar__avatar {
 .dashboard-metric__label,
 .dashboard-card__heading h2,
 .dashboard-today__heading-label span {
-  color: #8b8d94;
+  color: var(--gr-text-muted);
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.1em;
@@ -326,7 +443,7 @@ button.nav-bar__avatar {
 
 .dashboard-header h1 {
   margin: 6px 0 0;
-  color: #e8e9ec;
+  color: var(--gr-text);
   font-size: 28px;
   font-weight: 500;
   line-height: normal;
@@ -334,7 +451,7 @@ button.nav-bar__avatar {
 
 .dashboard-header p {
   margin: 6px 0 0;
-  color: #8b8d94;
+  color: var(--gr-text-muted);
   font-size: 15px;
 }
 
@@ -350,9 +467,9 @@ button.nav-bar__avatar {
   gap: 16px;
   min-width: 0;
   padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--gr-border);
   border-radius: 12px;
-  background: #161820;
+  background: var(--gr-surface);
 }
 
 .dashboard-metric__icon {
@@ -360,8 +477,8 @@ button.nav-bar__avatar {
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  background: #1d2029;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  background: var(--gr-surface-raised);
+  box-shadow: inset 0 0 0 1px var(--gr-border);
 }
 
 .dashboard-metric__body {
@@ -372,17 +489,17 @@ button.nav-bar__avatar {
 }
 
 .dashboard-metric__value {
-  color: #e8e9ec;
+  color: var(--gr-text);
   font-size: 24px;
   font-weight: 600;
 }
 
 .dashboard-metric__value--accent {
-  color: #f2865a;
+  color: var(--gr-action-text);
 }
 
 .dashboard-metric__hint {
-  color: #8b8d94;
+  color: var(--gr-text-muted);
   font-size: 13px;
 }
 
@@ -396,9 +513,9 @@ button.nav-bar__avatar {
 .dashboard-card {
   min-width: 0;
   padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--gr-border);
   border-radius: 12px;
-  background: #161820;
+  background: var(--gr-surface);
 }
 
 .dashboard-today {
@@ -477,25 +594,25 @@ button.nav-bar__avatar {
 }
 
 .dashboard-card__meta {
-  color: #8b8d94;
+  color: var(--gr-text-muted);
   font-size: 13px;
 }
 
 .dashboard-card__meta--accent {
-  color: #f2865a;
+  color: var(--gr-action-text);
   font-weight: 600;
 }
 
 .dashboard-card__title {
   margin: 8px 0 0;
-  color: #e8e9ec;
+  color: var(--gr-text);
   font-size: 22px;
   font-weight: 500;
 }
 
 .dashboard-card__text {
   margin: 12px 0 0;
-  color: #a2a5ad;
+  color: var(--gr-text-soft);
   font-size: 14px;
 }
 
@@ -541,9 +658,9 @@ button.nav-bar__avatar {
   flex-direction: column;
   margin: 12px 0;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--gr-border);
   border-radius: 10px;
-  background: #12131a;
+  background: var(--gr-surface-sunken);
   list-style: none;
 }
 
@@ -555,7 +672,7 @@ button.nav-bar__avatar {
 }
 
 .dashboard-exercise + .dashboard-exercise {
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--gr-border);
 }
 
 .dashboard-exercise__number,
@@ -567,8 +684,8 @@ button.nav-bar__avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #1d2029;
-  color: #8b8d94;
+  background: var(--gr-surface-raised);
+  color: var(--gr-text-muted);
   font-size: 13px;
   font-weight: 600;
 }
@@ -582,14 +699,14 @@ button.nav-bar__avatar {
 
 .dashboard-exercise strong,
 .dashboard-step__text strong {
-  color: #e8e9ec;
+  color: var(--gr-text);
   font-size: 15px;
   font-weight: 500;
 }
 
 .dashboard-exercise span:not(.dashboard-exercise__number),
 .dashboard-step__text span {
-  color: #8b8d94;
+  color: var(--gr-text-muted);
   font-size: 13px;
 }
 
@@ -598,8 +715,8 @@ button.nav-bar__avatar {
   padding: 12px;
   border: 0;
   border-radius: 8px;
-  background: #e0703f;
-  color: #14161b;
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -613,14 +730,14 @@ button.nav-bar__avatar {
   height: 4px;
   margin: 16px 0 4px;
   border-radius: 2px;
-  background: #2a2d38;
+  background: var(--gr-track);
   overflow: hidden;
 }
 
 .dashboard-progress span {
   display: block;
   height: 100%;
-  background: #e0703f;
+  background: var(--gr-action);
 }
 
 .dashboard-steps {
@@ -637,12 +754,12 @@ button.nav-bar__avatar {
 }
 
 .dashboard-step + .dashboard-step {
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--gr-border);
 }
 
 .dashboard-step__marker--done {
-  background: #e0703f;
-  color: #14161b;
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
 }
 
 .dashboard-step__text {
@@ -654,7 +771,7 @@ button.nav-bar__avatar {
   padding: 0;
   border: 0;
   background: transparent;
-  color: #f2865a;
+  color: var(--gr-action-text);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -664,13 +781,13 @@ button.nav-bar__avatar {
   margin: 6px 0 0;
   padding: 12px;
   border-radius: 10px;
-  background: #12131a;
-  color: #a2a5ad;
+  background: var(--gr-surface-sunken);
+  color: var(--gr-text-soft);
   font-size: 14px;
 }
 
 .dashboard-tip strong {
-  color: #e8e9ec;
+  color: var(--gr-text);
 }
 
 @media (max-width: 900px) {
@@ -703,8 +820,8 @@ button.nav-bar__avatar {
 
 .plan-library {
   min-height: 100vh;
-  background: #0e1015;
-  color: #e8e9ec;
+  background: var(--gr-bg-page);
+  color: var(--gr-text);
 }
 
 .plan-library__content {
@@ -718,17 +835,17 @@ button.nav-bar__avatar {
   margin: 0;
   font-size: 28px;
   font-weight: 500;
-  color: #e8e9ec;
+  color: var(--gr-text);
 }
 
 .plan-library__heading p {
   margin: 4px 0 0;
   font-size: 13px;
-  color: #8b8d94;
+  color: var(--gr-text-muted);
 }
 
 .plan-library .status {
-  color: #8b8d94;
+  color: var(--gr-text-muted);
 }
 
 .breadcrumb {
@@ -739,13 +856,13 @@ button.nav-bar__avatar {
 }
 
 .breadcrumb__crumb {
-  color: #8b8d94;
+  color: var(--gr-text-muted);
   padding: 3px 6px;
   border-radius: 4px;
 }
 
 .breadcrumb__crumb--current {
-  color: #e8e9ec;
+  color: var(--gr-text);
   font-weight: 500;
 }
 
@@ -759,7 +876,7 @@ button.nav-bar__avatar {
 }
 
 .breadcrumb__crumb--link:hover {
-  color: #e8e9ec;
+  color: var(--gr-text);
 }
 
 /* Plan cards: a responsive grid. Each li is a card (DESIGN.md "Card"): surface, 1px border, 12px corners. */
@@ -770,6 +887,14 @@ button.nav-bar__avatar {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
+}
+
+/* "Recommended for you" / "More plans" labels above the library's two groups of cards. */
+.plan-library__group {
+  margin: 24px 0 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gr-text-label);
 }
 
 .plan-list__item {
@@ -959,7 +1084,7 @@ button.nav-bar__avatar {
 }
 
 .plan-library .status a {
-  color: #f2865a;
+  color: var(--gr-action-text);
 }
 
 a.plan-row {
@@ -994,7 +1119,7 @@ a.plan-row:hover .plan-row__name {
   margin: 0;
   font-size: 28px;
   font-weight: 500;
-  color: #e8e9ec;
+  color: var(--gr-text);
 }
 
 .plan-details__frequency {
@@ -1002,26 +1127,26 @@ a.plan-row:hover .plan-row__name {
   flex-shrink: 0;
   font-size: 13px;
   font-weight: 500;
-  color: #f2865a;
+  color: var(--gr-action-text);
 }
 
 .plan-details__meta {
   margin: 0;
   font-size: 13px;
-  color: #8b8d94;
+  color: var(--gr-text-muted);
 }
 
 .plan-details__description {
   margin: 0;
   font-size: 14px;
-  color: #8b8d94;
+  color: var(--gr-text-muted);
 }
 
 .plan-details__subheading {
   margin: 0;
   font-size: 16px;
   font-weight: 500;
-  color: #e8e9ec;
+  color: var(--gr-text);
 }
 
 .plan-split {
@@ -1031,7 +1156,7 @@ a.plan-row:hover .plan-row__name {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  background: #161820;
+  background: var(--gr-surface);
   border-radius: 12px;
 }
 
@@ -1105,14 +1230,14 @@ a.plan-row:hover .plan-row__name {
 
 .plan-split__name {
   font-size: 14px;
-  color: #e8e9ec;
+  color: var(--gr-text);
 }
 
 .plan-split__detail {
   display: flex;
   align-items: center;
   gap: 16px;
-  color: #8b8d94;
+  color: var(--gr-text-muted);
   text-align: right;
 }
 
@@ -1189,7 +1314,7 @@ a.plan-row:hover .plan-row__name {
 }
 
 .day-card--today {
-  background: rgba(242, 101, 46, 0.15);
+  background: color-mix(in srgb, var(--gr-brand) 15%, transparent);
   border-color: var(--gr-brand);
 }
 
@@ -1248,13 +1373,13 @@ button.today-workout__start {
   min-height: 52px;
   margin-top: 12px;
   font-size: 17px;
-  box-shadow: 0 6px 18px rgba(242, 101, 46, 0.28);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--gr-brand) 28%, transparent);
   transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
 }
 
 button.today-workout__start:hover {
   background: var(--gr-brand);
-  box-shadow: 0 8px 22px rgba(242, 101, 46, 0.4);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--gr-brand) 40%, transparent);
 }
 
 button.today-workout__start:active {
@@ -1306,7 +1431,7 @@ a.today-workout__details:hover {
 .button-subtle {
   padding: 8px;
   background: none;
-  color: #d2d3d7;
+  color: var(--gr-text-subtle);
   border: none;
 }
 
@@ -1326,7 +1451,7 @@ a.today-workout__details:hover {
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--gr-backdrop);
 }
 
 .switch-plan-modal {
@@ -1345,7 +1470,7 @@ a.today-workout__details:hover {
   margin: 0;
   font-size: 22px;
   font-weight: 500;
-  color: #e8e9ec;
+  color: var(--gr-text);
 }
 
 .switch-plan-modal__body {
@@ -1357,19 +1482,19 @@ a.today-workout__details:hover {
 .switch-plan-modal__warning {
   margin: 0;
   font-size: 13px;
-  color: #8b8d94;
+  color: var(--gr-text-muted);
 }
 
 .switch-plan-modal__note {
   margin: 0;
   font-size: 12px;
-  color: #8b8d94;
+  color: var(--gr-text-muted);
 }
 
 .switch-plan-modal__error {
   margin: 0;
   font-size: 13px;
-  color: #f2865a;
+  color: var(--gr-action-text);
 }
 
 @media (max-width: 640px) {
@@ -1437,19 +1562,19 @@ a.today-workout__details:hover {
     place-items: center;
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, #ff792e, #f25724);
+    background: linear-gradient(135deg, var(--gr-brand-light), var(--gr-brand-deep));
   }
 
   .nav-bar__logo svg {
     display: block;
     width: 24px;
     height: 24px;
-    color: #fff;
+    color: var(--gr-on-brand);
     stroke-width: 2.6;
   }
 
   .nav-bar__brand-name {
-    color: #f4f6f9;
+    color: var(--gr-text-strong);
     font-size: 22px;
     font-weight: 700;
   }
@@ -1478,7 +1603,7 @@ a.today-workout__details:hover {
     width: 100%;
     height: 2px;
     border-radius: 2px;
-    background: #f4f6f9;
+    background: var(--gr-text-strong);
     transition: transform .2s ease, opacity .2s ease;
   }
 
@@ -1494,7 +1619,7 @@ a.today-workout__details:hover {
     width: 100%;
     padding: 0;
     border: 0;
-    background: rgba(0, 0, 0, .65);
+    background: var(--gr-backdrop-strong);
     opacity: 0;
     pointer-events: none;
     transition: opacity .25s ease;
@@ -1514,9 +1639,9 @@ a.today-workout__details:hover {
     min-width: 185px;
     padding: 22px 12px;
     overflow-y: auto;
-    border-right: 1px solid #2c3b4c;
+    border-right: 1px solid var(--gr-mobile-border);
     background: var(--gr-bg-nav);
-    box-shadow: 14px 0 30px rgba(0, 0, 0, .22);
+    box-shadow: 14px 0 30px var(--gr-shadow-drawer);
     transform: translateX(-100%);
     visibility: hidden;
     transition: transform .25s ease, visibility 0s linear .25s;
@@ -1530,7 +1655,7 @@ a.today-workout__details:hover {
 
   .nav-bar__mobile-caption {
     margin: 0 8px 14px;
-    color: #a6b4c7;
+    color: var(--gr-mobile-text-soft);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: .1em;
@@ -1547,7 +1672,7 @@ a.today-workout__details:hover {
     border: 0;
     border-radius: 8px;
     background: transparent;
-    color: #f2f4f8;
+    color: var(--gr-text-strong);
     font: inherit;
     font-size: 15px;
     text-decoration: none;
@@ -1559,19 +1684,19 @@ a.today-workout__details:hover {
     flex: 0 0 22px;
     width: 22px;
     height: 22px;
-    color: #a6b4c7;
+    color: var(--gr-mobile-text-soft);
   }
 
   .nav-bar__mobile-link.is-current {
-    border-left: 3px solid #f2652e;
-    background: rgba(242, 101, 46, .2);
+    border-left: 3px solid var(--gr-brand);
+    background: color-mix(in srgb, var(--gr-brand) 20%, transparent);
   }
 
-  .nav-bar__mobile-link.is-current svg { color: #f2652e; }
+  .nav-bar__mobile-link.is-current svg { color: var(--gr-brand-icon); }
   .nav-bar__mobile-link[aria-disabled="true"] { cursor: default; }
   .nav-bar__mobile-link:not([aria-disabled="true"]):hover,
-  .nav-bar__mobile-link:not([aria-disabled="true"]):focus-visible { background: rgba(242, 101, 46, .15); }
-  .nav-bar__mobile-link[href$="/workouts/today"] { margin-top: 8px; padding-top: 8px; border-top: 1px solid #2c3b4c; border-radius: 0; }
+  .nav-bar__mobile-link:not([aria-disabled="true"]):focus-visible { background: color-mix(in srgb, var(--gr-brand) 15%, transparent); }
+  .nav-bar__mobile-link[href$="/workouts/today"] { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--gr-mobile-border); border-radius: 0; }
 
   .nav-bar__mobile-account {
     display: flex;
@@ -1579,9 +1704,9 @@ a.today-workout__details:hover {
     gap: 12px;
     margin: 12px 0 0;
     padding: 18px 10px;
-    border-top: 1px solid #2c3b4c;
-    border-bottom: 1px solid #2c3b4c;
-    color: #f2f4f8;
+    border-top: 1px solid var(--gr-mobile-border);
+    border-bottom: 1px solid var(--gr-mobile-border);
+    color: var(--gr-text-strong);
     font-size: 14px;
     overflow-wrap: anywhere;
   }
@@ -1592,22 +1717,22 @@ a.today-workout__details:hover {
     place-items: center;
     height: 38px;
     border-radius: 50%;
-    background: #344558;
+    background: var(--gr-mobile-raised-border);
   }
 
-  .nav-bar__mobile-logout { margin-top: 14px; color: #ff6670; cursor: pointer; }
-  .nav-bar__mobile-logout svg { color: #ff6670; }
-  .nav-bar__mobile-error { padding: 10px; color: #ffb4aa; font-size: 12px; }
+  .nav-bar__mobile-logout { margin-top: 14px; color: var(--gr-danger-text); cursor: pointer; }
+  .nav-bar__mobile-logout svg { color: var(--gr-danger-text); }
+  .nav-bar__mobile-error { padding: 10px; color: var(--gr-error-text); font-size: 12px; }
 
   .dashboard-content { gap: 12px; padding: 24px 18px 36px; }
-  .dashboard-header__eyebrow { color: #ff7035; font-size: 12px; font-weight: 700; }
-  .dashboard-header h1 { margin-top: 6px; color: #f4f6f9; font-size: clamp(25px, 7vw, 34px); font-weight: 700; }
-  .dashboard-header p { margin-top: 6px; color: #a6b4c7; font-size: 16px; line-height: 1.35; }
+  .dashboard-header__eyebrow { color: var(--gr-brand-text); font-size: 12px; font-weight: 700; }
+  .dashboard-header h1 { margin-top: 6px; color: var(--gr-text-strong); font-size: clamp(25px, 7vw, 34px); font-weight: 700; }
+  .dashboard-header p { margin-top: 6px; color: var(--gr-mobile-text-soft); font-size: 16px; line-height: 1.35; }
   .dashboard-header__desktop-copy { display: none; }
   .dashboard-header__mobile-copy { display: block; }
 
   .dashboard-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 8px; }
-  .dashboard-metric { gap: 10px; min-height: 78px; padding: 14px; border-color: #2c3b4c; background: #162231; }
+  .dashboard-metric { gap: 10px; min-height: 78px; padding: 14px; border-color: var(--gr-mobile-border); background: var(--gr-mobile-surface); }
   .dashboard-metric:first-child { grid-column: 1 / -1; }
   .dashboard-metric:not(:first-child) { display: grid; grid-template-columns: 32px minmax(0, 1fr); align-items: start; min-height: 94px; }
   .dashboard-metric:not(:first-child) .dashboard-metric__icon { align-self: center; }
@@ -1615,43 +1740,43 @@ a.today-workout__details:hover {
   .dashboard-metric:not(:first-child) .dashboard-metric__label { align-self: start; }
   .dashboard-metric:not(:first-child) .dashboard-metric__value { align-self: start; font-size: clamp(15px, 4.4vw, 20px); line-height: 24px; white-space: nowrap; }
   .dashboard-metric__icon { display: grid; flex: 0 0 32px; place-items: center; width: 32px; height: 36px; border: 0; background: transparent; box-shadow: none; }
-  .dashboard-metric__icon svg { display: block; width: 30px; height: 30px; color: #ff7035; stroke-width: 2.5; }
-  .dashboard-metric__label { color: #a6b4c7; font-size: 10px; line-height: 1.2; letter-spacing: .03em; }
+  .dashboard-metric__icon svg { display: block; width: 30px; height: 30px; color: var(--gr-brand-text); stroke-width: 2.5; }
+  .dashboard-metric__label { color: var(--gr-mobile-text-soft); font-size: 10px; line-height: 1.2; letter-spacing: .03em; }
   .dashboard-metric__value,
-  .dashboard-metric__value--accent { color: #f4f6f9; font-size: clamp(18px, 5vw, 22px); line-height: 1.15; }
+  .dashboard-metric__value--accent { color: var(--gr-text-strong); font-size: clamp(18px, 5vw, 22px); line-height: 1.15; }
   .dashboard-metric__hint { display: none; }
 
   .dashboard-overview { gap: 12px; }
-  .dashboard-card { padding: 18px; border-color: #2c3b4c; background: #162231; }
+  .dashboard-card { padding: 18px; border-color: var(--gr-mobile-border); background: var(--gr-mobile-surface); }
   .dashboard-today__heading-label { gap: 3px 5px; }
   .dashboard-today__heading-label h2,
-  .dashboard-today__heading-label span { color: #f4f6f9; font-size: clamp(13px, 4.2vw, 18px); font-weight: 700; letter-spacing: 0; text-transform: none; }
+  .dashboard-today__heading-label span { color: var(--gr-text-strong); font-size: clamp(13px, 4.2vw, 18px); font-weight: 700; letter-spacing: 0; text-transform: none; }
   .dashboard-today:not(.dashboard-today--planned) { padding: 22px 20px; }
-  .dashboard-today:not(.dashboard-today--planned) .dashboard-card__heading { padding-bottom: 16px; border-bottom: 1px solid #2c3b4c; }
+  .dashboard-today:not(.dashboard-today--planned) .dashboard-card__heading { padding-bottom: 16px; border-bottom: 1px solid var(--gr-mobile-border); }
   .dashboard-today:not(.dashboard-today--planned) .dashboard-card__text { margin-top: 10px; line-height: 1.5; }
   .dashboard-today:not(.dashboard-today--planned) .dashboard-primary-action--spaced { margin-top: 24px; }
   .dashboard-today .dashboard-card__meta { display: none; }
   .dashboard-today--planned > .dashboard-card__title,
   .dashboard-today--planned > .dashboard-card__text { display: none; }
   .dashboard-today__mobile-summary { display: flex; align-items: center; gap: 14px; margin: 16px 0 8px; }
-  .dashboard-today__mobile-icon { display: grid; flex: 0 0 54px; place-items: center; height: 54px; border-radius: 50%; background: #f2652e; }
-  .dashboard-today__mobile-icon svg { width: 30px; height: 30px; color: #fff; }
+  .dashboard-today__mobile-icon { display: grid; flex: 0 0 54px; place-items: center; height: 54px; border-radius: 50%; background: var(--gr-brand); }
+  .dashboard-today__mobile-icon svg { width: 30px; height: 30px; color: var(--gr-on-brand); }
   .dashboard-today__mobile-summary > div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-  .dashboard-today__mobile-summary strong { color: #f4f6f9; font-size: 22px; }
-  .dashboard-today__mobile-summary span:not(.dashboard-today__mobile-icon) { color: #a6b4c7; font-size: 14px; }
+  .dashboard-today__mobile-summary strong { color: var(--gr-text-strong); font-size: 22px; }
+  .dashboard-today__mobile-summary span:not(.dashboard-today__mobile-icon) { color: var(--gr-mobile-text-soft); font-size: 14px; }
   .dashboard-today__mobile-summary .dashboard-today__mobile-duration { display: flex; align-items: center; gap: 6px; }
   .dashboard-today__mobile-duration svg { width: 16px; height: 16px; }
   .dashboard-today:not(.dashboard-today--planned) .dashboard-card__title { margin-top: 20px; font-size: 21px; font-weight: 700; }
 
   .dashboard-exercises { margin: 8px 0 12px; border: 0; border-radius: 0; background: transparent; }
-  .dashboard-exercise { gap: 12px; min-height: 54px; padding: 7px 0; border-top: 1px solid #2c3b4c; }
-  .dashboard-exercise + .dashboard-exercise { border-top-color: #2c3b4c; }
+  .dashboard-exercise { gap: 12px; min-height: 54px; padding: 7px 0; border-top: 1px solid var(--gr-mobile-border); }
+  .dashboard-exercise + .dashboard-exercise { border-top-color: var(--gr-mobile-border); }
   .dashboard-exercise__number { display: none; }
-  .dashboard-exercise__mobile-icon { display: grid; flex: 0 0 38px; place-items: center; height: 38px; border: 1px solid #344558; border-radius: 8px; background: #243244; }
-  .dashboard-exercise__mobile-icon svg { width: 22px; height: 22px; color: #f4f6f9; }
-  .dashboard-exercise strong { color: #f4f6f9; font-size: 15px; }
-  .dashboard-exercise__chevron { display: block; width: 18px; height: 18px; margin-left: auto; color: #a6b4c7; }
-  .dashboard-primary-action { padding: 13px; background: #f2652e; color: var(--gr-text-on-orange); font-size: 16px; }
+  .dashboard-exercise__mobile-icon { display: grid; flex: 0 0 38px; place-items: center; height: 38px; border: 1px solid var(--gr-mobile-raised-border); border-radius: 8px; background: var(--gr-mobile-raised); }
+  .dashboard-exercise__mobile-icon svg { width: 22px; height: 22px; color: var(--gr-mobile-icon); }
+  .dashboard-exercise strong { color: var(--gr-text-strong); font-size: 15px; }
+  .dashboard-exercise__chevron { display: block; width: 18px; height: 18px; margin-left: auto; color: var(--gr-mobile-text-soft); }
+  .dashboard-primary-action { padding: 13px; background: var(--gr-brand); color: var(--gr-text-on-orange); font-size: 16px; }
   .dashboard-primary-action--spaced { margin-top: 10px; }
   .dashboard-desktop-only { display: none; }
   .dashboard-mobile-only { display: inline; }
@@ -1659,15 +1784,15 @@ a.today-workout__details:hover {
   .dashboard-checklist .dashboard-card__heading,
   .dashboard-checklist__desktop-title,
   .dashboard-checklist .dashboard-progress { display: none; }
-  .dashboard-checklist__mobile-title { display: block; margin: 0 0 12px; color: #f4f6f9; font-size: 22px; font-weight: 700; }
+  .dashboard-checklist__mobile-title { display: block; margin: 0 0 12px; color: var(--gr-text-strong); font-size: 22px; font-weight: 700; }
   .dashboard-step { position: relative; align-items: flex-start; gap: 14px; padding: 12px 0; border: 0; }
   .dashboard-step + .dashboard-step { border: 0; }
-  .dashboard-step:not(:last-child)::after { content: ''; position: absolute; top: 39px; bottom: -12px; left: 10px; border-left: 2px dashed #708196; }
-  .dashboard-step__marker { width: 22px; height: 22px; border: 2px solid #a6b4c7; background: transparent; color: transparent; font-size: 0; }
-  .dashboard-step__marker--done { border-color: #f2652e; background: #f2652e; color: #fff; font-size: 12px; }
-  .dashboard-step__text strong { color: #f4f6f9; font-size: 15px; }
-  .dashboard-step__text span { color: #a6b4c7; font-size: 13px; }
-  .dashboard-tip { background: #101b29; }
+  .dashboard-step:not(:last-child)::after { content: ''; position: absolute; top: 39px; bottom: -12px; left: 10px; border-left: 2px dashed var(--gr-mobile-line); }
+  .dashboard-step__marker { width: 22px; height: 22px; border: 2px solid var(--gr-mobile-text-soft); background: transparent; color: transparent; font-size: 0; }
+  .dashboard-step__marker--done { border-color: var(--gr-brand); background: var(--gr-brand); color: var(--gr-on-brand); font-size: 12px; }
+  .dashboard-step__text strong { color: var(--gr-text-strong); font-size: 15px; }
+  .dashboard-step__text span { color: var(--gr-mobile-text-soft); font-size: 13px; }
+  .dashboard-tip { background: var(--gr-mobile-sunken); }
 }
 
 @media (max-width: 380px) {
