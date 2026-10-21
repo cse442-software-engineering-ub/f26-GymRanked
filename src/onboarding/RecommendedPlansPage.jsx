@@ -60,7 +60,7 @@ function RecommendedPlans() {
         title="Choose your workout plan"
         subtitle={
           setup?.goal
-            ? `Plans for ${GOAL_LABELS[setup.goal]} at your experience level. Pick one to start.`
+            ? `Plans for ${GOAL_LABELS[setup.goal]} that fit your experience and equipment. Pick one to start.`
             : 'Plans that fit your experience and equipment. Pick one to start.'
         }
       />
@@ -82,7 +82,7 @@ function RecommendedPlans() {
       )}
       {ready && setup && recommended.length === 0 && (
         <p className="ob-message ob-message--error" role="status">
-          No plans match your goal and level yet. <Link to="/plans">Browse all plans</Link>.
+          No plans match your goal, level and equipment yet. <Link to="/plans">Browse all plans</Link>.
         </p>
       )}
 
