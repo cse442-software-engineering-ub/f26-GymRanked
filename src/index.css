@@ -889,6 +889,14 @@ button.nav-bar__avatar {
   gap: 16px;
 }
 
+/* "Recommended for you" / "More plans" labels above the library's two groups of cards. */
+.plan-library__group {
+  margin: 24px 0 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gr-text-label);
+}
+
 .plan-list__item {
   position: relative;
   display: flex;

@@ -26,17 +26,22 @@ export function equipmentList(items) {
   return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`
 }
 
-// Plans for the user's goal at or below their experience level. Plans they can do with what they have
-// come first, then plans closest to their level; plans needing more equipment stay in the list (marked).
+// Plans that fit everything the user saved: their goal, at or below their experience level, and only
+// equipment they have. The closest level to theirs comes first. Plans needing other equipment are left
+// out here; the library still lists them after the recommended ones, marked with what they need.
 export function recommendPlans(plans, { goal, experience, equipment }) {
   const userRank = LEVEL_RANK[experience] ?? 0
   return plans
     .filter((plan) => (!goal || plan.goals.includes(goal)) && LEVEL_RANK[plan.level] <= userRank)
     .map((plan) => ({ ...plan, missing_equipment: missingEquipment(plan, equipment) }))
-    .sort(
-      (a, b) =>
-        a.missing_equipment.length - b.missing_equipment.length ||
-        LEVEL_RANK[b.level] - LEVEL_RANK[a.level] ||
-        a.id - b.id,
-    )
+    .filter((plan) => plan.missing_equipment.length === 0)
+    .sort((a, b) => LEVEL_RANK[b.level] - LEVEL_RANK[a.level] || a.id - b.id)
+}
+
+// The plan library's order: recommended plans first, then every other plan once in the API's order.
+// Without a saved setup nothing is recommended, so the library keeps its normal order.
+export function orderByRecommendation(plans, setup) {
+  const recommended = setup ? recommendPlans(plans, setup) : []
+  const picked = new Set(recommended.map((plan) => plan.id))
+  return { recommended, others: plans.filter((plan) => !picked.has(plan.id)) }
 }
