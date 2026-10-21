@@ -9,7 +9,7 @@ globalThis.localStorage = {
   removeItem: (key) => store.delete(key),
 }
 
-const { EMPTY_DRAFT, loadDraft, saveDraft } = await import('../src/setDraft.js')
+const { EMPTY_DRAFT, clearUnloggedSets, findUnloggedExercise, hasUnloggedSet, loadDraft, saveDraft } = await import('../src/setDraft.js')
 
 test('a set in progress comes back with its timer and typed values', () => {
   const draft = { ...EMPTY_DRAFT, timer: 'running', accumulatedMs: 4000, runningSince: 1700000000000, weight: '135', reps: '8' }
@@ -38,4 +38,28 @@ test('broken or missing storage gives a fresh set', () => {
   assert.deepEqual(loadDraft(7, 'Barbell row'), EMPTY_DRAFT)
   store.set('gymrank.setDraft.7.Barbell row', JSON.stringify({ timer: 'bogus' }))
   assert.deepEqual(loadDraft(7, 'Barbell row'), EMPTY_DRAFT)
+})
+
+test('a started or typed set is unlogged; a rest countdown alone is not', () => {
+  assert.equal(hasUnloggedSet(EMPTY_DRAFT), false)
+  assert.equal(hasUnloggedSet({ ...EMPTY_DRAFT, restEndsAt: Date.now() + 60000, restTotal: 90 }), false)
+  assert.equal(hasUnloggedSet({ ...EMPTY_DRAFT, timer: 'running', runningSince: Date.now() }), true)
+  assert.equal(hasUnloggedSet({ ...EMPTY_DRAFT, weight: '100' }), true)
+  assert.equal(hasUnloggedSet({ ...EMPTY_DRAFT, reps: ' 8 ' }), true)
+})
+
+test('findUnloggedExercise returns the first exercise with an unlogged set', () => {
+  saveDraft(21, 'Squat', { ...EMPTY_DRAFT, weight: '200' })
+  saveDraft(21, 'Lunge', { ...EMPTY_DRAFT, timer: 'paused', accumulatedMs: 3000 })
+  assert.equal(findUnloggedExercise(21, ['Press', 'Lunge', 'Squat']), 'Lunge')
+  assert.equal(findUnloggedExercise(22, ['Press', 'Lunge', 'Squat']), null)
+})
+
+test('clearUnloggedSets removes unlogged sets but keeps a rest countdown', () => {
+  const rest = { ...EMPTY_DRAFT, restEndsAt: Date.now() + 60000, restTotal: 90 }
+  saveDraft(23, 'Squat', { ...EMPTY_DRAFT, weight: '200', reps: '5' })
+  saveDraft(23, 'Press', rest)
+  clearUnloggedSets(23, ['Squat', 'Press'])
+  assert.deepEqual(loadDraft(23, 'Squat'), EMPTY_DRAFT)
+  assert.equal(loadDraft(23, 'Press').restTotal, 90)
 })
