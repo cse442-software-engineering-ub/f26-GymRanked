@@ -839,9 +839,17 @@ button.nav-bar__avatar {
 }
 
 .plan-library__heading p {
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   font-size: 13px;
   color: var(--gr-text-muted);
+}
+
+.plan-library__heading .plan-library__eyebrow {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .plan-library .status {
@@ -885,23 +893,54 @@ button.nav-bar__avatar {
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
+}
+
+/* Five columns on wide screens, three on medium, two on tablets, one on phones (the recommended row
+   becomes a swipeable carousel there, see the 640px block below). */
+@media (max-width: 1399px) {
+  .plan-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 899px) {
+  .plan-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .plan-list {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* "Recommended for you" / "More plans" labels above the library's two groups of cards. */
 .plan-library__group {
-  margin: 24px 0 12px;
-  font-size: 1rem;
+  margin: 0 0 12px;
+  font-size: 1.125rem;
   font-weight: 600;
-  color: var(--gr-text-label);
+  color: var(--gr-text);
+}
+
+.plan-library__group + .plan-library__reason {
+  margin-top: -8px;
+}
+
+.plan-library__reason {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--gr-text-muted);
 }
 
 .plan-list__item {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
+  height: 100%;
   padding: 20px;
   background: var(--gr-surface);
   border: 1px solid var(--gr-border);
@@ -922,6 +961,8 @@ button.nav-bar__avatar {
 .plan-list__item--current,
 .plan-list__item--current:hover {
   border-color: var(--gr-action);
+  box-shadow: 0 0 0 1px var(--gr-action);
+  background: color-mix(in srgb, var(--gr-action) 6%, var(--gr-surface));
 }
 
 .plan-list__select svg {
@@ -961,27 +1002,21 @@ button.nav-bar__avatar {
   font-weight: 600;
 }
 
-.plan-row {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.plan-row__info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-}
-
 .plan-row__name {
   margin: 0;
-  font-size: 16px;
-  line-height: 1.35;
+  font-size: 18px;
+  line-height: 1.3;
   font-weight: 500;
   color: var(--gr-text);
+}
+
+.plan-row__name a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.plan-row__name a:hover {
+  text-decoration: underline;
 }
 
 .level-badge {
@@ -1018,12 +1053,7 @@ button.nav-bar__avatar {
   color: var(--gr-text-muted);
 }
 
-/* Days per week sits above the name, like the card eyebrows elsewhere. */
 .plan-row__frequency {
-  order: -1;
-  margin: 0;
-  font-size: 12px;
-  font-weight: 600;
   color: var(--gr-action-text);
 }
 
@@ -1070,6 +1100,7 @@ button.nav-bar__avatar {
   border: none;
   border-radius: var(--gr-radius-button);
   min-height: 44px;
+  margin-top: auto;
   padding: 12px;
   font-size: 15px;
   font-weight: 600;
@@ -1087,13 +1118,219 @@ button.nav-bar__avatar {
   color: var(--gr-action-text);
 }
 
-a.plan-row {
-  color: inherit;
+/* Plan library: preferences summary, card parts, carousel dots */
+.plan-prefs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding: 16px 20px;
+  background: var(--gr-surface);
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+}
+
+.plan-prefs__list {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px 24px;
+  margin: 0;
+}
+
+.plan-prefs__item {
+  min-width: 0;
+}
+
+.plan-prefs__item dt {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gr-text-muted);
+}
+
+.plan-prefs__item dd {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--gr-text);
+  overflow-wrap: anywhere;
+}
+
+.plan-prefs__chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.plan-prefs__chips li {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--gr-surface-raised);
+  box-shadow: inset 0 0 0 1px var(--gr-border);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.plan-prefs__edit {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--gr-control-border);
+  border-radius: var(--gr-radius-button);
+  color: var(--gr-text);
+  font-size: 14px;
+  font-weight: 600;
   text-decoration: none;
 }
 
-a.plan-row:hover .plan-row__name {
-  text-decoration: underline;
+.plan-prefs__edit:hover {
+  border-color: var(--gr-action);
+  color: var(--gr-action-text);
+}
+
+.plan-card__focus {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gr-action-text);
+}
+
+.plan-card__summary {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--gr-text-soft);
+}
+
+.plan-card__stats {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: start;
+  gap: 8px 20px;
+  margin: 0;
+}
+
+.plan-card__stats dt {
+  font-size: 12px;
+  color: var(--gr-text-muted);
+}
+
+.plan-card__stats dd {
+  margin: 2px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gr-text);
+}
+
+.plan-card__fit {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.plan-card__fit--ok {
+  color: var(--gr-success-text);
+}
+
+.plan-card__fit--short {
+  color: var(--gr-warning-text);
+}
+
+.plan-card__header a:focus-visible,
+.plan-list__select:focus-visible,
+.plan-prefs__edit:focus-visible,
+.plan-dots__dot:focus-visible {
+  outline: 3px solid var(--gr-brand);
+  outline-offset: 3px;
+}
+
+.plan-dots {
+  display: none;
+}
+
+@media (max-width: 899px) {
+  .plan-prefs__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .plan-prefs__item--wide {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Phones: the recommended plans are a swipeable row that snaps card by card, with the next card peeking
+   in; the dots below follow it. "More plans" stays a stacked list. */
+@media (max-width: 640px) {
+  .plan-prefs__edit {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .plan-list--carousel {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    margin: 0 -20px;
+    padding: 0 20px 4px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 20px;
+    scrollbar-width: none;
+  }
+
+  .plan-list--carousel::-webkit-scrollbar {
+    display: none;
+  }
+
+  .plan-list--carousel > li {
+    flex: 0 0 82%;
+    scroll-snap-align: start;
+  }
+
+  .plan-dots {
+    display: flex;
+    justify-content: center;
+    margin-top: 4px;
+  }
+
+  .plan-dots__dot {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+
+  .plan-dots__dot::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--gr-text-muted);
+    opacity: 0.6;
+  }
+
+  .plan-dots__dot[aria-current='true']::before {
+    width: 24px;
+    background: var(--gr-action);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: no-preference) {
+  .plan-dots__dot::before {
+    transition: width 120ms ease, background-color 120ms ease;
+  }
 }
 
 /* Plan details */

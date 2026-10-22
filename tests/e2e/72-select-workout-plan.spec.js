@@ -101,7 +101,7 @@ async function expectDashboardFollowing(page, planName) {
 
 async function selectFirstPlan(page, planName) {
   await page.goto('#/plans')
-  await planRow(page, planName).getByRole('button', { name: 'Select' }).click()
+  await planRow(page, planName).getByRole('button', { name: 'Choose plan' }).click()
   await expectDashboardFollowing(page, planName)
 }
 
@@ -122,21 +122,24 @@ acceptanceTests(
         await expect(page.locator('.your-setup').getByRole('link', { name: 'Edit' })).toBeVisible()
         await page.getByRole('link', { name: 'Browse all plans' }).click()
         await expect(page).toHaveURL(/#\/plans$/)
-        await expect(page.locator('.your-setup .your-setup__value')).toHaveText(YOUR_SETUP)
-        await expect(planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Select' })).toBeEnabled()
+        await expect(page.locator('.plan-prefs')).toContainText('Strength')
+        await expect(page.locator('.plan-prefs')).toContainText('Intermediate')
+        await expect(page.locator('.plan-prefs')).toContainText('Full gym access')
+        await expect(page.locator('.plan-prefs').getByRole('link', { name: 'Edit preferences' })).toBeVisible()
+        await expect(planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Choose plan' })).toBeEnabled()
         await expect(page.getByText('to choose a plan')).toHaveCount(0)
       })
 
-      await step('Step 1: the library lists 10 plans with their details and a Select button', async () => {
-        await expect(page.getByRole('heading', { name: 'Workout plan library' })).toBeVisible()
-        await expect(page.getByText('Browse all training programs.')).toBeVisible()
+      await step('Step 1: the library lists 10 plans with their details and a Choose plan button', async () => {
+        await expect(page.getByRole('heading', { name: 'Find your next workout plan' })).toBeVisible()
+        await expect(page.getByText('Browse all training programs')).toBeVisible()
         const rows = page.locator('.plan-list__item')
         await expect(rows).toHaveCount(10)
         for (const row of await rows.all()) {
           await expect(row.locator('.plan-row__name')).not.toBeEmpty()
           await expect(row.locator('.plan-row__meta')).toHaveText(/^(Beginner|Intermediate|Advanced) · \S+ weeks$/)
           await expect(row.locator('.plan-row__frequency')).toHaveText(/^\d days\/wk$/)
-          await expect(row.getByRole('button', { name: 'Select' })).toBeVisible()
+          await expect(row.getByRole('button', { name: 'Choose plan' })).toBeVisible()
         }
         await expect(planRow(page, 'Push Pull Legs')).toContainText('Intermediate · 6-8 weeks')
         await expect(planRow(page, 'Push Pull Legs')).toContainText('5 days/wk')
@@ -169,7 +172,7 @@ acceptanceTests(
       await step('Step 4: "Plans" in the breadcrumb returns to the library', async () => {
         await page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Plans' }).click()
         await expect(page).toHaveURL(/#\/plans$/)
-        await expect(page.getByRole('heading', { name: 'Workout plan library' })).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'Find your next workout plan' })).toBeVisible()
       })
 
       await step('Step 5: "Bodyweight Basics" shows its own details', async () => {
@@ -189,15 +192,15 @@ acceptanceTests(
         await newOnboardedAccount(page, 'Plans Tester A')
       })
 
-      await step('Step 1: "Browse all plans" opens the library, with working Select buttons', async () => {
+      await step('Step 1: "Browse all plans" opens the library, with working Choose plan buttons', async () => {
         await page.getByRole('link', { name: 'Browse all plans' }).click()
         await expect(page).toHaveURL(/#\/plans$/)
-        await expect(planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Select' })).toBeEnabled()
+        await expect(planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Choose plan' })).toBeEnabled()
         await expect(page.getByText('to choose a plan')).toHaveCount(0)
       })
 
       await step('Step 2: selecting "Push Pull Legs" opens the Dashboard, then "Workouts" shows it as your weekly plan', async () => {
-        await planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Select' }).click()
+        await planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Choose plan' }).click()
         await expect(switchDialog(page)).toHaveCount(0)
         await expectDashboardFollowing(page, 'Push Pull Legs')
         await goTo(page, 'Workouts')
@@ -243,7 +246,7 @@ acceptanceTests(
 
     3: async ({ page }) => {
       const dialog = switchDialog(page)
-      const selectFullBody = planRow(page, 'Full Body Strength').getByRole('button', { name: 'Select' })
+      const selectFullBody = planRow(page, 'Full Body Strength').getByRole('button', { name: 'Choose plan' })
 
       await step('Setup: log in with "Push Pull Legs" as your plan (where Acceptance Test 2 ends)', async () => {
         await newOnboardedAccount(page, 'Plans Tester A')
@@ -304,7 +307,7 @@ acceptanceTests(
       await step('Step 7: the library shows the new current plan, and the old one can be selected', async () => {
         await goTo(page, 'Plans')
         await expect(planRow(page, 'Full Body Strength').getByRole('button', { name: 'Current plan' })).toBeDisabled()
-        await expect(planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Select' })).toBeEnabled()
+        await expect(planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Choose plan' })).toBeEnabled()
       })
     },
 
@@ -363,7 +366,7 @@ acceptanceTests(
 
       await step('Step 6: the second account picks "Glute Focus"', async () => {
         await page.getByRole('link', { name: 'Browse workout plans' }).click()
-        await planRow(page, 'Glute Focus').getByRole('button', { name: 'Select' }).click()
+        await planRow(page, 'Glute Focus').getByRole('button', { name: 'Choose plan' }).click()
         await expectDashboardFollowing(page, 'Glute Focus')
         await page.goto('#/weekly-plan')
         await expectWeeklyPlan(page, 'Glute Focus')

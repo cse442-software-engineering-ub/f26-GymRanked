@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Breadcrumb from './Breadcrumb.jsx'
 import NavBar from './NavBar.jsx'
-import PlanListRow from './PlanListRow.jsx'
+import PlanCard from './PlanCard.jsx'
+import PlanCarousel from './PlanCarousel.jsx'
+import PlanPreferences from './PlanPreferences.jsx'
 import PlanSelectionStatus from './PlanSelectionStatus.jsx'
 import { fetchPlans } from './plansApi.js'
 import { missingEquipment, orderByRecommendation } from './planEquipment.js'
 import usePlanSelection from './usePlanSelection.jsx'
-import YourSetup from './YourSetup.jsx'
 
 function WorkoutPlanLibrary() {
   const [plans, setPlans] = useState(null)
@@ -16,42 +17,27 @@ function WorkoutPlanLibrary() {
   const { setup } = selection
   const navigate = useNavigate()
 
-  // The whole card opens the plan's details; its button, link and equipment dot keep their own actions.
+  // The whole card opens the plan's details; its button and link keep their own actions.
   function openDetails(event, plan) {
-    if (event.target.closest('button, a, .equipment-dot')) return
+    if (event.target.closest('button, a')) return
     navigate(`/plans/${plan.id}`)
   }
 
   const { recommended, others } = orderByRecommendation(plans ?? [], setup)
+  const currentPlan = (plans ?? []).find((plan) => plan.id === selection.currentPlanId)
 
   function renderPlan(plan) {
-    const isCurrent = selection.currentPlanId === plan.id
     return (
-      <li
-        key={plan.id}
-        className={`plan-list__item${isCurrent ? ' plan-list__item--current' : ''}`}
-        onClick={(event) => openDetails(event, plan)}
-      >
-        <PlanListRow plan={plan} missing={setup ? missingEquipment(plan, setup.equipment) : null} />
-        <button
-          type="button"
-          className="plan-list__select"
-          onClick={() => selection.requestSelect(plan)}
-          disabled={!selection.canSelect || isCurrent}
-        >
-          {isCurrent ? (
-            <>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M5 12.5l4.5 4.5L19 7.5" />
-              </svg>
-              Current plan
-            </>
-          ) : selection.busyPlanId === plan.id ? (
-            'Selecting...'
-          ) : (
-            'Select'
-          )}
-        </button>
+      <li key={plan.id}>
+        <PlanCard
+          plan={plan}
+          missing={setup ? missingEquipment(plan, setup.equipment) : null}
+          isCurrent={selection.currentPlanId === plan.id}
+          busy={selection.busyPlanId === plan.id}
+          canSelect={selection.canSelect}
+          onSelect={() => selection.requestSelect(plan)}
+          onOpen={(event) => openDetails(event, plan)}
+        />
       </li>
     )
   }
@@ -67,11 +53,12 @@ function WorkoutPlanLibrary() {
       <NavBar current="Plans" />
       <main className="plan-library__content">
         <Breadcrumb crumbs={[{ label: 'Weekly plan', to: '/weekly-plan' }, { label: 'Plans' }]} />
-        <div className="plan-library__heading">
-          <h1>Workout plan library</h1>
-          <p>Browse all training programs.</p>
-        </div>
-        <YourSetup setup={setup} />
+        <header className="plan-library__heading">
+          <p className="plan-library__eyebrow">Training library</p>
+          <h1>Find your next workout plan</h1>
+          <p>Browse all training programs and pick the one that fits your goal, schedule and equipment.</p>
+        </header>
+        <PlanPreferences setup={setup} currentPlan={currentPlan} />
         <PlanSelectionStatus loggedOut={selection.loggedOut} notice={selection.notice} />
         {error && (
           <p className="status status--error" role="alert">
@@ -84,10 +71,19 @@ function WorkoutPlanLibrary() {
         )}
         {!error && plans !== null && plans.length > 0 && (
           <>
-            {recommended.length > 0 && <h2 className="plan-library__group">Recommended for you</h2>}
-            {recommended.length > 0 && <ul className="plan-list">{recommended.map(renderPlan)}</ul>}
-            {recommended.length > 0 && others.length > 0 && <h2 className="plan-library__group">More plans</h2>}
-            {others.length > 0 && <ul className="plan-list">{others.map(renderPlan)}</ul>}
+            {recommended.length > 0 && (
+              <section aria-labelledby="plans-recommended">
+                <h2 id="plans-recommended" className="plan-library__group">Recommended plans</h2>
+                <p className="plan-library__reason">Matches your goal, level and equipment.</p>
+                <PlanCarousel plans={recommended} label="Recommended plans" renderPlan={renderPlan} />
+              </section>
+            )}
+            {others.length > 0 && (
+              <section aria-labelledby="plans-all">
+                <h2 id="plans-all" className="plan-library__group">{recommended.length > 0 ? 'More plans' : 'All plans'}</h2>
+                <PlanCarousel plans={others} label={recommended.length > 0 ? 'More plans' : 'All plans'} renderPlan={renderPlan} />
+              </section>
+            )}
           </>
         )}
       </main>
