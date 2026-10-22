@@ -1,5 +1,6 @@
 <?php
 // GET api/plans.php -> [{"id":1,"name":"...","level":"beginner","duration_weeks":"8","days_per_week":3,
+//                         "focus":"...","summary":"...","intensity":"high","session_minutes":45,
 //                         "goals":["strength"],"required_equipment":["barbell"]}, ...]
 //
 // Public catalog of workout plans for the workout plan library screen; not tied to a
@@ -39,7 +40,12 @@ try {
     $db->set_charset('utf8mb4');
 
     $result = $db->query(
-        'SELECT id, name, level, duration_weeks, days_per_week FROM workout_plans ORDER BY id'
+        'SELECT p.id, p.name, p.level, p.duration_weeks, p.days_per_week, p.focus, p.summary, p.intensity,
+                ROUND(AVG(d.duration_minutes)) AS session_minutes
+         FROM workout_plans p
+         LEFT JOIN workout_plan_days d ON d.plan_id = p.id
+         GROUP BY p.id
+         ORDER BY p.id'
     );
 
     // goals and required_equipment come from 008_plan_requirements.sql; [] when a plan has none.
@@ -56,6 +62,8 @@ try {
     while ($row = $result->fetch_assoc()) {
         $row['id'] = (int) $row['id'];
         $row['days_per_week'] = (int) $row['days_per_week'];
+        // focus, summary and intensity come from 011_plan_card_details.sql; session_minutes is null for a plan with no days.
+        $row['session_minutes'] = $row['session_minutes'] === null ? null : (int) $row['session_minutes'];
         $row['goals'] = $goals[$row['id']] ?? [];
         $row['required_equipment'] = $equipment[$row['id']] ?? [];
         $plans[] = $row;

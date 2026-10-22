@@ -81,12 +81,12 @@ acceptanceTests('86-home-dashboard.md', {
     await step('Setup: Sofia chooses Beginner Fundamentals', () => accountWithPlan(page, 'Sofia Switch', { level: 'Intermediate' }))
     await step('Step 1: Plans opens the workout plan library', async () => {
       await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Plans' }).click()
-      await expect(page.getByRole('heading', { name: 'Workout plan library' })).toBeVisible()
-      await expect(page.getByText('Browse all training programs.')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Find your next workout plan' })).toBeVisible()
+      await expect(page.getByText('Browse all training programs')).toBeVisible()
     })
     await step('Step 2: Bodyweight Basics opens the switch dialog', async () => {
       const row = page.locator('.plan-list__item').filter({ has: page.getByText('Bodyweight Basics', { exact: true }) })
-      await row.getByRole('button', { name: 'Select' }).click()
+      await row.getByRole('button', { name: 'Choose plan' }).click()
       await expect(page.getByRole('dialog')).toContainText('Switch to Bodyweight Basics?')
       await expect(page.getByRole('dialog')).toContainText("reset this week's progress")
     })
@@ -127,7 +127,7 @@ acceptanceTests('86-home-dashboard.md', {
     })
     await step('Step 4: Browse workout plans opens the library', async () => {
       await todayCard(page).getByRole('button', { name: /Browse workout plans/ }).click()
-      await expect(page.getByRole('heading', { name: 'Workout plan library' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Find your next workout plan' })).toBeVisible()
     })
   },
 
