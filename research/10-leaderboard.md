@@ -16,6 +16,10 @@ Mansur's proposed ranking plan: the score is your best estimated 1RM ÷ your bod
 reach on bench press, back squat or deadlift; and the tier cutoffs are placeholders. If his worked examples change, the
 numbers here change with them.
 
+Updated 2026-10-23 to Mansur's rules in "Ranking rules and data": the Overall score is each lift's ratio ÷ that lift's
+Gold cutoff (the best of the three), only sets of 1 to 10 reps in finished workouts count, and other people's rows show
+no weights in lb.
+
 ### Who takes part
 
 | | A. Opt-in public tier boards (recommended) | B. Friends only |
@@ -56,11 +60,14 @@ system. The reasons:
    your bodyweight").
 3. You view other rankings with three controls: the tier badges, an **Everyone | Friends** switch (Friends is marked
    "Later"), and the tabs **Overall**, **Bench press**, **Back squat** and **Deadlift**. Rows show the rank, first name
-   and last initial, the lift, the ratio to bodyweight and the estimated 1RM in lb. Ties share a rank (4, 4, 6). Opening
-   a tier you're not in shows "You're in Gold, so you're not on this board" (D3/P3).
+   and last initial, the lift and the score. On a lift board the score is the ratio to bodyweight ("1.12×"). On Overall
+   it's each lift's ratio ÷ that lift's Gold cutoff, the best of the three ("1.12"). Other people's weights in lb are
+   never shown, because a ratio and a weight together reveal someone's bodyweight; your own weights stay on your card.
+   Ties share a rank (9, 9, 11). Opening a tier you're not in shows "You're in Gold, so you're not on this board"
+   (D3/P3).
 4. You find your position in three places:
-   - The "Your standing" card shows your tier, your rank on the current board ("#24 of 38") and your three lifts, each
-     with its ratio, its lb and how many lb you need for the next tier.
+   - The "Your standing" card shows your tier, your rank on the current board ("#15 of 38"), your Overall score ("Score
+     1.12 · bench press") and your three lifts, each with its ratio, its lb and how many lb you need for the next tier.
    - In the table, your row is highlighted and marked "You". The board shows the top 10, `· · ·`, then you ±1 (D1, D2).
    - On a phone, your row stays pinned to the bottom of the screen while the top 10 is in view (P1b).
 5. A "What you need for each tier" table turns the cutoffs into lb at your bodyweight, with ticks on the tiers you've
@@ -81,7 +88,7 @@ system. The reasons:
 All frames are on the Figma page linked above, at 1440 wide (desktop) and 375 wide (phone). Every frame also has a
 light-mode copy ("— light"), and every colour comes from the app's `--gr-` colour tokens in `src/index.css`.
 
-- D1/P1: ranked, Gold, Overall, with you outside the top 10 and a tie at 4
+- D1/P1: ranked, Gold, Overall, with you outside the top 10 and a tie at 9
 - P1b: phone scrolled to the top 10, with your row pinned to the bottom
 - D2/P2: ranked, Gold, Bench press board (Mansur's example: #14, 1.12×, 225 lb to Platinum)
 - D3/P3: viewing another tier (Platinum), where you're not on the board
@@ -102,11 +109,12 @@ of them is an existing seed user, so stories 8, 9 and 18 keep their numbers. Boa
 initial.
 
 - `Casey Morgan`, email `casey.morgan@example.com`: has joined, bodyweight 180 lb, more than 3 finished workouts. Best
-  estimated 1RMs: bench press 202 lb, back squat 284 lb, deadlift 330 lb. Gold on all three lifts, #24 of 38 on Gold's
-  Overall board and #14 on its Bench press board.
+  estimated 1RMs: bench press 202 lb, back squat 284 lb, deadlift 330 lb. Gold on all three lifts, #15 of 38 on Gold's
+  Overall board (score 1.12, from bench press) and #14 on its Bench press board.
 - 37 other Gold members (Derek K., Andre S. … Hannah B., as in the sketches), 7 Platinum members and nobody in Diamond.
-  Jordan B. and Chris O. tie at 1.96× on Overall.
-- `Luis Ortega`, email `luis.ortega@example.com`: a Gold member (#23, Deadlift 1.84×), used to look at the board as
+  Mei T. (bench press) and Maya R. (back squat) tie at 1.16 on Overall, and Chris O. and Sofia M. tie at 1.18× on Bench
+  press.
+- `Luis Ortega`, email `luis.ortega@example.com`: a Gold member (#14 on Overall, 1.13), used to look at the board as
   someone else.
 - `Robin Hale`, email `robin.hale@example.com`: has joined, bodyweight saved, a bench press logged, 2 finished workouts.
 - `Max Tester`, email `max.tester@example.com`: marked as a test account. Has joined, bodyweight 180 lb, 10 finished
@@ -138,14 +146,14 @@ initial.
 4. Log out, log back in and select **Leaderboard**. Confirm that steps 1 and 2 are still ticked and step 2 still says
    `180 lb`.
 5. Log in as `casey.morgan@example.com` and select **Leaderboard**. Confirm that no row on any board shows anyone's
-   bodyweight, only names, ratios and estimated 1RMs.
+   bodyweight or a weight in lb, only names, lifts and scores.
 
 #### Acceptance Test 3: A ranked person sees their tier, their three lifts and their own place on the board
 
 **Setup:** Log in as `casey.morgan@example.com` and select **Leaderboard**.
 
-1. Confirm that your card shows `Casey Morgan`, the tier `Gold`, `Bodyweight 180 lb` and `Rank in Gold · Overall`
-   `#24 of 38`.
+1. Confirm that your card shows `Casey Morgan`, the tier `Gold`, `Bodyweight 180 lb` and `Rank in Gold · Overall` `#15
+   of 38` with `Score 1.12 · bench press`.
 2. Confirm that the three lift boxes show `Bench press` `1.12×` `202 lb est. 1RM`, `Back squat` `1.58×`
    `284 lb est. 1RM` and `Deadlift` `1.83×` `330 lb est. 1RM`, with `23 lb to Platinum (225 lb)`,
    `31 lb to Platinum (315 lb)` and `30 lb to Platinum (360 lb)`.
@@ -153,16 +161,18 @@ initial.
    lock, and that the text under them says `Gold`, `38 people in Gold` and
    `Next is Platinum: a 225 lb bench press, 315 lb back squat or 360 lb deadlift at your bodyweight.`
 4. Confirm that **Everyone** and **Overall** are selected.
-5. Confirm that the table lists ranks 1 to 10, starting with `Derek K.` `Deadlift` `1.99×` `418 lb`, then a `· · ·`
-   gap, then ranks 23, 24 and 25: `Luis O.` `1.84×`, `Casey M.` `1.83×` and `Hannah B.` `1.81×`.
+5. Confirm that the table shows the first ten people, starting with `Tom R.` `Bench press` `1.24`, then a `· · ·` gap,
+   then `14` `Luis O.` `1.13`, `15` `Casey M.` `1.12` and `16` `Hannah B.` `1.10`. Confirm that no row shows a weight in
+   lb.
 6. Confirm that Casey's row is highlighted and marked `You`, and that no other row is.
 
 #### Acceptance Test 4: People with the same score share a rank and the next rank is skipped
 
 **Setup:** Log in as Casey as in Acceptance Test 3 and select **Leaderboard**.
 
-1. On the Overall board, confirm that `Jordan B.` and `Chris O.` both show rank `4` and `1.96×`, and that the next row
-   is rank `6` (`Elena P.`, `1.95×`). No row has rank 5.
+1. On the Overall board, confirm that `Mei T.` (`Bench press`) and `Maya R.` (`Back squat`) both show rank `9` and
+   `1.16`, in that order, so scores from different lifts can tie. Confirm that no row has rank 10, and that `Chris O.`
+   and `Sofia M.` share rank `6` with `Nina A.` next at rank `8`.
 2. Select the **Bench press** tab. Confirm that `Chris O.` and `Sofia M.` both show rank `6` and `1.18×`, that the next
    row is rank `8`, and that Casey's card now says `Rank in Gold · Bench press` `#14 of 38`.
 
@@ -173,8 +183,8 @@ initial.
 1. Select each of **Bench press**, **Back squat** and **Deadlift**. Confirm that each tab is shown as selected, that the
    rows are ordered from the highest ratio down, and that Casey's row is highlighted on each one.
 2. Select the **Platinum** badge. Confirm that the text under the badges says `Platinum` and `7 people in Platinum`,
-   that a note says `You're in Gold, so you're not on this board.`, that seven rows are listed starting with `Priya R.`
-   `2.24×`, and that no row is marked `You`.
+   that a note says `You're in Gold, so you're not on this board.`, that seven rows are listed starting with `Ines F.`
+   `Bench press` `1.41` and `Lena V.` `Back squat` `1.32`, and that no row is marked `You`.
 3. Select the **Diamond** badge. Confirm that the page says `No one is in Diamond yet` with the weights Diamond needs at
    180 lb (`270 lb` bench press, `360 lb` back squat, `450 lb` deadlift). Select **Back to your tier (Gold)**, and
    confirm that the Gold board returns.
@@ -202,17 +212,17 @@ initial.
 
 #### Acceptance Test 8: Leaving the leaderboard from Profile takes you off it straight away
 
-**Setup:** Log in as Casey and select **Leaderboard**. Confirm that Casey is `#24 of 38` on Gold's Overall board.
+**Setup:** Log in as Casey and select **Leaderboard**. Confirm that Casey is `#15 of 38` on Gold's Overall board.
 
 1. Select **Leaderboard settings** on Casey's card. Confirm that the Profile page opens with a `Leaderboard` card
    showing **Show me on the leaderboard** switched on, and `Bodyweight` `180 lb`.
 2. Turn **Show me on the leaderboard** off.
 3. In another browser (or a private window), log in as `luis.ortega@example.com` (a Gold member) and select
    **Leaderboard**. Confirm that `Casey M.` isn't on Gold's Overall board, that the board says `37 people in Gold`, and
-   that rank 24 is now `Hannah B.`.
+   that rank 15 is now `Hannah B.`.
 4. As Casey, select **Leaderboard** again. Confirm that Casey is `Unranked`, and that step 1 offers
    **Join the leaderboard** again while the bodyweight and workout steps stay ticked.
-5. Select **Join the leaderboard**. Confirm that Casey is back at `#24` on Gold's Overall board.
+5. Select **Join the leaderboard**. Confirm that Casey is back at `#15` on Gold's Overall board.
 
 #### Acceptance Test 9: The leaderboard needs a login, works on a phone, and recovers from an error
 
@@ -221,9 +231,9 @@ initial.
 1. Go to `#/leaderboard` while logged out. Confirm that you're sent to the Login page and no ranks are shown.
 2. Log in as Casey. Turn on the device toolbar and pick a 375 × 812 phone size. Select **Leaderboard**. Confirm that
    everything fits without scrolling sideways, that all five tier badges fit on one line, and that each row shows the
-   rank, the name, the lift and weight underneath, and the ratio.
-3. Scroll so the top 10 is on screen. Confirm that Casey's row (`24`, `Casey M.`, `1.83×`) stays pinned to the bottom
-   of the screen, and that it stops being pinned once Casey's own row in the list scrolls into view.
+   rank, the name, the lift underneath and the score, with no weight in lb.
+3. Scroll so the top 10 is on screen. Confirm that Casey's row (`15`, `Casey M.`, `Bench press`, `1.12`) stays pinned to
+   the bottom of the screen, and that it stops being pinned once Casey's own row in the list scrolls into view.
 4. In DevTools, block requests to `leaderboard.php` (Network > right-click the request > Block request URL) and reload.
    Confirm that the page says `Couldn't load the leaderboard. Check your connection and try again.` with a
    **Try again** button, and shows no tiers, rows or `Unranked`.
@@ -233,7 +243,9 @@ initial.
 
 ### Open questions
 
-Each question shows the assumption the sketches make, and who decides it.
+Each question shows the assumption the sketches make, and who decides it. Mansur answered the ones marked *(Mansur)*
+in "Ranking rules and data" below, and his answers match these assumptions except question 5, which now follows his
+answer.
 
 1. **Is joining separate from saving a bodyweight?** Assumption: yes. A joined flag is set by **Join the leaderboard**
    and cleared by the Profile switch. A saved bodyweight alone doesn't make anyone public. *(Mansur)*
@@ -244,9 +256,9 @@ Each question shows the assumption the sketches make, and who decides it.
 4. **The first example had Derek K. at 1.38× on bench press inside Gold, but 1.38× is Platinum on bench press.**
    Assumption: within a tier, every ratio stays below the next tier's cutoff (the Gold bench press board tops out at
    1.24×). *(Mansur)*
-5. **Overall uses each person's best raw ratio, so deadlifts nearly always win** (Gold starts at 1.00× bench press,
-   1.50× back squat and 1.75× deadlift). Assumption: the sketches show raw ratios. Suggestion: score each lift against
-   its own cutoffs. *(Mansur)*
+5. **How is Overall scored?** Answered by Mansur: each lift's ratio ÷ that lift's Gold cutoff, the best of the three.
+   The sketches and tests now use it. Within a tier this lets bench press score up to 1.25 but back squat only 1.17 and
+   deadlift 1.14, so bench press now tops most Overall boards (see "Coordinated recommendation"). *(Mansur, PM)*
 6. **Should strength be compared separately by sex and age?** Hevy and Tonal both do; our ratio doesn't. *(For PM)*
 7. **Which exercises count?** Assumption: only `Bench press`, `Back squat` and `Deadlift`, not variations such as
    Goblet squat or Romanian deadlift. *(Mansur)*
@@ -593,16 +605,34 @@ New questions from this section:
 
 ## Coordinated recommendation
 
-*Draft by Mansur. Sam confirms or edits before the PM meeting.*
+*Drafted by Mansur on 2026-10-22, edited by Sam on 2026-10-23. Mansur confirms before the PM meeting.*
 
 Build **option A for participation (opt-in tier boards, all time)** with **strength ratio as the score**, in this order:
 
-1. Migration `011_leaderboard.sql` and `database/seeds/leaderboard.sql` (backend, #114's follow-up card).
+1. Migration `011_leaderboard.sql` and `database/seeds/leaderboard.sql` (backend, #114's follow-up card). The seed holds
+   both sets of people: Sam's acceptance-test people (Casey Morgan and the boards in the sketches) and Mansur's
+   backend-test people (Ana, Ben, Cy and the others), so the two sets of tests agree.
 2. `GET api/leaderboard.php`: boards, tiers, `me` and the unranked checklist fields.
 3. `POST` and `DELETE api/leaderboard.php`: join, leave and bodyweight.
 4. The Leaderboard page, the "Four steps to get ranked" card, the tier ladder and the Profile card (frontend).
-5. Later: the Friends board, with the invite system story #78 needs.
+5. `stories/10-leaderboard.md` from the approved acceptance tests, and its Playwright spec.
+6. Later: the Friends board, with the invite system story #78 needs.
 
-Changes this makes to the sketches: Overall shows normalized scores (D1/P1), and other people's rows drop the estimated
-1RM in lb. The acceptance tests above use Sam's seed people, and the backend tests use the example people in this file;
-the seed should include both sets so the two agree.
+Both of us agree on: the join, bodyweight, 3-workout and big-3 rule for who is ranked; test accounts flagged with
+`users.is_test`; all time; the per-lift tier table; Overall as each lift's ratio ÷ that lift's Gold cutoff; first name
+and last initial, shortened on the server; and no weights in lb on other people's rows.
+
+Done on 2026-10-23: the sketches (D1/P1, D3/P3, D9/P9, P1b and their light copies) and the proposed acceptance tests now
+show normalized Overall scores and no weights in lb on other people's rows.
+
+For the PM to decide:
+
+1. **Overall leans towards bench press at the top of each tier.** After dividing by the Gold cutoff, a Gold bench press
+   can score up to 1.25, a back squat 1.17 and a deadlift 1.14 (the gap to the Platinum cutoff differs per lift). In the
+   sketches nearly every top-10 Overall score comes from bench press. An alternative is to score how far each lift is
+   through its tier: (ratio − this tier's cutoff) ÷ (next tier's cutoff − this tier's cutoff), which runs from 0 to 1
+   for every lift.
+2. **Sets of more than 10 reps are ignored on the leaderboard only.** The Progress page (#110) estimates 1RM from every
+   set, so the same lift can show two different estimates. The leaderboard card says its numbers come "from sets of 1 to
+   10 reps"; Progress could adopt the same rule later.
+3. Comparing by sex and age, the placeholder cutoffs, and whether a higher bodyweight can drop someone to a lower tier.
