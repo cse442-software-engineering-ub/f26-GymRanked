@@ -3,7 +3,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { authRequest } from '../auth/api.js'
 import { syncAccountTheme } from '../theme/theme.js'
 import { apiRequest } from './api.js'
-import { allowedOnboardingPaths, requiredOnboardingRoute } from './onboardingRoute.js'
+import { isAuthPath, requiredOnboardingRoute, signedInRedirect } from './onboardingRoute.js'
 
 export default function OnboardingGate() {
   const location = useLocation()
@@ -13,6 +13,8 @@ export default function OnboardingGate() {
   useEffect(() => {
     let active = true
     const path = location.pathname
+    // Keep this handoff for the current visit: RecommendedPlansPage clears the history state after mounting.
+    const equipmentJustSaved = path === '/recommended' && location.state?.setupSaved === true
     setCheck({ path, status: 'loading' })
 
     async function checkAccount() {
@@ -34,6 +36,7 @@ export default function OnboardingGate() {
             path,
             status: 'ready',
             required: requiredOnboardingRoute(goalResult.data.training_goal, setupResult.data),
+            equipmentJustSaved,
           })
         }
       } catch (error) {
@@ -48,7 +51,9 @@ export default function OnboardingGate() {
   if (check.path !== location.pathname || check.status === 'loading') {
     return <main className="status" role="status">Checking your account setup…</main>
   }
-  if (check.status === 'signed-out') return <Navigate to="/login" replace />
+  if (check.status === 'signed-out') {
+    return isAuthPath(location.pathname) ? <Outlet /> : <Navigate to="/login" replace />
+  }
   if (check.status === 'error') {
     return <main className="status" role="alert">
       <p>We couldn’t check your account setup. Try again.</p>
@@ -56,8 +61,7 @@ export default function OnboardingGate() {
     </main>
   }
 
-  if (check.required && !allowedOnboardingPaths(check.required).includes(location.pathname)) {
-    return <Navigate to={check.required} replace />
-  }
+  const redirect = signedInRedirect(location.pathname, check.required, check.equipmentJustSaved)
+  if (redirect) return <Navigate to={redirect} replace />
   return <Outlet />
 }

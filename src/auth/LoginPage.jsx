@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Brand from './Brand.jsx'
 import FormField from './FormField.jsx'
@@ -16,13 +16,6 @@ export default function LoginPage() {
   const loggedOut = message === 'You are logged out.'
   const accountCreated = message === 'Account created. Log in to continue.'
   const invalidCredentials = failure === 'Invalid email or password.'
-  useEffect(() => {
-    let active = true
-    authRequest('session').then(data => {
-      if (active) navigate('/dashboard', { replace: true, state: { fullName: data.user.full_name } })
-    }).catch(() => {})
-    return () => { active = false }
-  }, [navigate])
   const change = event => {
     const { name, value, checked, type } = event.target
     setValues(previous => ({ ...previous, [name]: type === 'checkbox' ? checked : value }))
