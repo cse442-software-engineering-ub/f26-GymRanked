@@ -27,9 +27,9 @@ const testPagesAllowed = import.meta.env.DEV || TEST_PAGE_HOSTS.includes(window.
 function App() {
   return (
     <HashRouter><Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegistrationPage />} />
       <Route element={<OnboardingGate />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegistrationPage />} />
         {testPagesAllowed && <Route path="/dev/workout-log" element={<WorkoutLogPreview />} />}
         {testPagesAllowed && <Route path="/dev/workout-summary" element={<WorkoutSummaryPage preview />} />}
         <Route path="/workouts/today" element={<ActiveWorkoutPage />} />
