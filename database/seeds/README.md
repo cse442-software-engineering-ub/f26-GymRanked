@@ -72,6 +72,16 @@ mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < datab
 
 Rerunning it is safe: it resets Taylor's account and replaces Taylor's workouts with the same three, dated from the day you load it, and doesn't touch any other account.
 
+## Accounts from before body weight and gender
+
+`personal_details.sql` adds four accounts that look like they were created before the Personal details step existed (story #116, card #117): `personal-details1@test.com` to `personal-details4@test.com`, full names Personal Details1 to Personal Details4, all with the password `ABC12345678@`. Each has finished onboarding (Strength, Beginner, Full gym access) and the Beginner Fundamentals plan, and has no saved body weight or gender. It needs every migration up to `012_user_profile.sql`. Load it after `test_users.sql`:
+
+```bash
+mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < database/seeds/personal_details.sql
+```
+
+Rerunning it is safe: it resets these four accounts, including deleting any body weight and gender they saved, and doesn't touch any other account.
+
 ## If you get "Too many attempts"
 
 Login allows 10 attempts per email every 15 minutes. Clear the counter with:
@@ -85,7 +95,7 @@ mysql -u root cse442_2026_fall_team_y_db -e "DELETE FROM auth_attempts;"
 Anyone who reads this file can log in as these users, so remove them before a database holds real users:
 
 ```bash
-mysql -u root cse442_2026_fall_team_y_db -e "DELETE FROM users WHERE email IN ('marcus.malone@example.com', 'dana.lee@example.com', 'priya.shah@example.com', 'sean.obrien@example.com', 'jordan.kim@example.com', 'riley.brooks@example.com', 'taylor.reed@example.com');"
+mysql -u root cse442_2026_fall_team_y_db -e "DELETE FROM users WHERE email IN ('marcus.malone@example.com', 'dana.lee@example.com', 'priya.shah@example.com', 'sean.obrien@example.com', 'jordan.kim@example.com', 'riley.brooks@example.com', 'taylor.reed@example.com', 'personal-details1@test.com', 'personal-details2@test.com', 'personal-details3@test.com', 'personal-details4@test.com');"
 ```
 
 Their sessions and logged workouts are deleted automatically with the accounts.
