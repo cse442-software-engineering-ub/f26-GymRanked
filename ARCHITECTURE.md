@@ -50,6 +50,7 @@ In production, the proxy is not involved — the built frontend and the PHP API 
 | `api/workout_history.php` | The user's completed workouts, newest first. |
 | `api/exercise_progress.php` | The user's performance totals and trends over their completed workouts (volume, estimated 1RM, strength change, personal records, per-exercise points). See [Exercise progress API](#exercise-progress-api-story-8). |
 | `api/theme.php` | GET/POST the signed-in account's colour theme (`dark` or `light`, default `dark`), stored in `user_theme`. |
+| `api/personal_details.php` | GET/POST the signed-in account's body weight (lb, 50 to 700, one decimal) and gender (`woman`, `man`, `nonbinary`, `prefer_not_to_say`), stored in `user_profile` (`database/migrations/012_user_profile.sql`). An account that never saved them reads as `null`, `null`, `complete: false`. |
 | `api/workout_common.php` | Shared helpers for the workout endpoints above (login check, set validation, JSON shapes); not an endpoint. |
 | `api/config.example.php` | Template for local database settings — copy to `api/config.php` (gitignored) and edit there. Never commit real credentials; the example file must only ever contain placeholders. |
 
