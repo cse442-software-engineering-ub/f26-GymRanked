@@ -2405,6 +2405,70 @@ a.today-workout__details:hover {
   margin: 10px 0 8px;
 }
 
+.exercise-guide__button {
+  align-self: flex-start;
+  color: var(--gr-action-text);
+  border-color: var(--gr-action);
+}
+
+.exercise-guide__button:hover {
+  background: var(--gr-selected-bg);
+}
+
+.exercise-guide-modal {
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  box-sizing: border-box;
+  background: var(--gr-surface);
+  border-radius: var(--gr-radius-card);
+  box-shadow: var(--gr-shadow-menu);
+}
+
+.exercise-guide-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.exercise-guide-modal__header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--gr-text);
+}
+
+.exercise-guide-modal__video {
+  width: 100%;
+  max-height: 340px;
+  object-fit: contain;
+  background: var(--gr-surface-sunken);
+  border-radius: var(--gr-radius-inner);
+}
+
+.exercise-guide-modal h3 {
+  margin: 8px 0 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.exercise-guide-modal ol,
+.exercise-guide-modal ul {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--gr-text-subtle);
+}
+
 .exercise-session__set {
   padding: 28px;
 }

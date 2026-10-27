@@ -1,0 +1,171 @@
+Task 119: Integrate Workout API (WorkoutX exercise guide on the exercise page)
+
+Run these locally. Setup for every test:
+- Start MySQL, PHP and Vite as in TestingAndDebuggingGuide.md -> Local testing (PHP on http://localhost:8000 serving
+  the api folder, Vite on http://localhost:5173/CSE442/2026-Fall/cse-442y/).
+- api/config.php defines WORKOUTX_API_KEY with a real WorkoutX key (api/config.example.php shows the line).
+- Log in on the command line and keep the cookie (use the Marcus Malone password from database/seeds/README.md):
+    curl -s -c jar.txt -X POST http://localhost:8000/login.php -H 'Content-Type: application/json' -d '{"email":"marcus.malone@example.com","password":"<password>"}'
+  Expected: status 200 and a body starting {"user":{"id":
+- The browser tests need Marcus to have finished onboarding (goal, experience, equipment) and to have the Push Pull
+  Legs plan, with a "Push" workout whose first exercise is "Bench press".
+- Each test that reaches WorkoutX uses 1 of the free plan's 500 requests a month; the cache keeps repeats free.
+
+Test 1: The guide endpoint refuses people who are not logged in
+1. Run: curl -s -i "http://localhost:8000/exercise_guide.php?name=Bench%20press"
+
+Expected outcome: status 401 and the body {"error":"Please log in."}. No request is made to WorkoutX.
+
+Test 2: A mapped exercise returns its steps, tips and media links
+1. Delete the cached copy so this call reaches WorkoutX. Run:
+     rm -f "$(php -r 'echo sys_get_temp_dir();')"/gymrank_workoutx_ex_SAWOOH.json
+2. Run: curl -s -b jar.txt -i "http://localhost:8000/exercise_guide.php?name=Bench%20press"
+3. Run again with a different capitalisation: curl -s -b jar.txt "http://localhost:8000/exercise_guide.php?name=BENCH%20PRESS"
+
+Expected outcome: step 2 shows status 200 and Content-Type application/json. The body has "id":"ex_SAWOOH",
+"name":"Barbell Bench Press", "instructions" with 4 strings, "tips" with 3 strings, "video" starting
+https://workoutx-media.workoutx-media-worker.workers.dev/ and ending in .mp4 plus a query string, "poster" ending in
+.jpg plus a query string, and "watermarked":true (free plan). The body contains neither your API key nor the text
+"X-WorkoutX-Key". Step 3 returns the same body.
+
+Test 3: The result is cached, and the browser may keep it for 30 minutes
+1. Delete the cached copy as in Test 2 step 1.
+2. Run: curl -s -b jar.txt -o /dev/null -w "%{http_code} %{time_total}s\n" "http://localhost:8000/exercise_guide.php?name=Bench%20press"
+3. Run the same command again.
+4. Run: curl -s -b jar.txt -D - -o /dev/null "http://localhost:8000/exercise_guide.php?name=Bench%20press" | grep -i cache-control
+5. Run: ls "$(php -r 'echo sys_get_temp_dir();')"/gymrank_workoutx_ex_SAWOOH.json
+
+Expected outcome: step 2 prints "200" with a time of about 1 second or more (it waits for WorkoutX; about 3 s
+when this was written). Step 3 prints "200" with a time under 0.1s. Step 4 prints "Cache-Control: private,
+max-age=1800". Step 5 lists the file.
+
+Test 4: An exercise with no guide returns 404
+1. Run: curl -s -b jar.txt -i "http://localhost:8000/exercise_guide.php?name=Broad%20jump"
+2. Run: curl -s -b jar.txt -i "http://localhost:8000/exercise_guide.php?name=Not%20a%20real%20exercise"
+
+Expected outcome: both show status 404 and the body {"error":"No guide for this exercise."}. Neither call
+reaches WorkoutX.
+
+Test 5: Bad requests are refused
+1. Run: curl -s -b jar.txt -i "http://localhost:8000/exercise_guide.php"
+2. Run: curl -s -b jar.txt -i "http://localhost:8000/exercise_guide.php?name=%20%20"
+3. Run: curl -s -b jar.txt -i "http://localhost:8000/exercise_guide.php?name=$(printf 'a%.0s' $(seq 1 101))"
+4. Run: curl -s -b jar.txt -i -X POST "http://localhost:8000/exercise_guide.php?name=Bench%20press"
+
+Expected outcome: steps 1 to 3 show status 400 and {"error":"Send an exercise name."}. Step 4 shows status 405, an
+"Allow: GET" header and {"error":"Method not allowed."}.
+
+Test 6: A missing API key gives a clean error, not a crash
+1. In api/config.php, comment out the WORKOUTX_API_KEY line (put // in front of it).
+2. Run: curl -s -b jar.txt -i "http://localhost:8000/exercise_guide.php?name=Bench%20press"
+3. Put the line back exactly as it was and run the same command again.
+
+Expected outcome: step 2 shows status 503 and {"error":"The exercise guide is unavailable."} (even though a cached
+copy exists), and the PHP error log has "WORKOUTX_API_KEY is not set in config.php". Step 3 shows status 200 with the
+Test 2 body.
+
+Test 7: An invalid WorkoutX key gives a clean error
+1. In api/config.php, change the key to the text wrong-key.
+2. Delete the cached copy as in Test 2 step 1.
+3. Run: curl -s -b jar.txt -i "http://localhost:8000/exercise_guide.php?name=Bench%20press"
+4. Restore the real key and run the same command again.
+
+Expected outcome: step 3 shows status 503 and {"error":"The exercise guide is unavailable."}, with no key or
+WorkoutX error text in the body; the PHP error log has a line starting "exercise_guide: WorkoutX answered 401"
+(or another non-200 status). Step 4 shows status 200.
+
+Test 8: The API key never reaches the browser
+1. Run: npm run build
+2. Run: grep -rl "wx_" dist || echo none
+3. Run: grep -rn "WORKOUTX" src || echo none
+4. Open the exercise page in Chrome (see Test 9), open DevTools -> Network, reload, and open the requests to
+   exercise_guide.php and to the workers.dev media URLs.
+
+Expected outcome: steps 2 and 3 print "none". In step 4 no request, header or response contains the key, and the
+browser never sends a request to api.workoutxapp.com (only to workers.dev for the video and poster).
+
+Test 9: The exercise page shows a "How to perform it" button
+1. In Chrome at 1440x900, open http://localhost:5173/CSE442/2026-Fall/cse-442y/ and log in as Marcus Malone.
+2. Open Workouts, start today's workout, and open the first exercise, "Bench press"
+   (http://localhost:5173/CSE442/2026-Fall/cse-442y/#/workout/active/0).
+
+Expected outcome: under the heading "Bench press" and the muscle list there is an outlined orange button with the
+text "How to perform it", above the "Set 1" card. The set timer, "Start set" button and the "Return to workout" /
+"Finish exercise" buttons still work as before. The page does not show the steps or the video until the button is
+used.
+
+Test 10: The button opens a pop-up with the video and description
+1. On the Test 9 page, click "How to perform it".
+2. Check the pop-up. Wait 2 seconds.
+3. Press the Tab key once.
+
+Expected outcome: a dimmed backdrop and a dialog titled "Barbell Bench Press" appear. It shows a video that plays
+automatically, silently, and loops (with the "WorkoutX API" watermark on the free plan), then the heading "Steps"
+with 4 numbered steps starting "Lie on a flat bench", then "Form tips" with 3 bullets starting "Keep your feet flat".
+Keyboard focus is inside the dialog (the "Close" button is focused when it opens).
+
+Test 11: The pop-up closes three ways and returns focus to the button
+1. Open the pop-up as in Test 10 and click "Close".
+2. Open it again and press the Escape key.
+3. Open it again and click the dimmed area outside the dialog.
+4. Open it again and click inside the dialog on the steps text.
+
+Expected outcome: steps 1 to 3 each close the dialog, and the "How to perform it" button has keyboard focus
+afterwards. Step 4 does not close it.
+
+Test 12: The video does not wait for the click
+1. Open DevTools -> Network, filter on "mp4", disable cache, and reload the exercise page.
+2. Note whether an .mp4 request appears. Then move the mouse over the "How to perform it" button without clicking.
+3. Click the button.
+
+Expected outcome: after step 1 a poster .jpg request appears but no .mp4 request. In step 2 an .mp4 request starts as
+soon as the pointer is over the button. In step 3 the dialog opens with the video already loaded (no second
+download of the same file) and playing within a second.
+
+Test 13: An exercise with no guide, or a failed request, shows no button and breaks nothing
+1. Open DevTools -> Network, right-click the exercise_guide.php request, choose "Block request URL", and reload the
+   exercise page.
+2. Click "Start set", wait 2 seconds, click "Finish set", enter weight 135 and reps 8, and click "Log set".
+3. Unblock the URL.
+
+Expected outcome: step 1 shows no "How to perform it" button and no error message on the page. Step 2 works as
+normal: the timer runs, and "Set 1" is saved ("1 set saved"). After step 3, reloading shows the button again.
+
+Test 14: The pop-up works in dark mode, light mode and on a phone
+1. At 1440x900, open the pop-up and read the title, steps and tips. Close it.
+2. In the console run: document.documentElement.dataset.theme = 'light'. Open the pop-up again.
+3. Set the viewport to 375x812 (DevTools device toolbar, iPhone SE) and open the pop-up again. Scroll inside it.
+
+Expected outcome: in dark and light mode all text is readable and the video area has a visible background; no
+colour is hard-coded (the dialog uses the app's theme colours). On the phone the dialog fits the screen width with
+16px of backdrop on each side, scrolls inside itself to reach the form tips, and the page behind has no sideways
+scrolling.
+
+Test 15: The mapping matches real exercises and the code checks pass
+1. Run: php -l api/exercise_guide.php && php -l api/exercise_guide_common.php && php -l api/exercise_guide_ids.php && php -l api/warm_exercise_guides.php
+2. Run: php -r '$m = require "api/exercise_guide_ids.php"; echo count($m), " mapped\n";'
+3. Run this to list seeded plan exercises with no mapping:
+     grep -oE "JSON_ARRAY\([^)]*\)" database/migrations/007_plan_day_exercises.sql | sed "s/JSON_ARRAY(//;s/)$//" | tr ',' '\n' | sed "s/^ *'//;s/' *$//" | sort -u | tr 'A-Z' 'a-z' > seeded.txt
+     php -r '$m = require "api/exercise_guide_ids.php"; foreach (array_keys($m) as $k) echo $k, "\n";' | sort > mapped.txt
+     echo "mapped but not seeded:"; comm -13 seeded.txt mapped.txt; echo "seeded, unmapped:"; comm -23 seeded.txt mapped.txt
+4. Run: npm test
+5. Run: npm run build
+
+Expected outcome: step 1 prints "No syntax errors detected" four times. Step 2 prints "56 mapped". Step 3 prints
+nothing under "mapped but not seeded:" and exactly these three under "seeded, unmapped:": acceleration sprint,
+broad jump, medicine ball throw. Step 4 passes (47 tests, 0 failures when this was written). Step 5 ends with
+"built in" and no errors.
+
+Test 16: The cache warmer fills the cache and is not reachable from the web
+1. Delete the cached copy as in Test 2 step 1.
+2. Run: php api/warm_exercise_guides.php; echo "exit: $?"
+3. Run the same command a second time.
+4. Run: curl -s -i http://localhost:8000/warm_exercise_guides.php
+
+Expected outcome: step 2 prints one line per distinct WorkoutX id in api/exercise_guide_ids.php ("ex_... cached" for
+ids it fetched, "ex_... already cached" for ids whose cache was still fresh), then "exit: 0". It waits 3 seconds
+after each fetch, so with a cold cache it takes about 2 minutes. Step 3 prints only "already cached" lines, makes
+no WorkoutX calls, and ends with "exit: 0". Step 4 shows status 404 and an empty body.
+
+Cleanup after the tests: delete jar.txt, seeded.txt and mapped.txt, and make sure api/config.php has the real key
+again.
