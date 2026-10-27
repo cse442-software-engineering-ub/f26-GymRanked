@@ -82,6 +82,26 @@ mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < datab
 
 Rerunning it is safe: it resets these four accounts, including deleting any body weight and gender they saved, and doesn't touch any other account.
 
+## Leaderboard data
+
+`leaderboard.sql` adds 62 accounts for story #10 (the leaderboard backend, `api/leaderboard.php`), whose checks are in `task-tests/10-leaderboard-backend.html`: the 13 test-cast people (Ana Cole, Ben Ortiz, Cy Park, Dee Sharma, Eli Ford, Gus Hart, Hana Reyes, Ivy Chen, Zed Quinn, Nova Lane, Sky Moreno, Pia Lund and Rex Tully, all with the password `Rank-Test-2026!`), the people story #10's acceptance tests log in as, and 44 demo members (password `Demo-Member-2026!`) who fill out the boards. All are `first.last@example.com`.
+
+| Full name | Email | Password | Useful for |
+| --- | --- | --- | --- |
+| Casey Morgan | casey.morgan@example.com | `Casey-Deadlift330!` | Ranked #15 on Overall, outside the top 10 (pinned row) |
+| Luis Ortega | luis.ortega@example.com | `Luis-Squat285!` | Ranked #14 on Overall, a second viewer |
+| Robin Hale | robin.hale@example.com | `Robin-Bench135!` | Unranked: 2 finished workouts |
+| Noor Haddad | noor.haddad@example.com | `Noor-Bench150!` | Ranked on Bench press only |
+| Max Tester | max.tester@example.com | `Max-Tester600!` | The one `users.is_test = 1` account: never on a board |
+
+The number in a password is only a label, not the person's lift. It needs every migration up to `013_leaderboard.sql`. Load it any time after the migrations (it does not need `test_users.sql`):
+
+```bash
+mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < database/seeds/leaderboard.sql
+```
+
+Rerunning it is safe: it resets these 62 accounts (names, passwords, personal details, joined state and all their workouts) and doesn't touch any other account, so stories 7, 8, 9 and 18 keep their numbers. To empty a board in SQL, `UPDATE user_profile SET leaderboard_joined_at = NULL WHERE user_id IN (...)`; to put people back, set it to `UTC_TIMESTAMP()`, or load the seed again.
+
 ## If you get "Too many attempts"
 
 Login allows 10 attempts per email every 15 minutes. Clear the counter with:
@@ -99,3 +119,9 @@ mysql -u root cse442_2026_fall_team_y_db -e "DELETE FROM users WHERE email IN ('
 ```
 
 Their sessions and logged workouts are deleted automatically with the accounts.
+
+The leaderboard accounts are all `@example.com`, so this removes them too (and the seven accounts above):
+
+```bash
+mysql -u root cse442_2026_fall_team_y_db -e "DELETE FROM users WHERE email LIKE '%@example.com';"
+```
