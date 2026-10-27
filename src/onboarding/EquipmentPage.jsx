@@ -7,7 +7,7 @@ import { EQUIPMENT, planImpact, toggleEquipment } from './setupOptions.js';
 // Route: #/equipment (registered in src/App.jsx). Onboarding step 3 of 4.
 export default function EquipmentPage() {
   return (
-    <OnboardingShell step={2} backdrop="backdrops/dumbbells.webp">
+    <OnboardingShell step={3} backdrop="backdrops/dumbbells.webp">
       {() => <EquipmentStep />}
     </OnboardingShell>
   );

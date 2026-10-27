@@ -7,6 +7,7 @@ import './onboarding.css';
 
 // Onboarding steps from the Figma, in order. "Choose plan" is the recommended plans page.
 const STEPS = [
+  { label: 'Personal details', to: '/personal-details' },
   { label: 'Training goal', to: '/goal' },
   { label: 'Experience', to: '/experience' },
   { label: 'Equipment', to: '/equipment' },
