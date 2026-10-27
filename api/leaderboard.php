@@ -15,9 +15,9 @@
 // The coefficients and the body weight limits (40 to 210 kg on the men's table, 40 to 150 kg on the women's) are those of
 // the OpenPowerlifting implementation:
 //   https://gitlab.com/openpowerlifting/opl-data/-/blob/main/crates/coefficients/src/dots.rs
-// That USAPL uses DOTS for Open Best Lifter awards since 2022-01-01 comes from a secondary summary (powerliftingrecords.com,
-// citing BarBend) with no rule number, so it is for the PM to confirm against the current USAPL rulebook (the IPF GL formula
-// is the fallback). USAPL applies DOTS to a meet total of competition lifts; this feeds it ESTIMATED 1RMs from logged
+// The PM confirmed that the method is DOTS, which USAPL uses for Open Best Lifter awards (a secondary summary,
+// powerliftingrecords.com citing BarBend, dates this to 2022-01-01 and gives no rule number).
+// USAPL applies DOTS to a meet total of competition lifts; this feeds it ESTIMATED 1RMs from logged
 // workouts (Epley, sets of 1 to 10 reps), not meet lifts, so a score is a GymRank score on the DOTS scale and not an
 // official USAPL result.
 // - e1RM = Epley, weight_lb x (1 + reps / 30), best set over all finished workouts, not rounded before scoring. Only
