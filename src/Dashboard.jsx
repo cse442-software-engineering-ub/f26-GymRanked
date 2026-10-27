@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
 import NavBar from './NavBar.jsx'
 import MobileDashboardIcon from './MobileDashboardIcon.jsx'
 import { authRequest } from './auth/api.js'
@@ -158,6 +158,7 @@ function ChecklistCard({ items }) {
 }
 
 function Dashboard() {
+  const { personalDetails } = useOutletContext()
   const location = useLocation()
   const navigate = useNavigate()
   const [fullName, setFullName] = useState(location.state?.fullName?.trim() || '')
@@ -258,6 +259,10 @@ function Dashboard() {
     <div className="dashboard-page">
       <NavBar current="Dashboard" userName={fullName} />
       <main className="dashboard-content">
+        {!personalDetails.complete && <section className="dashboard-card" aria-label="Personal details for ranking">
+          <p className="dashboard-card__text">You can't qualify for ranking without entering weight and gender</p>
+          <Link className="dashboard-primary-action" to="/personal-details">Add personal details</Link>
+        </section>}
         {planNotice && (
           <div className="dashboard-notice" role="status">
             <p>{planNotice}</p>
