@@ -1,0 +1,535 @@
+/* Leaderboard (story #10, card 120). Colours, radii and type follow DESIGN.md, from the --gr- variables only so light
+   mode works. The layout follows research task 113's frames without the tier parts: a 900px column centred under the nav,
+   board tabs, your standing card, then the board. */
+
+.leaderboard-page {
+  min-height: 100vh;
+  background: var(--gr-bg-page);
+  color: var(--gr-text);
+  font-family: var(--gr-font);
+}
+
+.leaderboard-page__content {
+  box-sizing: content-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 48px 48px;
+}
+
+.leaderboard-page__heading h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.leaderboard-page__heading p {
+  max-width: 640px;
+  margin: 6px 0 0;
+  color: var(--gr-text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.leaderboard-page__status {
+  margin: 0;
+  color: var(--gr-text-muted);
+  font-size: 14px;
+}
+
+.leaderboard-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Overall / Bench press / Back squat / Deadlift: one segmented control, like Progress's range buttons. */
+.leaderboard-tabs {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-surface);
+}
+
+.leaderboard-tabs button {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: var(--gr-radius-inner);
+  background: transparent;
+  color: var(--gr-text-muted);
+  font: inherit;
+  font-size: 14px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.leaderboard-tabs button:hover {
+  color: var(--gr-text);
+}
+
+.leaderboard-tabs button[aria-pressed='true'] {
+  background: var(--gr-surface-raised);
+  color: var(--gr-text);
+  font-weight: 500;
+}
+
+.leaderboard-notice {
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid var(--gr-success);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
+  font-size: 14px;
+}
+
+/* Your standing: ranked, not on this board, the steps to get ranked, or the test-account note. */
+.leaderboard-me {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+}
+
+.leaderboard-me h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.leaderboard-me__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.leaderboard-me__rank {
+  margin: 0;
+  color: var(--gr-action-text);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.leaderboard-me__score {
+  margin: 0;
+  color: var(--gr-text-soft);
+  font-size: 14px;
+}
+
+.leaderboard-me__score strong {
+  margin-right: 4px;
+  color: var(--gr-text);
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.leaderboard-me__text,
+.leaderboard-me__detail {
+  margin: 0;
+  color: var(--gr-text-soft);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.leaderboard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.leaderboard-button {
+  min-height: 44px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.leaderboard-button:disabled {
+  background: var(--gr-surface-raised);
+  color: var(--gr-nav-inactive);
+  cursor: not-allowed;
+}
+
+.leaderboard-link-button {
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--gr-action-text);
+  font: inherit;
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.leaderboard-me__detail .leaderboard-link-button,
+.leaderboard-step p .leaderboard-link-button {
+  min-height: 0;
+}
+
+.leaderboard-link-button:disabled {
+  color: var(--gr-nav-inactive);
+  cursor: not-allowed;
+}
+
+.leaderboard-hint {
+  margin: 0;
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+
+.leaderboard-action-error {
+  margin: 0;
+  color: var(--gr-error-text);
+  font-size: 14px;
+}
+
+.leaderboard-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.leaderboard-step {
+  display: flex;
+  gap: 12px;
+  padding: 14px 0;
+}
+
+.leaderboard-step + .leaderboard-step {
+  border-top: 1px solid var(--gr-border);
+}
+
+.leaderboard-step__tick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  box-sizing: border-box;
+  border: 2px solid var(--gr-control-outline);
+  border-radius: 50%;
+}
+
+.leaderboard-step.is-done .leaderboard-step__tick {
+  border-color: var(--gr-success);
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
+}
+
+.leaderboard-step__tick svg {
+  width: 14px;
+  height: 14px;
+}
+
+.leaderboard-step__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.leaderboard-step h3 {
+  margin: 2px 0 0;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.leaderboard-step p {
+  margin: 0;
+  color: var(--gr-text-soft);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.leaderboard-step a {
+  color: var(--gr-action-text);
+}
+
+.leaderboard-table-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-inner);
+  background: var(--gr-surface-sunken);
+}
+
+.leaderboard-table-choice legend {
+  padding: 0 4px;
+  color: var(--gr-text-label);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.leaderboard-table-choice__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+
+.leaderboard-table-choice label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.leaderboard-table-choice input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--gr-action);
+}
+
+.leaderboard-table-change {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* The board. */
+.leaderboard-board {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.leaderboard-board__count {
+  margin: 0;
+  color: var(--gr-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.leaderboard-board__header,
+.leaderboard-list .leaderboard-row,
+.leaderboard-pinned {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+}
+
+.leaderboard-board__header {
+  color: var(--gr-text-muted);
+  font-size: 12px;
+}
+
+.leaderboard-board__header span:last-child {
+  text-align: right;
+}
+
+.leaderboard-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+  overflow: hidden;
+}
+
+/* Scoped to the list: the login page's preview (src/auth/auth.css) has its own global .leaderboard-row. */
+.leaderboard-list .leaderboard-row {
+  min-height: 52px;
+  font-size: 15px;
+}
+
+.leaderboard-list > li.leaderboard-row {
+  margin: 0;
+}
+
+.leaderboard-list > li + li {
+  border-top: 1px solid var(--gr-border);
+}
+
+.leaderboard-list .leaderboard-row.is-me {
+  background: var(--gr-selected-bg);
+  box-shadow: inset 3px 0 0 var(--gr-action);
+}
+
+.leaderboard-rank {
+  color: var(--gr-text-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.leaderboard-who {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.leaderboard-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderboard-you {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.leaderboard-score {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.leaderboard-gap {
+  padding: 6px 16px;
+  color: var(--gr-text-muted);
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.leaderboard-board--empty {
+  padding: 24px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+}
+
+.leaderboard-board--empty h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.leaderboard-board--empty p {
+  margin: 0;
+  color: var(--gr-text-soft);
+  font-size: 14px;
+}
+
+/* Your row pinned to the bottom of a phone screen; never on wider screens. */
+.leaderboard-pinned {
+  display: none;
+}
+
+.leaderboard-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--gr-error);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-error-bg);
+  color: var(--gr-error-text);
+  font-size: 14px;
+}
+
+.leaderboard-error p {
+  margin: 0;
+}
+
+.leaderboard-error button {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid currentColor;
+  border-radius: var(--gr-radius-button);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.leaderboard-tabs button:focus-visible,
+.leaderboard-button:focus-visible,
+.leaderboard-link-button:focus-visible,
+.leaderboard-error button:focus-visible,
+.leaderboard-step a:focus-visible,
+.leaderboard-table-choice input:focus-visible {
+  outline: 2px solid var(--gr-action-text);
+  outline-offset: 2px;
+}
+
+/* Phones: tabs 2 × 2, rows stay on one line, and your row is pinned while it is off screen. */
+@media (max-width: 640px) {
+  .leaderboard-page__content {
+    padding: 24px 20px 96px;
+  }
+
+  .leaderboard-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-self: stretch;
+  }
+
+  .leaderboard-me {
+    padding: 16px;
+  }
+
+  .leaderboard-board__header,
+  .leaderboard-list .leaderboard-row,
+  .leaderboard-pinned {
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 0 12px;
+    font-size: 15px;
+  }
+
+  .leaderboard-board__header {
+    font-size: 12px;
+  }
+
+  .leaderboard-pinned:not([hidden]) {
+    display: grid;
+    position: fixed;
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    z-index: 10;
+    min-height: 52px;
+    border: 1px solid var(--gr-border-strong);
+    border-radius: var(--gr-radius-card);
+    background: var(--gr-surface-raised);
+    box-shadow: var(--gr-shadow-menu), inset 3px 0 0 var(--gr-action);
+    font-size: 15px;
+  }
+
+  .leaderboard-pinned > span:last-child {
+    font-weight: 500;
+    text-align: right;
+  }
+}
