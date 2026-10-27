@@ -11,7 +11,7 @@ const NAV_LINKS = [
   { label: 'Workouts', to: '/weekly-plan', icon: 'dumbbell' },
   { label: 'Plans', to: '/plans', icon: 'calendar' },
   { label: 'Progress', to: '/progress', icon: 'progress' },
-  { label: 'Leaderboard', futurePath: '/leaderboard', icon: 'trophy' },
+  { label: 'Leaderboard', to: '/leaderboard', icon: 'trophy' },
   { label: 'Today', to: '/workouts/today', icon: 'today' },
 ]
 

@@ -276,6 +276,14 @@ A box above the form: 10px 12px padding, 8px corners, 1px border, 13px text, col
 - The "Exercise" drop-down lists every exercise A to Z. The chosen exercise is one `surface` card: metric tiles on `surface-sunken` (3 across, 2 on a phone), a line chart in `action-text` with one point per workout and a text label for screen readers, a table of its workouts (Date, Heaviest set, Est. 1RM, Volume; numbers right-aligned), and its personal records with the new best in `success-text`. A bodyweight exercise says so and shows reps instead of weights.
 - Empty, loading and error states follow the history page: "No progress to track yet" with "Start a workout", "Loading your progress...", and the `error` box with "Try again".
 
+### Leaderboard page (`src/leaderboard/`, added by #120)
+
+- The same 900px column as the Progress page. Heading "Leaderboard", then one `text-muted` line on how DOTS scores are worked out.
+- Board tabs: "Overall", "Bench press", "Back squat" and "Deadlift" in one `surface` box like Progress's range control (`aria-pressed`, at least 44px tall); a 2 × 2 grid on a phone. The board is in the address (`#/leaderboard?board=bench`).
+- Your standing is one `surface` card: your name, your rank in `action-text` ("#15 of 38 on Overall"), the score at 28px with "DOTS points", and your own estimated 1RMs (only you see lb). Unranked, it lists the four "How to get ranked" steps with round markers: `control-outline` ring when not done, `success` ring and tick when done. Nonbinary and Prefer not to say accounts get a "Scoring table" radio group on `surface-sunken` in step 1.
+- The board is one `surface` list with 52px rows (rank, first name + last initial, score right-aligned with tabular figures). Your row is `selected-bg` with a 3px `action` bar on the left and an `action` "You" pill. A centred "· · ·" row marks the jump from the top 10 (plus anyone tied with 10th) to your place. On a phone your row is pinned to the bottom (`surface-raised`, `shadow-menu`) while it is off screen.
+- Empty, loading and error states follow the Progress page: "Nobody is ranked on Bench press yet.", "Loading the leaderboard...", and the `error` box with "Try again". After leaving, a `success` notice says the workouts are kept.
+
 ### Gym backdrop (`src/components/GymBackdrop.jsx`, added by #93)
 
 A gym photo band for the top of a page, as one component so every page uses the same one.

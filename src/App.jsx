@@ -8,6 +8,7 @@ import PlanDetails from './PlanDetails.jsx'
 import WeeklyPlan from './WeeklyPlan.jsx'
 import WorkoutHistoryPage from './history/WorkoutHistoryPage.jsx'
 import ProgressPage from './progress/ProgressPage.jsx'
+import LeaderboardPage from './leaderboard/LeaderboardPage.jsx'
 import WorkoutPlanLibrary from './WorkoutPlanLibrary.jsx'
 import RecommendedPlansPage from './onboarding/RecommendedPlansPage.jsx'
 import ExperiencePage from './onboarding/ExperiencePage.jsx'
@@ -45,6 +46,7 @@ function App() {
         {/* Progress (story #8) links to the workout history (story #9) below it. */}
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="/progress/history" element={<WorkoutHistoryPage />} />
+        <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/workout/active" element={<ActiveWorkout />} />
         <Route path="/workout/active/:exerciseIndex" element={<ExerciseSession />} />
         <Route path="/experience" element={<ExperiencePage />} />
