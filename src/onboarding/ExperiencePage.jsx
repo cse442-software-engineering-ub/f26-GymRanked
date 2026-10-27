@@ -7,7 +7,7 @@ import { LEVELS } from './setupOptions.js';
 // Route: #/experience (registered in src/App.jsx). Onboarding step 2 of 4.
 export default function ExperiencePage() {
   return (
-    <OnboardingShell step={1} backdrop="backdrops/gym-floor.webp">
+    <OnboardingShell step={2} backdrop="backdrops/gym-floor.webp">
       {() => <ExperienceStep />}
     </OnboardingShell>
   );

@@ -94,7 +94,7 @@
 /* Step indicator on the photo band's lower edge: a bar and a name for each step */
 .ob-stepper {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
   width: min(720px, 100%);
   margin: 0;

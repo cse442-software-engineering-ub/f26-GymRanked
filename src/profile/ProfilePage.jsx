@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
 import NavBar from '../NavBar.jsx'
 import { authRequest } from '../auth/api.js'
 import { apiRequest, errorMessage } from '../onboarding/api.js'
 import { EQUIPMENT, LEVELS, toggleEquipment } from '../onboarding/setupOptions.js'
 import ThemeToggle from '../theme/ThemeToggle.jsx'
+import { GENDERS } from '../onboarding/personalDetails.js'
 import './profile.css'
 
 const GOALS = [
@@ -65,6 +66,7 @@ function ProfileFrame({ user, children }) {
 }
 
 export default function ProfilePage() {
+  const { personalDetails } = useOutletContext()
   const { status, user, settings, error } = useProfileData()
   const location = useLocation()
   const navigate = useNavigate()
@@ -109,6 +111,12 @@ export default function ProfilePage() {
       <section className="profile-card" aria-labelledby="account-settings-title">
         <p className="profile-eyebrow">ACCOUNT</p><h2 id="account-settings-title">Account Settings</h2>
         <dl className="profile-details"><div><dt>Full name</dt><dd>{user.full_name}</dd></div><div><dt>Email</dt><dd>{user.email}</dd></div></dl>
+      </section>
+      <section className="profile-card" aria-labelledby="personal-details-title">
+        <h2 id="personal-details-title">Personal details</h2>
+        <p>Body weight: {personalDetails.bodyweight_lb == null ? 'Not set' : `${personalDetails.bodyweight_lb} lb`}</p>
+        <p>Gender: {labelFor(GENDERS, personalDetails.gender)}</p>
+        {!personalDetails.complete && <Link className="profile-button profile-button--primary" to="/personal-details">Add personal details</Link>}
       </section>
       <section className="profile-card" aria-labelledby="appearance-title">
         <p className="profile-eyebrow">DISPLAY</p><h2 id="appearance-title">Appearance</h2>

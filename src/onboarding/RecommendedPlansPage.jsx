@@ -14,7 +14,7 @@ const GOAL_LABELS = { strength: 'strength', fat_loss: 'fat loss', aerobic: 'aero
 // Route: #/recommended (registered in src/App.jsx). Onboarding step 4 of 4.
 export default function RecommendedPlansPage() {
   return (
-    <OnboardingShell step={3} backdrop="backdrops/rack.webp">
+    <OnboardingShell step={4} backdrop="backdrops/rack.webp">
       {() => <RecommendedPlans />}
     </OnboardingShell>
   );

@@ -1,0 +1,78 @@
+.pd-step {
+  width: min(720px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+}
+
+.pd-form {
+  padding: 24px;
+  display: grid;
+  gap: 24px;
+  background: var(--gr-surface);
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+}
+
+.pd-field label,
+.pd-gender legend {
+  color: var(--gr-text);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.pd-hint {
+  margin: 8px 0;
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+
+.pd-field input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px;
+  border: 1px solid var(--gr-input-border);
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-input-bg);
+  color: var(--gr-input-text);
+  font: inherit;
+  font-size: 16px;
+}
+
+.pd-field input[aria-invalid='true'] {
+  border: 2px solid var(--gr-error);
+}
+
+.pd-gender {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.pd-choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.pd-choices .ob-option {
+  justify-content: space-between;
+  text-align: left;
+}
+
+.pd-error {
+  margin: 8px 0 0;
+  color: var(--gr-error-text);
+  font-size: 13px;
+}
+
+.pd-actions .ob-button {
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .pd-form { padding: 20px; }
+  .pd-choices { grid-template-columns: 1fr; }
+}

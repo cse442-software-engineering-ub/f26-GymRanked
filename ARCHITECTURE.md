@@ -41,6 +41,24 @@ In production, the proxy is not involved — the built frontend and the PHP API 
 
 ## Backend
 
+### Personal details frontend (task #117)
+
+`src/onboarding/PersonalDetailsPage.jsx` serves `#/personal-details`. The shared
+`OnboardingGate` reads `personal_details.php` alongside training preferences and
+setup, and supplies the saved details through the router outlet context. Missing
+details send unfinished accounts to this first step, including after refresh or
+direct navigation. Accounts with a saved goal, experience and equipment retain
+their existing access and can add details voluntarily from the Dashboard. Saving
+returns those accounts to the Dashboard without writing any training or plan data.
+The Profile reads the same fresh account details on each visit. Failed account
+checks offer retry rather than treating an unavailable API as an empty profile.
+
+`personalDetails.js` holds gender labels and input validation, matching migration
+012's 50–700 lb range and one-decimal precision. Empty and nonpositive weights have
+the specific guidance required by card 117. The form prevents repeat submissions
+and keeps entered values when saving fails. Existing databases need migration 012
+before deploying this frontend; see its local/shared-database instructions.
+
 | Path | Purpose |
 |---|---|
 | `api/workouts.php` | PHP JSON endpoint that queries the `workouts` MySQL table. |

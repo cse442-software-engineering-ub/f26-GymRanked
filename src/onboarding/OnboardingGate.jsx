@@ -22,20 +22,23 @@ export default function OnboardingGate() {
         const { user } = await authRequest('session')
         // The account's saved theme beats the one this browser remembered (once per signed-in user).
         syncAccountTheme(user?.id)
-        const [goalResult, setupResult] = await Promise.all([
+        const [goalResult, setupResult, detailsResult] = await Promise.all([
           apiRequest('preferences.php'),
           apiRequest('setup.php'),
+          apiRequest('personal_details.php'),
         ])
         if (!active) return
-        if (goalResult.status === 401 || setupResult.status === 401) {
+        if ([goalResult, setupResult, detailsResult].some((result) => result.status === 401)) {
           setCheck({ path, status: 'signed-out' })
-        } else if (!goalResult.ok || !setupResult.ok) {
+        } else if (!goalResult.ok || !setupResult.ok || !detailsResult.ok) {
           setCheck({ path, status: 'error' })
         } else {
           setCheck({
             path,
             status: 'ready',
-            required: requiredOnboardingRoute(goalResult.data.training_goal, setupResult.data),
+            required: requiredOnboardingRoute(goalResult.data.training_goal, setupResult.data, detailsResult.data),
+            personalDetails: detailsResult.data,
+            trainingComplete: requiredOnboardingRoute(goalResult.data.training_goal, setupResult.data, { complete: true }) === null,
             equipmentJustSaved,
           })
         }
@@ -63,5 +66,5 @@ export default function OnboardingGate() {
 
   const redirect = signedInRedirect(location.pathname, check.required, check.equipmentJustSaved)
   if (redirect) return <Navigate to={redirect} replace />
-  return <Outlet />
+  return <Outlet context={{ personalDetails: check.personalDetails, trainingComplete: check.trainingComplete }} />
 }

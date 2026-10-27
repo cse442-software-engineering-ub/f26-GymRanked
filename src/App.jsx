@@ -13,6 +13,7 @@ import RecommendedPlansPage from './onboarding/RecommendedPlansPage.jsx'
 import ExperiencePage from './onboarding/ExperiencePage.jsx'
 import EquipmentPage from './onboarding/EquipmentPage.jsx'
 import TrainingGoalPage from './onboarding/TrainingGoalPage.jsx'
+import PersonalDetailsPage from './onboarding/PersonalDetailsPage.jsx'
 import OnboardingGate from './onboarding/OnboardingGate.jsx'
 import WorkoutLogPreview from './workoutLog/WorkoutLogPreview.jsx'
 import WorkoutSummaryPage from './workoutLog/WorkoutSummaryPage.jsx'
@@ -52,6 +53,7 @@ function App() {
         <Route path="/setup" element={<Navigate to="/experience" replace />} />
         <Route path="/recommended" element={<RecommendedPlansPage />} />
         <Route path="/goal" element={<TrainingGoalPage />} />
+        <Route path="/personal-details" element={<PersonalDetailsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes></HashRouter>
