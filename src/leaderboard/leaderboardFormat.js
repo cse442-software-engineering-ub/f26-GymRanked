@@ -46,9 +46,15 @@ export function tableLine(table) {
   return `Scored with the ${table === 'men' ? "men's" : "women's"} table`
 }
 
-// "Bench press 202 lb · Back squat 284 lb · Deadlift —"
-export function liftsLine(lifts) {
-  return LIFTS.map(({ key, label }) => `${label} ${formatPounds(lifts?.[key])}`).join(' · ')
+// The three lifts, for your own estimated 1RM tiles.
+export const LIFT_BOARDS = LIFTS
+
+// "Ana C." -> "AC"; "Casey Morgan" -> "CM"; "Cher" -> "C"
+export function initials(name) {
+  const parts = String(name ?? '').trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return '?'
+  const first = parts[0][0]
+  return (parts.length > 1 ? first + parts[parts.length - 1][0] : first).toUpperCase()
 }
 
 // "1 of 3 workouts finished"; more than the 3 needed still reads "3 of 3".

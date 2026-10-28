@@ -1,6 +1,6 @@
 /* Leaderboard (story #10, card 120). Colours, radii and type follow DESIGN.md, from the --gr- variables only so light
-   mode works. The layout follows research task 113's frames without the tier parts: a 900px column centred under the nav,
-   board tabs, your standing card, then the board. */
+   mode works. The layout follows research task 113's frames D1, D4 and P1b without the tier parts: your card with
+   your rank and lift tiles (or the steps to get ranked), then one board card with the lift tabs and the rows. */
 
 .leaderboard-page {
   min-height: 100vh;
@@ -13,7 +13,7 @@
   box-sizing: content-box;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   max-width: 900px;
   margin: 0 auto;
   padding: 40px 48px 48px;
@@ -35,6 +35,7 @@
 
 .leaderboard-page__status {
   margin: 0;
+  padding: 12px 0;
   color: var(--gr-text-muted);
   font-size: 14px;
 }
@@ -48,40 +49,6 @@
   white-space: nowrap;
 }
 
-/* Overall / Bench press / Back squat / Deadlift: one segmented control, like Progress's range buttons. */
-.leaderboard-tabs {
-  display: inline-flex;
-  align-self: flex-start;
-  gap: 4px;
-  padding: 4px;
-  border: 1px solid var(--gr-border);
-  border-radius: var(--gr-radius-button);
-  background: var(--gr-surface);
-}
-
-.leaderboard-tabs button {
-  min-height: 44px;
-  padding: 8px 14px;
-  border: none;
-  border-radius: var(--gr-radius-inner);
-  background: transparent;
-  color: var(--gr-text-muted);
-  font: inherit;
-  font-size: 14px;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.leaderboard-tabs button:hover {
-  color: var(--gr-text);
-}
-
-.leaderboard-tabs button[aria-pressed='true'] {
-  background: var(--gr-surface-raised);
-  color: var(--gr-text);
-  font-weight: 500;
-}
-
 .leaderboard-notice {
   margin: 0;
   padding: 12px 16px;
@@ -92,58 +59,164 @@
   font-size: 14px;
 }
 
-/* Your standing: ranked, not on this board, the steps to get ranked, or the test-account note. */
+/* Your standing: one card with your name, rank and lifts; the steps get a card of their own. */
 .leaderboard-me {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
+}
+
+.leaderboard-me__card,
+.leaderboard-steps-card,
+.leaderboard-me--note {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
   padding: 20px;
   border: 1px solid var(--gr-border);
   border-radius: var(--gr-radius-card);
   background: var(--gr-surface);
 }
 
-.leaderboard-me h2 {
+.leaderboard-me__head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.leaderboard-me__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.leaderboard-me__who {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.leaderboard-me__who h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 500;
   overflow-wrap: anywhere;
 }
 
-.leaderboard-me__head {
+.leaderboard-me__detail {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
   flex-wrap: wrap;
-  gap: 4px 16px;
+  align-items: center;
+  gap: 4px 8px;
+  margin: 0;
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+
+.leaderboard-pill {
+  padding: 1px 8px;
+  border: 1px solid var(--gr-control-outline);
+  border-radius: 999px;
+  color: var(--gr-text-soft);
+  font-size: 12px;
+}
+
+.leaderboard-me__place {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+.leaderboard-me__label {
+  color: var(--gr-text-muted);
+  font-size: 12px;
 }
 
 .leaderboard-me__rank {
   margin: 0;
   color: var(--gr-action-text);
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 600;
 }
 
 .leaderboard-me__score {
   margin: 0;
-  color: var(--gr-text-soft);
-  font-size: 14px;
+  color: var(--gr-text-muted);
+  font-size: 13px;
 }
 
 .leaderboard-me__score strong {
-  margin-right: 4px;
   color: var(--gr-text);
-  font-size: 28px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 600;
 }
 
-.leaderboard-me__text,
-.leaderboard-me__detail {
+.leaderboard-me__norank {
+  margin: 0;
+  color: var(--gr-text);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.leaderboard-me__text {
   margin: 0;
   color: var(--gr-text-soft);
   font-size: 14px;
   line-height: 1.5;
+}
+
+.leaderboard-me__note,
+.leaderboard-note {
+  margin: 0;
+  color: var(--gr-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Your three lifts: estimated 1RMs only you see. The current board's lift is outlined. */
+.leaderboard-lifts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.leaderboard-lift {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--gr-radius-inner);
+  background: var(--gr-surface-sunken);
+}
+
+.leaderboard-lift.is-current {
+  border-color: var(--gr-action);
+}
+
+.leaderboard-lift__name,
+.leaderboard-lift__caption {
+  color: var(--gr-text-muted);
+  font-size: 12px;
+}
+
+.leaderboard-lift__value {
+  font-size: 22px;
+  font-weight: 500;
 }
 
 .leaderboard-actions {
@@ -179,14 +252,18 @@
   background: none;
   color: var(--gr-action-text);
   font: inherit;
-  font-size: 14px;
-  text-decoration: underline;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
 }
 
 .leaderboard-me__detail .leaderboard-link-button,
 .leaderboard-step p .leaderboard-link-button {
   min-height: 0;
+}
+
+.leaderboard-link-button:hover {
+  text-decoration: underline;
 }
 
 .leaderboard-link-button:disabled {
@@ -206,10 +283,25 @@
   font-size: 14px;
 }
 
+/* How to get ranked: numbered steps that turn into ticks. */
+.leaderboard-eyebrow {
+  margin: 0;
+  color: var(--gr-text-muted);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.leaderboard-steps-card h2 {
+  margin: -8px 0 0;
+  font-size: 20px;
+  font-weight: 500;
+}
+
 .leaderboard-steps {
   display: flex;
   flex-direction: column;
-  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -225,25 +317,28 @@
   border-top: 1px solid var(--gr-border);
 }
 
-.leaderboard-step__tick {
+.leaderboard-step__marker {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 24px;
-  width: 24px;
-  height: 24px;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
   box-sizing: border-box;
-  border: 2px solid var(--gr-control-outline);
   border-radius: 50%;
+  background: var(--gr-surface-raised);
+  color: var(--gr-text-soft);
+  font-size: 13px;
+  font-weight: 500;
 }
 
-.leaderboard-step.is-done .leaderboard-step__tick {
-  border-color: var(--gr-success);
+.leaderboard-step.is-done .leaderboard-step__marker {
+  border: 2px solid var(--gr-success);
   background: var(--gr-success-bg);
   color: var(--gr-success-text);
 }
 
-.leaderboard-step__tick svg {
+.leaderboard-step__marker svg {
   width: 14px;
   height: 14px;
 }
@@ -252,11 +347,19 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  flex: 1 1 auto;
   min-width: 0;
 }
 
+.leaderboard-step__title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .leaderboard-step h3 {
-  margin: 2px 0 0;
+  margin: 4px 0 0;
   font-size: 15px;
   font-weight: 500;
 }
@@ -270,6 +373,27 @@
 
 .leaderboard-step a {
   color: var(--gr-action-text);
+}
+
+a.leaderboard-step__action {
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.leaderboard-progress {
+  height: 4px;
+  max-width: 560px;
+  border-radius: 2px;
+  background: var(--gr-track);
+  overflow: hidden;
+}
+
+.leaderboard-progress span {
+  display: block;
+  height: 100%;
+  background: var(--gr-action);
 }
 
 .leaderboard-table-choice {
@@ -318,15 +442,89 @@
   gap: 10px;
 }
 
-/* The board. */
+/* The board card: Everyone / Friends, the lift tabs, then the rows. */
 .leaderboard-board {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  padding: 16px 16px 20px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+}
+
+.leaderboard-scope {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-surface-sunken);
+}
+
+.leaderboard-scope button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 14px;
+  border: none;
+  border-radius: var(--gr-radius-inner);
+  background: transparent;
+  color: var(--gr-text-muted);
+  font: inherit;
+  font-size: 13px;
+}
+
+.leaderboard-scope button[aria-pressed='true'] {
+  background: var(--gr-surface-raised);
+  color: var(--gr-text);
+  font-weight: 500;
+}
+
+.leaderboard-scope button:disabled {
+  cursor: not-allowed;
+}
+
+.leaderboard-later {
+  padding: 0 6px;
+  border: 1px solid var(--gr-control-outline);
+  border-radius: 999px;
+  font-size: 11px;
+}
+
+.leaderboard-tabs {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid var(--gr-border);
+}
+
+.leaderboard-tabs button {
+  min-height: 44px;
+  margin-bottom: -1px;
+  padding: 8px 2px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--gr-text-muted);
+  font: inherit;
+  font-size: 14px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.leaderboard-tabs button:hover {
+  color: var(--gr-text);
+}
+
+.leaderboard-tabs button[aria-pressed='true'] {
+  border-bottom-color: var(--gr-action);
+  color: var(--gr-text);
+  font-weight: 500;
 }
 
 .leaderboard-board__count {
-  margin: 0;
+  margin: 4px 0 0;
   color: var(--gr-text-muted);
   font-size: 13px;
   font-weight: 500;
@@ -336,15 +534,17 @@
 .leaderboard-list .leaderboard-row,
 .leaderboard-pinned {
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr) auto;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
-  padding: 0 16px;
+  padding: 0 12px;
 }
 
 .leaderboard-board__header {
   color: var(--gr-text-muted);
-  font-size: 12px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .leaderboard-board__header span:last-child {
@@ -352,18 +552,19 @@
 }
 
 .leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   margin: 0;
   padding: 0;
   list-style: none;
-  border: 1px solid var(--gr-border);
-  border-radius: var(--gr-radius-card);
-  background: var(--gr-surface);
-  overflow: hidden;
 }
 
 /* Scoped to the list: the login page's preview (src/auth/auth.css) has its own global .leaderboard-row. */
 .leaderboard-list .leaderboard-row {
-  min-height: 52px;
+  min-height: 48px;
+  border: 1px solid transparent;
+  border-radius: var(--gr-radius-inner);
   font-size: 15px;
 }
 
@@ -371,13 +572,9 @@
   margin: 0;
 }
 
-.leaderboard-list > li + li {
-  border-top: 1px solid var(--gr-border);
-}
-
 .leaderboard-list .leaderboard-row.is-me {
+  border-color: var(--gr-action);
   background: var(--gr-selected-bg);
-  box-shadow: inset 3px 0 0 var(--gr-action);
 }
 
 .leaderboard-rank {
@@ -385,11 +582,37 @@
   font-variant-numeric: tabular-nums;
 }
 
+.leaderboard-row.is-me .leaderboard-rank,
+.leaderboard-pinned .leaderboard-rank {
+  color: var(--gr-action-text);
+  font-weight: 600;
+}
+
 .leaderboard-who {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
+}
+
+.leaderboard-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gr-surface-raised);
+  color: var(--gr-text-soft);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.leaderboard-row.is-me .leaderboard-avatar,
+.leaderboard-pinned .leaderboard-avatar {
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
 }
 
 .leaderboard-name {
@@ -400,41 +623,45 @@
 
 .leaderboard-you {
   flex: 0 0 auto;
-  padding: 2px 8px;
+  padding: 1px 8px;
+  border: 1px solid var(--gr-action-text);
   border-radius: 999px;
-  background: var(--gr-action);
-  color: var(--gr-text-on-orange);
+  color: var(--gr-action-text);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .leaderboard-score {
-  font-weight: 500;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
 
 .leaderboard-gap {
-  padding: 6px 16px;
+  padding: 4px 12px;
   color: var(--gr-text-muted);
   text-align: center;
   letter-spacing: 2px;
 }
 
-.leaderboard-board--empty {
-  padding: 24px;
-  border: 1px solid var(--gr-border);
-  border-radius: var(--gr-radius-card);
-  background: var(--gr-surface);
+.leaderboard-note {
+  padding: 4px 12px 0;
 }
 
-.leaderboard-board--empty h2 {
+.leaderboard-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 4px 4px;
+}
+
+.leaderboard-empty h2 {
   margin: 0;
   font-size: 18px;
   font-weight: 500;
 }
 
-.leaderboard-board--empty p {
+.leaderboard-empty p {
   margin: 0;
   color: var(--gr-text-soft);
   font-size: 14px;
@@ -484,33 +711,89 @@
   outline-offset: 2px;
 }
 
-/* Phones: tabs 2 × 2, rows stay on one line, and your row is pinned while it is off screen. */
+/* Phones: tabs 2 × 2, your rank under your name, lift tiles stacked, and your row pinned while it is off screen. */
 @media (max-width: 640px) {
   .leaderboard-page__content {
     padding: 24px 20px 96px;
   }
 
-  .leaderboard-tabs {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .leaderboard-me__card,
+  .leaderboard-steps-card,
+  .leaderboard-me--note,
+  .leaderboard-board {
+    padding: 16px;
+  }
+
+  .leaderboard-me__head {
+    flex-wrap: wrap;
+  }
+
+  .leaderboard-me__who {
+    flex: 1 1 0;
+  }
+
+  .leaderboard-me__place {
+    flex: 1 1 100%;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .leaderboard-lifts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .leaderboard-lift {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 10px;
+  }
+
+  .leaderboard-lift__name {
+    flex: 1 1 auto;
+  }
+
+  .leaderboard-lift__value {
+    font-size: 17px;
+  }
+
+  .leaderboard-scope {
     align-self: stretch;
   }
 
-  .leaderboard-me {
-    padding: 16px;
+  .leaderboard-scope button {
+    flex: 1 1 0;
+    justify-content: center;
+  }
+
+  .leaderboard-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 16px;
+  }
+
+  .leaderboard-step__title {
+    flex-direction: column;
+    gap: 4px;
   }
 
   .leaderboard-board__header,
   .leaderboard-list .leaderboard-row,
   .leaderboard-pinned {
-    grid-template-columns: 36px minmax(0, 1fr) auto;
+    grid-template-columns: 32px minmax(0, 1fr) auto;
     gap: 8px;
-    padding: 0 12px;
+    padding: 0 8px;
     font-size: 15px;
   }
 
   .leaderboard-board__header {
-    font-size: 12px;
+    font-size: 11px;
+  }
+
+  .leaderboard-avatar {
+    flex-basis: 26px;
+    width: 26px;
+    height: 26px;
   }
 
   .leaderboard-pinned:not([hidden]) {
@@ -521,15 +804,9 @@
     left: 12px;
     z-index: 10;
     min-height: 52px;
-    border: 1px solid var(--gr-border-strong);
+    border: 1px solid var(--gr-action);
     border-radius: var(--gr-radius-card);
     background: var(--gr-surface-raised);
-    box-shadow: var(--gr-shadow-menu), inset 3px 0 0 var(--gr-action);
-    font-size: 15px;
-  }
-
-  .leaderboard-pinned > span:last-child {
-    font-weight: 500;
-    text-align: right;
+    box-shadow: var(--gr-shadow-menu);
   }
 }

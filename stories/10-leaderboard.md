@@ -57,7 +57,7 @@ Test accounts: fake accounts loaded on the site by `database/seeds/leaderboard.s
 
 ### Steps:
 
-1. Select **Leaderboard**. Confirm that your card shows `Casey Morgan`, `#15 of 51 on Overall`, `156.29` `DOTS points`, `Your best estimated 1RMs: Bench press 140 lb · Back squat 190 lb · Deadlift 205 lb` and a **Leave the leaderboard** button.
+1. Select **Leaderboard**. Confirm that your card shows `Casey Morgan` with `Body weight 200 lb` and a **Leave the leaderboard** button, `Rank · Overall` `#15 of 51 on Overall` with `156.29` `DOTS points`, and three tiles of your best estimated 1RMs: `Bench press` `140 lb`, `Back squat` `190 lb` and `Deadlift` `205 lb`.
 2. Confirm that the board says `51 people ranked on Overall` and starts with these 11 rows, in this order: `1` `Cy P.` `319.16`, `2` `Ana C.` `243.63`, `2` `Ben O.` `243.63`, `4` `Dee S.` `229.03`, `5` `Wes Z.` `197.65`, `6` `Nova L.` `188.85`, `7` `Grant G.` `170.89`, `8` `Milo Q.` `167.64`, `9` `Olive O.` `167.09`, `10` `Jude N.` `165.93`, `10` `Quinn R.` `165.93`. People with the same score share a rank, the rank after a tie is skipped, and both people tied at 10 are shown.
 3. Confirm that a `· · ·` row comes next, then `14` `Luis O.` `159.90`, then your own row `15` `Casey M.` marked `You` with `156.29` and highlighted, then `16` `Dina D.` `155.52`.
 4. Confirm that no row on the board shows a weight in lb or kg, a body weight, a gender or an email: only rank, name and score.
