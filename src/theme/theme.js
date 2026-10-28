@@ -9,6 +9,8 @@
 // - OnboardingGate calls syncAccountTheme() after it confirms the session, so the account's saved theme
 //   wins over whatever this browser remembered (a new browser, or another user on the same one).
 // - A theme control calls saveTheme(); it switches at once and switches back if the save fails.
+// - Sign-in, create account and the onboarding steps are always dark: OnboardingGate calls setAlwaysDark() on
+//   each page change, which shows dark there without changing the theme the account or browser has saved.
 
 export const THEMES = ['dark', 'light']
 export const DEFAULT_THEME = 'dark'
@@ -23,7 +25,13 @@ export function normalizeTheme(value) {
   return value === 'light' ? 'light' : DEFAULT_THEME
 }
 
+// While an always-dark page is showing, the user's own theme is kept here instead of on <html>.
+let alwaysDark = false
+let preferred = null
+
+// The user's theme, which on an always-dark page isn't the one showing.
 export function currentTheme(root = document.documentElement) {
+  if (alwaysDark) return preferred ?? rememberedTheme()
   return normalizeTheme(root.dataset.theme)
 }
 
@@ -46,10 +54,18 @@ export function rememberedTheme() {
 // Shows a theme everywhere at once and tells any theme controls on the page.
 export function applyTheme(value, root = document.documentElement) {
   const theme = normalizeTheme(value)
-  root.dataset.theme = theme
+  preferred = theme
+  root.dataset.theme = alwaysDark ? DEFAULT_THEME : theme
   remember(theme)
   if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent(THEME_EVENT, { detail: { theme } }))
   return theme
+}
+
+// Shows dark whatever the user's theme (on), or puts the user's theme back (off).
+export function setAlwaysDark(on, root = document.documentElement) {
+  const theme = currentTheme(root)
+  alwaysDark = on
+  root.dataset.theme = on ? DEFAULT_THEME : theme
 }
 
 // Reads the signed-in account's theme and applies it. Never throws: offline, it keeps the remembered theme.

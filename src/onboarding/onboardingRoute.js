@@ -24,6 +24,11 @@ export function isAuthPath(path) {
   return AUTH_PATHS.includes(path)
 }
 
+// Sign-in, create account and the onboarding steps are always shown in dark mode, whatever the saved theme.
+export function isAlwaysDarkPath(path) {
+  return isAuthPath(path) || ONBOARDING_PATHS.includes(path)
+}
+
 export function signedInRedirect(path, required, equipmentJustSaved = false) {
   if (isAuthPath(path)) return required ?? '/dashboard'
   if (required) return allowedOnboardingPaths(required).includes(path) ? null : required

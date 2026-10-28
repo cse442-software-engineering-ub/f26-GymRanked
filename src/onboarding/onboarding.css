@@ -635,6 +635,11 @@
   font-size: 13px;
 }
 
+/* Keeps its space (and is hidden from screen readers) once a choice is made. */
+.ob-save-help--hidden {
+  visibility: hidden;
+}
+
 .ob-save-help svg {
   flex: none;
   width: 16px;

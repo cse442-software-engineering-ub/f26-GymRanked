@@ -157,7 +157,8 @@ function EquipmentStep() {
         label="Save and continue"
         saving={status === 'saving'}
         disabled={busy || equipment.length === 0}
-        help={equipment.length === 0 && status !== 'loading' ? 'Pick at least one option, or Bodyweight only.' : ''}
+        help="Pick at least one option, or Bodyweight only."
+        showHelp={equipment.length === 0 && status !== 'loading'}
         onSave={handleSave}
       />
     </section>

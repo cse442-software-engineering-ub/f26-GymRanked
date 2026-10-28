@@ -108,7 +108,8 @@ function ExperienceStep() {
         label="Save and continue"
         saving={status === 'saving'}
         disabled={busy || !experience}
-        help={!experience && status !== 'loading' ? 'Pick your experience level to continue.' : ''}
+        help="Pick your experience level to continue."
+        showHelp={!experience && status !== 'loading'}
         onSave={handleSave}
       />
     </section>
