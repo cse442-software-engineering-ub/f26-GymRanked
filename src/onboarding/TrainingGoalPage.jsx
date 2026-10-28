@@ -140,7 +140,8 @@ function TrainingGoalStep({ user }) {
         label="Save goal"
         saving={status === 'saving'}
         disabled={busy || !goal}
-        help={!goal && status !== 'loading' ? 'Pick one goal to continue.' : ''}
+        help="Pick one goal to continue."
+        showHelp={!goal && status !== 'loading'}
         onSave={handleSave}
       />
     </section>

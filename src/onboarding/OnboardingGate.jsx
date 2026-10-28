@@ -1,14 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { authRequest } from '../auth/api.js'
-import { syncAccountTheme } from '../theme/theme.js'
+import { setAlwaysDark, syncAccountTheme } from '../theme/theme.js'
 import { apiRequest } from './api.js'
-import { isAuthPath, requiredOnboardingRoute, signedInRedirect } from './onboardingRoute.js'
+import { isAlwaysDarkPath, isAuthPath, requiredOnboardingRoute, signedInRedirect } from './onboardingRoute.js'
 
 export default function OnboardingGate() {
   const location = useLocation()
   const [attempt, setAttempt] = useState(0)
   const [check, setCheck] = useState({ path: '', status: 'loading' })
+
+  // Before paint, so moving between an always-dark page and a themed one never flashes the wrong theme.
+  useLayoutEffect(() => {
+    setAlwaysDark(isAlwaysDarkPath(location.pathname))
+  }, [location.pathname])
 
   useEffect(() => {
     let active = true

@@ -165,14 +165,15 @@ export function Tick() {
 
 // The step's main button and, while it's greyed out, the reason why.
 // Top right next to the heading on computers; a full-width bar at the bottom on phones (onboarding.css).
-export function SaveBar({ label, saving, disabled, help, onSave }) {
+// The reason is hidden rather than removed once showHelp is false, so the page below it doesn't move up.
+export function SaveBar({ label, saving, disabled, help, showHelp, onSave }) {
   return (
     <div className="ob-save">
       <button type="button" className="ob-button ob-button--primary" onClick={onSave} disabled={disabled}>
         {saving ? 'Saving…' : label}
       </button>
       {help && (
-        <p className="ob-save-help">
+        <p className={`ob-save-help${showHelp ? '' : ' ob-save-help--hidden'}`}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
             <circle cx="12" cy="12" r="9" />
             <path d="M12 11v5M12 8h.01" />

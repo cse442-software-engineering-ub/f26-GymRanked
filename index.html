@@ -8,8 +8,10 @@
     <script>
       // Apply the remembered colour theme before anything is drawn, so a light page never flashes dark.
       // Same storage key as src/theme/theme.js; the account's saved theme is loaded after sign-in.
+      // Sign-in, create account and the onboarding steps stay dark (isAlwaysDarkPath in src/onboarding/onboardingRoute.js).
       try {
-        if (localStorage.getItem('gymrank.theme') === 'light') document.documentElement.dataset.theme = 'light'
+        var alwaysDark = /^#?\/?(login|register|personal-details|goal|experience|equipment|setup|recommended)?$/.test(location.hash.split('?')[0])
+        if (!alwaysDark && localStorage.getItem('gymrank.theme') === 'light') document.documentElement.dataset.theme = 'light'
       } catch (e) {}
     </script>
   </head>
