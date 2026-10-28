@@ -22,7 +22,8 @@ function LeaderboardPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const board = boardByKey(searchParams.get('board')).key
   const [attempt, setAttempt] = useState(0)
-  // The answer for one board and attempt; while another is wanted, the page shows loading, never another board.
+  // The latest answer, for one board and attempt. While another board loads, the last one stays on screen (dimmed),
+  // so the page keeps its height and the scroll position instead of jumping to the top.
   const [result, setResult] = useState({ key: null, status: 'loading', data: null })
   const [fullName, setFullName] = useState('')
   const [busy, setBusy] = useState(null)
@@ -79,12 +80,15 @@ function LeaderboardPage() {
     return true
   }
 
-  const { status, data } = result.key === key ? result : { status: 'loading', data: null }
+  const current = result.key === key
+  // 'updating': another board is on its way and the last one is still shown.
+  const status = current ? result.status : result.status === 'ready' ? 'updating' : 'loading'
+  const data = result.status === 'ready' && (current || status === 'updating') ? result.data : null
 
   return (
     <div className="leaderboard-page">
       <NavBar current="Leaderboard" />
-      <main className="leaderboard-page__content" aria-busy={status === 'loading'}>
+      <main className="leaderboard-page__content" aria-busy={status === 'loading' || status === 'updating'}>
         <div className="leaderboard-page__heading">
           <h1>Leaderboard</h1>
           <p>All-time DOTS points from finished workouts. Each lift uses your best estimated 1RM from sets of 1 to 10 reps. Overall adds the three together.</p>
@@ -92,11 +96,12 @@ function LeaderboardPage() {
 
         {notice && <p className="leaderboard-notice" role="status">{notice}</p>}
 
-        {status === 'ready' && (
-          // workouts_needed comes with the board, not inside me; the steps card reads it from me.
+        {data && (
+          // workouts_needed comes with the board, not inside me; the steps card reads it from me. The labels follow
+          // the board the numbers belong to (data.board), which can still be the last one while the next loads.
           <YourStanding
             me={{ ...data.me, workouts_needed: data.workouts_needed }}
-            board={board}
+            board={data.board}
             rankedCount={data.ranked_count}
             fullName={fullName}
             busy={busy}
@@ -109,15 +114,17 @@ function LeaderboardPage() {
         )}
 
         {/* The board card: who to compare with, the lift tabs, then the rows (research frame D1). */}
-        <section className="leaderboard-board" aria-label="Rankings">
+        <section className={status === 'updating' ? 'leaderboard-board is-updating' : 'leaderboard-board'} aria-label="Rankings">
           <div className="leaderboard-scope" role="group" aria-label="Compare with">
             <button type="button" aria-pressed="true">Everyone</button>
             <button type="button" aria-pressed="false" disabled>Friends <span className="leaderboard-later">Later</span></button>
           </div>
           <div className="leaderboard-tabs" role="group" aria-label="Board">
             {BOARDS.map((item) => (
-              <button key={item.key} type="button" aria-pressed={board === item.key} onClick={() => chooseBoard(item.key)}>
-                {item.label}
+              <button key={item.key} type="button" aria-label={item.label} aria-pressed={board === item.key}
+                onClick={() => chooseBoard(item.key)}>
+                <span className="leaderboard-tabs__full">{item.label}</span>
+                <span className="leaderboard-tabs__short">{item.short}</span>
               </button>
             ))}
           </div>
@@ -131,7 +138,7 @@ function LeaderboardPage() {
             </div>
           )}
 
-          {status === 'ready' && <BoardList rows={data.rows} board={board} rankedCount={data.ranked_count} />}
+          {data && <BoardList rows={data.rows} board={data.board} rankedCount={data.ranked_count} />}
         </section>
       </main>
     </div>
