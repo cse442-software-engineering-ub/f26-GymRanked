@@ -2,11 +2,12 @@
 // The numbers come from api/leaderboard.php (Mansur's backend, card 121), which already rounds them; this file only
 // formats them and decides which kind of "your standing" card to show.
 
+// short is the tab label on phones (research frame P1b); the full label stays the button's accessible name.
 export const BOARDS = [
-  { key: 'overall', label: 'Overall', lift: null },
-  { key: 'bench', label: 'Bench press', lift: 'bench press' },
-  { key: 'squat', label: 'Back squat', lift: 'back squat' },
-  { key: 'deadlift', label: 'Deadlift', lift: 'deadlift' },
+  { key: 'overall', label: 'Overall', short: 'Overall', lift: null },
+  { key: 'bench', label: 'Bench press', short: 'Bench', lift: 'bench press' },
+  { key: 'squat', label: 'Back squat', short: 'Squat', lift: 'back squat' },
+  { key: 'deadlift', label: 'Deadlift', short: 'Deadlift', lift: 'deadlift' },
 ]
 
 const LIFTS = BOARDS.slice(1)

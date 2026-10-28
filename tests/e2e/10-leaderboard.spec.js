@@ -353,14 +353,14 @@ acceptanceTests('10-leaderboard.md', {
     // The story asks for an iPhone SE (375 × 667). The mobile project is 375 wide already; desktop resizes.
     if (page.viewportSize().width > 375) await page.setViewportSize({ width: 375, height: 667 })
     const pinned = () => main(page).locator('.leaderboard-pinned')
-    await step('Step 2: on a phone, two rows of tabs, no sideways scrolling, and Casey’s row pinned', async () => {
+    await step('Step 2: on a phone, short tabs on one line, no sideways scrolling, and Casey’s row pinned', async () => {
       await as(page, CASEY)
       await openLeaderboard(page)
       await expectRanked(page, '#15 of 51 on Overall', '156.29')
-      const tops = await main(page).locator('.leaderboard-tabs button').evaluateAll((buttons) => buttons.map((b) => Math.round(b.getBoundingClientRect().top)))
-      expect(tops[0]).toBe(tops[1])
-      expect(tops[2]).toBe(tops[3])
-      expect(tops[2]).toBeGreaterThan(tops[0])
+      const tabs = main(page).locator('.leaderboard-tabs button')
+      await expect(tabs).toHaveText(['Overall', 'Bench', 'Squat', 'Deadlift'].map((label) => new RegExp(`^${label}$`)), { useInnerText: true })
+      const tops = await tabs.evaluateAll((buttons) => buttons.map((b) => Math.round(b.getBoundingClientRect().top)))
+      expect(new Set(tops).size).toBe(1)
       expect(await fitsWidth(page)).toBe(true)
       await expect(pinned()).toBeVisible()
       await expect(pinned()).toHaveText(/^15CMCasey M\.You156\.29$/)

@@ -523,6 +523,17 @@ a.leaderboard-step__action {
   font-weight: 500;
 }
 
+.leaderboard-tabs__short {
+  display: none;
+}
+
+/* Another board is loading: the last one stays, dimmed, so the page doesn't shrink and jump to the top. */
+.leaderboard-page__content[aria-busy='true'] .leaderboard-me,
+.leaderboard-board.is-updating > :not(.leaderboard-scope):not(.leaderboard-tabs) {
+  opacity: 0.55;
+  transition: opacity 0.15s;
+}
+
 .leaderboard-board__count {
   margin: 4px 0 0;
   color: var(--gr-text-muted);
@@ -711,7 +722,8 @@ a.leaderboard-step__action {
   outline-offset: 2px;
 }
 
-/* Phones: tabs 2 × 2, your rank under your name, lift tiles stacked, and your row pinned while it is off screen. */
+/* Phones: short tabs on one line, your rank under your name, lift tiles stacked, and your row pinned while it is
+   off screen. */
 @media (max-width: 640px) {
   .leaderboard-page__content {
     padding: 24px 20px 96px;
@@ -766,10 +778,23 @@ a.leaderboard-step__action {
     justify-content: center;
   }
 
+  /* One line of short labels (Overall · Bench · Squat · Deadlift), each tab a quarter of the width. */
   .leaderboard-tabs {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0 16px;
+    gap: 0;
+  }
+
+  .leaderboard-tabs button {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 8px 0;
+  }
+
+  .leaderboard-tabs__full {
+    display: none;
+  }
+
+  .leaderboard-tabs__short {
+    display: inline;
   }
 
   .leaderboard-step__title {
