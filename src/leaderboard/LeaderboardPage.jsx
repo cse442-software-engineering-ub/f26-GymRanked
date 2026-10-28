@@ -90,43 +90,49 @@ function LeaderboardPage() {
           <p>All-time DOTS points from finished workouts. Each lift uses your best estimated 1RM from sets of 1 to 10 reps. Overall adds the three together.</p>
         </div>
 
-        <div className="leaderboard-tabs" role="group" aria-label="Board">
-          {BOARDS.map((item) => (
-            <button key={item.key} type="button" aria-pressed={board === item.key} onClick={() => chooseBoard(item.key)}>
-              {item.label}
-            </button>
-          ))}
-        </div>
-
         {notice && <p className="leaderboard-notice" role="status">{notice}</p>}
 
-        {status === 'loading' && <p className="leaderboard-page__status">Loading the leaderboard...</p>}
-
-        {status === 'error' && (
-          <div className="leaderboard-error" role="alert">
-            <p>Couldn&apos;t load the leaderboard. Check your connection and try again.</p>
-            <button type="button" onClick={() => setAttempt((value) => value + 1)}>Try again</button>
-          </div>
-        )}
-
         {status === 'ready' && (
-          <>
-            {/* workouts_needed comes with the board, not inside me; the steps card reads it from me. */}
-            <YourStanding
-              me={{ ...data.me, workouts_needed: data.workouts_needed }}
-              board={board}
-              rankedCount={data.ranked_count}
-              fullName={fullName}
-              busy={busy}
-              error={actionError && ACTION_ERRORS[actionError]}
-              errorFor={actionError}
-              onJoin={(table) => act('join', () => joinLeaderboard(table))}
-              onLeave={() => act('leave', leaveLeaderboard)}
-              onSaveTable={(table) => act('table', () => joinLeaderboard(table))}
-            />
-            <BoardList rows={data.rows} board={board} rankedCount={data.ranked_count} />
-          </>
+          // workouts_needed comes with the board, not inside me; the steps card reads it from me.
+          <YourStanding
+            me={{ ...data.me, workouts_needed: data.workouts_needed }}
+            board={board}
+            rankedCount={data.ranked_count}
+            fullName={fullName}
+            busy={busy}
+            error={actionError && ACTION_ERRORS[actionError]}
+            errorFor={actionError}
+            onJoin={(table) => act('join', () => joinLeaderboard(table))}
+            onLeave={() => act('leave', leaveLeaderboard)}
+            onSaveTable={(table) => act('table', () => joinLeaderboard(table))}
+          />
         )}
+
+        {/* The board card: who to compare with, the lift tabs, then the rows (research frame D1). */}
+        <section className="leaderboard-board" aria-label="Rankings">
+          <div className="leaderboard-scope" role="group" aria-label="Compare with">
+            <button type="button" aria-pressed="true">Everyone</button>
+            <button type="button" aria-pressed="false" disabled>Friends <span className="leaderboard-later">Later</span></button>
+          </div>
+          <div className="leaderboard-tabs" role="group" aria-label="Board">
+            {BOARDS.map((item) => (
+              <button key={item.key} type="button" aria-pressed={board === item.key} onClick={() => chooseBoard(item.key)}>
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          {status === 'loading' && <p className="leaderboard-page__status">Loading the leaderboard...</p>}
+
+          {status === 'error' && (
+            <div className="leaderboard-error" role="alert">
+              <p>Couldn&apos;t load the leaderboard. Check your connection and try again.</p>
+              <button type="button" onClick={() => setAttempt((value) => value + 1)}>Try again</button>
+            </div>
+          )}
+
+          {status === 'ready' && <BoardList rows={data.rows} board={board} rankedCount={data.ranked_count} />}
+        </section>
       </main>
     </div>
   )

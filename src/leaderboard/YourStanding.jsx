@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
+  LIFT_BOARDS,
+  boardByKey,
   choosesTable,
   formatPounds,
   formatScore,
-  liftsLine,
+  initials,
   notOnBoardText,
   rankLine,
   rankSteps,
@@ -15,7 +17,8 @@ import {
 
 const PRIVACY = 'Others see your first name, last initial and scores. Never your body weight, gender, scoring table or lifts in lb.'
 
-// The card above the board: your rank on this board, what you still need, or the test-account note.
+// Above the board (research frames D1 and D4): your card with your rank and lifts, plus the "How to get ranked"
+// steps while you aren't ranked yet. A test account only gets a note.
 export default function YourStanding({ me, board, rankedCount, fullName, busy, error, errorFor, onJoin, onLeave, onSaveTable }) {
   const [table, setTable] = useState(me.scoring_table ?? '')
   const [changing, setChanging] = useState(false)
@@ -24,7 +27,7 @@ export default function YourStanding({ me, board, rankedCount, fullName, busy, e
 
   if (kind === 'test') {
     return (
-      <section className="leaderboard-me" aria-label="Your standing">
+      <section className="leaderboard-me leaderboard-me--note" aria-label="Your standing">
         <p className="leaderboard-me__text">Test accounts aren&apos;t shown on the leaderboard.</p>
       </section>
     )
@@ -59,20 +62,54 @@ export default function YourStanding({ me, board, rankedCount, fullName, busy, e
     </p>
   ))
 
-  if (kind === 'ranked' || kind === 'not-on-board') {
+  const onBoards = kind === 'ranked' || kind === 'not-on-board'
+  const { label } = boardByKey(board)
+  const header = (
+    <div className="leaderboard-me__head">
+      <span className="leaderboard-me__avatar" aria-hidden="true">{initials(fullName)}</span>
+      <div className="leaderboard-me__who">
+        <h2>{fullName || 'You'}</h2>
+        <p className="leaderboard-me__detail">
+          {kind !== 'ranked' && <span className="leaderboard-pill">{onBoards ? 'Not on this board' : 'Unranked'}</span>}
+          {onBoards
+            ? <>Body weight {formatPounds(me.bodyweight_lb)} · {leaveButton('Leave the leaderboard')}</>
+            : 'Not on any board yet'}
+        </p>
+      </div>
+      <div className="leaderboard-me__place">
+        <span className="leaderboard-me__label">{kind === 'ranked' ? `Rank · ${label}` : 'Rank'}</span>
+        {kind === 'ranked' ? (
+          <>
+            <p className="leaderboard-me__rank">{rankLine(me.rank, rankedCount, board)}</p>
+            <p className="leaderboard-me__score"><strong>{formatScore(me.score)}</strong> DOTS points</p>
+          </>
+        ) : <p className="leaderboard-me__norank" aria-label="No rank">—</p>}
+      </div>
+    </div>
+  )
+
+  if (onBoards) {
     return (
       <section className="leaderboard-me" aria-label="Your standing">
-        <div className="leaderboard-me__head">
-          <h2>{fullName || 'You'}</h2>
-          {kind === 'ranked' && <p className="leaderboard-me__rank">{rankLine(me.rank, rankedCount, board)}</p>}
+        <div className="leaderboard-me__card">
+          {header}
+          {actionError('leave')}
+          {kind === 'not-on-board' && <p className="leaderboard-me__text">{notOnBoardText(me, board)}</p>}
+          <div className="leaderboard-lifts">
+            {LIFT_BOARDS.map((lift) => (
+              <div key={lift.key} className={lift.key === board ? 'leaderboard-lift is-current' : 'leaderboard-lift'}>
+                <span className="leaderboard-lift__name">{lift.label}</span>
+                <strong className="leaderboard-lift__value">{formatPounds(me.lifts?.[lift.key])}</strong>
+                <span className="leaderboard-lift__caption">{me.lifts?.[lift.key] == null ? 'Not logged yet' : 'Best estimated 1RM'}</span>
+              </div>
+            ))}
+          </div>
+          {tableRow}
+          <p className="leaderboard-me__note">
+            Each lift is your best estimated 1RM, weight × (1 + reps ÷ 30), from sets of 1 to 10 reps in finished
+            workouts. Only you see your weights in lb.
+          </p>
         </div>
-        {kind === 'ranked'
-          ? <p className="leaderboard-me__score"><strong>{formatScore(me.score)}</strong> DOTS points</p>
-          : <p className="leaderboard-me__text">{notOnBoardText(me, board)}</p>}
-        <p className="leaderboard-me__detail">Your best estimated 1RMs: {liftsLine(me.lifts)}</p>
-        {tableRow}
-        <div className="leaderboard-actions">{leaveButton('Leave the leaderboard')}</div>
-        {actionError('leave')}
       </section>
     )
   }
@@ -83,68 +120,84 @@ export default function YourStanding({ me, board, rankedCount, fullName, busy, e
   const needsChoice = chooses && !me.scoring_table
 
   return (
-    <section className="leaderboard-me" aria-labelledby="leaderboard-steps-title">
-      <h2 id="leaderboard-steps-title">How to get ranked</h2>
-      <ol className="leaderboard-steps">
-        <Step done={join.done} title="Join the leaderboard">
-          {join.done ? (
-            <>
-              <p>You&apos;ve joined · {leaveButton('Leave')}</p>
-              {tableRow}
-              {actionError('leave')}
-            </>
-          ) : (
-            <>
-              <p>{joinedWithoutTable ? 'Choose a scoring table to finish joining.' : PRIVACY}</p>
-              {needsChoice && tableChoice}
-              <div className="leaderboard-actions">
-                {joinedWithoutTable ? (
-                  <button type="button" className="leaderboard-button" disabled={Boolean(busy) || !table} onClick={() => onSaveTable(table)}>
-                    {busy === 'table' ? 'Saving…' : 'Save'}
-                  </button>
-                ) : (
-                  <button type="button" className="leaderboard-button" disabled={Boolean(busy) || (needsChoice && !table)}
-                    onClick={() => onJoin(needsChoice ? table : undefined)}>
-                    {busy === 'join' ? 'Joining…' : 'Join the leaderboard'}
-                  </button>
-                )}
-                {joinedWithoutTable && leaveButton('Leave')}
+    <section className="leaderboard-me" aria-label="Your standing">
+      <div className="leaderboard-me__card">{header}</div>
+      <div className="leaderboard-steps-card">
+        <p className="leaderboard-eyebrow">Get on the leaderboard</p>
+        <h2>How to get ranked</h2>
+        <p className="leaderboard-me__text">The leaderboard is opt-in. Nobody sees anything about you until you join and get ranked.</p>
+        <ol className="leaderboard-steps">
+          <Step number={1} done={join.done} title="Join the leaderboard">
+            {join.done ? (
+              <>
+                <p>You&apos;ve joined · {leaveButton('Leave')}</p>
+                {tableRow}
+                {actionError('leave')}
+              </>
+            ) : (
+              <>
+                <p>{joinedWithoutTable ? 'Choose a scoring table to finish joining.' : PRIVACY}</p>
+                {needsChoice && tableChoice}
+                <div className="leaderboard-actions">
+                  {joinedWithoutTable ? (
+                    <button type="button" className="leaderboard-button" disabled={Boolean(busy) || !table} onClick={() => onSaveTable(table)}>
+                      {busy === 'table' ? 'Saving…' : 'Save'}
+                    </button>
+                  ) : (
+                    <button type="button" className="leaderboard-button" disabled={Boolean(busy) || (needsChoice && !table)}
+                      onClick={() => onJoin(needsChoice ? table : undefined)}>
+                      {busy === 'join' ? 'Joining…' : 'Join the leaderboard'}
+                    </button>
+                  )}
+                  {joinedWithoutTable && leaveButton('Leave')}
+                </div>
+                {needsChoice && !table && <p className="leaderboard-hint">Choose a scoring table.</p>}
+                {actionError('join')}
+                {actionError('table')}
+                {actionError('leave')}
+              </>
+            )}
+          </Step>
+          <Step number={2} done={details.done} title="Add your body weight and gender">
+            {details.done
+              ? <p>Saved in Personal details · {formatPounds(me.bodyweight_lb)}</p>
+              : <p><Link to="/personal-details">Add personal details</Link></p>}
+          </Step>
+          <Step number={3} done={workouts.done} title="Finish 3 workouts"
+            action={!workouts.done && <Link className="leaderboard-step__action" to="/weekly-plan">Start a workout ›</Link>}>
+            <p>{workoutsText(me.workouts_done, me.workouts_needed)}</p>
+            {!workouts.done && (
+              <div className="leaderboard-progress" role="progressbar" aria-label="Workouts finished"
+                aria-valuemin={0} aria-valuemax={me.workouts_needed} aria-valuenow={Math.min(me.workouts_done, me.workouts_needed)}>
+                <span style={{ width: `${(Math.min(me.workouts_done, me.workouts_needed) / me.workouts_needed) * 100}%` }} />
               </div>
-              {needsChoice && !table && <p className="leaderboard-hint">Choose a scoring table.</p>}
-              {actionError('join')}
-              {actionError('table')}
-              {actionError('leave')}
-            </>
-          )}
-        </Step>
-        <Step done={details.done} title="Add your body weight and gender">
-          {details.done
-            ? <p>Saved in Personal details · {formatPounds(me.bodyweight_lb)}</p>
-            : <p><Link to="/personal-details">Add personal details</Link></p>}
-        </Step>
-        <Step done={workouts.done} title="Finish 3 workouts">
-          <p>{workoutsText(me.workouts_done, me.workouts_needed)}</p>
-        </Step>
-        <Step done={lift.done} title="Log a bench press, back squat or deadlift">
-          <p>Sets of 1 to 10 reps count.</p>
-        </Step>
-      </ol>
+            )}
+          </Step>
+          <Step number={4} done={lift.done} title="Log a bench press, back squat or deadlift">
+            <p>Sets of 1 to 10 reps count.</p>
+          </Step>
+        </ol>
+        <p className="leaderboard-me__note">Until then you&apos;re Unranked and don&apos;t appear on any board.</p>
+      </div>
     </section>
   )
 }
 
-function Step({ done, title, children }) {
+function Step({ number, done, title, action, children }) {
   return (
     <li className={done ? 'leaderboard-step is-done' : 'leaderboard-step'}>
-      <span className="leaderboard-step__tick" aria-hidden="true">
-        {done && (
+      <span className="leaderboard-step__marker" aria-hidden="true">
+        {done ? (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <path d="M5 12l5 5 9-10" />
           </svg>
-        )}
+        ) : number}
       </span>
       <div className="leaderboard-step__body">
-        <h3>{title}<span className="leaderboard-sr-only">{done ? ' (done)' : ' (not done)'}</span></h3>
+        <div className="leaderboard-step__title">
+          <h3>{title}<span className="leaderboard-sr-only">{done ? ' (done)' : ' (not done)'}</span></h3>
+          {action}
+        </div>
         {children}
       </div>
     </li>

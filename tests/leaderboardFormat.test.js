@@ -6,7 +6,7 @@ import {
   emptyBoardText,
   formatPounds,
   formatScore,
-  liftsLine,
+  initials,
   notOnBoardText,
   rankLine,
   rankSteps,
@@ -50,9 +50,12 @@ test('rank, count and empty lines name the board', () => {
   assert.equal(emptyBoardText('bench'), 'Nobody is ranked on Bench press yet.')
 })
 
-test('own lifts, workouts and scoring table lines', () => {
-  assert.equal(liftsLine(casey.lifts), 'Bench press 202 lb · Back squat 284 lb · Deadlift 205 lb')
-  assert.equal(liftsLine({ bench: 150.5, squat: null, deadlift: null }), 'Bench press 150.5 lb · Back squat — · Deadlift —')
+test('initials, workouts and scoring table lines', () => {
+  assert.equal(initials('Ana C.'), 'AC')
+  assert.equal(initials('Casey Morgan'), 'CM')
+  assert.equal(initials('  mary jane watson '), 'MW')
+  assert.equal(initials('Cher'), 'C')
+  assert.equal(initials(''), '?')
   assert.equal(workoutsText(1, 3), '1 of 3 workouts finished')
   assert.equal(workoutsText(7, 3), '3 of 3 workouts finished')
   assert.equal(tableLine('women'), "Scored with the women's table")

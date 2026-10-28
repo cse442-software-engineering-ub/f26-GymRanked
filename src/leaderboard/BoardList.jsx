@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
-import { emptyBoardText, formatScore, rankedCountLine } from './leaderboardFormat.js'
+import { emptyBoardText, formatScore, initials, rankedCountLine } from './leaderboardFormat.js'
 
 // One board: the top 10 (plus anyone tied with 10th), a "· · ·" gap, then you and one person either side.
 // Rows show only rank, first name + last initial and score. On phones your row is pinned to the bottom of the
@@ -19,18 +19,18 @@ export default function BoardList({ rows, board, rankedCount }) {
 
   if (rankedCount === 0) {
     return (
-      <section className="leaderboard-board leaderboard-board--empty" aria-label="Board">
+      <div className="leaderboard-empty">
         <h2>{emptyBoardText(board)}</h2>
         <p>People appear here once they join, finish 3 workouts and log the lift.</p>
-      </section>
+      </div>
     )
   }
 
   return (
-    <section className="leaderboard-board" aria-labelledby="leaderboard-count">
-      <h2 id="leaderboard-count" className="leaderboard-board__count">{rankedCountLine(rankedCount, board)}</h2>
+    <>
+      <h2 className="leaderboard-board__count">{rankedCountLine(rankedCount, board)}</h2>
       <div className="leaderboard-board__header" aria-hidden="true">
-        <span>Rank</span><span>Name</span><span>DOTS points</span>
+        <span>Rank</span><span>Athlete</span><span>Score</span>
       </div>
       <ol className="leaderboard-list">
         {rows.map((row) => (
@@ -45,6 +45,7 @@ export default function BoardList({ rows, board, rankedCount }) {
               aria-current={row.is_me ? 'true' : undefined}>
               <span className="leaderboard-rank">{row.rank}</span>
               <span className="leaderboard-who">
+                <span className="leaderboard-avatar" aria-hidden="true">{initials(row.name)}</span>
                 <span className="leaderboard-name">{row.name}</span>
                 {row.is_me && <span className="leaderboard-you">You</span>}
               </span>
@@ -53,15 +54,20 @@ export default function BoardList({ rows, board, rankedCount }) {
           </Fragment>
         ))}
       </ol>
+      <p className="leaderboard-note">
+        Showing the top 10 and the people around you. People with the same score share a rank (2, 2, 4). Overall scores
+        each person&apos;s three best estimated 1RMs added together. Other people&apos;s weights are never shown.
+      </p>
       {me && (
         <div className="leaderboard-pinned" hidden={meVisible} aria-hidden="true">
           <span className="leaderboard-rank">{me.rank}</span>
           <span className="leaderboard-who">
+            <span className="leaderboard-avatar">{initials(me.name)}</span>
             <span>{me.name}</span><span className="leaderboard-you">You</span>
           </span>
-          <span>{formatScore(me.score)}</span>
+          <span className="leaderboard-score">{formatScore(me.score)}</span>
         </div>
       )}
-    </section>
+    </>
   )
 }

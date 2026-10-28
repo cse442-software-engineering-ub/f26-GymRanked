@@ -225,7 +225,10 @@ acceptanceTests('10-leaderboard.md', {
       await expect(card(page).getByRole('heading', { name: 'Casey Morgan' })).toBeVisible()
       await expectRanked(page, '#15 of 51 on Overall', '156.29')
       await expect(card(page)).toContainText('DOTS points')
-      await expect(card(page)).toContainText('Your best estimated 1RMs: Bench press 140 lb · Back squat 190 lb · Deadlift 205 lb')
+      await expect(card(page)).toContainText('Body weight 200 lb')
+      await expect(card(page).locator('.leaderboard-me__label')).toHaveText('Rank · Overall')
+      await expect(card(page).locator('.leaderboard-lift__name')).toHaveText(['Bench press', 'Back squat', 'Deadlift'])
+      await expect(card(page).locator('.leaderboard-lift__value')).toHaveText(['140 lb', '190 lb', '205 lb'])
       await expect(card(page).getByRole('button', { name: 'Leave the leaderboard' })).toBeVisible()
     })
     await step('Steps 2 and 3: the top 11 with the tie at 10, the gap, then Casey ±1', async () => {
@@ -360,7 +363,7 @@ acceptanceTests('10-leaderboard.md', {
       expect(tops[2]).toBeGreaterThan(tops[0])
       expect(await fitsWidth(page)).toBe(true)
       await expect(pinned()).toBeVisible()
-      await expect(pinned()).toHaveText(/^15Casey M\.You156\.29$/)
+      await expect(pinned()).toHaveText(/^15CMCasey M\.You156\.29$/)
     })
     await step('Step 3: the pinned bar goes away once Casey’s own row is on screen', async () => {
       await main(page).locator('.leaderboard-row.is-me').scrollIntoViewIfNeeded()
