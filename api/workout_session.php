@@ -15,8 +15,9 @@
 // The exercises come from the user's current plan (api/current_plan.php), in order, and are copied into the session
 // when it starts. Without day_position the day is today's scheduled training day (same schedule as
 // src/weeklySchedule.js, in America/New_York time, UB's time zone). The user's current session is their most recent
-// one started within the last 24 hours, finished or not: starting returns it instead of making a second one, so
-// reopening an unfinished workout (or the completed one) is the same call.
+// one of the plan selected now started within the last 24 hours, finished or not: starting returns it instead of
+// making a second one, so reopening an unfinished workout (or the completed one) is the same call. After the user
+// switches plans, the earlier plan's session is left alone and starting makes a new one for the new plan.
 //
 // 400 day_position isn't a whole number / bad id, 401 not logged in, 404 unknown session (or another user's) or
 // no such plan day, 405 wrong method, 409 no plan selected, rest day, or a day with no exercises.
@@ -83,11 +84,14 @@ if ($day_position !== null) {
     if (!$day) respond(404, ['error' => 'Plan day not found']);
 }
 
+// Only a session of the plan selected now counts, so switching plans starts the new plan's workout instead of
+// reopening the old plan's day. (With no plan selected there is nothing to compare, so any recent session counts.)
+$plan_id = $plan ? (int) $plan['id'] : 0;
 $stmt = $db->prepare(
     'SELECT id FROM workout_sessions WHERE user_id = ? AND started_at > UTC_TIMESTAMP() - INTERVAL 24 HOUR
-     ORDER BY started_at DESC, id DESC LIMIT 1'
+     AND (? = 0 OR plan_id = ?) ORDER BY started_at DESC, id DESC LIMIT 1'
 );
-$stmt->bind_param('i', $user_id);
+$stmt->bind_param('iii', $user_id, $plan_id, $plan_id);
 $stmt->execute();
 $current = $stmt->get_result()->fetch_assoc();
 if ($current) {
@@ -108,7 +112,6 @@ $exercises = json_decode($day['exercises'] ?? 'null', true);
 $exercises = is_array($exercises) ? array_values(array_filter($exercises, 'is_string')) : [];
 if (!$exercises) respond(409, ['error' => 'This plan day has no exercises']);
 
-$plan_id = (int) $plan['id'];
 $exercises_json = json_encode($exercises);
 $stmt = $db->prepare(
     'INSERT INTO workout_sessions (user_id, plan_id, plan_name, day_name, focus, exercises, started_at)
