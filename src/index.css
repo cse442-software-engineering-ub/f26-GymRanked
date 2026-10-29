@@ -461,6 +461,117 @@ button.nav-bar__avatar {
   gap: 16px;
 }
 
+.dashboard-weekly {
+  display: grid;
+  gap: 12px;
+}
+
+.dashboard-weekly__heading,
+.dashboard-weekly__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dashboard-weekly__heading h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.dashboard-weekly__eyebrow {
+  margin: 0 0 4px;
+  color: var(--gr-text-muted);
+  font-size: 12px;
+  letter-spacing: .1em;
+}
+
+.dashboard-weekly__standings,
+.dashboard-weekly__secondary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--gr-action-text);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.dashboard-weekly__secondary {
+  margin-top: auto;
+  cursor: pointer;
+}
+
+.dashboard-weekly__count {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.dashboard-weekly__count span,
+.dashboard-weekly__note {
+  color: var(--gr-text-muted);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.dashboard-weekly__days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dashboard-weekly__day {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-button);
+  color: var(--gr-text-muted);
+  text-align: center;
+  font-size: 12px;
+}
+
+.dashboard-weekly__day--done {
+  border-color: var(--gr-success);
+  color: var(--gr-success-text);
+}
+
+.dashboard-weekly__standing,
+.dashboard-weekly__note { margin: 0; }
+.dashboard-weekly__next { margin: 0; font-size: 14px; }
+.dashboard-weekly__error { color: var(--gr-error-text); }
+.dashboard-weekly__error button,
+.dashboard-weekly__standing button {
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--gr-action-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dashboard-weekly__actions .dashboard-primary-action {
+  width: auto;
+  min-width: 180px;
+  min-height: 44px;
+  text-align: center;
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .dashboard-weekly__heading { align-items: flex-start; }
+  .dashboard-weekly__days { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .dashboard-weekly__day { padding: 8px 2px; }
+  .dashboard-weekly__actions { display: block; }
+  .dashboard-weekly__actions .dashboard-primary-action { width: 100%; }
+}
+
 .dashboard-metric {
   display: flex;
   align-items: center;

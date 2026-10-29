@@ -10,6 +10,46 @@ import workoutLogApi from './workoutLog/workoutLogApi.js'
 import { summaryPath } from './workoutLog/setLog.js'
 import { formatVolume } from './workoutLog/workoutSummary.js'
 import { dashboardHistory } from './dashboardHistory.js'
+import { fetchUnfinishedSession } from './workoutSessionApi.js'
+import { getLeaderboard } from './leaderboard/leaderboardApi.js'
+
+const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+function WeeklyGoalCard({ state, standings, plan, planReady, today, nextWorkout, unfinished, completedSession, onRetry, onStart }) {
+  const { status, data } = state
+  const dates = data?.completed_dates ?? []
+  const easternToday = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(new Date())
+  const datePart = (type) => easternToday.find((part) => part.type === type).value
+  const todayDate = `${datePart('year')}-${datePart('month')}-${datePart('day')}`
+  const weekDays = data ? Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(`${data.week_start}T00:00:00Z`)
+    date.setUTCDate(date.getUTCDate() + index)
+    return date.toISOString().slice(0, 10)
+  }) : []
+  const action = unfinished && plan && unfinished.plan === plan.name ? 'Resume workout' : 'Start workout'
+  return <section className="dashboard-card dashboard-weekly" aria-label="Weekly training goal">
+    <div className="dashboard-weekly__heading">
+      <div><p className="dashboard-weekly__eyebrow">THIS WEEK</p><h2>Your weekly goal</h2></div>
+      <Link to="/leaderboard" className="dashboard-weekly__standings">View leaderboard ›</Link>
+    </div>
+    {status === 'loading' && <p role="status">Loading your weekly progress...</p>}
+    {status === 'error' && <div className="dashboard-weekly__error" role="alert">Couldn't load your weekly progress. Try again. <button type="button" onClick={onRetry}>Try again</button></div>}
+    {status === 'ready' && <>
+      <p className="dashboard-weekly__count">{data.progress_days} of {data.target_days} <span>training days</span></p>
+      <div className="dashboard-progress" role="progressbar" aria-label="Weekly goal progress" aria-valuemin={0} aria-valuemax={data.target_days} aria-valuenow={data.progress_days}><span style={{ width: `${data.progress_percent}%` }} /></div>
+      <ol className="dashboard-weekly__days" aria-label="This week's training days">{weekDays.map((date, index) => {
+        const done = dates.includes(date)
+        return <li key={date} className={done ? 'dashboard-weekly__day dashboard-weekly__day--done' : 'dashboard-weekly__day'}><strong>{DAY_NAMES[(index + 1) % 7]}</strong><span>{done ? '✓ Completed' : date === todayDate && plan && !today ? 'Rest' : '—'}</span></li>
+      })}</ol>
+    </>}
+    {nextWorkout && <p className="dashboard-weekly__next">Next workout: <strong>{nextWorkout.name}</strong> · {plan.name}</p>}
+    <p className="dashboard-weekly__standing">{standings.status === 'error' ? <>Couldn't load leaderboard. Try again. <button type="button" onClick={onRetry}>Try again</button></> : standings.status === 'ready' ? standings.data?.me?.ranked ? `All-time rank #${standings.data.me.rank}` : standings.data?.me ? 'Unranked' : 'Standing unavailable' : 'Loading standing...'}</p>
+    <p className="dashboard-weekly__note">Weekly standings are not available yet. View the all-time leaderboard.</p>
+    <div className="dashboard-weekly__actions">{!planReady ? null : plan && today && !completedSession ? <button type="button" className="dashboard-primary-action" onClick={onStart}>{action}</button> : plan && completedSession ? <Link className="dashboard-weekly__secondary" to={summaryPath(completedSession.id)}>View workout summary ›</Link> : plan ? <Link className="dashboard-weekly__secondary" to="/weekly-plan">View your weekly plan ›</Link> : <Link className="dashboard-primary-action" to="/plans">Browse workout plans ›</Link>}</div>
+  </section>
+}
 
 function MetricCard({ label, value, hint, accent = false, icon }) {
   return (
@@ -42,7 +82,7 @@ function metricsFor(plan, planError, historyStatus, progress) {
       label: 'WORKOUTS THIS WEEK',
       icon: 'dumbbell',
       value: planError || historyUnavailable ? 'Unavailable' : plan ? historyLoading ? 'Loading…' : `${progress.thisWeek} of ${plan.days_per_week}` : 'No plan yet',
-      hint: planError || historyUnavailable ? 'Try loading your workout summary again' : plan ? 'Hit every session to build your streak' : 'Select a workout plan to set a weekly goal',
+      hint: planError || historyUnavailable ? 'Try loading your workout summary again' : plan ? `${plan.days_per_week} workouts scheduled in ${plan.name}` : 'Select a workout plan to set a weekly goal',
     },
     {
       label: 'WEEKLY CONSISTENCY',
@@ -65,7 +105,7 @@ function TodayWorkoutCard({ plan, today, completedSession, weekLabel, onBrowse, 
         <p className="dashboard-card__text">
           Start by selecting a workout plan. Once you pick one, today's session will show up here.
         </p>
-        <button type="button" className="dashboard-primary-action dashboard-primary-action--spaced" onClick={onBrowse}>
+        <button type="button" className="dashboard-weekly__secondary dashboard-primary-action--spaced" onClick={onBrowse}>
           Browse workout plans ›
         </button>
       </article>
@@ -107,7 +147,7 @@ function TodayWorkoutCard({ plan, today, completedSession, weekLabel, onBrowse, 
           ))}
         </ol>
       )}
-      <button type="button" className="dashboard-primary-action dashboard-primary-action--spaced" onClick={onView}>
+      <button type="button" className="dashboard-weekly__secondary dashboard-primary-action--spaced" onClick={onView}>
         <span className="dashboard-desktop-only">{completedSession ? 'View workout summary ›' : today ? `View ${plan.name} ›` : 'View your weekly plan ›'}</span>
         <span className="dashboard-mobile-only">{completedSession ? 'View summary ›' : today ? 'View plan ›' : 'View your weekly plan ›'}</span>
       </button>
@@ -177,6 +217,19 @@ function Dashboard() {
   const [planError, setPlanError] = useState('')
   const [loadAttempt, setLoadAttempt] = useState(0)
   const [historyState, setHistoryState] = useState({ status: 'loading', sessions: [] })
+  const [weeklyState, setWeeklyState] = useState({ status: 'loading', data: null })
+  const [standingState, setStandingState] = useState({ status: 'loading', data: null })
+  const [unfinished, setUnfinished] = useState(null)
+
+  useEffect(() => {
+    let active = true
+    setWeeklyState({ status: 'loading', data: null })
+    setStandingState({ status: 'loading', data: null })
+    apiRequest('weekly_goal.php').then((result) => { if (active) setWeeklyState({ status: result.ok ? 'ready' : 'error', data: result.ok ? result.data : null }) })
+    getLeaderboard('overall').then((result) => { if (active) setStandingState({ status: result.ok ? 'ready' : 'error', data: result.ok ? result.data : null }) })
+    fetchUnfinishedSession().then((session) => { if (active) setUnfinished(session) })
+    return () => { active = false }
+  }, [loadAttempt])
 
   useEffect(() => {
     let active = true
@@ -228,8 +281,10 @@ function Dashboard() {
   const plan = setup?.plan ?? null
   const goal = setup?.goal ?? null
   const currentDate = new Date()
-  const today = plan ? buildWeek(plan, currentDate).find((day) => day.when === 'today').workout : null
+  const schedule = plan ? buildWeek(plan, currentDate) : []
+  const today = schedule.find((day) => day.when === 'today')?.workout ?? null
   const progress = historyState.status === 'ready' ? dashboardHistory(historyState.sessions, plan, currentDate) : null
+  const nextWorkout = schedule.find((day) => (day.when === 'today' && !progress?.todaySession || day.when === 'upcoming') && day.workout)?.workout ?? plan?.days?.[0] ?? null
   const checklist = [
     {
       title: 'Choose your training goal',
@@ -288,6 +343,7 @@ function Dashboard() {
           </div>
         </header>
 
+        <WeeklyGoalCard state={weeklyState} standings={standingState} plan={plan} planReady={setup !== null && !planError} today={today} nextWorkout={nextWorkout} unfinished={unfinished} completedSession={progress?.todaySession} onRetry={retryPlan} onStart={() => navigate('/workouts/today')} />
         <section className="dashboard-metrics" aria-label="Weekly summary">
           {metricsFor(plan, planError, historyState.status, progress).map((metric) => <MetricCard key={metric.label} {...metric} />)}
         </section>
