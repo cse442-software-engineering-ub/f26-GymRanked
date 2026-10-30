@@ -105,6 +105,18 @@ mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < datab
 
 Rerunning it is safe: it resets these 62 accounts (names, passwords, personal details, joined state and all their workouts) and doesn't touch any other account, so stories 7, 8, 9 and 18 keep their numbers. To empty a board in SQL, `UPDATE user_profile SET leaderboard_joined_at = NULL WHERE user_id IN (...)`; to put people back, set it to `UTC_TIMESTAMP()`, or load the seed again.
 
+## Weekly competition data
+
+`weekly_competition.sql` adds twelve accounts (`week-casey@example.com`, `week-maya@example.com`, `week-pat@example.com`, `week-jordan@example.com`, `week-alex@example.com`, `week-riley@example.com`, `week-sam@example.com`, `week-nia@example.com`, `week-dana@example.com`, `week-ivy@example.com`, `week-lee@example.com` and the test account `week-tess@example.com`), all with the password `Weekly-Test-Compete!`. They are in the weekly consistency competition for story #124 (card #126); the starting standings are in `task-tests/124-weekly-standings-backend.html`. It needs every migration up to `015_weekly_competition.sql`.
+
+Its workouts are dated in the current Monday-Sunday week, so load it on a Thursday, Friday or Saturday (not between 12:00 AM and 1:00 AM New York time) and test within 24 hours:
+
+```bash
+mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < database/seeds/weekly_competition.sql
+```
+
+Rerunning it is safe: it resets these twelve accounts and their workouts, goals and joined state, and doesn't touch any other account. Reload it before running a test that finishes a workout again.
+
 ## Weekly goal accounts
 
 `weekly_goals.sql` adds Wes Fresh, Lena Locked and Nia Next for the weekly goal page (task #88, story #87), whose
