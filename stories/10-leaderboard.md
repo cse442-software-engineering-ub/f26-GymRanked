@@ -20,7 +20,7 @@ Test accounts: fake accounts loaded on the site by `database/seeds/leaderboard.s
 
 ### Steps:
 
-1. Select **Leaderboard** in the top navigation. Confirm that the address ends in `#/leaderboard`, that **Leaderboard** is highlighted in the navigation, that the heading says `Leaderboard`, and that **Overall** is the selected one of the tabs **Overall**, **Bench press**, **Back squat** and **Deadlift**.
+1. Select **Leaderboard** in the top navigation, then **Strength**. Confirm that the address ends in `#/leaderboard`, that **Leaderboard** is highlighted in the navigation, that the heading says `Leaderboard`, and that **Overall** is the selected one of the tabs **Overall**, **Bench press**, **Back squat** and **Deadlift**.
 2. Confirm that a card titled `How to get ranked` lists four steps in this order: `Join the leaderboard`, not ticked, with the sentence `Others see your first name, last initial and scores. Never your body weight, gender, scoring table or lifts in lb.` and a **Join the leaderboard** button; `Add your body weight and gender`, ticked, with `Saved in Personal details · 180 lb`; `Finish 3 workouts`, not ticked, with `0 of 3 workouts finished`; and `Log a bench press, back squat or deadlift`, not ticked.
 3. Confirm that the board below says `51 people ranked on Overall` and starts with `1` `Cy P.` `319.16`, `2` `Ana C.` `243.63`, `2` `Ben O.` `243.63`, `4` `Dee S.` `229.03`, and that no row is marked `You`.
 
@@ -28,19 +28,19 @@ Test accounts: fake accounts loaded on the site by `database/seeds/leaderboard.s
 
 ### Setup for this test:
 
-1. Create and set up a new account as in Acceptance Test 1 (use a different email, for example `lead-b-1028@example.com`). Confirm that the Dashboard opens, then select **Leaderboard**.
+1. Create and set up a new account as in Acceptance Test 1 (use a different email, for example `lead-b-1028@example.com`). Confirm that the Dashboard opens, then select **Leaderboard**, then **Strength**.
 
 ### Steps:
 
 1. Select **Join the leaderboard**. Confirm that the first step is now ticked and says `You've joined`, that `Finish 3 workouts` and `Log a bench press, back squat or deadlift` are still not ticked, and that the board still says `51 people ranked on Overall` with no row marked `You` (you need 3 finished workouts and a lift first).
-2. Open the account menu, select **Log out**, log back in with the same email and password, and select **Leaderboard**. Confirm that the first step is still ticked and says `You've joined`.
+2. Open the account menu, select **Log out**, log back in with the same email and password, and select **Leaderboard**, then **Strength**. Confirm that the first step is still ticked and says `You've joined`.
 3. In the first step, select **Leave**. Confirm that the page says `You've left the leaderboard. Your workouts are kept.` and that the first step is not ticked again and shows the **Join the leaderboard** button.
 
 ## Acceptance Test 3: Nonbinary and Prefer not to say accounts choose which DOTS table scores them
 
 ### Setup for this test:
 
-1. Create a new account as in Acceptance Test 1 (for example `lead-c-1028@example.com`), but on **Personal details** enter `160` and select **Prefer not to say**. Finish setup as in Acceptance Test 1 until the Dashboard opens, then select **Leaderboard**.
+1. Create a new account as in Acceptance Test 1 (for example `lead-c-1028@example.com`), but on **Personal details** enter `160` and select **Prefer not to say**. Finish setup as in Acceptance Test 1 until the Dashboard opens, then select **Leaderboard**, then **Strength**.
 
 ### Steps:
 
@@ -57,7 +57,7 @@ Test accounts: fake accounts loaded on the site by `database/seeds/leaderboard.s
 
 ### Steps:
 
-1. Select **Leaderboard**. Confirm that your card shows `Casey Morgan` with `Body weight 200 lb` and a **Leave the leaderboard** button, `Rank · Overall` `#15 of 51 on Overall` with `156.29` `DOTS points`, and three tiles of your best estimated 1RMs: `Bench press` `140 lb`, `Back squat` `190 lb` and `Deadlift` `205 lb`.
+1. Select **Leaderboard**, then **Strength**. Confirm that your card shows `Casey Morgan` with `Body weight 200 lb` and a **Leave the leaderboard** button, `Rank · Overall` `#15 of 51 on Overall` with `156.29` `DOTS points`, and three tiles of your best estimated 1RMs: `Bench press` `140 lb`, `Back squat` `190 lb` and `Deadlift` `205 lb`.
 2. Confirm that the board says `51 people ranked on Overall` and starts with these 11 rows, in this order: `1` `Cy P.` `319.16`, `2` `Ana C.` `243.63`, `2` `Ben O.` `243.63`, `4` `Dee S.` `229.03`, `5` `Wes Z.` `197.65`, `6` `Nova L.` `188.85`, `7` `Grant G.` `170.89`, `8` `Milo Q.` `167.64`, `9` `Olive O.` `167.09`, `10` `Jude N.` `165.93`, `10` `Quinn R.` `165.93`. People with the same score share a rank, the rank after a tie is skipped, and both people tied at 10 are shown.
 3. Confirm that a `· · ·` row comes next, then `14` `Luis O.` `159.90`, then your own row `15` `Casey M.` marked `You` with `156.29` and highlighted, then `16` `Dina D.` `155.52`.
 4. Confirm that no row on the board shows a weight in lb or kg, a body weight, a gender or an email: only rank, name and score.
@@ -66,7 +66,7 @@ Test accounts: fake accounts loaded on the site by `database/seeds/leaderboard.s
 
 ### Setup for this test:
 
-1. Log in as Casey as in Acceptance Test 4 and select **Leaderboard**.
+1. Log in as Casey as in Acceptance Test 4 and select **Leaderboard**, then **Strength**.
 
 ### Steps:
 
@@ -83,21 +83,21 @@ Test accounts: fake accounts loaded on the site by `database/seeds/leaderboard.s
 
 ### Steps:
 
-1. Log in with `robin.hale@example.com` and `Robin-Bench135!` and select **Leaderboard**. Confirm that `How to get ranked` has `Join the leaderboard`, `Add your body weight and gender` and `Log a bench press, back squat or deadlift` ticked, and `Finish 3 workouts` not ticked with `2 of 3 workouts finished`, and that no row is marked `You`. Log out.
-2. Log in with `noor.haddad@example.com` and `Noor-Bench150!` and select **Leaderboard**. Confirm that on **Overall** the card says `Overall needs all three lifts. Log a back squat and a deadlift to get on it.` and no row is marked `You`. Select **Bench press** and confirm that the card shows `#3 of 54 on Bench press` and `65.32` and that the row `3` `Noor H.` is marked `You`. Log out.
-3. Log in with `max.tester@example.com` and `Max-Tester600!` and select **Leaderboard**. Confirm that the card says only `Test accounts aren't shown on the leaderboard.`, with no **Join the leaderboard** button, that the board still says `51 people ranked on Overall`, and that no row is named `Max T.`. Select **Bench press** and confirm that it still says `54 people ranked on Bench press` with no `Max T.` row.
+1. Log in with `robin.hale@example.com` and `Robin-Bench135!` and select **Leaderboard**, then **Strength**. Confirm that `How to get ranked` has `Join the leaderboard`, `Add your body weight and gender` and `Log a bench press, back squat or deadlift` ticked, and `Finish 3 workouts` not ticked with `2 of 3 workouts finished`, and that no row is marked `You`. Log out.
+2. Log in with `noor.haddad@example.com` and `Noor-Bench150!` and select **Leaderboard**, then **Strength**. Confirm that on **Overall** the card says `Overall needs all three lifts. Log a back squat and a deadlift to get on it.` and no row is marked `You`. Select **Bench press** and confirm that the card shows `#3 of 54 on Bench press` and `65.32` and that the row `3` `Noor H.` is marked `You`. Log out.
+3. Log in with `max.tester@example.com` and `Max-Tester600!` and select **Leaderboard**, then **Strength**. Confirm that the card says only `Test accounts aren't shown on the leaderboard.`, with no **Join the leaderboard** button, that the board still says `51 people ranked on Overall`, and that no row is named `Max T.`. Select **Bench press** and confirm that it still says `54 people ranked on Bench press` with no `Max T.` row.
 
 ## Acceptance Test 7: Leaving takes you off the board straight away, and joining puts you back
 
 ### Setup for this test:
 
-1. Log in as Casey as in Acceptance Test 4 and select **Leaderboard**. Confirm that your card shows `#15 of 51 on Overall`.
+1. Log in as Casey as in Acceptance Test 4 and select **Leaderboard**, then **Strength**. Confirm that your card shows `#15 of 51 on Overall`.
 2. In a new private (incognito) window, log in with `luis.ortega@example.com` and `Luis-Squat285!`.
 
 ### Steps:
 
 1. In Casey's window, select **Leave the leaderboard**. Confirm that the page says `You've left the leaderboard. Your workouts are kept.`, that the card is now `How to get ranked` with only `Join the leaderboard` not ticked, that no row is marked `You`, and that the board says `50 people ranked on Overall`.
-2. In Luis's window, select **Leaderboard**. Confirm that Luis's card shows `#14 of 50 on Overall` and that after the `· · ·` row come `13` `Rosa S.` `160.21`, `14` `Luis O.` marked `You` with `159.90`, and `15` `Dina D.` `155.52`, with no `Casey M.` row.
+2. In Luis's window, select **Leaderboard**, then **Strength**. Confirm that Luis's card shows `#14 of 50 on Overall` and that after the `· · ·` row come `13` `Rosa S.` `160.21`, `14` `Luis O.` marked `You` with `159.90`, and `15` `Dina D.` `155.52`, with no `Casey M.` row.
 3. In Casey's window, select **Join the leaderboard**. Confirm that the card shows `#15 of 51 on Overall` and `156.29` again.
 
 ## Acceptance Test 8: The leaderboard needs a login, works on a phone in both themes, and recovers from an error
@@ -109,8 +109,8 @@ Test accounts: fake accounts loaded on the site by `database/seeds/leaderboard.s
 ### Steps:
 
 1. Visit the [Leaderboard page](https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/leaderboard) directly. Confirm that the Login page opens (the address ends in `#/login`) and that no board is shown.
-2. Use a phone, or open Chrome DevTools (F12), select the device toolbar button and choose **iPhone SE** (375 × 667). Log in as Casey, open the menu (the three lines, top right) and select **Leaderboard**. Confirm that the four tabs fit on one line as `Overall`, `Bench`, `Squat` and `Deadlift`, that the page does not need to be scrolled sideways, and that while the top of the board is on screen a bar pinned to the bottom shows `15` `Casey M.` `You` `156.29`.
+2. Use a phone, or open Chrome DevTools (F12), select the device toolbar button and choose **iPhone SE** (375 × 667). Log in as Casey, open the menu (the three lines, top right) and select **Leaderboard**, then **Strength**. Confirm that the four tabs fit on one line as `Overall`, `Bench`, `Squat` and `Deadlift`, that the page does not need to be scrolled sideways, and that while the top of the board is on screen a bar pinned to the bottom shows `15` `Casey M.` `You` `156.29`.
 3. Scroll down until your own row `15` `Casey M.` is on screen. Confirm that the pinned bar goes away.
 4. Open the menu, select **Profile**, and in **Appearance** select **Light**. Return to **Leaderboard**. Confirm that the page is light, and that every tab, name, score, your highlighted row and the pinned bar are readable. In **Profile**, select **Dark** again.
-5. On a computer, log in as Casey and select **Dashboard**. In DevTools, open Network request blocking (press Ctrl+Shift+P on Windows or Cmd+Shift+P on a Mac, type `Show Network request blocking`, and press Enter), check **Enable network request blocking**, and add the pattern `*leaderboard.php*`. Select **Leaderboard**. Confirm that the page says `Couldn't load the leaderboard. Check your connection and try again.` with a **Try again** button, and shows no board and no `How to get ranked` card.
+5. On a computer, log in as Casey and select **Dashboard**. In DevTools, open Network request blocking (press Ctrl+Shift+P on Windows or Cmd+Shift+P on a Mac, type `Show Network request blocking`, and press Enter), check **Enable network request blocking**, and add the pattern `*leaderboard.php*`. Select **Leaderboard**, then **Strength**. Confirm that the page says `Couldn't load the leaderboard. Check your connection and try again.` with a **Try again** button, and shows no board and no `How to get ranked` card.
 6. Uncheck **Enable network request blocking** and select **Try again**. Confirm that the message disappears and your card shows `#15 of 51 on Overall`.

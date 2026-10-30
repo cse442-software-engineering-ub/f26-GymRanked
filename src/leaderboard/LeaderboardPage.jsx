@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { authRequest } from '../auth/api.js'
 import NavBar from '../NavBar.jsx'
 import BoardList from './BoardList.jsx'
+import LeaderboardSwitch from './LeaderboardSwitch.jsx'
 import YourStanding from './YourStanding.jsx'
 import { getLeaderboard, joinLeaderboard, leaveLeaderboard } from './leaderboardApi.js'
 import { BOARDS, boardByKey } from './leaderboardFormat.js'
@@ -89,6 +90,7 @@ function LeaderboardPage() {
     <div className="leaderboard-page">
       <NavBar current="Leaderboard" />
       <main className="leaderboard-page__content" aria-busy={status === 'loading' || status === 'updating'}>
+        <LeaderboardSwitch />
         <div className="leaderboard-page__heading">
           <h1>Leaderboard</h1>
           <p>All-time DOTS points from finished workouts. Each lift uses your best estimated 1RM from sets of 1 to 10 reps. Overall adds the three together.</p>
