@@ -756,9 +756,10 @@ button.nav-bar__avatar {
 .dashboard-milestone__error { margin: 16px 0 0; color: var(--gr-error-text); }
 .dashboard-milestone__error button { min-height: 44px; border: 0; background: transparent; color: var(--gr-action-text); font: inherit; font-weight: 600; cursor: pointer; }
 .dashboard-milestone :is(select, button):focus-visible { outline: 3px solid var(--gr-action-text); outline-offset: 2px; }
-/* Opens the full Weekly goal page (#/weekly-goal, task #88): this and next week's goals and the completed days. */
-.dashboard-milestone__link { display: inline-flex; align-items: center; min-height: 44px; margin: -12px 0; color: var(--gr-action-text); font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap; }
-.dashboard-milestone__link:focus-visible { outline: 3px solid var(--gr-action-text); outline-offset: 2px; border-radius: 4px; }
+/* "Set weekly goal ›" at the bottom of the card opens the full Weekly goal page (#/weekly-goal, task #88). It uses the
+   secondary look of Today's workout's "View your weekly plan ›" so "Save milestone" stays the card's one primary action. */
+.dashboard-milestone__goal-button { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; margin-top: 16px; text-decoration: none; }
+.dashboard-milestone__goal-button:focus-visible { outline: 3px solid var(--gr-action-text); outline-offset: 2px; }
 
 .dashboard-today {
   display: flex;
@@ -2321,6 +2322,7 @@ a.today-workout__details:hover {
   .dashboard-weekly__stats { grid-template-columns: 1fr; gap: 8px; }
   .dashboard-weekly__stats > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .dashboard-today__view { align-self: stretch; }
+  .dashboard-milestone__goal-button { display: flex; width: 100%; }
 }
 
 /* Equipment a plan needs vs. what the user has (library, details and onboarding recommendations) */

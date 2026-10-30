@@ -8,7 +8,7 @@ Points for the PM, Surya and Eric: (1) Home already has Eric's "Weekly milestone
 
 ## What this card adds
 
-A Weekly goal page at #/weekly-goal (src/weeklyGoal/WeeklyGoalPage.jsx), opened from the "Set weekly goal ›" link at the top right of the Dashboard's "Weekly milestone" card and from Profile → "Set weekly goal". The user chooses 1 to 7 training days, presses "Review goal ›", reads what will happen, and presses "Confirm and save" (or "Go back", which saves nothing). The page sends POST api/weekly_goal.php and shows the saved goal from the response; after a refresh it shows the same goal from GET, because nothing is kept in the browser.
+A Weekly goal page at #/weekly-goal (src/weeklyGoal/WeeklyGoalPage.jsx), opened from the "Set weekly goal ›" button at the bottom of the Dashboard's "Weekly milestone" card and from Profile → "Set weekly goal". The user chooses 1 to 7 training days, presses "Review goal ›", reads what will happen, and presses "Confirm and save" (or "Go back", which saves nothing). The page sends POST api/weekly_goal.php and shows the saved goal from the response; after a refresh it shows the same goal from GET, because nothing is kept in the browser.
 
 Before this week's goal is locked the user chooses "This week" or "Next week". It is locked once it is saved or a workout day is earned (the API's target_locked); after that only next week's goal can be chosen.
 
@@ -42,7 +42,7 @@ Step 4: Open https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/ in Chro
 
 Setup: Load the seed again. Log in as weekly.fresh@example.com with the password Weekly-Fresh-88!
 
-Step 1: The Dashboard should open. Scroll to the "Weekly milestone" card and click "Set weekly goal ›" at its top right. The Weekly goal page should open at #/weekly-goal. (Profile → "Set weekly goal" opens the same page.) The page title should be "Weekly goal". The display should read "Weekly goal · " followed by this week's dates (for example "Oct 26 – Nov 1"), then "This week", then "0 of 3 training days" with an empty progress bar and "3 more days to reach this week's goal."
+Step 1: The Dashboard should open. Scroll to the "Weekly milestone" card and click the "Set weekly goal ›" button at its bottom. The Weekly goal page should open at #/weekly-goal. (Profile → "Set weekly goal" opens the same page.) The page title should be "Weekly goal". The display should read "Weekly goal · " followed by this week's dates (for example "Oct 26 – Nov 1"), then "This week", then "0 of 3 training days" with an empty progress bar and "3 more days to reach this week's goal."
 
 Step 2: The "This week's goal" box should say "3 training days. Not saved yet: you can change it until you save it or log a workout day." The "Next week's goal" box should say "No change saved. Next week starts" followed by next Monday's date ("Mon, Nov 2" style) and "with this week's goal of 3 training days." No day should be green; today should read "Today" with an orange border.
 

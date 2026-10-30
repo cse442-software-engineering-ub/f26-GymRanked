@@ -34,7 +34,7 @@ export default function WeeklyMilestoneCard({ goal, status, planDays, onSaved, o
   }
 
   return <article className="dashboard-card dashboard-milestone" aria-label="Weekly milestone settings">
-    <header className="dashboard-card__heading"><h2>Weekly milestone</h2><Link className="dashboard-milestone__link" to="/weekly-goal">Set weekly goal ›</Link></header>
+    <header className="dashboard-card__heading"><h2>Weekly milestone</h2></header>
     <h3 className="dashboard-card__title">{editWeek === 'current' ? 'Set your goal for this week' : 'Set your next goal'}</h3>
     {goal ? <>
       <p className="dashboard-card__text">This week: <strong>{goal.target_days} training {goal.target_days === 1 ? 'day' : 'days'}</strong>. {goal.target_locked ? "This goal is locked. Choose next week's goal, starting Monday." : 'You can set this week’s goal until you log a workout day.'}</p>
@@ -52,5 +52,7 @@ export default function WeeklyMilestoneCard({ goal, status, planDays, onSaved, o
       {message && <p className="dashboard-milestone__success" role="status">{message}</p>}
       {error && <p className="dashboard-milestone__error" role="alert">{error}</p>}
     </> : status === 'error' ? <p className="dashboard-milestone__error" role="alert">Couldn't load your milestone. <button type="button" onClick={onRetry}>Try again</button></p> : <p className="dashboard-card__text">Loading your milestone…</p>}
+    {/* The full Weekly goal page (#/weekly-goal, task #88): both weeks' goals and this week's completed days. */}
+    <Link className="dashboard-today__view dashboard-milestone__goal-button" to="/weekly-goal">Set weekly goal ›</Link>
   </article>
 }
