@@ -13,6 +13,7 @@ import { dashboardHistory } from './dashboardHistory.js'
 import { fetchUnfinishedSession } from './workoutSessionApi.js'
 import { getLeaderboard } from './leaderboard/leaderboardApi.js'
 import WeeklyMilestoneCard from './WeeklyMilestoneCard.jsx'
+import { weeklyDayState } from './weeklyTimeline.js'
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -54,19 +55,15 @@ function WeeklyGoalCard({ state, standings, plan, planReady, planError, schedule
     {status === 'ready' && <div className="dashboard-weekly__timeline">
       <div className="dashboard-weekly__section-heading"><h3>A little progress, day by day</h3><Link to="/weekly-plan">Weekly plan ›</Link></div>
       <ol className="dashboard-weekly__days" aria-label="This week's training days">{weekDays.map((date, index) => {
-        const done = dates.includes(date)
-        const rest = plan && !schedule[index]?.workout
-        const isToday = date === todayDate
-        const workoutName = schedule[index]?.workout?.name
-        const label = done ? 'Logged' : isToday ? 'Today' : 'Open'
-        return <li key={date} className={`dashboard-weekly__day${done ? ' dashboard-weekly__day--done' : ''}${isToday && !done ? ' dashboard-weekly__day--today' : ''}`}>
+        const day = weeklyDayState(date, todayDate, schedule[index]?.workout, Boolean(plan), dates.includes(date))
+        return <li key={date} className={`dashboard-weekly__day${day.complete ? ' dashboard-weekly__day--done' : ''}${day.today ? ' dashboard-weekly__day--today' : ''}`}>
           <span className="dashboard-weekly__weekday">{DAY_NAMES[(index + 1) % 7]}</span>
-          <span className="dashboard-weekly__day-mark" aria-hidden="true">{done ? '✓' : rest ? '○' : isToday ? '●' : '·'}</span>
-          <span className="dashboard-weekly__day-workout">{workoutName ?? (rest ? 'Rest day' : 'Choose a plan')}</span>
-          {workoutName && <span className="dashboard-weekly__day-status">{label}</span>}
+          <span className="dashboard-weekly__day-mark" aria-hidden="true">{day.mark}</span>
+          <span className="dashboard-weekly__day-workout">{day.name}</span>
+          {day.status && <span className="dashboard-weekly__day-status">{day.status}</span>}
         </li>
       })}</ol>
-      <p className="dashboard-weekly__note">Recovery days don't break your progress. Each logged day counts once.</p>
+      <p className="dashboard-weekly__note">Rest days check off automatically when they arrive. Only logged workout days count toward your milestone.</p>
     </div>}
     <div className="dashboard-weekly__next-row">
       <span className="dashboard-weekly__next-icon" aria-hidden="true"><MobileDashboardIcon name="dumbbell" /></span>
