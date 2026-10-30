@@ -47,7 +47,7 @@ export default function WeeklyMilestoneCard({ goal, status, planDays, onSaved, o
         </div>
       </form>
       {planDays && target > planDays && <p className="dashboard-milestone__hint">Your current plan schedules {planDays} training {planDays === 1 ? 'day' : 'days'} per week. Choose a plan with more training days to reach this milestone.</p>}
-      <p className="dashboard-milestone__hint">When weekly rankings launch, consistently completing a 5-day milestone will earn more than a 3-day milestone. Today's leaderboard ranks lifts only.</p>
+      <p className="dashboard-milestone__hint">Choose a pace that works for you. Whether your goal is one day or five, every workout you finish is progress.</p>
       {message && <p className="dashboard-milestone__success" role="status">{message}</p>}
       {error && <p className="dashboard-milestone__error" role="alert">{error}</p>}
     </> : status === 'error' ? <p className="dashboard-milestone__error" role="alert">Couldn't load your milestone. <button type="button" onClick={onRetry}>Try again</button></p> : <p className="dashboard-card__text">Loading your milestone…</p>}
