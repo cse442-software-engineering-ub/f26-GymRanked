@@ -54,6 +54,7 @@ const hero = (page) => main(page).locator('.weekly-hero')
 const days = (page) => hero(page).locator('.weekly-hero__days')
 const rows = (page) => main(page).locator('.weekly-row')
 const weeklyRing = (page) => page.locator('.dashboard-weekly__ring-center')
+const homeRank = (page) => page.locator('.dashboard-weekly__stats > div').filter({ hasText: 'Weekly rank' }).locator('strong')
 const switchLink = (page, label) => page.getByRole('navigation', { name: 'Leaderboards' }).getByRole('link', { name: label })
 const fitsWidth = (page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
 
@@ -140,6 +141,7 @@ acceptanceTests('124-weekly-consistency-competition.md', {
       await finishWorkout(page)
       await main(page).getByRole('button', { name: 'Return to dashboard' }).click()
       await expectHomeRing(page, '3/3')
+      await expect(homeRank(page)).toHaveText('#1')
     })
     const expectFinished = async () => {
       await expect(hero(page).getByRole('heading', { level: 1 })).toHaveText("You're #1")
@@ -260,6 +262,7 @@ acceptanceTests('124-weekly-consistency-competition.md', {
     await step('Setup: Lee is at 1/3', async () => {
       await logIn(page, account('lee'))
       await expectHomeRing(page, '1/3')
+      await expect(homeRank(page)).toHaveText('Practice week')
     })
     await step('Steps 1 and 2: a practice week with no rank', async () => {
       await openWeekly(page)
@@ -319,12 +322,14 @@ acceptanceTests('124-weekly-consistency-competition.md', {
   },
 
   9: async ({ page }) => {
-    await step('Setup: Home shows 2/3', async () => {
+    await step('Setup: Home shows 2/3 and #2', async () => {
       await logIn(page, CASEY)
       await expectHomeRing(page, '2/3')
+      await expect(homeRank(page)).toHaveText('#2')
     })
-    await step('Step 1: the standings show the same count', async () => {
-      await openWeekly(page)
+    await step('Step 1: View weekly standings shows the same rank and count', async () => {
+      await page.getByRole('link', { name: /View weekly standings/ }).click()
+      await expect(page).toHaveURL(/#\/leaderboard\/weekly$/)
       await expect(switchLink(page, 'Weekly consistency')).toHaveAttribute('aria-current', 'page')
       await expect(hero(page)).toContainText("You're #2")
       await expect(days(page)).toHaveText('2/3 days · 67%')

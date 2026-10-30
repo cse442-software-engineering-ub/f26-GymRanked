@@ -5,6 +5,7 @@ import {
   daysLine,
   emptyGroupLine,
   heroKind,
+  homeRank,
   msUntilReset,
   progressLine,
   rankedFromLine,
@@ -45,4 +46,11 @@ test('which top card to show', () => {
   assert.equal(heroKind({ joined: false, rank: null, reason: 'not_joined' }), 'join')
   assert.equal(heroKind({ joined: true, rank: null, reason: 'practice_week', ranked_from: '2026-11-02' }), 'practice')
   assert.equal(heroKind({ joined: true, rank: null, reason: 'test_account' }), 'test')
+})
+
+test('the rank on Home', () => {
+  assert.equal(homeRank({ rank: 2, reason: null }), '#2')
+  assert.equal(homeRank({ rank: null, reason: 'practice_week' }), 'Practice week')
+  assert.equal(homeRank({ rank: null, reason: 'not_joined' }), 'Unranked')
+  assert.equal(homeRank({ rank: null, reason: 'test_account' }), 'Unranked')
 })

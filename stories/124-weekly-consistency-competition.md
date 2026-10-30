@@ -49,7 +49,7 @@ Test accounts: fake accounts loaded by the backend task's seed file. Load the se
 
 ### Steps:
 
-1. Select **Dashboard**, then **Resume workout**. Select **Complete workout**, then **Complete workout** in the box that opens. Confirm that the summary says `Workout complete`. Select **Return to dashboard** and confirm that the weekly card shows `3/3` and `training days logged`.
+1. Select **Dashboard**, then **Resume workout**. Select **Complete workout**, then **Complete workout** in the box that opens. Confirm that the summary says `Workout complete`. Select **Return to dashboard** and confirm that the weekly card shows `3/3` and `training days logged`, and that **Weekly rank** says `#1`.
 2. Select **Leaderboard** and confirm that **Weekly consistency** is selected. Confirm that the top card now says `You're #1`, `3/3 days · 100%` and `Goal reached`.
 3. Confirm that the board starts with `#1` `Casey L.` marked `You` and `#1` `Maya R.`, both with `3 of 3 days` and `100%`, followed by `#3` `Jordan K.` and `#3` `Pat M.` with `2 of 3 days` and `67%`, and that `Alex T.` and `Riley S.` both show `#5`.
 4. Refresh the page and confirm that the same ranks, counts and `You're #1` remain. The workout must not be counted a second time.
@@ -94,7 +94,7 @@ Test accounts: fake accounts loaded by the backend task's seed file. Load the se
 
 ### Setup for this test:
 
-1. Log in with `week-lee@example.com` and `Weekly-Test-Compete!`. This account joined this week. Confirm that the weekly card on the Dashboard shows `1/3` and `training days logged`.
+1. Log in with `week-lee@example.com` and `Weekly-Test-Compete!`. This account joined this week. Confirm that the weekly card on the Dashboard shows `1/3` and `training days logged`, and that **Weekly rank** says `Practice week`.
 
 ### Steps:
 
@@ -129,11 +129,11 @@ Test accounts: fake accounts loaded by the backend task's seed file. Load the se
 
 ### Setup for this test:
 
-1. Log in with `week-casey@example.com` and `Weekly-Test-Compete!`. Confirm that the weekly card on the Dashboard shows `2/3` and `training days logged`.
+1. Log in with `week-casey@example.com` and `Weekly-Test-Compete!`. Confirm that the weekly card on the Dashboard shows `2/3` and `training days logged`, and that **Weekly rank** says `#2`.
 
 ### Steps:
 
-1. Select **Leaderboard**. Confirm that the page opens on **Weekly consistency** and shows `You're #2` and `2/3 days · 67%`, the same count as Home.
+1. Select **View weekly standings**. Confirm that the address ends in `#/leaderboard/weekly`, and that the page opens on **Weekly consistency** and shows `You're #2` and `2/3 days · 67%`, the same rank and count as Home.
 2. In Chrome DevTools, open Network request blocking (press Cmd+Shift+P on a Mac or Ctrl+Shift+P on Windows, type `Show Network request blocking` and press Enter), check **Enable network request blocking**, add the pattern `*weekly_standings.php*` and reload the page. Confirm that the page says `Couldn't load this week's standings. Check your connection and try again.` with a **Try again** button, and that it doesn't show `0/3 days` or a rank.
 3. Uncheck **Enable network request blocking** and select **Try again**. Confirm that the same rank and progress as before return.
 
