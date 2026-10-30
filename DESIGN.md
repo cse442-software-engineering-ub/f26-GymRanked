@@ -205,6 +205,8 @@ Eyebrow (optional), `h1` page title, one intro line in `text-muted`. 6px between
 
 `surface`, 1px `border`, 12px corners, 20px padding. Card heading row: eyebrow on the left, optional meta on the right (13px `text-muted`, or `action-text` 600 for counts like "1 of 3"). Then a 22px card title, 8px below the heading.
 
+On Home, `.dashboard-weekly` is the main "This week" card. Its mission panel uses a subtle `action` tint over `surface-raised`, a circular `action`/`track` progress ring, and one primary workout action. Beneath it, seven labeled day markers, the next workout, and compact plan-session, consistency, and all-time-rank values share the same card. The ring is 180px across on desktop and 150px at 900px or less; the mission headline scales from 25px to 36px, and 27px on phones. Completed days have both a green check and a text label; rest days are labeled separately. Home's older three-card metric row is removed, but `.dashboard-metric` remains in use on the active workout screen.
+
 ### Metric tile (`.dashboard-metric`)
 
 Card styling with 16px padding: a 44px `surface-raised` icon tile (10px corners, inset 1px `border`), then eyebrow label, big value and hint.
