@@ -600,6 +600,14 @@ button.nav-bar__avatar {
   background: var(--gr-action);
   color: var(--gr-text-on-orange);
 }
+.dashboard-weekly__day-workout {
+  max-width: 100%;
+  color: var(--gr-text);
+  font-size: 13px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.dashboard-weekly__day-status { font-size: 12px; }
 .dashboard-weekly__note { margin: 20px 0 0; color: var(--gr-text-muted); font-size: 13px; }
 .dashboard-weekly__next-row {
   display: flex;
@@ -728,6 +736,26 @@ button.nav-bar__avatar {
   padding: 10px 16px;
   text-decoration: none;
 }
+.dashboard-milestone form { margin-top: 20px; }
+.dashboard-milestone label { display: block; margin-bottom: 8px; color: var(--gr-text-label); font-size: 14px; font-weight: 600; }
+.dashboard-milestone__controls { display: flex; align-items: stretch; gap: 12px; flex-wrap: wrap; }
+.dashboard-milestone select {
+  flex: 1 1 120px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-surface-raised);
+  color: var(--gr-text);
+  font: inherit;
+}
+.dashboard-milestone .dashboard-primary-action { flex: 1 1 160px; width: auto; min-height: 44px; }
+.dashboard-milestone .dashboard-primary-action:disabled { opacity: 0.6; cursor: not-allowed; }
+.dashboard-milestone__hint { margin: 16px 0 0; color: var(--gr-text-muted); font-size: 13px; line-height: 1.5; }
+.dashboard-milestone__success { margin: 16px 0 0; color: var(--gr-success-text); }
+.dashboard-milestone__error { margin: 16px 0 0; color: var(--gr-error-text); }
+.dashboard-milestone__error button { min-height: 44px; border: 0; background: transparent; color: var(--gr-action-text); font: inherit; font-weight: 600; cursor: pointer; }
+.dashboard-milestone :is(select, button):focus-visible { outline: 3px solid var(--gr-action-text); outline-offset: 2px; }
 
 .dashboard-today {
   display: flex;
@@ -2282,7 +2310,7 @@ a.today-workout__details:hover {
   .dashboard-weekly__ring { align-self: center; flex-basis: auto; }
   .dashboard-weekly__mission h3 { font-size: 27px; }
   .dashboard-weekly__actions .dashboard-primary-action { width: 100%; box-sizing: border-box; }
-  .dashboard-weekly__days { gap: 4px; }
+  .dashboard-weekly__days { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 4px; }
   .dashboard-weekly__day-mark { width: 32px; height: 32px; font-size: 16px; }
   .dashboard-weekly__section-heading h3 { font-size: 15px; }
   .dashboard-weekly__next-row { flex-wrap: wrap; gap: 10px; }
