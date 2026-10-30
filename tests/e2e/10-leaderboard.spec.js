@@ -88,7 +88,8 @@ async function newAccount(page, name, weight, gender) {
   return account
 }
 
-// "Select Leaderboard": the top navigation on a computer, the menu (three lines) on a phone.
+// "Select Leaderboard, then Strength": the top navigation on a computer, the menu (three lines) on a phone. Leaderboard
+// opens the Weekly consistency view; Strength is the second choice at the top of it.
 async function openLeaderboard(page) {
   const menu = page.getByRole('button', { name: 'Open navigation menu' })
   const topLink = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Leaderboard' })
@@ -99,6 +100,8 @@ async function openLeaderboard(page) {
   } else {
     await topLink.click()
   }
+  await expect(page).toHaveURL(/#\/leaderboard\/weekly$/)
+  await page.getByRole('navigation', { name: 'Leaderboards' }).getByRole('link', { name: 'Strength' }).click()
   await expect(page).toHaveURL(/#\/leaderboard$/)
   await expect(page.getByRole('heading', { level: 1, name: 'Leaderboard' })).toBeVisible()
   await expect(main(page)).toHaveAttribute('aria-busy', 'false')
