@@ -334,7 +334,7 @@ function Dashboard() {
           </div>
         </header>
 
-        <WeeklyGoalCard state={weeklyState} standings={standingState} plan={plan} planReady={setup !== null && !planError} planError={planError} schedule={schedule} progress={progress} historyStatus={historyState.status} today={today} nextWorkout={nextWorkout} unfinished={unfinished} completedSession={progress?.todaySession} onRetry={retryPlan} onStart={() => navigate('/workouts/today')} />
+        <WeeklyGoalCard state={weeklyState} standings={standingState} plan={plan} planReady={setup !== null && !planError} planError={planError} schedule={schedule} progress={progress} historyStatus={historyState.status} today={today} nextWorkout={nextWorkout} unfinished={unfinished} completedSession={progress?.todaySession} onRetry={retryPlan} onStart={() => navigate('/workout/active')} />
         {historyState.status === 'error' && (
           <div className="dashboard-history-error" role="alert">
             <span>Couldn't load your completed workouts. Check your connection and try again.</span>
