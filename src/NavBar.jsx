@@ -15,7 +15,7 @@ const NAV_LINKS = [
   { label: 'Today', to: '/workouts/today', icon: 'today' },
 ]
 
-function NavBar({ current, userName = '' }) {
+function NavBar({ current, userName = '', showStartWorkout = true }) {
   const navigate = useNavigate()
   const [accountMenuOpen, setAccountMenuOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -90,9 +90,9 @@ function NavBar({ current, userName = '' }) {
         })}
       </nav>
       <div className="nav-bar__actions">
-        <button type="button" className="nav-bar__start-workout" onClick={() => navigate('/workouts/today')}>
+        {showStartWorkout && <button type="button" className="nav-bar__start-workout" onClick={() => navigate('/workouts/today')}>
           Start Workout
-        </button>
+        </button>}
         {(
           <div className="nav-bar__account">
             <button

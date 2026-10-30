@@ -63,7 +63,7 @@ before deploying this frontend; see its local/shared-database instructions.
 | Path | Purpose |
 |---|---|
 | `api/workouts.php` | PHP JSON endpoint that queries the `workouts` MySQL table. |
-| `api/workout_session.php` | Starts today's workout session (or reopens the current one) and reads a session back, with its sets and, once completed, its summary. |
+| `api/workout_session.php` | Starts today's workout session (or reopens the current one), reads a session back, and looks up the signed-in user's unfinished current-plan session without starting one. |
 | `api/workout_sets.php` | Saves or corrects one set (weight in pounds, reps) in the user's session. |
 | `api/complete_workout.php` | Marks a session completed, once. |
 | `api/workout_history.php` | The user's completed workouts, newest first. |
@@ -96,6 +96,7 @@ Saves what a user lifts. Migration `database/migrations/009_workout_sessions.sql
 |---|---|---|
 | `POST api/workout_session.php` | `{}` or `{"day_position": 1}` | 201 `{"session": {...}}` for a new session, 200 for the current one |
 | `GET api/workout_session.php?id=N` | | 200 `{"session": {...}}` |
+| `GET api/workout_session.php?current=1` | | 200 `{"session": {...}}` for the signed-in user's unfinished session in the selected plan from the past 24 hours, or `{"session": null}`; no session is created |
 | `POST api/workout_sets.php` | `{session_id, exercise, set_number, weight_lb, reps}` | 201 `{"set": {...}}` |
 | `POST api/workout_sets.php` | `{id, weight_lb, reps}` (correction) | 200 `{"set": {...}}` |
 | `POST api/complete_workout.php` | `{session_id}` | 200 `{session_id, completed_at}` |

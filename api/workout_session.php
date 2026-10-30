@@ -3,6 +3,8 @@
 //                                                       200 {"session": {...}} the user's current session, if there is one
 // POST api/workout_session.php {"day_position": 2}   -> same, but starting that day of the plan (1, 2, 3...)
 // GET  api/workout_session.php?id=7                  -> 200 {"session": {...}}
+// GET  api/workout_session.php?current=1             -> 200 {"session": {...}} for an unfinished session
+//                                                       in the current plan from the last 24 hours, or {"session":null}
 //
 // session = {"id":7,"plan":"Push Pull Legs","name":"Push","focus":"Chest, shoulders, triceps",
 //            "started_at":"2026-10-13T19:27:47Z","completed_at":null,
@@ -46,6 +48,20 @@ if ($method !== 'GET' && $method !== 'POST') {
 if ($method === 'GET') {
     $db = database();
     $user_id = workout_user_id($db);
+    if (($_GET['current'] ?? null) === '1') {
+        $stmt = $db->prepare(
+            'SELECT s.id FROM workout_sessions s
+             JOIN user_plans up ON up.user_id = s.user_id AND up.plan_id = s.plan_id
+             WHERE s.user_id = ? AND s.completed_at IS NULL
+               AND s.started_at > UTC_TIMESTAMP() - INTERVAL 24 HOUR
+             ORDER BY s.started_at DESC, s.id DESC LIMIT 1'
+        );
+        $stmt->bind_param('i', $user_id);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        $session = $row ? find_session($db, (int) $row['id'], $user_id) : null;
+        respond(200, ['session' => $session ? session_json($db, $session) : null]);
+    }
     $id = filter_var($_GET['id'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
     if ($id === false) respond(400, ['error' => 'Invalid session id.']);
     $session = find_session($db, $id, $user_id);
