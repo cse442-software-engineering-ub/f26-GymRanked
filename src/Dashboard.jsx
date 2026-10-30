@@ -46,7 +46,6 @@ function WeeklyGoalCard({ state, standings, plan, planReady, planError, schedule
           <h3>{daysLeft === 0 ? 'A week well earned.' : daysLeft === 1 ? 'One more day. A week well earned.' : `${daysLeft} more days. Keep going.`}</h3>
           <p>Log a workout on {data.target_days} different {data.target_days === 1 ? 'day' : 'days'} this week. Consistency is the win.</p>
         </>}
-        <Link className="dashboard-weekly__secondary" to="/weekly-goal">Set weekly goal ›</Link>
         <div className="dashboard-weekly__actions">{!planReady ? null : plan && today && !completedSession ? <button type="button" className="dashboard-primary-action" onClick={onStart}>{action} →</button> : plan && completedSession ? <Link className="dashboard-weekly__secondary" to={summaryPath(completedSession.id)}>View workout summary ›</Link> : plan ? <Link className="dashboard-weekly__secondary" to="/weekly-plan">View your weekly plan ›</Link> : <Link className="dashboard-primary-action" to="/plans">Browse workout plans ›</Link>}</div>
       </div>
       {status === 'ready' && <div className="dashboard-weekly__ring" style={{ '--dashboard-goal-progress': `${data.progress_percent}%` }} role="progressbar" aria-label="Weekly goal progress" aria-valuemin={0} aria-valuemax={data.target_days} aria-valuenow={data.progress_days} aria-valuetext={`${data.progress_days} of ${data.target_days} training days`}>
