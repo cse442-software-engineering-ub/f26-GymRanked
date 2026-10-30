@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { apiRequest } from './onboarding/api.js'
 
 export default function WeeklyMilestoneCard({ goal, status, planDays, onSaved, onRetry }) {
@@ -33,7 +34,7 @@ export default function WeeklyMilestoneCard({ goal, status, planDays, onSaved, o
   }
 
   return <article className="dashboard-card dashboard-milestone" aria-label="Weekly milestone settings">
-    <header className="dashboard-card__heading"><h2>Weekly milestone</h2></header>
+    <header className="dashboard-card__heading"><h2>Weekly milestone</h2><Link className="dashboard-milestone__link" to="/weekly-goal">Set weekly goal ›</Link></header>
     <h3 className="dashboard-card__title">{editWeek === 'current' ? 'Set your goal for this week' : 'Set your next goal'}</h3>
     {goal ? <>
       <p className="dashboard-card__text">This week: <strong>{goal.target_days} training {goal.target_days === 1 ? 'day' : 'days'}</strong>. {goal.target_locked ? "This goal is locked. Choose next week's goal, starting Monday." : 'You can set this week’s goal until you log a workout day.'}</p>

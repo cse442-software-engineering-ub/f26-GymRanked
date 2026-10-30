@@ -756,6 +756,9 @@ button.nav-bar__avatar {
 .dashboard-milestone__error { margin: 16px 0 0; color: var(--gr-error-text); }
 .dashboard-milestone__error button { min-height: 44px; border: 0; background: transparent; color: var(--gr-action-text); font: inherit; font-weight: 600; cursor: pointer; }
 .dashboard-milestone :is(select, button):focus-visible { outline: 3px solid var(--gr-action-text); outline-offset: 2px; }
+/* Opens the full Weekly goal page (#/weekly-goal, task #88): this and next week's goals and the completed days. */
+.dashboard-milestone__link { display: inline-flex; align-items: center; min-height: 44px; color: var(--gr-action-text); font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.dashboard-milestone__link:focus-visible { outline: 3px solid var(--gr-action-text); outline-offset: 2px; border-radius: 4px; }
 
 .dashboard-today {
   display: flex;
