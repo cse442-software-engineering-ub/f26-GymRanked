@@ -11,6 +11,9 @@ Fake accounts for testing login on a local or dev database. Each account has its
 | Jordan Kim | jordan.kim@example.com | `Jordan-Row185!` | Spare account |
 | Riley Brooks | riley.brooks@example.com | `Riley-Curl95!` | Workout history (story #9): six finished workouts. Loaded by `workout_history.sql`, not `test_users.sql` |
 | Taylor Reed | taylor.reed@example.com | `Taylor-Lift265!` | Progress ranges (story #8): three Deadlift workouts 150, 50 and 1 days back. Loaded by `exercise_progress_ranges.sql`, not `test_users.sql` |
+| Wes Fresh | weekly.fresh@example.com | `Weekly-Fresh-88!` | Weekly goal (#88): no goal saved, no workout this week. Loaded by `weekly_goals.sql` |
+| Lena Locked | weekly.locked@example.com | `Weekly-Locked-88!` | Weekly goal (#88): last week's goal 4, workouts Monday and today, so this week is locked. Loaded by `weekly_goals.sql` |
+| Nia Next | weekly.next@example.com | `Weekly-Next-88!` | Weekly goal (#88): this week 2 and next week 5 saved, three workout days. Loaded by `weekly_goals.sql` |
 
 These are `example.com` addresses, which can never belong to a real person. Only a bcrypt hash of each password is stored.
 
@@ -113,6 +116,21 @@ mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < datab
 ```
 
 Rerunning it is safe: it resets these twelve accounts and their workouts, goals and joined state, and doesn't touch any other account. Reload it before running a test that finishes a workout again.
+
+## Weekly goal accounts
+
+`weekly_goals.sql` adds Wes Fresh, Lena Locked and Nia Next for the weekly goal page (task #88, story #87), whose
+task tests are in `task-tests/88-weekly-goal-frontend.html`. It needs every migration up to `014_weekly_goals.sql`.
+
+```bash
+mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < database/seeds/weekly_goals.sql
+```
+
+Their workouts are placed in the week the seed is loaded (Monday, the day before today and today, in New York time),
+because `api/weekly_goal.php` only counts the current week. Load it again before each test run, on a Wednesday to
+Sunday so those are three different days. Rerunning it is safe: it resets these three accounts' setup, plan,
+personal details, weekly goals and workouts, and doesn't touch any other account. The last lines it prints show each
+account's saved goals and counted workouts.
 
 ## If you get "Too many attempts"
 

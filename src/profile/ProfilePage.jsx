@@ -5,7 +5,7 @@ import { authRequest } from '../auth/api.js'
 import { apiRequest, errorMessage } from '../onboarding/api.js'
 import { EQUIPMENT, LEVELS, toggleEquipment } from '../onboarding/setupOptions.js'
 import ThemeToggle from '../theme/ThemeToggle.jsx'
-import { GENDERS } from '../onboarding/personalDetails.js'
+import { GENDERS, validatePersonalDetails } from '../onboarding/personalDetails.js'
 import './profile.css'
 
 const GOALS = [
@@ -108,15 +108,18 @@ export default function ProfilePage() {
           <div><dt>Equipment selection</dt><dd>{settings.equipment.length ? settings.equipment.map((item) => labelFor(EQUIPMENT, item)).join(', ') : 'Not set'}</dd></div>
         </dl>
       </section>
+      <section className="profile-card" aria-labelledby="weekly-goal-title">
+        <div className="profile-card-heading"><div><p className="profile-eyebrow">CONSISTENCY</p><h2 id="weekly-goal-title">Weekly goal</h2></div><Link className="profile-button profile-button--primary" to="/weekly-goal">Set weekly goal</Link></div>
+        <p className="profile-card-intro">Choose how many days you train each week and see the days you've completed.</p>
+      </section>
       <section className="profile-card" aria-labelledby="account-settings-title">
         <p className="profile-eyebrow">ACCOUNT</p><h2 id="account-settings-title">Account Settings</h2>
         <dl className="profile-details"><div><dt>Full name</dt><dd>{user.full_name}</dd></div><div><dt>Email</dt><dd>{user.email}</dd></div></dl>
       </section>
       <section className="profile-card" aria-labelledby="personal-details-title">
-        <h2 id="personal-details-title">Personal details</h2>
+        <div className="profile-card-heading"><h2 id="personal-details-title">Personal details</h2><Link className="profile-button profile-button--primary" to={personalDetails.complete ? '/profile/personal-details' : '/personal-details'}>{personalDetails.complete ? 'Edit personal details' : 'Add personal details'}</Link></div>
         <p>Body weight: {personalDetails.bodyweight_lb == null ? 'Not set' : `${personalDetails.bodyweight_lb} lb`}</p>
         <p>Gender: {labelFor(GENDERS, personalDetails.gender)}</p>
-        {!personalDetails.complete && <Link className="profile-button profile-button--primary" to="/personal-details">Add personal details</Link>}
       </section>
       <section className="profile-card" aria-labelledby="appearance-title">
         <p className="profile-eyebrow">DISPLAY</p><h2 id="appearance-title">Appearance</h2>
@@ -126,6 +129,57 @@ export default function ProfilePage() {
       <button type="button" className="profile-logout" onClick={logout} disabled={logoutBusy}>{logoutBusy ? 'Logging out…' : 'Log out'}</button>
       {logoutError && <p className="profile-message profile-message--error" role="alert">{logoutError}</p>}
     </>}
+  </ProfileFrame>
+}
+
+export function EditPersonalDetailsPage() {
+  const { personalDetails } = useOutletContext()
+  const { status, user, error: loadError } = useProfileData()
+  const navigate = useNavigate()
+  const [weight, setWeight] = useState(personalDetails.bodyweight_lb == null ? '' : String(personalDetails.bodyweight_lb))
+  const [gender, setGender] = useState(personalDetails.gender ?? '')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const [serverErrors, setServerErrors] = useState({})
+  const errors = { ...validatePersonalDetails(weight, gender), ...serverErrors }
+  const invalid = Object.keys(errors).length > 0
+
+  async function save(event) {
+    event.preventDefault()
+    if (saving || invalid) return
+    setSaving(true)
+    setError('')
+    const result = await apiRequest('personal_details.php', {
+      method: 'POST', body: JSON.stringify({ bodyweight_lb: Number(weight), gender }),
+    })
+    if (result.ok && result.data?.complete) {
+      navigate('/profile', { replace: true, state: { saved: true } })
+      return
+    }
+    setServerErrors(result.status === 400 ? result.data?.errors ?? {} : {})
+    setError(errorMessage(result, "Couldn't save your personal details. Try again."))
+    setSaving(false)
+  }
+
+  return <ProfileFrame user={user}>
+    <header className="profile-header"><Link className="profile-back" to="/profile">← Back to Profile</Link><p className="profile-eyebrow">PERSONAL DETAILS</p><h1>Edit personal details</h1><p>Update the details used for ranking.</p></header>
+    {status === 'loading' && <p role="status">Loading your personal details…</p>}
+    {status === 'error' && <p className="profile-message profile-message--error" role="alert">{loadError}</p>}
+    {status === 'ready' && <form className="profile-card profile-form" onSubmit={save} noValidate aria-busy={saving}>
+      {error && <p className="profile-message profile-message--error" role="alert">{error}</p>}
+      <label className="profile-field">Body weight (lb)
+        <input type="text" inputMode="decimal" value={weight} disabled={saving} aria-invalid={Boolean(errors.bodyweight_lb)} aria-describedby={errors.bodyweight_lb ? 'profile-weight-error' : 'profile-weight-hint'} onChange={(event) => { setWeight(event.target.value); setServerErrors({}) }} />
+        <span id="profile-weight-hint" className="profile-field-hint">Enter 50–700 lb, with at most one decimal place.</span>
+        {errors.bodyweight_lb && <span id="profile-weight-error" className="profile-field-error">{errors.bodyweight_lb}</span>}
+      </label>
+      <label className="profile-field">Gender
+        <select value={gender} disabled={saving} aria-invalid={Boolean(errors.gender)} aria-describedby={errors.gender ? 'profile-gender-error' : undefined} onChange={(event) => { setGender(event.target.value); setServerErrors({}) }}>
+          <option value="">Choose a gender</option>{GENDERS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+        </select>
+        {errors.gender && <span id="profile-gender-error" className="profile-field-error">{errors.gender}</span>}
+      </label>
+      <div className="profile-form-actions"><Link className="profile-button profile-button--subtle" to="/profile">Cancel</Link><button className="profile-button profile-button--primary" type="submit" disabled={saving || invalid}>{saving ? 'Saving…' : 'Save changes'}</button></div>
+    </form>}
   </ProfileFrame>
 }
 

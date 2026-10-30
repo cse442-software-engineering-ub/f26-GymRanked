@@ -19,7 +19,8 @@ import OnboardingGate from './onboarding/OnboardingGate.jsx'
 import WorkoutLogPreview from './workoutLog/WorkoutLogPreview.jsx'
 import WorkoutSummaryPage from './workoutLog/WorkoutSummaryPage.jsx'
 import ActiveWorkoutPage from './workoutLog/ActiveWorkoutPage.jsx'
-import ProfilePage, { EditTrainingPreferencesPage } from './profile/ProfilePage.jsx'
+import WeeklyGoalPage from './weeklyGoal/WeeklyGoalPage.jsx'
+import ProfilePage, { EditPersonalDetailsPage, EditTrainingPreferencesPage } from './profile/ProfilePage.jsx'
 
 // The sample logging and summary pages are available only on the test server and locally.
 // The real session and summary routes below use the PHP workout endpoints.
@@ -39,6 +40,7 @@ function App() {
         <Route path="/workouts/:sessionId/summary" element={<WorkoutSummaryPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile/personal-details" element={<EditPersonalDetailsPage />} />
         <Route path="/profile/training-preferences" element={<EditTrainingPreferencesPage />} />
         <Route path="/plans" element={<WorkoutPlanLibrary />} />
         <Route path="/plans/:id" element={<PlanDetails />} />
@@ -47,6 +49,7 @@ function App() {
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="/progress/history" element={<WorkoutHistoryPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
+        <Route path="/weekly-goal" element={<WeeklyGoalPage />} />
         <Route path="/workout/active" element={<ActiveWorkout />} />
         <Route path="/workout/active/:exerciseIndex" element={<ExerciseSession />} />
         <Route path="/experience" element={<ExperiencePage />} />

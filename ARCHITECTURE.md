@@ -31,6 +31,7 @@ In production, the proxy is not involved — the built frontend and the PHP API 
 | `src/theme/theme.js` | The colour theme: applies `data-theme` on `<html>`, remembers it in the browser (`gymrank.theme`), and loads/saves it for the account through `api/theme.php`. `useTheme.js` gives components the current theme. `ThemeToggle.jsx` is the Dark / Light control in the Profile page's Appearance card, opened from **Profile** in the account menu. |
 | `src/progress/` | The Progress page at `#/progress` (story #8): totals for 30 days, 90 days or all time, an Exercise drop-down, and the chosen exercise's numbers, trend chart, workouts and personal records, all from `api/exercise_progress.php` through `workoutLogApi.getExerciseProgress`. `progressFormat.js` holds the display text (unit tested in `tests/progressFormat.test.js`). It links to the workout history at `#/progress/history`. Test data: `database/seeds/exercise_progress.sql` and `exercise_progress_ranges.sql`. |
 | `src/leaderboard/` | The Leaderboard page at `#/leaderboard` (story #10, card #120): all-time DOTS boards for Overall, bench press, back squat and deadlift, your standing, the "How to get ranked" steps, and joining or leaving, all through `leaderboardApi.js` (`api/leaderboard.php`, Mansur's #121). `leaderboardFormat.js` holds the display text and which standing card to show (unit tested in `tests/leaderboardFormat.test.js`). Body weight and gender are edited on Personal details (`#/personal-details`), not here. |
+| `src/weeklyGoal/` | The weekly training-day goal (story #87, task #88) on Surya's `api/weekly_goal.php` (#89). `WeeklyGoalDisplay.jsx` is the reusable display (progress, this week's goal and next week's saved change as separate boxes, and the seven days with green, labelled completed dates); give it the JSON from GET or POST, or `status="loading"`/`"error"`. `WeeklyGoalPage.jsx` is `#/weekly-goal` (opened from Home's Weekly milestone card and from Profile): choose 1 to 7 days, review, "Confirm and save". `weeklyGoalApi.js` makes the requests and `weeklyGoalFormat.js` holds the text and week rules (unit tested in `tests/weeklyGoal.test.js`). Nothing is kept in the browser, so a refresh shows the saved goal. Test data: `database/seeds/weekly_goals.sql`. |
 | `index.html` | Vite HTML entry point; a small inline script applies the remembered theme before the app loads, so a light page never flashes dark. |
 
 - Built with **React** function components and JSX, using **Vite** as the dev server and bundler.
@@ -63,7 +64,7 @@ before deploying this frontend; see its local/shared-database instructions.
 | Path | Purpose |
 |---|---|
 | `api/workouts.php` | PHP JSON endpoint that queries the `workouts` MySQL table. |
-| `api/workout_session.php` | Starts today's workout session (or reopens the current one) and reads a session back, with its sets and, once completed, its summary. |
+| `api/workout_session.php` | Starts today's workout session (or reopens the current one), reads a session back, and looks up the signed-in user's unfinished current-plan session without starting one. |
 | `api/workout_sets.php` | Saves or corrects one set (weight in pounds, reps) in the user's session. |
 | `api/complete_workout.php` | Marks a session completed, once. |
 | `api/workout_history.php` | The user's completed workouts, newest first. |
@@ -97,6 +98,7 @@ Saves what a user lifts. Migration `database/migrations/009_workout_sessions.sql
 |---|---|---|
 | `POST api/workout_session.php` | `{}` or `{"day_position": 1}` | 201 `{"session": {...}}` for a new session, 200 for the current one |
 | `GET api/workout_session.php?id=N` | | 200 `{"session": {...}}` |
+| `GET api/workout_session.php?current=1` | | 200 `{"session": {...}}` for the signed-in user's unfinished session in the selected plan from the past 24 hours, or `{"session": null}`; no session is created |
 | `POST api/workout_sets.php` | `{session_id, exercise, set_number, weight_lb, reps}` | 201 `{"set": {...}}` |
 | `POST api/workout_sets.php` | `{id, weight_lb, reps}` (correction) | 200 `{"set": {...}}` |
 | `POST api/complete_workout.php` | `{session_id}` | 200 `{session_id, completed_at}` |

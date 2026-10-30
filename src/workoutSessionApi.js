@@ -16,35 +16,17 @@ export async function startSession() {
     error.status = res.status
     throw error
   }
-  rememberSession(body.session.id)
   return body.session
 }
 
-// The id of the session this browser last opened, so the weekly plan can tell whether a workout is still
-// unfinished without starting a new session (the API has no read-only "current session" call). Kept in
-// localStorage; without it the weekly plan simply offers to start the workout, which reopens the same session.
-const SESSION_KEY = 'gymrank.currentSessionId'
-
-function rememberSession(id) {
-  try {
-    localStorage.setItem(SESSION_KEY, String(id))
-  } catch {
-    // Storage is unavailable: no Resume button, but starting the workout still reopens the session.
-  }
-}
-
-// Resolves to the remembered session if it is still unfinished and was started in the last 24 hours (the
-// window in which the API reopens a session), otherwise null. Never rejects.
+// Read the signed-in user's current unfinished session without opening or creating one. This also works in
+// a fresh browser where the session was started earlier. Never rejects.
 export async function fetchUnfinishedSession() {
   try {
-    const id = Number(localStorage.getItem(SESSION_KEY))
-    if (!Number.isInteger(id) || id < 1) return null
-    const res = await fetch(`${API_URL}?id=${id}`, { credentials: 'same-origin' })
+    const res = await fetch(`${API_URL}?current=1`, { credentials: 'same-origin' })
     const body = await res.json().catch(() => null)
     const session = res.ok ? body?.session : null
-    if (!session || session.completed_at) return null
-    if (Date.now() - Date.parse(session.started_at) > 24 * 60 * 60 * 1000) return null
-    return session
+    return session && !session.completed_at ? session : null
   } catch {
     return null
   }
