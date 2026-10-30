@@ -12,6 +12,7 @@ import { formatVolume } from './workoutLog/workoutSummary.js'
 import { dashboardHistory } from './dashboardHistory.js'
 import { fetchUnfinishedSession } from './workoutSessionApi.js'
 import { getLeaderboard } from './leaderboard/leaderboardApi.js'
+import WeeklyMilestoneCard from './WeeklyMilestoneCard.jsx'
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -56,11 +57,13 @@ function WeeklyGoalCard({ state, standings, plan, planReady, planError, schedule
         const done = dates.includes(date)
         const rest = plan && !schedule[index]?.workout
         const isToday = date === todayDate
-        const label = done ? 'Logged' : rest ? 'Rest' : isToday ? 'Today' : 'Open'
+        const workoutName = schedule[index]?.workout?.name
+        const label = done ? 'Logged' : isToday ? 'Today' : 'Open'
         return <li key={date} className={`dashboard-weekly__day${done ? ' dashboard-weekly__day--done' : ''}${isToday && !done ? ' dashboard-weekly__day--today' : ''}`}>
           <span className="dashboard-weekly__weekday">{DAY_NAMES[(index + 1) % 7]}</span>
           <span className="dashboard-weekly__day-mark" aria-hidden="true">{done ? '✓' : rest ? '○' : isToday ? '●' : '·'}</span>
-          <span>{label}</span>
+          <span className="dashboard-weekly__day-workout">{workoutName ?? (rest ? 'Rest day' : 'Choose a plan')}</span>
+          {workoutName && <span className="dashboard-weekly__day-status">{label}</span>}
         </li>
       })}</ol>
       <p className="dashboard-weekly__note">Recovery days don't break your progress. Each logged day counts once.</p>
@@ -322,10 +325,12 @@ function Dashboard() {
                 : planError
                   ? 'Your workout summary could not be loaded. Try again below.'
                 : plan
-                  ? progress?.totalCompleted > 0 ? 'Your completed workouts are adding up. Keep the momentum going.' : 'You are one workout away from starting your first week.'
+                  ? weeklyState.status === 'ready' && weeklyState.data.completed_count === 0
+                    ? 'A fresh week starts with one workout. Show up today and build your momentum.'
+                    : progress?.totalCompleted > 0 ? 'Your completed workouts are adding up. Keep the momentum going.' : 'You are one workout away from starting your first week.'
                   : 'Start by selecting a workout plan — it takes a minute and sets up your week.'}
             </p>
-            {setup !== null && plan && <p className="dashboard-header__mobile-copy">Consistency builds strength. Let’s keep the momentum going.</p>}
+            {setup !== null && plan && <p className="dashboard-header__mobile-copy">{weeklyState.status === 'ready' && weeklyState.data.completed_count === 0 ? 'A fresh week starts with one workout. Show up today.' : 'Consistency builds strength. Let’s keep the momentum going.'}</p>}
           </div>
         </header>
 
@@ -360,7 +365,9 @@ function Dashboard() {
               onView={() => navigate(progress?.todaySession ? summaryPath(progress.todaySession.id) : today ? `/plans/${plan.id}` : '/weekly-plan')}
             />
           )}
-          <ChecklistCard items={checklist} />
+          {checklist.every((item) => item.done)
+            ? <WeeklyMilestoneCard goal={weeklyState.data} status={weeklyState.status} planDays={plan?.days_per_week} onSaved={(data) => setWeeklyState({ status: 'ready', data })} onRetry={retryPlan} />
+            : <ChecklistCard items={checklist} />}
         </section>
       </main>
     </div>
