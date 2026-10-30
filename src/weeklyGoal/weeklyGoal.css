@@ -1,0 +1,258 @@
+/* Weekly goal (task #88). The display (.weekly-goal) is reusable: it brings its own card look, so it can sit on the
+   Weekly goal page or on Home. Colours come only from the --gr- variables (DESIGN.md), so light mode needs no code.
+   Completed days are green (success) AND carry a tick and the word "Completed", so colour is never the only signal. */
+
+.weekly-goal {
+  box-sizing: border-box;
+  padding: 20px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+  color: var(--gr-text);
+  font-family: var(--gr-font);
+}
+
+.weekly-goal__eyebrow {
+  margin: 0 0 6px;
+  color: var(--gr-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.weekly-goal__title { margin: 0; font-size: 22px; font-weight: 500; }
+
+.weekly-goal__status { margin: 16px 0 0; color: var(--gr-text-muted); font-size: 14px; }
+
+.weekly-goal__error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--gr-error);
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-error-bg);
+  color: var(--gr-error-text);
+  font-size: 13px;
+}
+.weekly-goal__error p { margin: 0; }
+.weekly-goal__error button {
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-surface-raised);
+  color: var(--gr-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Progress */
+.weekly-goal__progress { margin-top: 16px; }
+.weekly-goal__count { display: flex; align-items: baseline; gap: 6px; margin: 0; color: var(--gr-text-soft); font-size: 16px; }
+.weekly-goal__count strong { color: var(--gr-text); font-size: 40px; font-weight: 600; line-height: 1; }
+
+.weekly-goal__bar {
+  overflow: hidden;
+  height: 8px;
+  margin-top: 12px;
+  border-radius: 4px;
+  background: var(--gr-track);
+}
+.weekly-goal__bar span { display: block; height: 100%; border-radius: inherit; background: var(--gr-action); transition: width .3s ease; }
+
+.weekly-goal__note { margin: 10px 0 0; color: var(--gr-text-soft); font-size: 14px; }
+.weekly-goal__note--reached { color: var(--gr-success-text); font-weight: 600; }
+
+/* This week's goal and next week's change, side by side, each with its own label. */
+.weekly-goal__targets {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0 0;
+}
+.weekly-goal__target {
+  padding: 12px 14px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-inner);
+  background: var(--gr-surface-sunken);
+}
+.weekly-goal__target--changed { border-color: var(--gr-action); }
+.weekly-goal__target dt { margin-bottom: 4px; color: var(--gr-text-label); font-size: 13px; font-weight: 600; }
+.weekly-goal__target dd { margin: 0; color: var(--gr-text); font-size: 14px; line-height: 1.45; }
+
+.weekly-goal__badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: 999px;
+  color: var(--gr-text-soft);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.weekly-goal__badge--saved { border-color: var(--gr-action); color: var(--gr-action-text); }
+
+.weekly-goal__action { margin-top: 12px; }
+
+/* The seven days, Monday first */
+.weekly-goal__days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.weekly-goal__day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px 4px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-inner);
+  background: var(--gr-surface-sunken);
+  color: var(--gr-text-muted);
+  text-align: center;
+}
+.weekly-goal__weekday { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.weekly-goal__date { color: var(--gr-text); font-size: 18px; font-weight: 600; }
+.weekly-goal__mark {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px dashed var(--gr-border-strong);
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 700;
+}
+.weekly-goal__label { font-size: 11px; font-weight: 600; overflow-wrap: anywhere; }
+
+.weekly-goal__day--completed {
+  border-color: var(--gr-success);
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
+}
+.weekly-goal__day--completed .weekly-goal__mark { border: 0; background: var(--gr-success); color: var(--gr-surface); }
+.weekly-goal__day--today { border-color: var(--gr-action); color: var(--gr-action-text); }
+.weekly-goal__day--today .weekly-goal__mark { border-style: solid; border-color: var(--gr-action); color: var(--gr-action); }
+.weekly-goal__day--upcoming { opacity: .75; }
+
+.weekly-goal__footnote { margin: 12px 0 0; color: var(--gr-text-muted); font-size: 12px; }
+
+.weekly-goal__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .weekly-goal { padding: 16px; }
+  .weekly-goal__targets { grid-template-columns: 1fr; }
+  /* Seven columns are too narrow for the labels on a phone, so the days become a list: "Mon 26 ✓ Completed". */
+  .weekly-goal__days { grid-template-columns: 1fr; gap: 6px; }
+  .weekly-goal__day { display: grid; grid-template-columns: 44px 32px 28px 1fr; align-items: center; gap: 8px; padding: 8px 12px; text-align: left; }
+  .weekly-goal__date { font-size: 16px; }
+  .weekly-goal__label { font-size: 13px; }
+}
+
+/* ---------------------------------------------------------------- Weekly goal page (#/weekly-goal) */
+
+.weekly-goal-page { min-height: 100vh; background: var(--gr-bg-page); color: var(--gr-text); font-family: var(--gr-font); }
+.weekly-goal-page__content { display: flex; flex-direction: column; gap: 20px; max-width: 900px; margin: 0 auto; padding: 40px 24px 48px; }
+.weekly-goal-page__heading h1 { margin: 0; font-size: 28px; font-weight: 500; }
+.weekly-goal-page__heading p { margin: 6px 0 0; color: var(--gr-text-muted); font-size: 14px; }
+.weekly-goal-page__back { display: inline-block; margin-bottom: 12px; color: var(--gr-action-text); font-size: 14px; text-decoration: none; }
+
+.weekly-goal-form {
+  padding: 20px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+}
+.weekly-goal-form h2 { margin: 0; font-size: 22px; font-weight: 500; }
+.weekly-goal-form__intro { margin: 6px 0 0; color: var(--gr-text-soft); font-size: 14px; }
+.weekly-goal-form fieldset { min-width: 0; margin: 20px 0 0; padding: 0; border: 0; }
+.weekly-goal-form legend { margin-bottom: 8px; padding: 0; color: var(--gr-text-label); font-size: 14px; font-weight: 600; }
+.weekly-goal-form__hint { margin: 8px 0 0; color: var(--gr-text-muted); font-size: 13px; }
+
+/* Radio inputs drawn as buttons: the input stays in the page for the keyboard and screen readers. */
+.weekly-goal-form__options { display: flex; flex-wrap: wrap; gap: 8px; }
+.weekly-goal-form__days { display: grid; grid-template-columns: repeat(7, minmax(44px, 1fr)); gap: 8px; }
+.weekly-goal-option { position: relative; display: block; }
+.weekly-goal-option input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.weekly-goal-option span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1.5px solid var(--gr-control-border);
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-surface-raised);
+  color: var(--gr-text);
+  font-size: 15px;
+  font-weight: 600;
+}
+.weekly-goal-option input:checked + span { border-color: var(--gr-action); background: var(--gr-selected-bg); color: var(--gr-action-text); }
+.weekly-goal-option input:checked + span::before { content: '✓'; }
+.weekly-goal-form__days .weekly-goal-option input:checked + span::before { content: none; }
+.weekly-goal-option input:focus-visible + span { outline: 3px solid var(--gr-action-text); outline-offset: 2px; }
+.weekly-goal-option input:disabled { cursor: not-allowed; }
+.weekly-goal-option input:disabled + span { color: var(--gr-nav-inactive); }
+
+.weekly-goal-form__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+.weekly-goal-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: var(--gr-radius-button);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.weekly-goal-button--primary { background: var(--gr-action); color: var(--gr-text-on-orange); }
+.weekly-goal-button--primary:hover:not(:disabled) { background: var(--gr-brand); }
+.weekly-goal-button--subtle { background: var(--gr-surface-raised); color: var(--gr-text); }
+.weekly-goal-button:disabled { background: var(--gr-surface-raised); color: var(--gr-nav-inactive); cursor: not-allowed; }
+.weekly-goal-button:focus-visible { outline: 3px solid var(--gr-action-text); outline-offset: 2px; }
+
+.weekly-goal-confirm {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1.5px solid var(--gr-action);
+  border-radius: var(--gr-radius-inner);
+  background: var(--gr-surface-sunken);
+}
+.weekly-goal-confirm h3 { margin: 0; font-size: 18px; font-weight: 600; }
+.weekly-goal-confirm p { margin: 6px 0 0; color: var(--gr-text-soft); font-size: 14px; }
+.weekly-goal-confirm .weekly-goal-form__actions { margin-top: 16px; }
+
+.weekly-goal-message { margin: 16px 0 0; padding: 10px 12px; border: 1px solid; border-radius: var(--gr-radius-button); font-size: 13px; }
+.weekly-goal-message--success { border-color: var(--gr-success); background: var(--gr-success-bg); color: var(--gr-success-text); }
+.weekly-goal-message--error { border-color: var(--gr-error); background: var(--gr-error-bg); color: var(--gr-error-text); }
+.weekly-goal-message a { color: inherit; font-weight: 600; }
+
+@media (max-width: 640px) {
+  .weekly-goal-page__content { padding: 24px 16px 40px; }
+  .weekly-goal-form { padding: 16px; }
+  .weekly-goal-form__days { grid-template-columns: repeat(4, minmax(44px, 1fr)); }
+  .weekly-goal-form__actions .weekly-goal-button { flex: 1 1 100%; }
+}

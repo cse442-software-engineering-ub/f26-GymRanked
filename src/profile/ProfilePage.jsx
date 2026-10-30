@@ -108,6 +108,10 @@ export default function ProfilePage() {
           <div><dt>Equipment selection</dt><dd>{settings.equipment.length ? settings.equipment.map((item) => labelFor(EQUIPMENT, item)).join(', ') : 'Not set'}</dd></div>
         </dl>
       </section>
+      <section className="profile-card" aria-labelledby="weekly-goal-title">
+        <div className="profile-card-heading"><div><p className="profile-eyebrow">CONSISTENCY</p><h2 id="weekly-goal-title">Weekly goal</h2></div><Link className="profile-button profile-button--primary" to="/weekly-goal">Set weekly goal</Link></div>
+        <p className="profile-card-intro">Choose how many days you train each week and see the days you've completed.</p>
+      </section>
       <section className="profile-card" aria-labelledby="account-settings-title">
         <p className="profile-eyebrow">ACCOUNT</p><h2 id="account-settings-title">Account Settings</h2>
         <dl className="profile-details"><div><dt>Full name</dt><dd>{user.full_name}</dd></div><div><dt>Email</dt><dd>{user.email}</dd></div></dl>
