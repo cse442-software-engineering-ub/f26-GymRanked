@@ -41,6 +41,12 @@ export function heroKind(me) {
   return 'ranked'
 }
 
+// The rank on Home: "#2", "Practice week" or "Unranked".
+export function homeRank(me) {
+  if (me.rank != null) return `#${me.rank}`
+  return me.reason === 'practice_week' ? 'Practice week' : 'Unranked'
+}
+
 // "2026-11-02" -> "Your ranked weeks start Monday, November 2."
 export function rankedFromLine(date) {
   const [year, month, day] = date.split('-').map(Number)

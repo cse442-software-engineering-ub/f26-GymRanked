@@ -11,7 +11,8 @@ import { summaryPath } from './workoutLog/setLog.js'
 import { formatVolume } from './workoutLog/workoutSummary.js'
 import { dashboardHistory } from './dashboardHistory.js'
 import { fetchUnfinishedSession } from './workoutSessionApi.js'
-import { getLeaderboard } from './leaderboard/leaderboardApi.js'
+import { getWeeklyStandings } from './weekly/weeklyApi.js'
+import { circleLabel, homeRank } from './weekly/weeklyFormat.js'
 import WeeklyMilestoneCard from './WeeklyMilestoneCard.jsx'
 import { weeklyDayState } from './weeklyTimeline.js'
 
@@ -32,7 +33,7 @@ function WeeklyGoalCard({ state, standings, plan, planReady, planError, schedule
   }) : []
   const action = unfinished && plan && unfinished.plan === plan.name ? 'Resume workout' : 'Start workout'
   const daysLeft = data ? Math.max(0, data.target_days - data.progress_days) : 0
-  const rank = standings.status === 'ready' ? standings.data?.me?.ranked ? `#${standings.data.me.rank}` : standings.data?.me ? 'Unranked' : 'Unavailable' : standings.status === 'error' ? 'Unavailable' : 'Loading…'
+  const rank = standings.status === 'ready' ? homeRank(standings.data.me) : standings.status === 'error' ? 'Unavailable' : 'Loading…'
   const planSessions = planError ? 'Unavailable' : !planReady ? 'Loading…' : !plan ? 'No plan' : historyStatus === 'error' ? 'Unavailable' : historyStatus === 'loading' ? 'Loading…' : `${progress?.thisWeek ?? 0} of ${plan.days_per_week}`
   const streak = historyStatus === 'error' ? 'Unavailable' : historyStatus === 'loading' ? 'Loading…' : `${progress?.streakWeeks ?? 0} ${progress?.streakWeeks === 1 ? 'week' : 'weeks'}`
   return <section className="dashboard-card dashboard-weekly" aria-label="This week">
@@ -73,9 +74,9 @@ function WeeklyGoalCard({ state, standings, plan, planReady, planError, schedule
     <div className="dashboard-weekly__stats" aria-label="Weekly summary">
       <div><span>Plan sessions this week</span><strong>{planSessions}</strong></div>
       <div><span>Weekly consistency</span><strong>{streak}</strong></div>
-      <div><span>All-time rank</span><strong>{rank}</strong></div>
+      <div><span>Weekly rank</span><strong>{rank}</strong></div>
     </div>
-    <div className="dashboard-weekly__standing">{standings.status === 'error' && <p role="alert">Couldn't load leaderboard. Try again. <button type="button" onClick={onRetry}>Try again</button></p>}<Link to="/leaderboard">View leaderboard ›</Link><span>Weekly standings are not available yet.</span></div>
+    <div className="dashboard-weekly__standing">{standings.status === 'error' && <p role="alert">Couldn't load weekly standings. Try again. <button type="button" onClick={onRetry}>Try again</button></p>}<Link to="/leaderboard/weekly">View weekly standings ›</Link>{standings.status === 'ready' && <span>{circleLabel(standings.data.target_days)}</span>}</div>
   </section>
 }
 
@@ -212,7 +213,7 @@ function Dashboard() {
     setWeeklyState({ status: 'loading', data: null })
     setStandingState({ status: 'loading', data: null })
     apiRequest('weekly_goal.php').then((result) => { if (active) setWeeklyState({ status: result.ok ? 'ready' : 'error', data: result.ok ? result.data : null }) })
-    getLeaderboard('overall').then((result) => { if (active) setStandingState({ status: result.ok ? 'ready' : 'error', data: result.ok ? result.data : null }) })
+    getWeeklyStandings().then((result) => { if (active) setStandingState({ status: result.ok ? 'ready' : 'error', data: result.ok ? result.data : null }) })
     fetchUnfinishedSession().then((session) => { if (active) setUnfinished(session) })
     return () => { active = false }
   }, [loadAttempt])
