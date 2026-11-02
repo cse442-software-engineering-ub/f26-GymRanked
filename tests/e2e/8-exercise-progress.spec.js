@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { step } from './banner.js'
 import { resetLocalCounters } from './global-setup.js'
-import { createAccountAndLogIn, logIn, logOut } from './helpers.js'
+import { createAccount, logIn, logOut } from './helpers.js'
 import { acceptanceTests } from './stories.js'
 
 // Story 8 uses seeded accounts: Marcus Malone and Dana Lee from database/seeds/exercise_progress.sql (#109), and
@@ -91,7 +91,21 @@ async function expectRecords(page, records) {
 }
 
 // Story #8 test 5's setup, as in story #9's spec: Strength, Beginner, Full gym access, then Beginner Fundamentals.
+// A new account's first stop is Personal details (#117), so log in here instead of helpers.logIn.
+async function createAccountAndLogIn(page, fullName) {
+  const account = await createAccount(page, fullName)
+  await page.goto('#/login')
+  await page.getByLabel('Email').fill(account.email)
+  await page.getByLabel('Password', { exact: true }).fill(account.password)
+  await page.getByRole('button', { name: 'Log in' }).click()
+  await expect(page).toHaveURL(/#\/personal-details$/)
+  return account
+}
+
 async function finishOnboarding(page) {
+  await page.getByLabel('Body weight (lb)').fill('180')
+  await page.getByRole('button', { name: 'Man', exact: true }).click()
+  await page.getByRole('button', { name: 'Save and continue' }).click()
   for (const [heading, choice, save] of [
     ['Choose your training goal', /^Strength/, 'Save goal'],
     ['How experienced are you?', /^Beginner/, 'Save and continue'],
@@ -293,34 +307,28 @@ acceptanceTests('8-exercise-progress.md', {
     })
   },
 
-  7: async ({ page }) => {
-    await step('Setup: log in as Marcus', () => as(page, MARCUS))
-    await step('Step 1: a slow answer shows the loading message, then the totals', async () => {
-      await page.route('**/api/exercise_progress.php**', async (route) => {
-        await new Promise((resolve) => setTimeout(resolve, 1500))
-        await route.continue()
-      })
+  7: async ({ page, context }) => {
+    await step('Setup: log in as Marcus and open Progress', async () => {
+      await as(page, MARCUS)
       await openProgress(page)
-      await expect(main(page).getByText('Loading your progress...', { exact: true })).toBeVisible()
       await expectTotals(page, MARCUS_TOTALS)
-      await page.unroute('**/api/exercise_progress.php**')
     })
-    await step('Step 2: go back to the Dashboard and block exercise_progress.php', async () => {
-      await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Dashboard' }).click()
-      await expect(page).toHaveURL(/#\/dashboard$/)
-      await page.route('**/api/exercise_progress.php**', (route) => route.abort())
-    })
-    await step('Step 3: Progress shows the error and Try again, not the empty page', async () => {
-      await openProgress(page)
+    await step('Step 1: turn off the internet connection', () => context.setOffline(true))
+    await step('Step 2: 30 days shows the error and Try again, not the empty page', async () => {
+      await main(page).getByRole('button', { name: '30 days' }).click()
       await expect(main(page).getByRole('alert')).toHaveText(/Couldn't load your progress\. Check your connection and try again\./)
       await expect(main(page).getByRole('button', { name: 'Try again' })).toBeVisible()
       await expect(main(page).locator('.progress-metric')).toHaveCount(0)
       await expect(main(page)).not.toContainText('No progress to track yet')
     })
-    await step('Step 4: unblocking and Try again shows the totals', async () => {
-      await page.unroute('**/api/exercise_progress.php**')
+    await step('Step 3: back online, Try again shows the last 30 days', async () => {
+      await context.setOffline(false)
       await main(page).getByRole('button', { name: 'Try again' }).click()
       await expect(main(page).getByRole('alert')).toHaveCount(0)
+      await expect(main(page).getByText('Marcus Malone · Last 30 days', { exact: true })).toBeVisible()
+    })
+    await step('Step 4: All time shows the totals again', async () => {
+      await main(page).getByRole('button', { name: 'All time' }).click()
       await expectTotals(page, MARCUS_TOTALS)
     })
   },
