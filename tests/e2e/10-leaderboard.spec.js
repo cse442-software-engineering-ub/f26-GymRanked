@@ -383,21 +383,23 @@ acceptanceTests('10-leaderboard.md', {
       await themeButton('Dark').click()
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
     })
-    await step('Step 5: a failed request shows the error and Try again, with no board', async () => {
+    await step('Step 5: offline, switching to Bench press shows the error and Try again, with no board', async () => {
       await page.setViewportSize({ width: 1280, height: 900 })
       await page.goto('#/dashboard')
-      await page.route('**/api/leaderboard.php**', (route) => route.abort())
       await openLeaderboard(page)
+      await expectRanked(page, '#15 of 51 on Overall', '156.29')
+      await page.context().setOffline(true)
+      await main(page).locator('.leaderboard-tabs').getByRole('button', { name: 'Bench press' }).click()
       await expect(main(page).getByRole('alert')).toHaveText(/Couldn't load the leaderboard\. Check your connection and try again\./)
       await expect(main(page).getByRole('button', { name: 'Try again' })).toBeVisible()
       await expect(main(page).locator('.leaderboard-list')).toHaveCount(0)
       await expect(main(page)).not.toContainText('How to get ranked')
     })
-    await step('Step 6: Try again shows the board', async () => {
-      await page.unroute('**/api/leaderboard.php**')
+    await step('Step 6: back online, Try again shows the Bench press board', async () => {
+      await page.context().setOffline(false)
       await main(page).getByRole('button', { name: 'Try again' }).click()
       await expect(main(page).getByRole('alert')).toHaveCount(0)
-      await expectRanked(page, '#15 of 51 on Overall', '156.29')
+      await expectRanked(page, '#16 of 54 on Bench press', '40.90')
     })
   },
 }, { mobile: [8] })
