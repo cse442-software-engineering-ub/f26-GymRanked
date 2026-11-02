@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test'
 import { step } from './banner.js'
-import { createAccountAndLogIn, logIn, logOut } from './helpers.js'
+import { createAccount, logIn, logOut } from './helpers.js'
 import { acceptanceTests } from './stories.js'
 
 // Story 9 uses the seeded riley.brooks@example.com from database/seeds/workout_history.sql: his six workouts have
@@ -111,7 +111,21 @@ async function expectPageOne(page) {
 const fitsWidth = (page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
 
 // Story #9 test 5's setup, as in story #86's spec: Strength, Beginner, Full gym access, then Beginner Fundamentals.
+// A new account's first stop is Personal details (#117), so log in here instead of helpers.logIn.
+async function createAccountAndLogIn(page, fullName) {
+  const account = await createAccount(page, fullName)
+  await page.goto('#/login')
+  await page.getByLabel('Email').fill(account.email)
+  await page.getByLabel('Password', { exact: true }).fill(account.password)
+  await page.getByRole('button', { name: 'Log in' }).click()
+  await expect(page).toHaveURL(/#\/personal-details$/)
+  return account
+}
+
 async function finishOnboarding(page) {
+  await page.getByLabel('Body weight (lb)').fill('180')
+  await page.getByRole('button', { name: 'Man', exact: true }).click()
+  await page.getByRole('button', { name: 'Save and continue' }).click()
   for (const [heading, choice, save] of [
     ['Choose your training goal', /^Strength/, 'Save goal'],
     ['How experienced are you?', /^Beginner/, 'Save and continue'],
@@ -276,34 +290,25 @@ acceptanceTests('9-workout-history.md', {
     })
   },
 
-  7: async ({ page }) => {
-    await step('Setup: log in as Riley', () => asRiley(page))
-    await step('Step 1: a slow answer shows the loading message, then the list', async () => {
-      await page.route('**/api/workout_history.php', async (route) => {
-        await new Promise((resolve) => setTimeout(resolve, 1500))
-        await route.continue()
-      })
+  7: async ({ page, context }) => {
+    await step('Setup: log in as Riley and open Workout history', async () => {
+      await asRiley(page)
       await openHistory(page)
-      await expect(main(page).getByText('Loading your workout history...', { exact: true })).toBeVisible()
       await expectPageOne(page)
-      await page.unroute('**/api/workout_history.php')
     })
-    await step('Step 2: go back to the Dashboard and block workout_history.php', async () => {
-      await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Dashboard' }).click()
-      await expect(page).toHaveURL(/#\/dashboard$/)
-      await page.route('**/api/workout_history.php', (route) => route.abort())
-    })
-    await step('Step 3: Progress shows the error and Try again, not the empty state', async () => {
-      await openHistory(page)
-      await expect(main(page).getByRole('alert')).toHaveText(/Couldn't load your workout history\. Check your connection and try again\./)
+    await step('Step 1: turn off the internet connection', () => context.setOffline(true))
+    await step('Step 2: opening Full body C (October 9) shows the error and Try again, and the list stays', async () => {
+      await workoutRow(page, 'Full body C', 'Friday, October 9, 2026').click()
+      await expect(main(page).getByRole('alert')).toHaveText(/Couldn't load this workout\. Try again\./)
       await expect(main(page).getByRole('button', { name: 'Try again' })).toBeVisible()
-      await expect(main(page)).not.toContainText('No workouts logged yet')
+      await expect(main(page).locator('.history-sets')).toHaveCount(0)
+      await expectPageOne(page)
     })
-    await step('Step 4: unblocking and Try again shows the workouts', async () => {
-      await page.unroute('**/api/workout_history.php')
+    await step('Step 3: back online, Try again shows every set', async () => {
+      await context.setOffline(false)
       await main(page).getByRole('button', { name: 'Try again' }).click()
       await expect(main(page).getByRole('alert')).toHaveCount(0)
-      await expectPageOne(page)
+      await expectSets(page, OCTOBER_9)
     })
   },
 

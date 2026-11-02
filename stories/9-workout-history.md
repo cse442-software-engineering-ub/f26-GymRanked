@@ -71,7 +71,7 @@ Test account: `Riley Brooks`, email `riley.brooks@example.com`, password `Riley-
 ### Setup for this test:
 
 1. Open the [Registration page](https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register). Register `Casey Fresh` with a unique email such as `history-empty+YOUR_INITIALS-TIMESTAMP@example.com` and `TaskTestPass12!` in both password fields. Confirm that the Login page says `Account created. Log in to continue.`
-2. Log in. Select **Strength** and **Save goal**, **Beginner** and **Save and continue**, then **Full gym access** and **Save and continue**. On `Choose your workout plan`, select **Choose plan** for **Beginner Fundamentals**. Confirm that the Dashboard opens.
+2. Log in. On **Personal details**, enter `180` in **Body weight (lb)**, select **Man** and select **Save and continue**. Select **Strength** and **Save goal**, **Beginner** and **Save and continue**, then **Full gym access** and **Save and continue**. On `Choose your workout plan`, select **Choose plan** for **Beginner Fundamentals**. Confirm that the Dashboard opens.
 
 ### Steps:
 
@@ -84,8 +84,7 @@ Test account: `Riley Brooks`, email `riley.brooks@example.com`, password `Riley-
 
 ### Setup for this test:
 
-1. Use a phone, or Chrome on a computer with DevTools open (F12): select the device toolbar button and choose **iPhone SE** (375 × 667).
-2. Log in as Riley on the [Login page](https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login). Confirm that the Dashboard opens.
+1. On a phone held upright, log in as Riley on the [Login page](https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login). Confirm that the Dashboard opens.
 
 ### Steps:
 
@@ -94,19 +93,17 @@ Test account: `Riley Brooks`, email `riley.brooks@example.com`, password `Riley-
 3. Select **Full body C**, **Friday, October 9, 2026**. Confirm that its three exercise tables, with every set's reps and weight from Acceptance Test 2, fit the screen width without sideways scrolling.
 4. Scroll down and select page **2**. Confirm that `Showing 5–6 of 6 workouts` appears.
 
-## Acceptance Test 7: Loading and a failed request show clear messages
+## Acceptance Test 7: A workout that can't load shows a clear message and Try again recovers
 
 ### Setup for this test:
 
-1. On a computer, log in as Riley as in Acceptance Test 1. Confirm that the Dashboard opens.
-2. Open Chrome DevTools with F12 and select the **Network** tab.
+1. On a computer, log in as Riley as in Acceptance Test 1, then select **Progress**, then **Workout history**. Confirm that `6 completed workouts` and the four workouts from Acceptance Test 1 appear.
 
 ### Steps:
 
-1. In Network, check **Disable cache** and choose **Slow 3G** throttling. Select **Progress**, then **Workout history**. Confirm that `Loading your workout history...` appears before the workouts, and then the list from Acceptance Test 1 appears. Return to **No throttling**.
-2. Select **Dashboard**. In DevTools, open Network request blocking (press Ctrl+Shift+P on Windows or Cmd+Shift+P on a Mac, type `Show Network request blocking`, and press Enter), check **Enable network request blocking**, and add the pattern `*workout_history.php*`.
-3. Select **Progress**, then **Workout history**. Confirm that, instead of the list, the page says `Couldn't load your workout history. Check your connection and try again.` with a **Try again** button, and that it does not say `No workouts logged yet`.
-4. Uncheck **Enable network request blocking** and select **Try again**. Confirm that the message disappears and `6 completed workouts` and the four workouts appear.
+1. Turn off the computer's internet connection (switch off Wi-Fi or unplug the network cable) and keep this page open.
+2. Select **Full body C**, **Friday, October 9, 2026**. Confirm that it says `Couldn't load this workout. Try again.` with a **Try again** button, shows no table of sets, and that the four workouts are still listed.
+3. Turn the internet connection back on, and reconnect to the UB VPN if you use it. Select **Try again**. Confirm that the message disappears and the three exercises and their tables from Acceptance Test 2, step 1 appear.
 
 ## Acceptance Test 8: Workout history needs you to be logged in
 
