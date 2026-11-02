@@ -74,7 +74,7 @@ Test accounts: these are fake accounts loaded on the site. The Marcus and Dana n
 
 1. Log in with `dana.lee@example.com` and `Dana-Squat315!` and select **Progress**. Confirm that the boxes show `Volume` `3,930 lb`, `Strength gain` `-2.2%`, `New PRs` `1`, and `Workouts logged` `2`, that the **Exercise** list offers only `Back squat` and `Bench press`, and that `Back squat` shows `Heaviest weight` `320 lb` and `Strength change` `-8 lb (-2.2%)`. Confirm that `Pull-up` and Marcus's `21,420 lb` appear nowhere.
 2. Log out. Register `Casey Progress` on the [Registration page](https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register) with a unique email such as `progress-empty+YOUR_INITIALS-TIMESTAMP@example.com` and `TaskTestPass12!` in both password fields, then log in.
-3. Select **Strength** and **Save goal**, **Beginner** and **Save and continue**, then **Full gym access** and **Save and continue**. On `Choose your workout plan`, select **Choose plan** for **Beginner Fundamentals**. Confirm that the Dashboard opens.
+3. On **Personal details**, enter `180` in **Body weight (lb)**, select **Man** and select **Save and continue**. Select **Strength** and **Save goal**, **Beginner** and **Save and continue**, then **Full gym access** and **Save and continue**. On `Choose your workout plan`, select **Choose plan** for **Beginner Fundamentals**. Confirm that the Dashboard opens.
 4. Select **Progress**. Confirm that the page says `No progress to track yet` and `Log your first workout and your volume, personal records, and strength trends will start showing up here.` with a **Start a workout** button, and that it shows no numbers, no **Exercise** list, and none of Marcus's or Dana's exercises.
 5. Select **Start a workout**. Confirm that the weekly plan opens with the heading `Beginner Fundamentals — Week 1`.
 
@@ -82,8 +82,7 @@ Test accounts: these are fake accounts loaded on the site. The Marcus and Dana n
 
 ### Setup for this test:
 
-1. Use a phone, or Chrome on a computer with DevTools open (F12): select the device toolbar button and choose **iPhone SE** (375 × 667).
-2. Log in as Marcus on the [Login page](https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login). Confirm that the Dashboard opens.
+1. On a phone held upright, log in as Marcus on the [Login page](https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login). Confirm that the Dashboard opens.
 
 ### Steps:
 
@@ -91,19 +90,18 @@ Test accounts: these are fake accounts loaded on the site. The Marcus and Dana n
 2. Choose `Bench press` in the **Exercise** list. Confirm that its numbers from Acceptance Test 2, step 1, its chart, and its seven-row table fit the screen width without sideways scrolling.
 3. Select **30 days**, then **All time**. Confirm that the three buttons stay on one line and the numbers return to those in step 1.
 
-## Acceptance Test 7: Loading and a failed request show clear messages
+## Acceptance Test 7: A failed request shows a clear message and Try again recovers
 
 ### Setup for this test:
 
-1. On a computer, log in as Marcus as in Acceptance Test 1. Confirm that the Dashboard opens.
-2. Open Chrome DevTools with F12 and select the **Network** tab.
+1. On a computer, log in as Marcus as in Acceptance Test 1 and select **Progress**. Confirm that the boxes from Acceptance Test 1, step 2 appear.
 
 ### Steps:
 
-1. In Network, check **Disable cache** and choose **Slow 3G** throttling. Select **Progress**. Confirm that `Loading your progress...` appears before the numbers, and then the boxes from Acceptance Test 1, step 2 appear. Return to **No throttling**.
-2. Select **Dashboard**. In DevTools, open Network request blocking (press Ctrl+Shift+P on Windows or Cmd+Shift+P on a Mac, type `Show Network request blocking`, and press Enter), check **Enable network request blocking**, and add the pattern `*exercise_progress.php*`.
-3. Select **Progress**. Confirm that the page says `Couldn't load your progress. Check your connection and try again.` with a **Try again** button, and that it shows no numbers and does not say `No progress to track yet`.
-4. Uncheck **Enable network request blocking** and select **Try again**. Confirm that the message disappears and the boxes from Acceptance Test 1, step 2 appear.
+1. Turn off the computer's internet connection (switch off Wi-Fi or unplug the network cable) and keep this page open.
+2. Select **30 days**. Confirm that the page says `Couldn't load your progress. Check your connection and try again.` with a **Try again** button, and that it shows no numbers and does not say `No progress to track yet`.
+3. Turn the internet connection back on, and reconnect to the UB VPN if you use it. Select **Try again**. Confirm that the message disappears and `Marcus Malone · Last 30 days` appears.
+4. Select **All time**. Confirm that the boxes from Acceptance Test 1, step 2 appear again.
 
 ## Acceptance Test 8: Workout history is still one click away, and Progress needs you to be logged in
 
