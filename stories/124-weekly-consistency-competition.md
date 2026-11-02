@@ -134,8 +134,8 @@ Test accounts: fake accounts loaded by the backend task's seed file. Load the se
 ### Steps:
 
 1. Select **View weekly standings**. Confirm that the address ends in `#/leaderboard/weekly`, and that the page opens on **Weekly consistency** and shows `You're #2` and `2/3 days · 67%`, the same rank and count as Home.
-2. In Chrome DevTools, open Network request blocking (press Cmd+Shift+P on a Mac or Ctrl+Shift+P on Windows, type `Show Network request blocking` and press Enter), check **Enable network request blocking**, add the pattern `*weekly_standings.php*` and reload the page. Confirm that the page says `Couldn't load this week's standings. Check your connection and try again.` with a **Try again** button, and that it doesn't show `0/3 days` or a rank.
-3. Uncheck **Enable network request blocking** and select **Try again**. Confirm that the same rank and progress as before return.
+2. Turn off the computer's internet connection (switch off Wi-Fi or unplug the network cable) and keep this page open. Select **Leave**. Confirm that the page says `Couldn't leave the weekly competition. Try again.`, and that the top card still says `You're #2` and `2/3 days · 67%` with the **Leave** button.
+3. Turn the internet connection back on, and reconnect to the UB VPN if you use it. Refresh the page. Confirm that the top card still says `You're #2` and `2/3 days · 67%` and that `Casey L.` is still listed, so the failed Leave changed nothing.
 
 ## Acceptance Test 10: The weekly competition works on a phone
 

@@ -334,19 +334,20 @@ acceptanceTests('124-weekly-consistency-competition.md', {
       await expect(hero(page)).toContainText("You're #2")
       await expect(days(page)).toHaveText('2/3 days · 67%')
     })
-    await step('Step 2: a failed request says so, with no made-up numbers', async () => {
-      await page.route(API, (route) => route.abort())
-      await page.reload()
-      await expect(main(page).getByRole('alert')).toContainText("Couldn't load this week's standings. Check your connection and try again.")
-      await expect(main(page).getByRole('button', { name: 'Try again' })).toBeVisible()
-      await expect(hero(page)).toHaveCount(0)
-      await expect(main(page)).not.toContainText('0/3 days')
-    })
-    await step('Step 3: Try again brings them back', async () => {
-      await page.unroute(API)
-      await main(page).getByRole('button', { name: 'Try again' }).click()
+    await step('Step 2: offline, Leave fails, says so, and nothing changes', async () => {
+      await page.context().setOffline(true)
+      await hero(page).getByRole('button', { name: 'Leave' }).click()
+      await expect(main(page).getByRole('alert')).toHaveText("Couldn't leave the weekly competition. Try again.")
       await expect(hero(page)).toContainText("You're #2")
       await expect(days(page)).toHaveText('2/3 days · 67%')
+      await expect(hero(page).getByRole('button', { name: 'Leave' })).toBeVisible()
+    })
+    await step('Step 3: back online, a refresh shows the same rank and Casey still listed', async () => {
+      await page.context().setOffline(false)
+      await page.reload()
+      await expect(hero(page)).toContainText("You're #2")
+      await expect(days(page)).toHaveText('2/3 days · 67%')
+      await expect(main(page).locator('.weekly-row', { hasText: 'Casey L.' })).toHaveCount(1)
     })
   },
 
