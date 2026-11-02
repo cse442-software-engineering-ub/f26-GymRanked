@@ -1,5 +1,5 @@
 <?php
-// GET  api/current_plan.php -> {"plan":{"id":1,"name":"...","level":"...","duration_weeks":"6-8","days_per_week":5},"week":3}
+// GET  api/current_plan.php -> {"plan":{"id":1,"name":"...","level":"...","duration_weeks":"6-8","days_per_week":5,"started_at_epoch":...},"week":3}
 //                              or {"plan":null,"week":null} when the user hasn't picked one yet
 // POST api/current_plan.php {"plan_id":2} -> same shape, for the newly selected plan
 //
@@ -29,6 +29,7 @@ function current_plan($db, $user_id) {
     // Week 1 is the first seven days after selecting the plan.
     $stmt = $db->prepare(
         'SELECT p.id, p.name, p.level, p.duration_weeks, p.days_per_week,
+                UNIX_TIMESTAMP(up.started_at) AS started_at_epoch,
                 FLOOR(TIMESTAMPDIFF(DAY, up.started_at, CURRENT_TIMESTAMP) / 7) + 1 AS week
          FROM user_plans up JOIN workout_plans p ON p.id = up.plan_id
          WHERE up.user_id = ?'
@@ -41,6 +42,7 @@ function current_plan($db, $user_id) {
     unset($plan['week']);
     $plan['id'] = (int) $plan['id'];
     $plan['days_per_week'] = (int) $plan['days_per_week'];
+    $plan['started_at_epoch'] = (int) $plan['started_at_epoch'];
     return ['plan' => $plan, 'week' => $week];
 }
 

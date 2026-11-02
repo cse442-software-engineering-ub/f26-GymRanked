@@ -1,7 +1,6 @@
 // Small helpers shared by the set logging components (story #7). Kept free of React so they can be unit tested.
 
-// Where the workout summary lives once a workout is completed. The summary page is a separate task;
-// change this one line if its route ends up different.
+// Where the workout summary lives once a workout is completed.
 export function summaryPath(sessionId) {
   return `/workouts/${sessionId}/summary`
 }

@@ -10,12 +10,12 @@ const NAV_LINKS = [
   { label: 'Dashboard', to: '/dashboard', icon: 'home' },
   { label: 'Workouts', to: '/weekly-plan', icon: 'dumbbell' },
   { label: 'Plans', to: '/plans', icon: 'calendar' },
-  { label: 'Progress', futurePath: '/progress', icon: 'progress' },
-  { label: 'Leaderboard', futurePath: '/leaderboard', icon: 'trophy' },
-  { label: 'Today', futurePath: '/today', icon: 'today' },
+  { label: 'Progress', to: '/progress', icon: 'progress' },
+  { label: 'Leaderboard', to: '/leaderboard/weekly', icon: 'trophy' },
+  { label: 'Today', to: '/workouts/today', icon: 'today' },
 ]
 
-function NavBar({ current, userName = '' }) {
+function NavBar({ current, userName = '', showStartWorkout = true }) {
   const navigate = useNavigate()
   const [accountMenuOpen, setAccountMenuOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -79,7 +79,7 @@ function NavBar({ current, userName = '' }) {
           const className =
             label === current ? 'nav-bar__link nav-bar__link--current' : 'nav-bar__link'
           return to ? (
-            <Link key={label} to={to} className={className}>
+            <Link key={label} to={to} className={className} aria-current={label === current ? 'page' : undefined}>
               {label}
             </Link>
           ) : (
@@ -90,9 +90,9 @@ function NavBar({ current, userName = '' }) {
         })}
       </nav>
       <div className="nav-bar__actions">
-        <button type="button" className="nav-bar__start-workout" onClick={() => navigate('/weekly-plan')}>
+        {showStartWorkout && <button type="button" className="nav-bar__start-workout" onClick={() => navigate('/workouts/today')}>
           Start Workout
-        </button>
+        </button>}
         {(
           <div className="nav-bar__account">
             <button
@@ -116,8 +116,7 @@ function NavBar({ current, userName = '' }) {
                   onClick={() => setAccountMenuOpen(false)}
                 />
                 <div className="nav-bar__account-menu" role="menu">
-                  <span className="nav-bar__account-item" role="menuitem" aria-disabled="true">Profile</span>
-                  <span className="nav-bar__account-item" role="menuitem" aria-disabled="true">Account Settings</span>
+                  <Link className="nav-bar__account-item" role="menuitem" to="/profile" onClick={() => setAccountMenuOpen(false)}>Profile</Link>
                   <button
                     type="button"
                     className="nav-bar__logout"
@@ -150,6 +149,7 @@ function NavBar({ current, userName = '' }) {
           )
         })}
         <div className="nav-bar__mobile-account"><span className="nav-bar__mobile-avatar">{avatarInitials}</span><span>{sessionUserName}</span></div>
+        <Link to="/profile" className="nav-bar__mobile-link" tabIndex={mobileMenuOpen ? 0 : -1} onClick={() => setMobileMenuOpen(false)}>Profile</Link>
         <button type="button" className="nav-bar__mobile-logout" disabled={logoutBusy} tabIndex={mobileMenuOpen ? 0 : -1} onClick={onLogout}>
           <MobileDashboardIcon name="logout" />{logoutBusy ? 'Logging out…' : 'Log out'}
         </button>

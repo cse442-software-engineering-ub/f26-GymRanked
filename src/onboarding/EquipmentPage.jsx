@@ -7,7 +7,7 @@ import { EQUIPMENT, planImpact, toggleEquipment } from './setupOptions.js';
 // Route: #/equipment (registered in src/App.jsx). Onboarding step 3 of 4.
 export default function EquipmentPage() {
   return (
-    <OnboardingShell step={2} backdrop="backdrops/dumbbells.webp">
+    <OnboardingShell step={3} backdrop="backdrops/dumbbells.webp">
       {() => <EquipmentStep />}
     </OnboardingShell>
   );
@@ -157,7 +157,8 @@ function EquipmentStep() {
         label="Save and continue"
         saving={status === 'saving'}
         disabled={busy || equipment.length === 0}
-        help={equipment.length === 0 && status !== 'loading' ? 'Pick at least one option, or Bodyweight only.' : ''}
+        help="Pick at least one option, or Bodyweight only."
+        showHelp={equipment.length === 0 && status !== 'loading'}
         onSave={handleSave}
       />
     </section>

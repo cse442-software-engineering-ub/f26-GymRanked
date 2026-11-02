@@ -1,0 +1,487 @@
+/* Weekly consistency view (Monday visual brief, page 3). Colours, radii and type follow DESIGN.md, from the --gr-
+   variables only so light mode works. Your card first, then the standings card with Rank / Member / Training days /
+   Goal reached columns; on phones each row puts the bar under the name. */
+
+.weekly-page {
+  min-height: 100vh;
+  background: var(--gr-bg-page);
+  color: var(--gr-text);
+  font-family: var(--gr-font);
+}
+
+.weekly-page__content {
+  box-sizing: content-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 48px 48px;
+}
+
+.weekly-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.weekly-status {
+  margin: 0;
+  padding: 12px 0;
+  color: var(--gr-text-muted);
+  font-size: 14px;
+}
+
+.weekly-error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  padding: 16px 20px;
+  border: 1px solid var(--gr-error);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-error-bg);
+  color: var(--gr-error-text);
+}
+
+.weekly-error p {
+  flex: 1 1 260px;
+  margin: 0;
+  font-size: 14px;
+}
+
+.weekly-button {
+  min-height: 44px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.weekly-button:disabled {
+  background: var(--gr-surface-raised);
+  color: var(--gr-nav-inactive);
+  cursor: not-allowed;
+}
+
+/* Your card */
+.weekly-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+}
+
+.weekly-hero__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.weekly-hero__main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.weekly-hero__eyebrow {
+  color: var(--gr-brand-text);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.weekly-hero h1 {
+  margin: 0;
+  color: var(--gr-text-strong);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.weekly-hero__text {
+  max-width: 520px;
+  margin: 0;
+  color: var(--gr-text-soft);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.weekly-hero__score {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+.weekly-hero__days {
+  margin: 0;
+  color: var(--gr-action-text);
+  font-size: 18px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.weekly-hero.is-done .weekly-hero__days {
+  color: var(--gr-success-text);
+}
+
+.weekly-hero__reached {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px 2px 8px;
+  border: 1px solid var(--gr-success);
+  border-radius: 999px;
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.weekly-hero__reached svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.weekly-time-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+
+.weekly-time-left svg {
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.weekly-hero__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+
+.weekly-text-button {
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--gr-action-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.weekly-text-button:disabled {
+  color: var(--gr-nav-inactive);
+  cursor: not-allowed;
+}
+
+.weekly-notice {
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid var(--gr-success);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
+  font-size: 14px;
+}
+
+.weekly-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.weekly-hero__error {
+  margin: 0;
+  color: var(--gr-error-text);
+  font-size: 13px;
+}
+
+/* Progress bars: green for others, orange for you, green again once you reach the goal. */
+.weekly-bar {
+  display: block;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--gr-track);
+}
+
+.weekly-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--gr-success);
+}
+
+.weekly-bar--hero {
+  height: 8px;
+}
+
+.weekly-bar--hero > span,
+.weekly-row.is-me .weekly-bar > span {
+  background: var(--gr-action);
+}
+
+.weekly-hero.is-done .weekly-bar--hero > span {
+  background: var(--gr-success);
+}
+
+/* Standings card */
+.weekly-standings {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 20px 16px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+}
+
+.weekly-standings__header,
+.weekly-row {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) minmax(120px, 200px) 104px;
+  align-items: center;
+  gap: 16px;
+}
+
+.weekly-standings__header {
+  padding: 12px 12px 10px;
+  border-bottom: 1px solid var(--gr-divider);
+  color: var(--gr-text-muted);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.weekly-standings__header span:last-child {
+  text-align: right;
+}
+
+.weekly-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.weekly-row {
+  min-height: 56px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-bottom-color: var(--gr-divider);
+}
+
+.weekly-row:last-child {
+  border-bottom-color: transparent;
+}
+
+.weekly-row.is-me {
+  border-color: var(--gr-action);
+  border-radius: var(--gr-radius-inner);
+  background: var(--gr-selected-bg);
+}
+
+.weekly-rank {
+  color: var(--gr-text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.weekly-who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.weekly-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gr-surface-raised);
+  color: var(--gr-text-soft);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.weekly-row.is-me .weekly-avatar {
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+}
+
+.weekly-name {
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weekly-you {
+  flex: 0 0 auto;
+  padding: 1px 8px;
+  border: 1px solid var(--gr-action-text);
+  border-radius: 999px;
+  color: var(--gr-action-text);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.weekly-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.weekly-days {
+  color: var(--gr-text-muted);
+  font-size: 12px;
+}
+
+.weekly-percent {
+  color: var(--gr-text);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.weekly-percent.is-full {
+  color: var(--gr-success-text);
+}
+
+.weekly-gap {
+  padding: 4px 12px;
+  color: var(--gr-text-muted);
+  text-align: center;
+}
+
+.weekly-note,
+.weekly-empty {
+  margin: 12px 12px 0;
+  color: var(--gr-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.weekly-empty {
+  margin: 8px 0 0;
+  padding: 16px 12px;
+  color: var(--gr-text-soft);
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .weekly-page__content {
+    padding: 24px 16px 96px;
+  }
+
+  .weekly-hero {
+    padding: 18px 16px;
+  }
+
+  .weekly-hero__top {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .weekly-hero h1 {
+    font-size: 28px;
+  }
+
+  .weekly-hero__score {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    text-align: left;
+  }
+
+  .weekly-time-left {
+    align-items: flex-start;
+  }
+
+  .weekly-standings {
+    padding: 8px 8px 12px;
+  }
+
+  /* Rank | name over days and bar | percent */
+  .weekly-standings__header,
+  .weekly-row {
+    grid-template-columns: 36px minmax(0, 1fr) 48px;
+    gap: 10px;
+  }
+
+  /* The rows say "3 of 3 days" and "100%" themselves, so the column names are left out. */
+  .weekly-standings__header {
+    display: none;
+  }
+
+  .weekly-row {
+    grid-template-areas: 'rank who percent' 'rank progress percent';
+    row-gap: 6px;
+    padding: 10px 8px;
+  }
+
+  .weekly-rank { grid-area: rank; }
+  .weekly-who { grid-area: who; }
+  .weekly-progress { grid-area: progress; }
+  .weekly-percent { grid-area: percent; }
+
+  .weekly-avatar {
+    flex-basis: 28px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .weekly-progress {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .weekly-progress .weekly-bar {
+    flex: 1 1 auto;
+  }
+
+  .weekly-days {
+    flex: 0 0 auto;
+    order: 2;
+  }
+}
