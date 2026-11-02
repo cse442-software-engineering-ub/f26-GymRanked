@@ -1,7 +1,7 @@
 const API_URL = `${import.meta.env.BASE_URL}api/workout_session.php`
 
-// Starts today's workout from the user's selected plan, or reopens the session already started in the last
-// 24 hours (the API returns the same session for both). Rejects with an Error carrying the HTTP `status`:
+// Starts today's workout from the user's selected plan, or reopens the session already started today, New York
+// time (the API returns the same session for both). Rejects with an Error carrying the HTTP `status`:
 // 401 not logged in, 409 no plan selected, rest day, or a day with no exercises.
 export async function startSession() {
   const res = await fetch(API_URL, {

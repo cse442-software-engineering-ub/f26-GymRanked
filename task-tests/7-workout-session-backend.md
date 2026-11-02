@@ -26,8 +26,9 @@ The frontend already codes against the first three rows (`src/workoutLog/workout
 `logged_at` is when the set was first saved and never changes; `updated_at` is the last correction (equal to `logged_at` until corrected).
 `summary` is `null` until the workout is completed, then `{exercise_count, set_count, total_reps, total_volume_lb, duration_seconds}`
 (`total_volume_lb` = sum of weight × reps; `exercise_count` counts exercises with at least one set; `duration_seconds` = `completed_at` − `started_at`, a whole number).
-The user's current session is their most recent session that started within the last 24 hours, finished or not: `POST workout_session.php` returns it (200),
-and creates a new one (201) only when there is none, so a user gets one workout per 24 hours and the answer doesn't depend on time zones.
+The user's current session is their most recent session that started today, finished or not: `POST workout_session.php` returns it (200),
+and creates a new one (201) only when there is none, so a user gets one workout per day. "Today" is the New York calendar date (UB's time zone), not the last 24 hours:
+at 12:00 AM New York time the previous day's session, finished or not, stops being current and the new day's workout can start.
 `exercises` come from the user's current plan day, in order. Without `day_position` the day is today's scheduled
 training day; on a rest day the server answers 409 `{"error":"Rest day"}`. `day_position` (1, 2, 3...) picks that plan
 day instead, so tests don't depend on the weekday.
@@ -266,17 +267,18 @@ the session's `summary.duration_seconds` equals `completed_at` minus `started_at
 Step 7: returns `409`, and `completed_at` and `duration_seconds` are exactly as in step 6. Step 8: the database times are the same clock readings as the API strings (no hour offset, i.e. stored in UTC),
 `UTC_TIMESTAMP()` is within a minute of `T0`, the difference column equals `duration_seconds`, and the two set rows show `logged_at` for set 1 earlier than `updated_at`, and equal for set 2.
 
-Test 16: Only the last 24 hours count as "today", and history is ordered by completion time
-1. In phpMyAdmin clear Jordan's sessions from Test 15: `DELETE FROM workout_sessions WHERE user_id = (SELECT id FROM users WHERE email='jordan.kim@example.com');`. Then run `JK -d '{"day_position":2}' $API/workout_session.php`. Note the id as `K1`.
-2. In phpMyAdmin run `UPDATE workout_sessions SET started_at = UTC_TIMESTAMP() - INTERVAL 23 HOUR WHERE id = <K1>;` then repeat step 1's start request.
-3. Run `UPDATE workout_sessions SET started_at = UTC_TIMESTAMP() - INTERVAL 25 HOUR WHERE id = <K1>;` then repeat the start request. Note the id as `K2`.
-4. Save one set into `K2` (Barbell row, set 1, 95 × 10) and complete it. Then run `UPDATE workout_sessions SET started_at = UTC_TIMESTAMP() - INTERVAL 30 HOUR, completed_at = UTC_TIMESTAMP() - INTERVAL 29 HOUR WHERE id = <K2>;` and repeat the start request. Note the id as `K3`.
-5. Save one set into `K3` (Barbell row, set 1, 135 × 5) and complete it. Run `JK $API/workout_history.php`.
-6. Run `SELECT id, started_at, completed_at FROM workout_sessions WHERE user_id = (SELECT id FROM users WHERE email='jordan.kim@example.com') ORDER BY id;`
+Test 16: "Today" is the New York date, and history is ordered by completion time
+1. In phpMyAdmin clear Jordan's sessions from Test 15: `DELETE FROM workout_sessions WHERE user_id = (SELECT id FROM users WHERE email='jordan.kim@example.com');`. Then run `JK -w ' %{http_code}\n' -d '{"day_position":2}' $API/workout_session.php`. Note the id as `K1`.
+2. In phpMyAdmin run `SET @midnight = TIMESTAMP(DATE(UTC_TIMESTAMP() - INTERVAL 5 HOUR), '05:00:00'); UPDATE workout_sessions SET started_at = @midnight WHERE id = <K1>;` (@midnight is 12:00 AM today in New York in winter time; in summer time use `INTERVAL 4 HOUR` and `'04:00:00'`). Then repeat step 1's start request.
+3. Run `SET @midnight = TIMESTAMP(DATE(UTC_TIMESTAMP() - INTERVAL 5 HOUR), '05:00:00'); UPDATE workout_sessions SET started_at = @midnight - INTERVAL 1 SECOND WHERE id = <K1>;` (11:59:59 PM yesterday) then repeat the start request. Note the id as `K2`.
+4. Save one set into `K2` (Barbell row, set 1, 95 × 10) and complete it. Then repeat the start request.
+5. Run `SET @midnight = TIMESTAMP(DATE(UTC_TIMESTAMP() - INTERVAL 5 HOUR), '05:00:00'); UPDATE workout_sessions SET started_at = @midnight - INTERVAL 10 HOUR, completed_at = @midnight - INTERVAL 9 HOUR WHERE id = <K2>;` (finished yesterday afternoon) and repeat the start request. Note the id as `K3`.
+6. Save one set into `K3` (Barbell row, set 1, 135 × 5) and complete it. Run `JK $API/workout_history.php`.
+7. Run `SELECT id, started_at, completed_at FROM workout_sessions WHERE user_id = (SELECT id FROM users WHERE email='jordan.kim@example.com') ORDER BY id;`
 
-Expected outcome: step 1 returns `201`. Step 2 returns `200` and `K1` (23 hours old, still current). Step 3 returns `201` and a new id `K2`; `K1` stays unfinished
-(`completed_at` NULL). Step 4: the start request returns `201` and a new id `K3` (a workout completed 29 hours ago does not block today's). Step 5: the history lists `K3` first and `K2` second with
-`duration_seconds` `3600` for `K2`, and does not list `K1`. Step 6 shows three rows, where only `K2` and `K3` have a `completed_at`, and `K3`'s `completed_at` is the later one.
+Expected outcome: step 1 returns `201`. Step 2 returns `200` and `K1` (started at 12:00 AM today, still current). Step 3 returns `201` and a new id `K2` (a workout started before midnight does not block the new day); `K1` stays unfinished
+(`completed_at` NULL). Step 4 returns `200` and `K2`, now with `completed_at` set (a workout finished today is still the answer until midnight). Step 5 returns `201` and a new id `K3` (a workout finished yesterday does not block today's, even if it was less than 24 hours ago). Step 6: the history lists `K3` first and `K2` second with
+`duration_seconds` `3600` for `K2`, and does not list `K1`. Step 7 shows three rows, where only `K2` and `K3` have a `completed_at`, and `K3`'s `completed_at` is the later one.
 
 Test 17: Existing features still work and the data agrees with the frontend
 1. Run `M $API/current_plan.php`, `M $API/session.php` and `curl -s $API/workouts.php`.

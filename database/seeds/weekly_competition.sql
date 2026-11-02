@@ -4,8 +4,8 @@
 -- state and workouts are reset to the ones below, and no other account is touched.
 --
 -- The workouts are dated in the current Monday-Sunday week (New York time), so LOAD IT ON A THURSDAY, FRIDAY OR
--- SATURDAY, not between 12:00 AM and 1:00 AM New York time, and run the tests within 24 hours (an unfinished workout
--- is "current" for 24 hours). Reload it before running a test that finishes a workout again. It needs no MySQL time
+-- SATURDAY, not between 12:00 AM and 1:00 AM New York time, and run the tests the same New York day (an unfinished workout
+-- is "current" only on the day it was started). Reload it before running a test that finishes a workout again. It needs no MySQL time
 -- zone tables: finished workouts are stamped 16:00 UTC (noon in summer time, 11:00 AM in winter time in New York), so
 -- their New York date equals their UTC date, and this week's Monday is worked out from the UTC time minus 5 hours.
 --
