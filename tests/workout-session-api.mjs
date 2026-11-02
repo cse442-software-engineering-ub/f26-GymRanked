@@ -307,24 +307,48 @@ assert.ok(Math.abs(Date.parse(dbNow.replace(' ', 'T') + 'Z') - Date.now()) < 60_
 for (const text of [J1.started_at, jSet1.logged_at, jFixed.updated_at, jDone.completed_at]) assert.match(text, ISO)
 console.log('ok  Test 15: times are set by the server, in UTC, and agree')
 
-// ---------------------------------------------------------------- Test 16: 24-hour rule, history order
+// ---------------------------------------------------------------- Test 16: "today" is the New York date, history order
+// Midnight in New York today, as a UTC time in SQL format (the offset is looked up at that moment, so the days the
+// clocks change are right too).
+function startOfNewYorkDay() {
+  const parts = (date) => Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit', timeZoneName: 'longOffset',
+  }).formatToParts(date).map((part) => [part.type, part.value]))
+  const offsetMs = (date) => {
+    const [, sign, hours, minutes = '00'] = parts(date).timeZoneName.match(/GMT([+-])(\d+)(?::(\d+))?/) ?? [, '+', '0']
+    return (sign === '-' ? -1 : 1) * (Number(hours) * 60 + Number(minutes)) * 60_000
+  }
+  const { year, month, day } = parts(new Date())
+  let guess = Date.parse(`${year}-${month}-${day}T00:00:00Z`) - offsetMs(new Date())
+  guess = Date.parse(`${year}-${month}-${day}T00:00:00Z`) - offsetMs(new Date(guess))
+  return guess
+}
+const midnight = startOfNewYorkDay()
+const at = (ms) => new Date(ms).toISOString().slice(0, 19).replace('T', ' ')
+const HOUR = 3_600_000
+const setTimes = (id, started, completed = null) =>
+  sql(`UPDATE workout_sessions SET started_at = '${at(started)}', completed_at = ${completed === null ? 'completed_at' : `'${at(completed)}'`} WHERE id = ${id}`)
+
 sql(`DELETE FROM workout_sessions WHERE user_id = (SELECT id FROM users WHERE email = '${JORDAN}')`)
-const setStarted = (id, hours) => sql(`UPDATE workout_sessions SET started_at = UTC_TIMESTAMP() - INTERVAL ${hours} HOUR WHERE id = ${id}`)
 const K1 = (await post(jordan, 'workout_session.php', { day_position: 2 })).body.session
-setStarted(K1.id, 23)
+setTimes(K1.id, midnight) // started at the first moment of today
 const stillK1 = await post(jordan, 'workout_session.php', { day_position: 2 })
-assert.deepEqual([stillK1.status, stillK1.body.session.id], [200, K1.id])
-setStarted(K1.id, 25)
+assert.deepEqual([stillK1.status, stillK1.body.session.id], [200, K1.id], 'started today at 12:00 AM is still current')
+assert.equal((await get(jordan, 'workout_session.php?current=1')).body.session.id, K1.id)
+setTimes(K1.id, midnight - 1000) // 11:59:59 PM yesterday
 const k2 = await post(jordan, 'workout_session.php', { day_position: 2 })
-assert.equal(k2.status, 201)
+assert.equal(k2.status, 201, 'a workout started before midnight does not block the new day')
 const K2 = k2.body.session
 assert.notEqual(K2.id, K1.id)
 assert.equal(sql(`SELECT completed_at IS NULL FROM workout_sessions WHERE id = ${K1.id}`), '1')
+assert.equal((await get(jordan, 'workout_session.php?current=1')).body.session.id, K2.id, 'the unfinished one from yesterday is no longer current')
 assert.equal((await saveSet(jordan, K2.id, 'Barbell row', 1, 95, 10)).status, 201)
 assert.equal((await post(jordan, 'complete_workout.php', { session_id: K2.id })).status, 200)
-sql(`UPDATE workout_sessions SET started_at = UTC_TIMESTAMP() - INTERVAL 30 HOUR, completed_at = UTC_TIMESTAMP() - INTERVAL 29 HOUR WHERE id = ${K2.id}`)
+const sameDay = await post(jordan, 'workout_session.php', { day_position: 2 })
+assert.deepEqual([sameDay.status, sameDay.body.session.id], [200, K2.id], 'a workout finished today is still the answer until midnight')
+setTimes(K2.id, midnight - 10 * HOUR, midnight - 9 * HOUR) // about 2:00 PM to 3:00 PM yesterday, New York time
 const k3 = await post(jordan, 'workout_session.php', { day_position: 2 })
-assert.equal(k3.status, 201, 'a workout completed 29 hours ago does not block a new one')
+assert.equal(k3.status, 201, 'a workout finished yesterday does not block today, even less than 24 hours later')
 const K3 = k3.body.session
 assert.equal((await saveSet(jordan, K3.id, 'Barbell row', 1, 135, 5)).status, 201)
 assert.equal((await post(jordan, 'complete_workout.php', { session_id: K3.id })).status, 200)
@@ -332,7 +356,7 @@ const order = (await get(jordan, 'workout_history.php')).body.sessions
 assert.deepEqual(order.map((s) => s.id), [K3.id, K2.id])
 assert.equal(order[1].duration_seconds, 3600)
 assert.equal(sessionRows(JORDAN), 3)
-console.log('ok  Test 16: only the last 24 hours count as today; history ordered by completion')
+console.log('ok  Test 16: a session counts as today only if it started on today\'s New York date; history ordered by completion')
 
 // ---------------------------------------------------------------- today's scheduled day (Sean)
 const weekday = new Intl.DateTimeFormat('en-US', { weekday: 'short', timeZone: 'America/New_York' }).format(new Date())

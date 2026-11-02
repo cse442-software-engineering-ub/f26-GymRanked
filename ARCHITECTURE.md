@@ -99,7 +99,7 @@ Saves what a user lifts. Migration `database/migrations/009_workout_sessions.sql
 |---|---|---|
 | `POST api/workout_session.php` | `{}` or `{"day_position": 1}` | 201 `{"session": {...}}` for a new session, 200 for the current one |
 | `GET api/workout_session.php?id=N` | | 200 `{"session": {...}}` |
-| `GET api/workout_session.php?current=1` | | 200 `{"session": {...}}` for the signed-in user's unfinished session in the selected plan from the past 24 hours, or `{"session": null}`; no session is created |
+| `GET api/workout_session.php?current=1` | | 200 `{"session": {...}}` for the signed-in user's unfinished session in the selected plan that started today (New York time), or `{"session": null}`; no session is created |
 | `POST api/workout_sets.php` | `{session_id, exercise, set_number, weight_lb, reps}` | 201 `{"set": {...}}` |
 | `POST api/workout_sets.php` | `{id, weight_lb, reps}` (correction) | 200 `{"set": {...}}` |
 | `POST api/complete_workout.php` | `{session_id}` | 200 `{session_id, completed_at}` |
@@ -107,7 +107,7 @@ Saves what a user lifts. Migration `database/migrations/009_workout_sessions.sql
 
 - `session` = `{id, plan, name, focus, started_at, completed_at, exercises: [{name, sets: [{id, set_number, weight_lb, reps, logged_at, updated_at}]}], summary}`. `summary` is `null` until the workout is completed, then `{exercise_count, set_count, total_reps, total_volume_lb, duration_seconds}`. A history item is `{id, name, plan, started_at, completed_at, duration_seconds, exercise_count, set_count, total_volume_lb}`.
 - **Units and times:** weight is pounds (0 to 1500, at most 2 decimal places, 0 = bodyweight), reps 1 to 100. All times are UTC (`2026-10-13T19:27:47Z`) written by the server; times sent by the client are ignored.
-- **Current session:** the user's most recent session started in the last 24 hours, finished or not. Starting returns it (200) instead of creating another, which is how an unfinished workout is reopened. Without `day_position`, today's scheduled plan day is used (Eastern time, the same schedule as `src/weeklySchedule.js`; a rest day answers 409).
+- **Current session:** the user's most recent session of the selected plan that started today, finished or not, where today is the New York calendar date (not the last 24 hours), so the next day's workout can start right after midnight; a workout left unfinished before midnight isn't reopened after it. Starting returns it (200) instead of creating another, which is how an unfinished workout is reopened. Without `day_position`, today's scheduled plan day is used (Eastern time, the same schedule as `src/weeklySchedule.js`; a rest day answers 409).
 - **Accounts:** every query is scoped to the logged-in user; another user's session or set is a 404.
 - **Completion:** done once under a row lock (two requests at once give one 200 and one 409). After it, sets can't be saved or corrected (409).
 - **Errors:** JSON `{"error": "..."}`, plus `errors.weight_lb` / `errors.reps` on a 400 for a bad set. The wording matches `src/workoutLog/setValidation.js`. 401 not logged in, 404 not found, 405 wrong method, 409 conflict, 500 `{"error":"Database error"}`.
