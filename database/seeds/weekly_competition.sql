@@ -3,9 +3,10 @@
 -- Requires database/migrations/001_auth.sql to 015_weekly_competition.sql. Adds new accounts only. Safe to rerun: these twelve accounts' names, password, setup, plan, goals, joined
 -- state and workouts are reset to the ones below, and no other account is touched.
 --
--- The workouts are dated in the current Monday-Sunday week (New York time), so LOAD IT ON A THURSDAY, FRIDAY OR
--- SATURDAY, not between 12:00 AM and 1:00 AM New York time, and run the tests the same New York day (an unfinished workout
--- is "current" only on the day it was started). Reload it before running a test that finishes a workout again. It needs no MySQL time
+-- The workouts are dated in the current Monday-Sunday week (New York time), on days other than the day you load it, so
+-- it works on any day: Thursday to Saturday they fall earlier in the week, and on Monday to Wednesday some fall later in
+-- the week. Don't load it between 12:00 AM and 1:00 AM New York time, and run the tests the same New York day (an
+-- unfinished workout is "current" only on the day it was started). Reload it before running a test that finishes a workout again. It needs no MySQL time
 -- zone tables: finished workouts are stamped 16:00 UTC (noon in summer time, 11:00 AM in winter time in New York), so
 -- their New York date equals their UTC date, and this week's Monday is worked out from the UTC time minus 5 hours.
 --
@@ -89,14 +90,15 @@ INSERT INTO user_weekly_competition (user_id, joined_at, ranked_from)
 VALUES (@nia, TIMESTAMP(@monday - INTERVAL 13 DAY, '16:00:00'), @monday - INTERVAL 7 DAY),
        (@lee, UTC_TIMESTAMP(), @monday + INTERVAL 7 DAY);
 
--- Finished workouts. d is the number of days after this week's Monday (negative = last week), at 16:00 UTC; each
--- finished workout gets two sets below. Deleting the sessions also deletes their sets.
+-- Finished workouts. d counts this week's days other than today (0 = the first one, 1 = the next, and so on), so a
+-- workout finished today always adds a new day; negative d is last week (d days after this week's Monday). At 16:00
+-- UTC; each finished workout gets two sets below. Deleting the sessions also deletes their sets.
 DELETE FROM workout_sessions WHERE user_id IN (SELECT id FROM users WHERE email LIKE 'week-%@example.com');
 INSERT INTO workout_sessions (user_id, plan_id, plan_name, day_name, focus, exercises, started_at, completed_at)
 SELECT v.user_id, @plan, 'Beginner Fundamentals', 'Full body A', 'Form and technique',
        JSON_ARRAY('Goblet squat', 'Push-up', 'Dumbbell row'),
-       TIMESTAMP(@monday + INTERVAL v.d DAY, v.t) - INTERVAL 40 MINUTE,
-       TIMESTAMP(@monday + INTERVAL v.d DAY, v.t)
+       TIMESTAMP(@monday + INTERVAL IF(v.d >= WEEKDAY(@today), v.d + 1, v.d) DAY, v.t) - INTERVAL 40 MINUTE,
+       TIMESTAMP(@monday + INTERVAL IF(v.d >= WEEKDAY(@today), v.d + 1, v.d) DAY, v.t)
 FROM (
     SELECT @casey AS user_id, 0 AS d, '16:00:00' AS t
     UNION ALL SELECT @casey, 1, '16:00:00'

@@ -112,9 +112,11 @@ if ($day_position !== null) {
 
 // Only a session of the plan selected now counts, so switching plans starts the new plan's workout instead of
 // reopening the old plan's day. (With no plan selected there is nothing to compare, so any recent session counts.)
+// A session dated later than now is skipped: only seed data has those (weekly_competition.sql dates workouts later in
+// the week when it's loaded early in the week), and it must not hide the one started today.
 $plan_id = $plan ? (int) $plan['id'] : 0;
 $stmt = $db->prepare(
-    'SELECT id FROM workout_sessions WHERE user_id = ? AND started_at >= ?
+    'SELECT id FROM workout_sessions WHERE user_id = ? AND started_at >= ? AND started_at <= UTC_TIMESTAMP()
      AND (? = 0 OR plan_id = ?) ORDER BY started_at DESC, id DESC LIMIT 1'
 );
 $today_start = today_start_utc();

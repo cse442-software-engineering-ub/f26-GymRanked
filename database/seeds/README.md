@@ -109,7 +109,7 @@ Rerunning it is safe: it resets these 62 accounts (names, passwords, personal de
 
 `weekly_competition.sql` adds twelve accounts (`week-casey@example.com`, `week-maya@example.com`, `week-pat@example.com`, `week-jordan@example.com`, `week-alex@example.com`, `week-riley@example.com`, `week-sam@example.com`, `week-nia@example.com`, `week-dana@example.com`, `week-ivy@example.com`, `week-lee@example.com` and the test account `week-tess@example.com`), all with the password `Weekly-Test-Compete!`. They are in the weekly consistency competition for story #124 (card #126); the starting standings are in `task-tests/124-weekly-standings-backend.html`. It needs every migration up to `015_weekly_competition.sql`.
 
-Its workouts are dated in the current Monday-Sunday week, so load it on a Thursday, Friday or Saturday (not between 12:00 AM and 1:00 AM New York time) and test the same New York day (a workout started before midnight isn't "current" after it):
+Its workouts are dated in the current Monday-Sunday week on days other than the day you load it, so it works on any day (early in the week some are dated later in the week). Don't load it between 12:00 AM and 1:00 AM New York time, and test the same New York day (a workout started before midnight isn't "current" after it):
 
 ```bash
 mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < database/seeds/weekly_competition.sql

@@ -14,16 +14,16 @@ Rules these tests check:
 - **The first week is practice.** Your first ranked week is the Monday after you join. Until then you see your own progress but have no rank and aren't listed, and the page names the Monday you start.
 - **No divisions or promotion.** There are no leagues, tiers or promotion to a higher group.
 
-Test accounts: fake accounts loaded by the backend task's seed file. Load the seed on the day of the test, on a Thursday, Friday or Saturday, because workouts are dated in the current week (Monday to Sunday, New York time), Maya needs 4 different days, and two of the accounts have a workout started today. Every account has finished setup and chosen Beginner Fundamentals, and the password is `Weekly-Test-Compete!`. Boards show people as first name and last initial.
+Test accounts: fake accounts loaded by the backend task's seed file. Load the seed on the day of the test (any day of the week, but not between 12:00 AM and 1:00 AM New York time): it dates the workouts in the current week (Monday to Sunday, New York time) on days other than today, so early in the week some are dated later this week, and two of the accounts have a workout started today. Every account has finished setup and chosen Beginner Fundamentals, and the password is `Weekly-Test-Compete!`. Boards show people as first name and last initial.
 
-- `Casey Lin`, `week-casey@example.com`: joined last week, target 3, 2 distinct training days this week before today, and an unfinished workout started today with one saved set. Finishing it makes 3 of 3.
+- `Casey Lin`, `week-casey@example.com`: joined last week, target 3, 2 distinct training days this week other than today, and an unfinished workout started today with one saved set. Finishing it makes 3 of 3.
 - `Maya Rios`, `week-maya@example.com`: joined last week, target 3, 4 distinct training days this week (more than the goal).
-- `Pat Moss`, `week-pat@example.com`: joined last week, target 3, three finished sessions this week on two different dates before today, each with at least two sets.
+- `Pat Moss`, `week-pat@example.com`: joined last week, target 3, three finished sessions this week on two different dates other than today, each with at least two sets.
 - `Jordan K.`, `Alex T.`, `Riley S.` and `Sam L.`: joined last week, target 3, with 2, 1, 1 and 0 training days this week.
 - `Nia Cole`, `week-nia@example.com`: joined two weeks ago, target 3, finished workouts on 3 days last week and none this week.
 - `Dana Fox`, `week-dana@example.com`: joined last week, target 5, 1 of 5. The only person in the 5-day circle.
 - `Ivy Park`, `week-ivy@example.com`: target 3, has not joined, 2 distinct training days this week.
-- `Lee Ford`, `week-lee@example.com`: joined this week, target 3, 1 training day this week before today, and an unfinished workout started today with one saved set. This is the practice week.
+- `Lee Ford`, `week-lee@example.com`: joined this week, target 3, 1 training day this week other than today, and an unfinished workout started today with one saved set. This is the practice week.
 - `Tess Tester`, `week-tess@example.com`: a test account with target 3 and 3 training days this week, which must never be listed.
 - The 3-day circle at the start (Ivy hasn't joined and Lee is in the practice week, so neither is listed): `#1` `Maya R.` 3 of 3, `#2` `Casey L.`, `#2` `Jordan K.` and `#2` `Pat M.` 2 of 3, `#5` `Alex T.` and `#5` `Riley S.` 1 of 3, `#7` `Nia C.` and `#7` `Sam L.` 0 of 3.
 - Test order: Acceptance Tests 2 and 6 finish workouts. Run Tests 1, 8, 9 and 10 before Test 2, and load the seed again before running Test 2 or Test 6 a second time.
