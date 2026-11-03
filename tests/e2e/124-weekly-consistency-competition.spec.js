@@ -6,7 +6,7 @@ import { logIn, logOut } from './helpers.js'
 import { acceptanceTests } from './stories.js'
 
 // Story 124 uses the accounts in database/seeds/weekly_competition.sql (#126). The seed dates workouts in the current
-// week, so it only works from Thursday to Saturday (New York time). Local runs reload it before every test, which
+// week on days other than the day it's loaded, so it works any day. Local runs reload it before every test, which
 // also puts back what the tests change; a run against a deployed copy can't, so it needs a fresh seed first.
 const PASSWORD = 'Weekly-Test-Compete!'
 const account = (name) => ({ email: `week-${name}@example.com`, password: PASSWORD })
@@ -40,12 +40,7 @@ foreach (['casey', 'maya', 'pat', 'dana', 'ivy', 'lee', 'nia'] as $name) {
 $db->query('DELETE FROM auth_attempts WHERE attempt_key IN (' . implode(',', $keys) . ')');
 `
 
-const seedWorksToday = () => ['Thu', 'Fri', 'Sat'].includes(
-  new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short' }).format(new Date()),
-)
-
 test.beforeEach(() => {
-  test.skip(!seedWorksToday(), 'The weekly competition seed only works from Thursday to Saturday.')
   if (!process.env.E2E_BASE_URL) execFileSync('php', ['-r', LOAD_SEED], { cwd: REPO_ROOT })
 })
 
