@@ -34,7 +34,7 @@ $db->multi_query(file_get_contents('database/seeds/weekly_competition.sql'));
 do { if ($result = $db->store_result()) $result->free(); } while ($db->more_results() && $db->next_result());
 if ($db->errno) { echo $db->error; exit(1); }
 $keys = [];
-foreach (['casey', 'maya', 'pat', 'dana', 'ivy', 'lee', 'nia'] as $name) {
+foreach (['casey', 'maya', 'pat', 'dana', 'ivy', 'lee', 'nia', 'tess'] as $name) {
     $keys[] = "'" . hash('sha256', "login:email:week-$name@example.com") . "'";
 }
 $db->query('DELETE FROM auth_attempts WHERE attempt_key IN (' . implode(',', $keys) . ')');
@@ -212,9 +212,10 @@ acceptanceTests('124-weekly-consistency-competition.md', {
   5: async ({ page }) => {
     const IVY = account('ivy')
     const joinButton = () => hero(page).getByRole('button', { name: 'Join the weekly competition' })
-    await step('Setup: Ivy is at 2/3', async () => {
+    await step('Setup: Ivy is at 2/3 and not joined', async () => {
       await logIn(page, IVY)
       await expectHomeRing(page, '2/3')
+      await expect(homeRank(page)).toHaveText('Not joined')
     })
     await step('Step 1: a Join button instead of a rank', async () => {
       await openWeekly(page)
@@ -246,6 +247,7 @@ acceptanceTests('124-weekly-consistency-competition.md', {
       await expect(joinButton()).toBeVisible()
       await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Dashboard' }).click()
       await expectHomeRing(page, '2/3')
+      await expect(homeRank(page)).toHaveText('Not joined')
     })
   },
 
@@ -377,6 +379,34 @@ acceptanceTests('124-weekly-consistency-competition.md', {
       await page.goto('#/profile')
       await themeButton('Dark').click()
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    })
+  },
+
+  11: async ({ page }) => {
+    const TESS = account('tess')
+    await step('Setup: Tess is at 3/3 and Home says Test account', async () => {
+      await logIn(page, TESS)
+      await expectHomeRing(page, '3/3')
+      await expect(homeRank(page)).toHaveText('Test account')
+    })
+    await step('Step 1: the top card explains test accounts, with no rank and no buttons', async () => {
+      await openWeekly(page)
+      await expect(hero(page).getByRole('heading', { level: 1 })).toHaveText('Weekly consistency')
+      await expect(hero(page)).toContainText("Test accounts aren't shown in the weekly competition.")
+      await expect(days(page)).toHaveText('3/3 days · 100%')
+      await expect(hero(page)).not.toContainText("You're #")
+      await expect(hero(page).getByRole('button')).toHaveCount(0)
+    })
+    await step('Step 2: the same eight people, without Tess and with nobody marked You', async () => {
+      await expectStandings(page, CIRCLE.map((row) => row.replace(' You', '')))
+      await expect(main(page)).not.toContainText('Tess T.')
+      await expect(main(page).locator('.weekly-row.is-me')).toHaveCount(0)
+    })
+    await step('Step 3: on a phone, Home still says Test account with no sideways scrolling', async () => {
+      await page.setViewportSize({ width: 390, height: 844 })
+      await page.goto('#/dashboard')
+      await expect(homeRank(page)).toHaveText('Test account')
+      expect(await fitsWidth(page)).toBe(true)
     })
   },
 })

@@ -81,14 +81,14 @@ Test accounts: fake accounts loaded by the backend task's seed file. Load the se
 
 ### Setup for this test:
 
-1. Log in with `week-ivy@example.com` and `Weekly-Test-Compete!`. Confirm that the weekly card on the Dashboard shows `2/3` and `training days logged`.
+1. Log in with `week-ivy@example.com` and `Weekly-Test-Compete!`. Confirm that the weekly card on the Dashboard shows `2/3` and `training days logged`, and that **Weekly rank** says `Not joined`.
 
 ### Steps:
 
 1. Select **Leaderboard**. Confirm that **Weekly consistency** is selected, that the top card says `Join the weekly competition` with your progress `2/3 days · 67%` and a **Join the weekly competition** button instead of a rank, and that no row is marked `You`.
 2. Select **Join the weekly competition**. Confirm that the top card now says `Practice week`, `Your ranked weeks start Monday,` followed by the date of the coming Monday, `2/3 days · 67%` and a **Leave** button, and that `Ivy P.` is not listed.
 3. Open the account menu, select **Log out**, log back in, and select **Leaderboard**. Confirm that the top card still says `Practice week`.
-4. Select **Leave**. Confirm that the page says `You've left the weekly competition. Your workouts are kept.` and that the **Join the weekly competition** button is shown again. Select **Dashboard** and confirm that the weekly card still shows `2/3`.
+4. Select **Leave**. Confirm that the page says `You've left the weekly competition. Your workouts are kept.` and that the **Join the weekly competition** button is shown again. Select **Dashboard** and confirm that the weekly card still shows `2/3` and that **Weekly rank** says `Not joined` again.
 
 ## Acceptance Test 6: The practice week shows your progress without a rank
 
@@ -148,3 +148,15 @@ Test accounts: fake accounts loaded by the backend task's seed file. Load the se
 1. Open the menu button at the top left and select **Leaderboard**. Confirm that **Weekly consistency** and **Strength** are both visible and tappable, and that the page doesn't scroll sideways.
 2. Confirm that the top card with `You're #2`, `2/3 days · 67%` and the countdown is visible without scrolling down, and that each board row shows the rank, name, `of 3 days` count and percentage.
 3. Open the menu, select **Profile**, find **Appearance** and select **Light**. Return to **Leaderboard** and confirm that the top card, the board and the countdown are still readable, then switch back to **Dark**.
+
+## Acceptance Test 11: A test account sees its own progress but is never ranked or listed
+
+### Setup for this test:
+
+1. On a computer, log in with `week-tess@example.com` and `Weekly-Test-Compete!`. Confirm that the weekly card on the Dashboard shows `3/3` and `training days logged`, and that **Weekly rank** says `Test account`.
+
+### Steps:
+
+1. Select **Leaderboard**. Confirm that the top card says `Weekly consistency`, `Test accounts aren't shown in the weekly competition.` and `3/3 days · 100%`, and that it has no rank, no **Join the weekly competition** button and no **Leave** button.
+2. Confirm that the board lists the same eight people as in Acceptance Test 1, step 4, that `Tess T.` is not listed, and that no row is marked `You`.
+3. On a phone held upright (or a browser window 390 pixels wide), log in the same way and open **Dashboard**. Confirm that **Weekly rank** says `Test account` and that the page doesn't scroll sideways.

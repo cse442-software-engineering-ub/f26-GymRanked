@@ -41,10 +41,11 @@ export function heroKind(me) {
   return 'ranked'
 }
 
-// The rank on Home: "#2", "Practice week" or "Unranked".
+// The rank on Home: "#2", or in two words why there is none (the standings page explains each one).
+const NO_RANK = { practice_week: 'Practice week', not_joined: 'Not joined', test_account: 'Test account' }
 export function homeRank(me) {
   if (me.rank != null) return `#${me.rank}`
-  return me.reason === 'practice_week' ? 'Practice week' : 'Unranked'
+  return NO_RANK[me.reason] ?? 'Unranked'
 }
 
 // "2026-11-02" -> "Your ranked weeks start Monday, November 2."

@@ -51,6 +51,7 @@ test('which top card to show', () => {
 test('the rank on Home', () => {
   assert.equal(homeRank({ rank: 2, reason: null }), '#2')
   assert.equal(homeRank({ rank: null, reason: 'practice_week' }), 'Practice week')
-  assert.equal(homeRank({ rank: null, reason: 'not_joined' }), 'Unranked')
-  assert.equal(homeRank({ rank: null, reason: 'test_account' }), 'Unranked')
+  assert.equal(homeRank({ rank: null, reason: 'not_joined' }), 'Not joined')
+  assert.equal(homeRank({ rank: null, reason: 'test_account' }), 'Test account')
+  assert.equal(homeRank({ rank: null, reason: null }), 'Unranked')
 })
