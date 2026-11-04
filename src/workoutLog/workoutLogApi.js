@@ -8,6 +8,7 @@
 //   POST api/workout_sets.php     {id, weight_lb, reps}                               -> 200 {set}  (correction)
 //   POST api/complete_workout.php {session_id}                                        -> 200 {session_id, completed_at}
 //   GET  api/workout_history.php                                            -> {sessions}
+//   GET  api/exercise_progress.php[?from=YYYY-MM-DD&to=YYYY-MM-DD]          -> {summary, exercises, prs, ...} (#109)
 //   set = {id, exercise, set_number, weight_lb, reps}
 //   Errors are JSON {error, errors?}: 400 bad input (errors.weight_lb / errors.reps per field),
 //   401 not logged in, 404 unknown set or session, 409 workout already completed.
@@ -80,6 +81,15 @@ export function createWorkoutLogApi({ baseUrl, fetchImpl = (...args) => fetch(..
     async getHistory() {
       const data = await request('workout_history.php')
       return data.sessions
+    },
+
+    // Story #8's totals, per-exercise numbers and PRs for a date range; no dates means all history.
+    async getExerciseProgress({ from, to } = {}) {
+      const query = new URLSearchParams()
+      if (from) query.set('from', from)
+      if (to) query.set('to', to)
+      const search = query.toString()
+      return request(`exercise_progress.php${search ? `?${search}` : ''}`)
     },
 
     async saveSet({ sessionId, exercise, setNumber, weightLb, reps }) {

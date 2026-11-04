@@ -48,3 +48,21 @@ export function saveDraft(sessionId, exercise, draft) {
     // Storage is unavailable: the set just isn't remembered.
   }
 }
+
+// True while a set has been started or has weight or reps typed but isn't logged yet. A draft that only holds a
+// rest countdown (the set was just logged) is not an unlogged set.
+export function hasUnloggedSet(draft) {
+  return draft.timer !== 'idle' || draft.weight.trim() !== '' || draft.reps.trim() !== ''
+}
+
+// The first of these exercises (in order) with an unlogged set in this browser, or null.
+export function findUnloggedExercise(sessionId, exerciseNames) {
+  return exerciseNames.find((name) => hasUnloggedSet(loadDraft(sessionId, name))) ?? null
+}
+
+// Throws away the unlogged set of each exercise but keeps nothing else: the next visit starts a fresh set.
+export function clearUnloggedSets(sessionId, exerciseNames) {
+  exerciseNames.forEach((name) => {
+    if (hasUnloggedSet(loadDraft(sessionId, name))) saveDraft(sessionId, name, EMPTY_DRAFT)
+  })
+}

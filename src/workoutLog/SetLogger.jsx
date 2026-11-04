@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import BodyFigure from '../BodyFigure.jsx'
+import { MUSCLE_LABELS, musclesFor } from '../exerciseMuscles.js'
 import { validateSet } from './setValidation.js'
 import { formatSet, isRetryable, nextSetNumber, saveErrorMessage, upsertSet } from './setLog.js'
 import defaultApi from './workoutLogApi.js'
@@ -12,6 +14,7 @@ import './workoutLog.css'
 // Props:
 //   sessionId        the workout session the sets belong to
 //   exercise         exercise name, e.g. "Bench press"
+//   number           its position in the workout (1, 2, 3…), shown in the card's badge
 //   initialSets      sets already saved for this exercise: [{id, exercise, set_number, weight_lb, reps}]
 //   locked           true once the workout is completed: sets are shown but can't be added or changed
 //   api              {saveSet, updateSet}; defaults to the real server (workoutLogApi.js)
@@ -91,6 +94,7 @@ function useSetForm(initial = EMPTY) {
 export default function SetLogger({
   sessionId,
   exercise,
+  number,
   initialSets = [],
   locked = false,
   api = defaultApi,
@@ -112,6 +116,7 @@ export default function SetLogger({
   // Focusing straight away doesn't work because the box is still disabled until the save finishes rendering.
   const [focusDraft, setFocusDraft] = useState(0)
 
+  const muscles = musclesFor(exercise)
   const draftDirty = draft.values.weight.trim() !== '' || draft.values.reps.trim() !== ''
   const unsaved = draftDirty || editingId !== null
 
@@ -200,8 +205,15 @@ export default function SetLogger({
   return (
     <section className="wl-exercise" aria-labelledby={headingId}>
       <header className="wl-exercise__header">
-        <h3 id={headingId}>{exercise}</h3>
-        <span className="wl-exercise__count">{sets.length === 1 ? '1 set' : `${sets.length} sets`}</span>
+        {number && <span className={sets.length > 0 ? 'wl-exercise__badge wl-exercise__badge--started' : 'wl-exercise__badge'} aria-hidden="true">{number}</span>}
+        <div className="wl-exercise__title">
+          <h3 id={headingId}>{exercise}</h3>
+          {muscles.length > 0 && (
+            <span className="wl-exercise__muscles">{muscles.map((muscle) => MUSCLE_LABELS[muscle]).join(' · ')}</span>
+          )}
+          <span className="wl-exercise__count">{sets.length === 1 ? '1 set' : `${sets.length} sets`}</span>
+        </div>
+        {muscles.length > 0 && <BodyFigure muscles={muscles} />}
       </header>
 
       {sessionEnded && (

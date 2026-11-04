@@ -57,6 +57,8 @@ function WeeklyPlan() {
 
   const today = new Date()
   const plan = current?.plan
+  // A workout left over from a previously selected plan isn't resumed: the API starts the new plan's workout instead.
+  const resumable = unfinished && plan && unfinished.plan === plan.name ? unfinished : null
   const days = plan ? buildWeek(plan, today) : []
   const todayWorkout = days.find((day) => day.when === 'today')?.workout
 
@@ -115,12 +117,12 @@ function WeeklyPlan() {
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z" />
                   </svg>
-                  {unfinished ? 'Resume workout' : "Start today's workout"}
+                  {resumable ? 'Resume workout' : "Start today's workout"}
                 </button>
               )}
-              {todayWorkout && unfinished && (
+              {todayWorkout && resumable && (
                 <p className="today-workout__resume" role="status">
-                  {unfinishedSummary(unfinished)}
+                  {unfinishedSummary(resumable)}
                 </p>
               )}
               <Link to={`/plans/${plan.id}`} className="today-workout__action today-workout__details">

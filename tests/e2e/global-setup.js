@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 const REPO_ROOT = fileURLToPath(new URL('../../', import.meta.url))
 
 // Local runs only: check the database is ready, then reset this machine's login and sign-up counters and the
-// seeded Riley Brooks's login counter, so repeated runs don't hit the API's 15-minute limits. Prints no credentials.
+// seeded Riley, Marcus, Dana and Taylor's login counters, so repeated runs don't hit the API's 15-minute limits. Prints no credentials.
 const CHECK_LOCAL_DATABASE = `
 require 'api/config.php';
 mysqli_report(MYSQLI_REPORT_OFF);
@@ -21,21 +21,28 @@ $keys = [];
 foreach (['login', 'register'] as $action) {
     foreach (['127.0.0.1', '::1'] as $address) $keys[] = "'" . hash('sha256', "$action:ip:$address") . "'";
 }
-// Story 9's spec logs in as the seeded Riley Brooks several times per run; the limit there is 10 per email.
-$keys[] = "'" . hash('sha256', 'login:email:riley.brooks@example.com') . "'";
+// Stories 9 and 8 log in as seeded accounts several times per run; the limit there is 10 per email.
+foreach (['riley.brooks', 'marcus.malone', 'dana.lee', 'taylor.reed'] as $name) {
+    $keys[] = "'" . hash('sha256', "login:email:$name@example.com") . "'";
+}
 $db->query('DELETE FROM auth_attempts WHERE attempt_key IN (' . implode(',', $keys) . ')');
 echo "ok";
 `
 
+// Runs the check and reset above; returns "ok" or what went wrong. Also used by specs whose logins would take a full
+// run past the 50-per-IP limit (story 8's resets once more before its own tests), on local runs only.
+export function resetLocalCounters() {
+  try {
+    return execFileSync('php', ['-r', CHECK_LOCAL_DATABASE], { cwd: REPO_ROOT, encoding: 'utf8' })
+  } catch (error) {
+    return `${error.stdout ?? ''}` || error.message
+  }
+}
+
 export default function globalSetup() {
   if (process.env.E2E_BASE_URL) return
 
-  let output
-  try {
-    output = execFileSync('php', ['-r', CHECK_LOCAL_DATABASE], { cwd: REPO_ROOT, encoding: 'utf8' })
-  } catch (error) {
-    output = `${error.stdout ?? ''}` || error.message
-  }
+  const output = resetLocalCounters()
   if (output === 'ok') return
 
   if (output.startsWith('missing:')) {

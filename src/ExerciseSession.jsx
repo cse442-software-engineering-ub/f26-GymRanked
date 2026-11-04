@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import BodyFigure from './BodyFigure.jsx'
 import Breadcrumb from './Breadcrumb.jsx'
+import ExerciseGuide from './ExerciseGuide.jsx'
 import { markFinished } from './finishedExercises.js'
 import { EMPTY_DRAFT, loadDraft, saveDraft } from './setDraft.js'
 import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
@@ -200,6 +201,8 @@ function ExerciseSession() {
               </div>
               {muscles.length > 0 && <BodyFigure muscles={muscles} />}
             </header>
+
+            <ExerciseGuide name={exercise.name} />
 
             {resting ? (
               <RestTimer endsAt={restEndsAt} total={restTotal} onAdjust={adjustRest} onDone={endRest} />

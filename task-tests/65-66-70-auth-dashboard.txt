@@ -35,7 +35,7 @@ Steps:
 2. Refresh the browser. Confirm that the Dashboard remains open and continues to display the correct greeting and profile initials.
 3. Select Plans from the navigation bar. Confirm that the Plans page opens and the profile icon continues to display DT.
 4. Select Dashboard from the navigation bar. Confirm that the Dashboard opens again and retains the correct signed-in user.
-5. Select the profile icon. Confirm that the account menu opens and displays Profile, Account Settings, and the red Log out button.
+5. Select the profile icon. Confirm that the account menu opens and displays Profile and the red Log out button.
 6. Select Log out. Confirm that the Login page opens and displays You are logged out.
 7. Open the Dashboard URL directly: https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/dashboard
 8. Confirm that the browser returns to the Login page because the session is no longer active."

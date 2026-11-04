@@ -40,7 +40,7 @@ const GOALS = [
 // Route: #/goal (registered in src/App.jsx). Onboarding step 1 of 4.
 export default function TrainingGoalPage() {
   return (
-    <OnboardingShell step={0} backdrop="backdrops/rack.webp">
+    <OnboardingShell step={1} backdrop="backdrops/rack.webp">
       {(user) => <TrainingGoalStep user={user} />}
     </OnboardingShell>
   );
@@ -140,7 +140,8 @@ function TrainingGoalStep({ user }) {
         label="Save goal"
         saving={status === 'saving'}
         disabled={busy || !goal}
-        help={!goal && status !== 'loading' ? 'Pick one goal to continue.' : ''}
+        help="Pick one goal to continue."
+        showHelp={!goal && status !== 'loading'}
         onSave={handleSave}
       />
     </section>

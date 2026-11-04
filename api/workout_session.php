@@ -3,6 +3,8 @@
 //                                                       200 {"session": {...}} the user's current session, if there is one
 // POST api/workout_session.php {"day_position": 2}   -> same, but starting that day of the plan (1, 2, 3...)
 // GET  api/workout_session.php?id=7                  -> 200 {"session": {...}}
+// GET  api/workout_session.php?current=1             -> 200 {"session": {...}} for an unfinished session
+//                                                       in the current plan started today (New York time), or {"session":null}
 //
 // session = {"id":7,"plan":"Push Pull Legs","name":"Push","focus":"Chest, shoulders, triceps",
 //            "started_at":"2026-10-13T19:27:47Z","completed_at":null,
@@ -15,8 +17,11 @@
 // The exercises come from the user's current plan (api/current_plan.php), in order, and are copied into the session
 // when it starts. Without day_position the day is today's scheduled training day (same schedule as
 // src/weeklySchedule.js, in America/New_York time, UB's time zone). The user's current session is their most recent
-// one started within the last 24 hours, finished or not: starting returns it instead of making a second one, so
-// reopening an unfinished workout (or the completed one) is the same call.
+// one of the plan selected now started today, finished or not: starting returns it instead of making a second one, so
+// reopening an unfinished workout (or the completed one) is the same call. "Today" is the New York calendar date, not
+// the last 24 hours, so the next day's workout can start right after midnight. A workout started before midnight and
+// left unfinished isn't reopened after it. After the user switches plans, the earlier plan's session is left alone
+// and starting makes a new one for the new plan.
 //
 // 400 day_position isn't a whole number / bad id, 401 not logged in, 404 unknown session (or another user's) or
 // no such plan day, 405 wrong method, 409 no plan selected, rest day, or a day with no exercises.
@@ -28,6 +33,13 @@ require __DIR__ . '/workout_common.php';
 const TRAINING_WEEKDAYS = [
     1 => [0], 2 => [0, 3], 3 => [0, 2, 4], 4 => [0, 1, 3, 4], 5 => [0, 1, 2, 3, 4], 6 => [0, 1, 2, 3, 4, 5], 7 => [0, 1, 2, 3, 4, 5, 6],
 ];
+
+// The start of today in New York (UB's time zone) as a UTC time for SQL. Worked out in PHP, so MySQL's time zone tables
+// aren't needed and the days the clocks change (23 or 25 hours long) are right.
+function today_start_utc() {
+    $start = (new DateTimeImmutable('now', new DateTimeZone('America/New_York')))->setTime(0, 0);
+    return $start->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+}
 
 function plan_days($db, $plan_id) {
     $stmt = $db->prepare('SELECT position, name, focus, exercises FROM workout_plan_days WHERE plan_id = ? ORDER BY position');
@@ -45,6 +57,21 @@ if ($method !== 'GET' && $method !== 'POST') {
 if ($method === 'GET') {
     $db = database();
     $user_id = workout_user_id($db);
+    if (($_GET['current'] ?? null) === '1') {
+        $stmt = $db->prepare(
+            'SELECT s.id FROM workout_sessions s
+             JOIN user_plans up ON up.user_id = s.user_id AND up.plan_id = s.plan_id
+             WHERE s.user_id = ? AND s.completed_at IS NULL
+               AND s.started_at >= ?
+             ORDER BY s.started_at DESC, s.id DESC LIMIT 1'
+        );
+        $today_start = today_start_utc();
+        $stmt->bind_param('is', $user_id, $today_start);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        $session = $row ? find_session($db, (int) $row['id'], $user_id) : null;
+        respond(200, ['session' => $session ? session_json($db, $session) : null]);
+    }
     $id = filter_var($_GET['id'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
     if ($id === false) respond(400, ['error' => 'Invalid session id.']);
     $session = find_session($db, $id, $user_id);
@@ -83,11 +110,17 @@ if ($day_position !== null) {
     if (!$day) respond(404, ['error' => 'Plan day not found']);
 }
 
+// Only a session of the plan selected now counts, so switching plans starts the new plan's workout instead of
+// reopening the old plan's day. (With no plan selected there is nothing to compare, so any recent session counts.)
+// A session dated later than now is skipped: only seed data has those (weekly_competition.sql dates workouts later in
+// the week when it's loaded early in the week), and it must not hide the one started today.
+$plan_id = $plan ? (int) $plan['id'] : 0;
 $stmt = $db->prepare(
-    'SELECT id FROM workout_sessions WHERE user_id = ? AND started_at > UTC_TIMESTAMP() - INTERVAL 24 HOUR
-     ORDER BY started_at DESC, id DESC LIMIT 1'
+    'SELECT id FROM workout_sessions WHERE user_id = ? AND started_at >= ? AND started_at <= UTC_TIMESTAMP()
+     AND (? = 0 OR plan_id = ?) ORDER BY started_at DESC, id DESC LIMIT 1'
 );
-$stmt->bind_param('i', $user_id);
+$today_start = today_start_utc();
+$stmt->bind_param('isii', $user_id, $today_start, $plan_id, $plan_id);
 $stmt->execute();
 $current = $stmt->get_result()->fetch_assoc();
 if ($current) {
@@ -108,7 +141,6 @@ $exercises = json_decode($day['exercises'] ?? 'null', true);
 $exercises = is_array($exercises) ? array_values(array_filter($exercises, 'is_string')) : [];
 if (!$exercises) respond(409, ['error' => 'This plan day has no exercises']);
 
-$plan_id = (int) $plan['id'];
 $exercises_json = json_encode($exercises);
 $stmt = $db->prepare(
     'INSERT INTO workout_sessions (user_id, plan_id, plan_name, day_name, focus, exercises, started_at)

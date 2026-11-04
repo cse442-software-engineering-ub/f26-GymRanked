@@ -69,7 +69,7 @@ function WorkoutHistoryPage() {
     <div className="history-page">
       <NavBar current="Progress" />
       <main className="history-page__content" aria-busy={status === 'loading'}>
-        <Breadcrumb crumbs={[{ label: 'Progress' }, { label: 'Workout history' }]} />
+        <Breadcrumb crumbs={[{ label: 'Progress', to: '/progress' }, { label: 'Workout history' }]} />
         <div className="history-page__heading">
           <h1>Workout history</h1>
           {status === 'ready' && <p>{countLabel(workouts.length)}</p>}
