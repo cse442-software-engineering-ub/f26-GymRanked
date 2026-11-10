@@ -203,6 +203,13 @@ a.history-empty__action:focus-visible {
   margin-top: 16px;
 }
 
+.history-item__summary-link {
+  display: inline-block;
+  margin-top: 16px;
+  color: var(--gr-action-text);
+  font-weight: 600;
+}
+
 /* One exercise: its name as the caption, then Set / Reps / Weight. */
 .history-sets {
   width: 100%;

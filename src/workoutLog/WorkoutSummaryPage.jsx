@@ -22,6 +22,14 @@ const PREVIEW_SUMMARY = {
     { exercise: 'Tricep pushdown', topSet: '55 lb × 12', versusLast: 'PR', improved: true },
   ],
 }
+const PREVIEW_WEEKLY = {
+  status: 'ready',
+  snapshot: {
+    week_start: '2026-11-09', week_end: '2026-11-15', target_days: 3,
+    completed_dates: ['2026-11-09', '2026-11-11', '2026-11-13'], credited_day: true,
+    completed_count: 3, progress_days: 3, progress_percent: 100, goal_reached: true,
+  },
+}
 
 function SummaryIcon({ name, className = '' }) {
   if (name === 'dumbbell' || name === 'trophy') return <MobileDashboardIcon name={name} className={className} />
@@ -155,7 +163,7 @@ export default function WorkoutSummaryPage({ preview = false }) {
               {preview ? <Metric label="New PRs" value={summary.newPrs} icon="trophy" accent /> : <Metric label="Total reps" value={summary.totalReps} icon="list" />}
             </section>
 
-            {!preview && <WorkoutWeeklyFeedback state={weeklyState} completedAt={state.session.completed_at} onRetry={() => setWeeklyAttempt((value) => value + 1)} />}
+            <WorkoutWeeklyFeedback state={preview ? PREVIEW_WEEKLY : weeklyState} completedAt={preview ? '2026-11-13T18:00:00Z' : state.session.completed_at} onRetry={() => setWeeklyAttempt((value) => value + 1)} />
 
             <section className="workout-summary__highlights" aria-labelledby="workout-summary-highlights">
               <header className="workout-summary__section-heading">

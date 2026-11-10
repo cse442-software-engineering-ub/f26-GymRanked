@@ -147,6 +147,16 @@ If the login fails, the same credentials will fail for the API too, so the probl
 
 ## 5. Database access
 
+### Weekly summary snapshot migration (task #123)
+
+Before deploying the matching API code, apply `database/migrations/016_workout_weekly_goal_snapshots.sql` to each intended database **after** migrations 001–015. It creates one new table and leaves existing workouts untouched. Completed workouts from before this migration have no historical snapshot and the Summary page says so; the migration does not guess their old goal state. Review and back up the database before a shared-server change. From the repository root on a server after the file is copied there:
+
+```bash
+mysql -u UBIT_USERNAME -p cse442_2026_fall_team_y_db < database/migrations/016_workout_weekly_goal_snapshots.sql
+```
+
+Run it only when the task's deployment is authorized. The seed/reset command and its effects are in `database/seeds/README.md`. Neither this migration nor the seed is part of a frontend `dist/` upload.
+
 | Item | Value |
 | --- | --- |
 | Database | `cse442_2026_fall_team_y_db` |
