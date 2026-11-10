@@ -2,7 +2,7 @@
 
 ## Card #123 weekly milestone accounts
 
-`build_weekly_milestone_seed.php` generates a card #123 SQL fixture for **aptitude only**. It uses PHP's `America/New_York` clock and does not connect to a database. Run it on the day of testing, Wednesday through Sunday, after migration `016_workout_weekly_goal_snapshots.sql` is applied. The Monday/Tuesday restriction is necessary because Tests 4, 10 and 12 start with two earlier distinct dates in the current week. Regenerate and reload before each independent run, after a test changes an account, on a new calendar day for the unfinished sessions, and in every new week. Do not load it on cattle.
+`build_weekly_milestone_seed.php` generates a card #123 SQL fixture for a local test database or **aptitude**. It uses PHP's `America/New_York` clock and does not connect to a database. Run it on the day of testing, Wednesday through Sunday, after migration `016_workout_weekly_goal_snapshots.sql` is applied. The Monday/Tuesday restriction is necessary because Tests 4, 10 and 12 start with two earlier distinct dates in the current week. Regenerate and reload before each independent run, after a test changes an account, on a new calendar day for the unfinished sessions, and in every new week. Do not load it on cattle.
 
 From the repository root in WSL, generate a reviewable SQL file, then load it into a **local** test database:
 
