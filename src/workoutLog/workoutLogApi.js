@@ -8,6 +8,7 @@
 //   POST api/workout_sets.php     {id, weight_lb, reps}                               -> 200 {set}  (correction)
 //   POST api/complete_workout.php {session_id}                                        -> 200 {session_id, completed_at}
 //   GET  api/workout_history.php                                            -> {sessions}
+//   GET  api/workout_weekly_goal.php?session_id=N                            -> {snapshot, reason?}
 //   GET  api/exercise_progress.php[?from=YYYY-MM-DD&to=YYYY-MM-DD]          -> {summary, exercises, prs, ...} (#109)
 //   set = {id, exercise, set_number, weight_lb, reps}
 //   Errors are JSON {error, errors?}: 400 bad input (errors.weight_lb / errors.reps per field),
@@ -76,6 +77,10 @@ export function createWorkoutLogApi({ baseUrl, fetchImpl = (...args) => fetch(..
     async getSession(sessionId) {
       const data = await request(`workout_session.php?id=${encodeURIComponent(sessionId)}`)
       return data.session
+    },
+
+    async getWorkoutWeeklyGoal(sessionId) {
+      return request(`workout_weekly_goal.php?session_id=${encodeURIComponent(sessionId)}`)
     },
 
     async getHistory() {

@@ -4,6 +4,7 @@ import NavBar from '../NavBar.jsx'
 import MobileDashboardIcon from '../MobileDashboardIcon.jsx'
 import workoutLogApi from './workoutLogApi.js'
 import { displaySummary } from './workoutSummary.js'
+import WorkoutWeeklyFeedback from './WorkoutWeeklyFeedback.jsx'
 import './workoutSummary.css'
 
 // Sample content for the design preview only. Real sessions never display these example numbers.
@@ -53,6 +54,8 @@ export default function WorkoutSummaryPage({ preview = false }) {
   const [shareStatus, setShareStatus] = useState('')
   const [attempt, setAttempt] = useState(0)
   const [state, setState] = useState({ status: preview ? 'ready' : 'loading' })
+  const [weeklyAttempt, setWeeklyAttempt] = useState(0)
+  const [weeklyState, setWeeklyState] = useState({ status: 'loading' })
 
   useEffect(() => {
     if (preview) return undefined
@@ -72,6 +75,18 @@ export default function WorkoutSummaryPage({ preview = false }) {
     })
     return () => { active = false }
   }, [preview, sessionId, attempt, navigate])
+
+  useEffect(() => {
+    if (preview || state.status !== 'ready' || !state.session.completed_at) return undefined
+    let active = true
+    setWeeklyState({ status: 'loading' })
+    workoutLogApi.getWorkoutWeeklyGoal(state.session.id).then((data) => {
+      if (active) setWeeklyState(data.snapshot ? { status: 'ready', snapshot: data.snapshot } : { status: 'not_saved' })
+    }).catch(() => {
+      if (active) setWeeklyState({ status: 'error' })
+    })
+    return () => { active = false }
+  }, [preview, state.status, state.session?.id, state.session?.completed_at, weeklyAttempt])
 
   const summary = preview ? PREVIEW_SUMMARY : displaySummary(state.session)
   const highlights = Array.isArray(summary?.highlights) ? summary.highlights : []
@@ -139,6 +154,8 @@ export default function WorkoutSummaryPage({ preview = false }) {
               <Metric label="Exercises" value={summary.exerciseCount} icon="dumbbell" />
               {preview ? <Metric label="New PRs" value={summary.newPrs} icon="trophy" accent /> : <Metric label="Total reps" value={summary.totalReps} icon="list" />}
             </section>
+
+            {!preview && <WorkoutWeeklyFeedback state={weeklyState} completedAt={state.session.completed_at} onRetry={() => setWeeklyAttempt((value) => value + 1)} />}
 
             <section className="workout-summary__highlights" aria-labelledby="workout-summary-highlights">
               <header className="workout-summary__section-heading">
