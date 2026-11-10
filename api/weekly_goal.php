@@ -30,9 +30,8 @@
 // 409 this week's goal is locked, 415/413/403 as the other POST endpoints, 500 {"error":"Database error"}.
 
 require __DIR__ . '/workout_common.php';
+require __DIR__ . '/weekly_goal_calculation.php';
 
-const GOAL_TIME_ZONE = 'America/New_York';
-const GOAL_DEFAULT_DAYS = 3;
 const GOAL_MIN_DAYS = 1;
 const GOAL_MAX_DAYS = 7;
 
@@ -46,72 +45,28 @@ $db = database();
 $user_id = workout_user_id($db);
 
 $zone = new DateTimeZone(GOAL_TIME_ZONE);
-$week_start = (new DateTimeImmutable('now', $zone))->setTime(0, 0);
-$week_start = $week_start->modify('-' . ((int) $week_start->format('N') - 1) . ' days');
+$week_start = goal_week_start(new DateTimeImmutable('now', $zone));
 $next_start = $week_start->modify('+7 days');
 $date_text = fn($date) => $date->format('Y-m-d');
-
-// The target saved for a week (as an int), or null.
-function saved_target($db, $user_id, $week) {
-    $stmt = $db->prepare('SELECT target_days FROM user_weekly_goals WHERE user_id = ? AND week_start = ?');
-    $stmt->bind_param('is', $user_id, $week);
-    $stmt->execute();
-    $row = $stmt->get_result()->fetch_assoc();
-    return $row ? (int) $row['target_days'] : null;
-}
-
-// The dates (Y-m-d, New York time, oldest first) of the user's finished workouts with a saved set from this week.
-function completed_dates($db, $user_id, $week_start, $next_start, $zone) {
-    $utc = new DateTimeZone('UTC');
-    $from = $week_start->setTimezone($utc)->format('Y-m-d H:i:s');
-    $to = $next_start->setTimezone($utc)->format('Y-m-d H:i:s');
-    $stmt = $db->prepare(
-        'SELECT s.completed_at FROM workout_sessions s
-         WHERE s.user_id = ? AND s.completed_at >= ? AND s.completed_at < ?
-           AND EXISTS (SELECT 1 FROM workout_sets st WHERE st.session_id = s.id)
-         ORDER BY s.completed_at'
-    );
-    $stmt->bind_param('iss', $user_id, $from, $to);
-    $stmt->execute();
-    $dates = [];
-    foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
-        $dates[(new DateTimeImmutable($row['completed_at'], $utc))->setTimezone($zone)->format('Y-m-d')] = true;
-    }
-    return array_keys($dates);
-}
 
 // The whole response for the current state.
 function goal_json($db, $user_id, $week_start, $next_start, $zone) {
     $week = $week_start->format('Y-m-d');
-    $dates = completed_dates($db, $user_id, $week_start, $next_start, $zone);
+    [$dates] = goal_dates_and_credit(goal_completed_workouts($db, $user_id, $week_start, $next_start), $zone);
 
-    $target = saved_target($db, $user_id, $week);
-    $saved = $target !== null;
-    if (!$saved) {
-        $stmt = $db->prepare(
-            'SELECT target_days FROM user_weekly_goals WHERE user_id = ? AND week_start < ?
-             ORDER BY week_start DESC LIMIT 1'
-        );
-        $stmt->bind_param('is', $user_id, $week);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-        $target = $row ? (int) $row['target_days'] : GOAL_DEFAULT_DAYS;
-    }
+    $saved = goal_saved_target($db, $user_id, $week) !== null;
+    $target = goal_target_for_week($db, $user_id, $week);
 
-    $count = count($dates);
-    $progress = min($count, $target);
-    $next = saved_target($db, $user_id, $next_start->format('Y-m-d'));
+    $progress = goal_progress_values($dates, $target);
+    $next = goal_saved_target($db, $user_id, $next_start->format('Y-m-d'));
     return [
         'time_zone' => GOAL_TIME_ZONE,
         'week_start' => $week,
         'week_end' => $week_start->modify('+6 days')->format('Y-m-d'),
         'target_days' => $target,
-        'target_locked' => $saved || $count > 0,
+        'target_locked' => $saved || $progress['completed_count'] > 0,
         'completed_dates' => $dates,
-        'completed_count' => $count,
-        'progress_days' => $progress,
-        'progress_percent' => (int) round($progress * 100 / $target),
-        'goal_reached' => $count >= $target,
+        ...$progress,
         'next_week' => [
             'week_start' => $next_start->format('Y-m-d'),
             'target_days' => $next,
@@ -131,6 +86,13 @@ $which = $data['week'] ?? 'next';
 if ($which !== 'next' && $which !== 'current') $errors['week'] = 'Use "next" or "current".';
 if ($errors) respond(400, ['error' => 'Invalid request.', 'errors' => $errors]);
 
+$db->begin_transaction();
+// Serialize target changes with completion snapshots for this account.
+$lock = $db->prepare('SELECT id FROM users WHERE id = ? FOR UPDATE');
+$lock->bind_param('i', $user_id);
+$lock->execute();
+$lock->get_result();
+
 if ($which === 'next') {
     // Choosing again replaces the choice until the week starts.
     $week = $date_text($next_start);
@@ -145,7 +107,7 @@ if ($which === 'next') {
     // Only while nothing is saved for this week and no day is earned yet. INSERT IGNORE keeps two requests at the
     // same time from replacing each other: one saves, the other finds the row and gets the 409.
     $week = $date_text($week_start);
-    if (completed_dates($db, $user_id, $week_start, $next_start, $zone)) {
+    if (goal_completed_workouts($db, $user_id, $week_start, $next_start)) {
         respond(409, ['error' => "This week's goal is locked."]);
     }
     $stmt = $db->prepare(
@@ -156,4 +118,5 @@ if ($which === 'next') {
     $stmt->execute();
     if ($stmt->affected_rows === 0) respond(409, ['error' => "This week's goal is locked."]);
 }
+$db->commit();
 respond(200, goal_json($db, $user_id, $week_start, $next_start, $zone));

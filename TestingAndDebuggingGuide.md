@@ -432,3 +432,9 @@ steps are for the owner of the story's Playwright task card, who writes the code
 | `browserType.launch: Executable doesn't exist at …` | Run `npx playwright install chromium` |
 | `Acceptance Test N has code but no matching heading in stories/…` | The spec has code for a test the story file doesn't have. Fix the number, or add the heading |
 | `The API allows 50 logins and 50 sign-ups per IP address every 15 minutes…` | Wait 15 minutes, or on a local database run `mysql -u root cse442_2026_fall_team_y_db -e "DELETE FROM auth_attempts;"` |
+
+## 9. Saved weekly feedback on workout summaries (card #123)
+
+Apply migration 016 to a **local** database before testing a new completion. `npm test` checks the summary text and existing Home/weekly-goal formatters; `php tests/weekly_goal_calculation.php` checks New York week boundaries, distinct completed dates, same-day credit and capped progress without MySQL. `php -l` the changed endpoints and run `npm run build`. These checks do not prove the SQL transaction or browser rendering.
+
+For a local end-to-end check, generate and load the card's fixture on Wednesday–Sunday as documented in `database/seeds/README.md`, run the PHP and Vite servers, and use `weekly123-one@example.com` and `weekly123-finish@example.com`. Complete each saved workout once, refresh its Summary, return to Home and Weekly goal, then reopen the Summary from history. Use `weekly123-history@example.com` to inspect a previous week's saved result against a different current target, and `weekly123-legacy@example.com` for the honest missing-snapshot message. Block only `api/workout_weekly_goal.php` in the browser to check the independent error and retry state; the workout totals must stay visible. Do not run the fixture against shared data without the team authorizing that load.

@@ -73,3 +73,25 @@ test('reading another user\'s session reports the backend 404', async () => {
   })
   await assert.rejects(api.getSession(9), { status: 404, message: 'Session not found' })
 })
+
+test('weekly feedback retry only reads the saved snapshot', async () => {
+  const calls = []
+  let fail = true
+  const snapshot = { week_start: '2026-11-02', target_days: 3, progress_days: 2 }
+  const api = createWorkoutLogApi({
+    baseUrl: '/base/',
+    fetchImpl: async (url, options) => {
+      calls.push([url, options.method])
+      return fail
+        ? { ok: false, status: 503, json: async () => ({ error: 'Database error' }) }
+        : { ok: true, status: 200, json: async () => ({ snapshot }) }
+    },
+  })
+  await assert.rejects(api.getWorkoutWeeklyGoal(7), { status: 503 })
+  fail = false
+  assert.deepEqual(await api.getWorkoutWeeklyGoal(7), { snapshot })
+  assert.deepEqual(calls, [
+    ['/base/api/workout_weekly_goal.php?session_id=7', 'GET'],
+    ['/base/api/workout_weekly_goal.php?session_id=7', 'GET'],
+  ])
+})

@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+import { summaryPath } from '../workoutLog/setLog.js'
 import { formatWeight, formatWorkoutDate, sizeLabel } from './historyFormat.js'
 
 // One finished workout in the history list: a row that opens to show a Set / Reps / Weight table per exercise.
@@ -56,6 +58,7 @@ function WorkoutHistoryItem({ workout, open, detail, onToggle, onRetry }) {
               ))}
             </div>
           )}
+          {detail?.status === 'ready' && <Link className="history-item__summary-link" to={summaryPath(workout.id)}>View saved summary</Link>}
         </div>
       )}
     </li>

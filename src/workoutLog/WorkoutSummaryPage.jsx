@@ -4,6 +4,7 @@ import NavBar from '../NavBar.jsx'
 import MobileDashboardIcon from '../MobileDashboardIcon.jsx'
 import workoutLogApi from './workoutLogApi.js'
 import { displaySummary } from './workoutSummary.js'
+import WorkoutWeeklyFeedback from './WorkoutWeeklyFeedback.jsx'
 import './workoutSummary.css'
 
 // Sample content for the design preview only. Real sessions never display these example numbers.
@@ -20,6 +21,14 @@ const PREVIEW_SUMMARY = {
     { exercise: 'Cable fly', topSet: '40 lb × 12', versusLast: '—' },
     { exercise: 'Tricep pushdown', topSet: '55 lb × 12', versusLast: 'PR', improved: true },
   ],
+}
+const PREVIEW_WEEKLY = {
+  status: 'ready',
+  snapshot: {
+    week_start: '2026-11-09', week_end: '2026-11-15', target_days: 3,
+    completed_dates: ['2026-11-09', '2026-11-11', '2026-11-13'], credited_day: true,
+    completed_count: 3, progress_days: 3, progress_percent: 100, goal_reached: true,
+  },
 }
 
 function SummaryIcon({ name, className = '' }) {
@@ -53,6 +62,8 @@ export default function WorkoutSummaryPage({ preview = false }) {
   const [shareStatus, setShareStatus] = useState('')
   const [attempt, setAttempt] = useState(0)
   const [state, setState] = useState({ status: preview ? 'ready' : 'loading' })
+  const [weeklyAttempt, setWeeklyAttempt] = useState(0)
+  const [weeklyState, setWeeklyState] = useState({ status: 'loading' })
 
   useEffect(() => {
     if (preview) return undefined
@@ -72,6 +83,18 @@ export default function WorkoutSummaryPage({ preview = false }) {
     })
     return () => { active = false }
   }, [preview, sessionId, attempt, navigate])
+
+  useEffect(() => {
+    if (preview || state.status !== 'ready' || !state.session.completed_at) return undefined
+    let active = true
+    setWeeklyState({ status: 'loading' })
+    workoutLogApi.getWorkoutWeeklyGoal(state.session.id).then((data) => {
+      if (active) setWeeklyState(data.snapshot ? { status: 'ready', snapshot: data.snapshot } : { status: 'not_saved' })
+    }).catch(() => {
+      if (active) setWeeklyState({ status: 'error' })
+    })
+    return () => { active = false }
+  }, [preview, state.status, state.session?.id, state.session?.completed_at, weeklyAttempt])
 
   const summary = preview ? PREVIEW_SUMMARY : displaySummary(state.session)
   const highlights = Array.isArray(summary?.highlights) ? summary.highlights : []
@@ -139,6 +162,8 @@ export default function WorkoutSummaryPage({ preview = false }) {
               <Metric label="Exercises" value={summary.exerciseCount} icon="dumbbell" />
               {preview ? <Metric label="New PRs" value={summary.newPrs} icon="trophy" accent /> : <Metric label="Total reps" value={summary.totalReps} icon="list" />}
             </section>
+
+            <WorkoutWeeklyFeedback state={preview ? PREVIEW_WEEKLY : weeklyState} completedAt={preview ? '2026-11-13T18:00:00Z' : state.session.completed_at} onRetry={() => setWeeklyAttempt((value) => value + 1)} />
 
             <section className="workout-summary__highlights" aria-labelledby="workout-summary-highlights">
               <header className="workout-summary__section-heading">

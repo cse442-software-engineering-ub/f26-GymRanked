@@ -1,5 +1,20 @@
 # Test users
 
+## Card #123 weekly milestone accounts
+
+`build_weekly_milestone_seed.php` generates a card #123 SQL fixture for a local test database or **aptitude**. It uses PHP's `America/New_York` clock and does not connect to a database. Run it on the day of testing, Wednesday through Sunday, after migration `016_workout_weekly_goal_snapshots.sql` is applied. The Monday/Tuesday restriction is necessary because Tests 4, 10 and 12 start with two earlier distinct dates in the current week. Regenerate and reload before each independent run, after a test changes an account, on a new calendar day for the unfinished sessions, and in every new week. Do not load it on cattle.
+
+From the repository root in WSL, generate a reviewable SQL file, then load it into a **local** test database:
+
+```bash
+php database/seeds/build_weekly_milestone_seed.php > /tmp/weekly_milestone_123.sql
+mysql -u root cse442_2026_fall_team_y_db < /tmp/weekly_milestone_123.sql
+```
+
+For aptitude, copy the generated file to aptitude, then run `mysql -u UBIT_USERNAME -p cse442_2026_fall_team_y_db < ~/weekly_milestone_123.sql` there after reviewing it. The generator resets only its 13 named `weekly123-*` accounts: setup, plan, personal details, weekly targets, completed workouts, unfinished sessions, sets, and saved weekly snapshots. It does not alter other users. It adds `weekly123-history@example.com` (last week's saved 2-of-3 snapshot, current goal 4), and `weekly123-legacy@example.com` (last week's completed workout without a snapshot) to the original 11 accounts. Every account has the card's fake `Weekly-Test-123!` password stored only as a bcrypt hash in the SQL.
+
+The generated file records the New York week in its header and finishes with an account and snapshot count query. `--date=YYYY-MM-DD` is available for **local generator review only**; do not use it to prepare a shared-server load for another day. Dates and active sessions must match the day the SQL is run. The generated SQL itself is not checked into Git, so it cannot silently become stale.
+
 Fake accounts for testing login on a local or dev database. Each account has its own password.
 
 | Full name | Email | Password | Useful for |
