@@ -50,7 +50,8 @@ emit('-- Card #123 only. Generated for New York week ' . $day($monday) . ' throu
 emit('-- Requires migrations 001-016. Load Wednesday-Sunday before each test run; active sessions expire after today.');
 emit('-- Only the 13 explicitly named weekly123-* accounts below are reset. Do not load on cattle.');
 emit('START TRANSACTION;');
-emit('CREATE TEMPORARY TABLE seed_123_emails (email VARCHAR(254) PRIMARY KEY) ENGINE=InnoDB;');
+// Copy the users.email collation so the scoped JOINs work across databases with different defaults.
+emit('CREATE TEMPORARY TABLE seed_123_emails AS SELECT email FROM users WHERE 1 = 0;');
 emit('INSERT INTO seed_123_emails (email) VALUES');
 $values = [];
 foreach ($cases as $name => $_) $values[] = '  (' . $quoted("weekly123-$name@example.com") . ')';
