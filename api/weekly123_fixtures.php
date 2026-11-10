@@ -26,6 +26,7 @@ function weekly123_enabled() {
 function weekly123_marker($data, $email) {
     if (!array_key_exists('weekly123_run', $data)) return null;
     $run = $data['weekly123_run'];
+    if (is_object($run)) $run = (array) $run;
     if (!is_array($run) || !is_int($run['test'] ?? null)
         || !is_string($run['client_id'] ?? null) || !is_string($run['run_id'] ?? null)
         || !preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i', $run['client_id'] ?? '')

@@ -16,9 +16,17 @@ try {
     $stmt->bind_param('s', $email); $stmt->execute();
     $user = (int) ($stmt->get_result()->fetch_assoc()['id'] ?? 0);
     expect123($user > 0, 'bootstrap accounts missing');
+    $zero_email = 'weekly123-zero@example.com';
+    $stmt = $db->prepare('SELECT id FROM users WHERE email = ? FOR UPDATE');
+    $stmt->bind_param('s', $zero_email); $stmt->execute();
+    $zero = (int) ($stmt->get_result()->fetch_assoc()['id'] ?? 0);
+    expect123($zero > 0, 'other account missing');
+    $zero_before = (int) $db->query("SELECT COUNT(*) AS n FROM workout_sessions WHERE user_id = $zero")->fetch_assoc()['n'];
     $client = '00000000-0000-4000-8000-000000000001';
     $first = ['test' => 1, 'client_id' => $client, 'run_id' => '00000000-0000-4000-8000-000000000002'];
     expect123(weekly123_start($db, $user, $first, 'progress'), 'first start failed');
+    $zero_after = (int) $db->query("SELECT COUNT(*) AS n FROM workout_sessions WHERE user_id = $zero")->fetch_assoc()['n'];
+    expect123($zero_after === $zero_before, 'reset changed another test account');
     $count = fn() => (int) $db->query("SELECT COUNT(*) AS n FROM workout_sessions WHERE user_id = $user AND completed_at IS NOT NULL")->fetch_assoc()['n'];
     expect123($count() === 1, 'progress did not get one completed workout');
     $set = $db->query("SELECT st.weight_lb, st.reps FROM workout_sets st JOIN workout_sessions s ON s.id = st.session_id WHERE s.user_id = $user LIMIT 1")->fetch_assoc();

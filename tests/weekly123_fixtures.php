@@ -30,4 +30,8 @@ $spring = weekly123_date(goal_week_start(new DateTimeImmutable('2026-03-09 12:00
 $fall = weekly123_date(goal_week_start(new DateTimeImmutable('2026-11-02 12:00:00', $zone))->modify('-7 days'), 4, new DateTimeImmutable('2026-11-02 12:00:00', $zone));
 check123($spring->setTimezone(new DateTimeZone('UTC'))->format('H:i') === '17:00', 'spring DST fixture time');
 check123($fall->setTimezone(new DateTimeZone('UTC'))->format('H:i') === '16:00', 'fall DST fixture time');
+$before_rollover = new DateTimeImmutable('2026-11-15 23:59:59', $zone);
+$after_rollover = new DateTimeImmutable('2026-11-16 00:00:00', $zone);
+check123(goal_week_start($before_rollover)->format('Y-m-d') === '2026-11-09', 'Sunday week boundary');
+check123(goal_week_start($after_rollover)->format('Y-m-d') === '2026-11-16', 'Monday rollover');
 echo "ok weekly123 Monday, DST, allowlist and no future workouts\n";
