@@ -308,6 +308,12 @@ Follows page 3 of the Monday visual brief ("A competition that starts fresh each
 - Home's weekly card shows the same rank ("Weekly rank": "#2", or "Practice week", "Not joined" or "Test account" when there is none) and links to this view with "View weekly standings ›" and the circle's name.
 - Loading "Loading this week's standings…", the `error` box with "Try again", and "Nobody is ranked with a 3-day goal this week yet." when the group is empty. A group of one shows its single row.
 
+### Exercise alternatives (`src/workoutLog/ExerciseAlternatives.jsx`, added by #82)
+
+- A **See alternatives** button (the same outlined `action-text` look as **How to perform it**) sits under the exercise heading on the active workout's exercise page, beside the guide button in a row that wraps on phones.
+- It opens a dialog: `surface`, 12px corners, at most 380px wide (the window width minus 32px on a phone), with the title "Alternatives to Bench press" and **Close** in a header that stays put while the body scrolls. The body has a "You're doing" box on `surface-sunken` (uppercase eyebrow, the exercise, its muscles), "Your setup: …", then one `<ol>` of alternatives divided by `border` lines: the name (15/500), a level badge (`.level-badge`) and an equipment tag (`control-outline` border), the muscles, and a reason sentence in `text-soft`. A 12px footer line says the plan, saved sets and history stay the same.
+- Loading "Finding alternatives to Bench press...", "No alternative fits your setup" with an **Update training preferences ›** link, "No alternatives listed for … yet", the `error` box with **Try again**, and a logged-out line with **Log in**. Focus moves to the title, Tab stays inside, the page behind is `inert`, and focus returns to the button on close.
+
 ### Gym backdrop (`src/components/GymBackdrop.jsx`, added by #93)
 
 A gym photo band for the top of a page, as one component so every page uses the same one.
