@@ -1,0 +1,160 @@
+/* Exercise alternatives dialog (task #82, src/workoutLog/ExerciseAlternatives.jsx). Sits in .modal-backdrop, whose
+   16px padding makes it the window width minus 32px on a phone. The header stays put while the body scrolls. */
+
+.exercise-session__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.alternatives-modal {
+  width: 100%;
+  max-width: 380px;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  background: var(--gr-surface);
+  border-radius: var(--gr-radius-card);
+  box-shadow: var(--gr-shadow-menu);
+}
+
+.alternatives-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 24px 24px 12px;
+  border-bottom: 1px solid var(--gr-border);
+}
+
+.alternatives-modal__header h2 {
+  min-width: 0;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--gr-text);
+  overflow-wrap: anywhere;
+}
+
+.alternatives-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 24px 24px;
+  overflow-y: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--gr-text-muted);
+}
+
+.alternatives-modal__body p {
+  margin: 0;
+}
+
+.alternatives-current {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px;
+  background: var(--gr-surface-sunken);
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-inner);
+  color: var(--gr-text-soft);
+}
+
+.alternatives-current__eyebrow {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gr-text-muted);
+}
+
+.alternatives-current strong {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--gr-text);
+  overflow-wrap: anywhere;
+}
+
+.alternatives-modal__setup,
+.alternatives-modal__count {
+  color: var(--gr-text-soft);
+}
+
+.alternatives-modal__count {
+  font-weight: 600;
+}
+
+.alternatives-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--gr-radius-inner);
+}
+
+.alternatives-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 0;
+  border-top: 1px solid var(--gr-border);
+}
+
+.alternatives-item h3,
+.alternatives-modal__message h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--gr-text);
+  overflow-wrap: anywhere;
+}
+
+.alternatives-item__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.alternatives-item__equipment {
+  display: inline-block;
+  padding: 1px 8px;
+  border: 1px solid var(--gr-control-outline);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gr-text-soft);
+}
+
+.alternatives-item__reason {
+  color: var(--gr-text-soft);
+}
+
+.alternatives-modal__message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.alternatives-modal__message .wl-message {
+  margin: 0;
+}
+
+.alternatives-modal__message a {
+  font-weight: 600;
+  color: var(--gr-action-text);
+}
+
+.alternatives-modal__footer {
+  padding-top: 12px;
+  border-top: 1px solid var(--gr-border);
+  font-size: 12px;
+}
+
+.alternatives-modal :focus-visible {
+  outline: 3px solid var(--gr-brand);
+  outline-offset: 2px;
+}
