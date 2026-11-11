@@ -4,6 +4,7 @@ import Brand from './Brand.jsx'
 import FormField from './FormField.jsx'
 import LeaderboardPreview from './LeaderboardPreview.jsx'
 import { authRequest, validate } from './api.js'
+import { getWeekly123Run, startWeekly123Run, weekly123LoginPayload } from './weekly123Run.js'
 
 export default function LoginPage() {
   const location = useLocation()
@@ -13,6 +14,10 @@ export default function LoginPage() {
   const [message, setMessage] = useState(location.state?.message || '')
   const [failure, setFailure] = useState('')
   const [busy, setBusy] = useState(false)
+  const requestedTest = Number(new URLSearchParams(location.search).get('card123'))
+  const testHost = ['aptitude.cse.buffalo.edu', 'localhost', '127.0.0.1'].includes(window.location.hostname)
+  const testNumber = testHost && Number.isInteger(requestedTest) && requestedTest >= 1 && requestedTest <= 16 ? requestedTest : null
+  const [testRun, setTestRun] = useState(() => getWeekly123Run())
   const loggedOut = message === 'You are logged out.'
   const accountCreated = message === 'Account created. Log in to continue.'
   const invalidCredentials = failure === 'Invalid email or password.'
@@ -31,9 +36,13 @@ export default function LoginPage() {
     const nextErrors = validate(values)
     setErrors(nextErrors); setFailure(''); setMessage('')
     if (Object.keys(nextErrors).length) return
+    if (testNumber && testRun?.test !== testNumber) {
+      setFailure(`Select Start Test ${testNumber} before logging in.`)
+      return
+    }
     setBusy(true)
     try {
-      const data = await authRequest('login', values)
+      const data = await authRequest('login', weekly123LoginPayload(values, testRun))
       navigate('/dashboard', { replace: true, state: { fullName: data.user.full_name } })
     } catch (error) {
       setErrors(error.fields || {})
@@ -52,6 +61,11 @@ export default function LoginPage() {
         {(failure || loggedOut) && (
           <p className="login-feedback" role={failure ? 'alert' : 'status'}>{failure || message}</p>
         )}
+        {testNumber && <div className="notice" role="group" aria-label={`Card 123 Test ${testNumber} setup`}>
+          <p>Card #123 Test {testNumber}: start a new independent test before signing in. Your account resets once after a successful login.</p>
+          <button type="button" className="text-button" onClick={() => setTestRun(startWeekly123Run(testNumber))}>Start Test {testNumber}</button>
+          {testRun?.test === testNumber && <p role="status">Test {testNumber} is ready. Sign in with the account named on the card.</p>}
+        </div>}
         <FormField name="email" label="Email" type="email" autoComplete="username" placeholder="you@email.com" maxLength={254} value={values.email} onChange={change} error={errors.email} invalid={invalidCredentials} required />
         <FormField name="password" label="Password" type="password" autoComplete="current-password" placeholder="••••••••" maxLength={72} value={values.password} onChange={change} error={errors.password} invalid={invalidCredentials} required />
         <div className="login-options"><label><input name="remember" type="checkbox" checked={values.remember} onChange={change} />Keep me logged in</label><button type="button" className="text-button" onClick={() => setMessage('Password recovery is not available yet. Please contact the GymRank team.')}>Forgot password?</button></div>

@@ -2,18 +2,18 @@
 
 ## Card #123 weekly milestone accounts
 
-`build_weekly_milestone_seed.php` generates a card #123 SQL fixture for a local test database or **aptitude**. It uses PHP's `America/New_York` clock and does not connect to a database. Run it on the day of testing, Wednesday through Sunday, after migration `016_workout_weekly_goal_snapshots.sql` is applied. The Monday/Tuesday restriction is necessary because Tests 4, 10 and 12 start with two earlier distinct dates in the current week. Regenerate and reload before each independent run, after a test changes an account, on a new calendar day for the unfinished sessions, and in every new week. Do not load it on cattle.
+`build_weekly_milestone_seed.php` now **only creates or updates the 13 exact dedicated accounts**. It sets their test password hash and `is_test=1`; it does not reset workouts or create dated fixtures. A developer loads it once on an explicitly enabled non-production database after migration 013. Never load it on cattle.
 
-From the repository root in WSL, generate a reviewable SQL file, then load it into a **local** test database:
+From the repository root in WSL, generate a reviewable SQL file, then load it into a **local** test database using the account in the ignored `api/config.php`:
 
 ```bash
 php database/seeds/build_weekly_milestone_seed.php > /tmp/weekly_milestone_123.sql
-mysql -u root cse442_2026_fall_team_y_db < /tmp/weekly_milestone_123.sql
+mysql -u YOUR_DB_USER -p cse442_2026_fall_team_y_db < /tmp/weekly_milestone_123.sql
 ```
 
-For aptitude, copy the generated file to aptitude, then run `mysql -u UBIT_USERNAME -p cse442_2026_fall_team_y_db < ~/weekly_milestone_123.sql` there after reviewing it. The generator resets only its 13 named `weekly123-*` accounts: setup, plan, personal details, weekly targets, completed workouts, unfinished sessions, sets, and saved weekly snapshots. It does not alter other users. It adds `weekly123-history@example.com` (last week's saved 2-of-3 snapshot, current goal 4), and `weekly123-legacy@example.com` (last week's completed workout without a snapshot) to the original 11 accounts. Every account has the card's fake `Weekly-Test-123!` password stored only as a bcrypt hash in the SQL.
+For aptitude, copy the reviewed bootstrap file there and run `mysql -u UBIT_USERNAME -p cse442_2026_fall_team_y_db < ~/weekly_milestone_123.sql` after migrations 016 and 017. Keep `GYMRANK_WEEKLY123_RESET` disabled until the matching PHP and frontend are deployed. The tester does not use SQL or repository access. At the start of each card test, the tester opens its `#/login?card123=N` link, selects **Start Test N**, then signs in with that test's dedicated account. Only that successful, password-verified login resets the assigned account. Refresh, retry, logout/re-login and account switching within the same test keep its run ID in browser session storage and do not reset. **A new independent test is exactly a new Start Test selection**, which creates a new run ID. After the test, the tester opens `#/card-123/finish` and selects Finish. A test that uses two accounts (#11) releases both leases together.
 
-The generated file records the New York week in its header and finishes with an account and snapshot count query. `--date=YYYY-MM-DD` is available for **local generator review only**; do not use it to prepare a shared-server load for another day. Dates and active sessions must match the day the SQL is run. The generated SQL itself is not checked into Git, so it cannot silently become stale.
+The automatic fixture is built from the current America/New_York week at successful sign-in, on any weekday. Current-week completed sessions use today; scenarios needing multiple earlier dates use **the previous week**. No future completion is fabricated. The account's reset and its four-hour lease are one database transaction. A second browser that starts the same account while the lease is active gets a clear conflict and does not reset the first tester's work. The same browser tab can start a new independent test; use one tab for a test. If a private window is closed without Finish, a different tester must wait for the four-hour lease to expire or ask a developer to release that exact account. An active test left idle beyond four hours can be displaced; finish sooner or coordinate account use. Never use this on ordinary users or production.
 
 Fake accounts for testing login on a local or dev database. Each account has its own password.
 
