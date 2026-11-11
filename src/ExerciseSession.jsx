@@ -8,6 +8,7 @@ import { EMPTY_DRAFT, loadDraft, saveDraft } from './setDraft.js'
 import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
 import NavBar from './NavBar.jsx'
 import RestTimer from './RestTimer.jsx'
+import ExerciseAlternatives from './workoutLog/ExerciseAlternatives.jsx'
 import { formatSet, nextSetNumber, saveErrorMessage, upsertSet } from './workoutLog/setLog.js'
 import { validateSet } from './workoutLog/setValidation.js'
 import workoutLogApi from './workoutLog/workoutLogApi.js'
@@ -202,7 +203,10 @@ function ExerciseSession() {
               {muscles.length > 0 && <BodyFigure muscles={muscles} />}
             </header>
 
-            <ExerciseGuide name={exercise.name} />
+            <div className="exercise-session__tools">
+              <ExerciseGuide name={exercise.name} />
+              <ExerciseAlternatives exercise={exercise.name} />
+            </div>
 
             {resting ? (
               <RestTimer endsAt={restEndsAt} total={restTotal} onAdjust={adjustRest} onDone={endRest} />
