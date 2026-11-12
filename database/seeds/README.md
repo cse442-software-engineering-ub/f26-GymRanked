@@ -29,6 +29,12 @@ Fake accounts for testing login on a local or dev database. Each account has its
 | Wes Fresh | weekly.fresh@example.com | `Weekly-Fresh-88!` | Weekly goal (#88): no goal saved, no workout this week. Loaded by `weekly_goals.sql` |
 | Lena Locked | weekly.locked@example.com | `Weekly-Locked-88!` | Weekly goal (#88): last week's goal 4, workouts Monday and today, so this week is locked. Loaded by `weekly_goals.sql` |
 | Nia Next | weekly.next@example.com | `Weekly-Next-88!` | Weekly goal (#88): this week 2 and next week 5 saved, three workout days. Loaded by `weekly_goals.sql` |
+| Olivia Grant | buddy-olivia@example.com | `Buddy-Test-78!` | Workout buddies (#78): owner of the group Morning Lifters, invite code `7KQ2MXP9`. Loaded by `workout_buddies.sql` |
+| Ben Cruz | buddy-ben@example.com | `Buddy-Test-78!` | Workout buddies (#78): a member of Morning Lifters with one message waiting |
+| Nina Park | buddy-nina@example.com | `Buddy-Test-78!` | Workout buddies (#78): no group, joins Morning Lifters with the code |
+| Cal Moss | buddy-cal@example.com | `Buddy-Test-78!` | Workout buddies (#78): no group, creates a group |
+| Omar Reyes | buddy-omar@example.com | `Buddy-Test-78!` | Workout buddies (#78): no group, never joins one (the outside account) |
+| Pete Lowe | buddy-pete@example.com | `Buddy-Test-78!` | Workout buddies (#78): owner of Late Starters, whose invite code `4MXT8H2R` expired yesterday |
 
 These are `example.com` addresses, which can never belong to a real person. Only a bcrypt hash of each password is stored.
 
@@ -154,6 +160,16 @@ Login allows 10 attempts per email every 15 minutes. Clear the counter with:
 ```bash
 mysql -u root cse442_2026_fall_team_y_db -e "DELETE FROM auth_attempts;"
 ```
+
+## Workout buddies accounts
+
+`workout_buddies.sql` (story #78, card #71) adds the six `buddy-*@example.com` accounts above, the groups Morning Lifters and Late Starters, and one message from Olivia to Ben. It needs every migration up to `018_workout_buddies.sql`. The accounts are marked `is_test`, so they never appear on a leaderboard. Loading it again resets only these accounts, their groups and their messages (use it to start the buddy tests over):
+
+```bash
+mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < database/seeds/workout_buddies.sql
+```
+
+It ends by printing each member's `member_id` and the invite codes, which the task tests use. `tests/buddies-api.mjs` loads it for you.
 
 ## Remove them
 
