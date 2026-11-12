@@ -9,13 +9,9 @@
 }
 
 .history-page__content {
-  box-sizing: content-box;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 40px 48px 48px;
 }
 
 .history-page__heading h1 {
@@ -308,10 +304,6 @@ a.history-empty__action:focus-visible {
 
 /* Phones: each row stacks name, date and size; tables take the full width. */
 @media (max-width: 640px) {
-  .history-page__content {
-    padding: 24px 20px 32px;
-  }
-
   .history-item__toggle {
     grid-template-columns: minmax(0, 1fr) 20px;
     grid-template-areas: 'title chevron' 'size chevron';

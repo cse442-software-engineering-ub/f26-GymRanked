@@ -4,11 +4,6 @@
   color: var(--gr-text);
 }
 
-.workout-summary {
-  width: min(100%, 1320px);
-  margin: 0 auto;
-  padding: 48px 40px 72px;
-}
 
 .workout-summary__preview {
   display: inline-block;
@@ -397,10 +392,6 @@
 }
 
 @media (max-width: 900px) {
-  .workout-summary {
-    padding: 36px 24px 60px;
-  }
-
   .workout-summary__hero {
     align-items: flex-start;
     flex-direction: column;
@@ -416,10 +407,6 @@
 }
 
 @media (max-width: 640px) {
-  .workout-summary {
-    padding: 28px 18px 48px;
-  }
-
   .workout-summary__hero {
     gap: 22px;
     margin-bottom: 24px;
