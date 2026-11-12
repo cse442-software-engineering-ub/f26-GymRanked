@@ -157,6 +157,43 @@ mysql -u UBIT_USERNAME -p cse442_2026_fall_team_y_db < database/migrations/016_w
 
 Run it only when the task's deployment is authorized. The seed/reset command and its effects are in `database/seeds/README.md`. Neither this migration nor the seed is part of a frontend `dist/` upload.
 
+### Card #123 browser reset on aptitude only
+
+These are review instructions, **not an authorization to deploy**. On aptitude, first confirm the target host with `hostname`, back up the test database, and check whether migration 016 has already been applied. From the repository root on your local machine, copy the two migration files and the account generator to aptitude:
+
+```bash
+scp database/migrations/016_workout_weekly_goal_snapshots.sql database/migrations/017_weekly123_test_runs.sql database/seeds/build_weekly_milestone_seed.php UBIT_USERNAME@aptitude.cse.buffalo.edu:~/
+```
+
+After SSH to aptitude, apply migration 016 only if its table is absent, then migration 017:
+
+```bash
+mysql -u UBIT_USERNAME -p cse442_2026_fall_team_y_db < ~/016_workout_weekly_goal_snapshots.sql # only if absent
+mysql -u UBIT_USERNAME -p cse442_2026_fall_team_y_db < ~/017_weekly123_test_runs.sql
+```
+
+Build locally with `npm ci && npm run build`. Upload `dist/` as in section 2, and upload the four matching PHP files below. **Do not copy local `api/config.php` to aptitude**; it has local database settings and a local reset mode.
+
+```bash
+scp api/auth.php api/login.php api/weekly123_fixtures.php api/weekly123_test_end.php UBIT_USERNAME@aptitude.cse.buffalo.edu:/data/web/CSE442/2026-Fall/cse-442y/api/
+```
+
+On aptitude, generate and review the account-only bootstrap, then load it once:
+
+```bash
+php ~/build_weekly_milestone_seed.php > ~/weekly_milestone_123.sql
+mysql -u UBIT_USERNAME -p cse442_2026_fall_team_y_db < ~/weekly_milestone_123.sql
+```
+
+The bootstrap updates only the 13 dedicated accounts' name, test flag, and password hash; the first successful **Start Test** login prepares each account's dated workouts. After the API, frontend, migrations, and accounts are ready, add these two lines only to aptitude's ignored `api/config.php`:
+
+```php
+define('GYMRANK_WEEKLY123_RESET', true);
+define('GYMRANK_WEEKLY123_ENV', 'aptitude');
+```
+
+The runtime also checks the machine hostname is exactly `aptitude` or `aptitude.cse.buffalo.edu`. Confirm `gethostname()` there before enabling; if it differs, review the code's exact host allowlist rather than bypassing it. Cattle must have the reset flag absent or false and must never receive migration 017 or the account bootstrap. The first successful login after a PM selects **Start Test N** resets only the account assigned to that test and takes a four-hour lease. A competing browser gets 409 without resetting data. The PM finishes at `#/card-123/finish`; no SQL or repository access is needed. For a rollback, set `GYMRANK_WEEKLY123_RESET` to `false` (or remove both lines), then remove the test-only route and API on the next deployment. Leave migration 017 in place unless a separately reviewed cleanup is planned; disabling the flag immediately stops resets. See `database/seeds/README.md` for the lease limitation.
+
 | Item | Value |
 | --- | --- |
 | Database | `cse442_2026_fall_team_y_db` |
