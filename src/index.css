@@ -1179,7 +1179,7 @@ button.nav-bar__avatar {
   }
 }
 
-/* "Recommended for you" / "More plans" labels above the library's two groups of cards. */
+/* "Your current plan" / "Recommended plans" / "All plans" labels above the library's groups of cards. */
 .plan-library__group {
   margin: 0 0 12px;
   font-size: 1.125rem;
@@ -1527,8 +1527,54 @@ button.nav-bar__avatar {
   }
 }
 
+/* "More plans": a native <details> that starts closed. The summary is a full-width button-sized row. */
+.plan-more > summary {
+  list-style: none;
+}
+
+.plan-more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.plan-more__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  margin: 0 0 12px;
+  padding: 0 16px;
+  background: var(--gr-surface);
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  color: var(--gr-text);
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.plan-more__toggle:hover {
+  border-color: var(--gr-border-strong);
+  background: var(--gr-surface-raised);
+}
+
+.plan-more__toggle:focus-visible {
+  outline: 2px solid var(--gr-brand);
+  outline-offset: 2px;
+}
+
+.plan-more__chevron {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.plan-more[open] .plan-more__chevron {
+  transform: rotate(180deg);
+}
+
 /* Phones: the recommended plans are a swipeable row that snaps card by card, with the next card peeking
-   in; the dots below follow it. "More plans" stays a stacked list. */
+   in; the dots below follow it. the plans under "More plans" are a row too. */
 @media (max-width: 640px) {
   .plan-prefs__edit {
     width: 100%;
@@ -1554,6 +1600,11 @@ button.nav-bar__avatar {
   .plan-list--carousel > li {
     flex: 0 0 82%;
     scroll-snap-align: start;
+  }
+
+  /* "Your current plan" holds one card: nothing to swipe to, so it takes the full width. */
+  .plan-list--carousel > li:only-child {
+    flex-basis: 100%;
   }
 
   .plan-dots {
