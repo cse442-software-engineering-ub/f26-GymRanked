@@ -1,13 +1,13 @@
--- 017_workout_buddies.sql
+-- 018_workout_buddies.sql
 -- Private workout buddies groups (story #78, card #71): the groups, who is in them, and the encouragement messages
 -- members send each other. Used by api/buddy_group.php, api/buddy_join.php and api/buddy_encourage.php.
 --
 -- Requires: 001_auth.sql (users).
 --
 -- Apply locally:
---   mysql -u root cse442_2026_fall_team_y_db < database/migrations/017_workout_buddies.sql
+--   mysql -u root cse442_2026_fall_team_y_db < database/migrations/018_workout_buddies.sql
 -- On the dev server, only when a task card says to (see ServerOperationsGuide.md):
---   mysql -u UBIT_USERNAME -p cse442_2026_fall_team_y_db < database/migrations/017_workout_buddies.sql
+--   mysql -u UBIT_USERNAME -p cse442_2026_fall_team_y_db < database/migrations/018_workout_buddies.sql
 -- Or paste this file into phpMyAdmin's SQL tab with the team database selected.
 --
 -- Only adds three tables, so no existing row changes and nobody is in a group until they create or join one. Safe to

@@ -163,7 +163,7 @@ mysql -u root cse442_2026_fall_team_y_db -e "DELETE FROM auth_attempts;"
 
 ## Workout buddies accounts
 
-`workout_buddies.sql` (story #78, card #71) adds the six `buddy-*@example.com` accounts above, the groups Morning Lifters and Late Starters, and one message from Olivia to Ben. It needs every migration up to `017_workout_buddies.sql`. The accounts are marked `is_test`, so they never appear on a leaderboard. Loading it again resets only these accounts, their groups and their messages (use it to start the buddy tests over):
+`workout_buddies.sql` (story #78, card #71) adds the six `buddy-*@example.com` accounts above, the groups Morning Lifters and Late Starters, and one message from Olivia to Ben. It needs every migration up to `018_workout_buddies.sql`. The accounts are marked `is_test`, so they never appear on a leaderboard. Loading it again resets only these accounts, their groups and their messages (use it to start the buddy tests over):
 
 ```bash
 mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < database/seeds/workout_buddies.sql

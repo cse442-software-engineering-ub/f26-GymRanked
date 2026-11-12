@@ -1,6 +1,6 @@
 -- Workout buddies test accounts for story #78 (card #71): six accounts, buddy-<name>@example.com.
 -- The password is Buddy-Test-78! for all of them; only its salted hash is stored here.
--- Requires database/migrations/001_auth.sql to 017_workout_buddies.sql. Adds new accounts only. Safe to rerun: these six
+-- Requires database/migrations/001_auth.sql to 018_workout_buddies.sql. Adds new accounts only. Safe to rerun: these six
 -- accounts' names, password, setup, groups, memberships and messages are reset to the ones below, and no other account
 -- or group is touched. It needs no MySQL time zone tables and can be loaded on any day. The accounts are marked
 -- users.is_test = 1, so they are never listed on a leaderboard.

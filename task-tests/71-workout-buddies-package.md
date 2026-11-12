@@ -46,7 +46,7 @@ Other rules:
 
 ## 4. How it is stored
 
-Migration `database/migrations/017_workout_buddies.sql` (016 is already used twice on dev). It only adds three tables, changes no existing row, and is safe to run twice. Times are UTC.
+Migration `database/migrations/018_workout_buddies.sql` (016 is already used twice on dev, and 017 is taken by weekly123_test_runs). It only adds three tables, changes no existing row, and is safe to run twice. Times are UTC.
 
 | Table | Holds | Key points |
 | --- | --- | --- |
@@ -214,7 +214,7 @@ The page is reached from a new **Buddies** link in the top navigation (`#/buddie
 | Asked for | Where it is |
 | --- | --- |
 | Exact inputs and results | Section 6, and the full tests on card #71 |
-| Proposed storage changes | Section 4, `database/migrations/017_workout_buddies.sql` |
+| Proposed storage changes | Section 4, `database/migrations/018_workout_buddies.sql` |
 | Tests | Section 8: 10 task tests on #71, 7 acceptance tests on #78, `tests/buddies-api.mjs` |
 | A safe set of prepared accounts | Section 7, `database/seeds/workout_buddies.sql` |
 | Who can accept, see members, send and receive | Section 3 |

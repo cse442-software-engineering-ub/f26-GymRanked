@@ -1,5 +1,5 @@
 // Backend checks for story #78: workout buddies groups, invites and encouragements (card #71 task tests).
-// Run against a LOCAL PHP server and a database that has migrations 001-017:
+// Run against a LOCAL PHP server and a database that has migrations 001-018:
 //   PHP_CLI_SERVER_WORKERS=4 php -S localhost:8000 -t api     (4 workers so the simultaneous-request checks overlap)
 //   node tests/buddies-api.mjs
 // It loads database/seeds/workout_buddies.sql itself (twice, which also checks that the seed can be run again), logs
