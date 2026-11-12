@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import Breadcrumb from '../Breadcrumb.jsx'
+import BackLink from '../BackLink.jsx'
 import NavBar from '../NavBar.jsx'
 import workoutLogApi from '../workoutLog/workoutLogApi.js'
 import WorkoutHistoryItem from './WorkoutHistoryItem.jsx'
@@ -69,7 +69,7 @@ function WorkoutHistoryPage() {
     <div className="history-page">
       <NavBar current="Progress" />
       <main className="history-page__content" aria-busy={status === 'loading'}>
-        <Breadcrumb crumbs={[{ label: 'Progress', to: '/progress' }, { label: 'Workout history' }]} />
+        <BackLink to="/progress">Back to progress</BackLink>
         <div className="history-page__heading">
           <h1>Workout history</h1>
           {status === 'ready' && <p>{countLabel(workouts.length)}</p>}

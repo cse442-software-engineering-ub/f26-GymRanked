@@ -170,12 +170,13 @@
 /* ---------------------------------------------------------------- Weekly goal page (#/weekly-goal) */
 
 .weekly-goal-page { min-height: 100vh; background: var(--gr-bg-page); color: var(--gr-text); font-family: var(--gr-font); }
-.weekly-goal-page__content { display: flex; flex-direction: column; gap: 20px; max-width: 900px; margin: 0 auto; padding: 40px 24px 48px; }
+.weekly-goal-page__content { display: flex; flex-direction: column; gap: 20px; }
 .weekly-goal-page__heading h1 { margin: 0; font-size: 28px; font-weight: 500; }
 .weekly-goal-page__heading p { margin: 6px 0 0; color: var(--gr-text-muted); font-size: 14px; }
 .weekly-goal-page__back { display: inline-block; margin-bottom: 12px; color: var(--gr-action-text); font-size: 14px; text-decoration: none; }
 
 .weekly-goal-form {
+  max-width: 720px;
   padding: 20px;
   border: 1px solid var(--gr-border);
   border-radius: var(--gr-radius-card);
@@ -251,7 +252,6 @@
 .weekly-goal-message a { color: inherit; font-weight: 600; }
 
 @media (max-width: 640px) {
-  .weekly-goal-page__content { padding: 24px 16px 40px; }
   .weekly-goal-form { padding: 16px; }
   .weekly-goal-form__days { grid-template-columns: repeat(4, minmax(44px, 1fr)); }
   .weekly-goal-form__actions .weekly-goal-button { flex: 1 1 100%; }

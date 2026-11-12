@@ -1,5 +1,4 @@
 .profile-page { min-height: 100vh; background: var(--gr-bg-page); color: var(--gr-text); }
-.profile-content { width: min(100%, 1000px); margin: 0 auto; padding: 40px 24px 64px; }
 .profile-header { margin-bottom: 24px; }
 .profile-header h1 { margin: 4px 0 6px; font-size: clamp(30px, 4vw, 40px); font-weight: 600; }
 .profile-header > p:last-child { margin: 0; color: var(--gr-text-soft); }
@@ -41,7 +40,6 @@
 .profile-form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 28px; }
 .profile-page :is(a, button, input, select):focus-visible { outline: 3px solid var(--gr-brand); outline-offset: 2px; }
 @media (max-width: 600px) {
-  .profile-content { padding: 24px 16px 48px; }
   .profile-card { padding: 20px; }
   .profile-card-heading { align-items: stretch; flex-direction: column; }
   .profile-details div { flex-direction: column; gap: 5px; }

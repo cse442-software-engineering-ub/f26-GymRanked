@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Breadcrumb from './Breadcrumb.jsx'
 import NavBar from './NavBar.jsx'
 import PlanCard from './PlanCard.jsx'
 import PlanCarousel from './PlanCarousel.jsx'
@@ -54,7 +53,6 @@ function WorkoutPlanLibrary() {
     <div className="plan-library">
       <NavBar current="Plans" />
       <main className="plan-library__content">
-        <Breadcrumb crumbs={[{ label: 'Weekly plan', to: '/weekly-plan' }, { label: 'Plans' }]} />
         <header className="plan-library__heading">
           <p className="plan-library__eyebrow">Training library</p>
           <h1>Find your next workout plan</h1>
