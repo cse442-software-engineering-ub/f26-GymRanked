@@ -56,11 +56,11 @@ const fitsWidth = (page) => page.evaluate(() => document.documentElement.scrollW
 // "Select Leaderboard": the top navigation on a computer, the menu (three lines) on a phone.
 async function openWeekly(page) {
   const menu = page.getByRole('button', { name: 'Open navigation menu' })
-  const topLink = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Leaderboard' })
+  const topLink = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Rankings', exact: true })
   await menu.or(topLink).filter({ visible: true }).waitFor()
   if (await menu.isVisible()) {
     await menu.click()
-    await page.getByRole('navigation', { name: 'Mobile navigation' }).getByRole('link', { name: 'Leaderboard' }).click()
+    await page.getByRole('navigation', { name: 'Mobile navigation' }).getByRole('link', { name: 'Rankings', exact: true }).click()
   } else {
     await topLink.click()
   }
@@ -85,7 +85,7 @@ async function expectHomeRing(page, text) {
 
 // Dashboard, Resume workout, Complete workout, then Complete workout in the box.
 async function finishWorkout(page) {
-  await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Dashboard' }).click()
+  await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Dashboard', exact: true }).click()
   await page.getByRole('button', { name: /Resume workout/ }).click()
   await expect(page).toHaveURL(/#\/workout\/active$/)
   await main(page).getByRole('button', { name: 'Complete workout' }).click()
@@ -98,7 +98,7 @@ acceptanceTests('124-weekly-consistency-competition.md', {
     await step('Setup: log in as Casey', () => logIn(page, CASEY))
     await step('Step 1: Leaderboard opens Weekly consistency', async () => {
       await openWeekly(page)
-      await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Leaderboard' })).toHaveAttribute('aria-current', 'page')
+      await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Rankings', exact: true })).toHaveAttribute('aria-current', /page|location/)
       await expect(switchLink(page, 'Weekly consistency')).toHaveAttribute('aria-current', 'page')
       await expect(switchLink(page, 'Strength')).not.toHaveAttribute('aria-current', 'page')
     })
@@ -245,7 +245,7 @@ acceptanceTests('124-weekly-consistency-competition.md', {
       await hero(page).getByRole('button', { name: 'Leave' }).click()
       await expect(main(page).getByRole('status')).toHaveText("You've left the weekly competition. Your workouts are kept.")
       await expect(joinButton()).toBeVisible()
-      await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Dashboard' }).click()
+      await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Dashboard', exact: true }).click()
       await expectHomeRing(page, '2/3')
       await expect(homeRank(page)).toHaveText('Not joined')
     })
@@ -290,7 +290,7 @@ acceptanceTests('124-weekly-consistency-competition.md', {
       await expect(days(page)).toHaveText('0/3 days · 0%')
     })
     await step('Step 3: last week’s workouts are still in the history', async () => {
-      await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Progress' }).click()
+      await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Progress', exact: true }).click()
       await main(page).getByRole('link', { name: /Workout history/ }).click()
       await expect(main(page).locator('.history-list > li')).toHaveCount(3)
     })

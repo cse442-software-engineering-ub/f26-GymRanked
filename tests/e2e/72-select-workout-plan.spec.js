@@ -13,26 +13,26 @@ function topNav(page) {
   return page.getByRole('navigation', { name: 'Primary' })
 }
 
-// "Plans" or "Workouts" in the top navigation. On phones the links sit in the menu behind the three lines.
+// "Plans" or "Workouts" in the menu. On phones the links sit behind "Menu".
 async function goTo(page, label) {
-  const link = topNav(page).getByRole('link', { name: label })
+  const link = topNav(page).getByRole('link', { name: label, exact: true })
   if (await link.isVisible()) {
     await link.click()
   } else {
     await page.getByRole('button', { name: 'Open navigation menu' }).click()
-    await page.getByRole('navigation', { name: 'Mobile navigation' }).getByRole('link', { name: label }).click()
+    await page.getByRole('navigation', { name: 'Mobile navigation' }).getByRole('link', { name: label, exact: true }).click()
   }
 }
 
-// The current page is marked in the top navigation, or in the phone menu (which is closed again afterwards).
+// The current section is marked in the sidebar, or in the phone menu (which is closed again afterwards).
 async function expectCurrentNavLink(page, label) {
-  const link = topNav(page).getByRole('link', { name: label })
+  const link = topNav(page).getByRole('link', { name: label, exact: true })
   if (await link.isVisible()) {
-    await expect(link).toHaveClass(/nav-bar__link--current/)
+    await expect(link).toHaveAttribute('aria-current', /page|location/)
   } else {
     await page.getByRole('button', { name: 'Open navigation menu' }).click()
     const menu = page.getByRole('navigation', { name: 'Mobile navigation' })
-    await expect(menu.getByRole('link', { name: label })).toHaveAttribute('aria-current', 'page')
+    await expect(menu.getByRole('link', { name: label, exact: true })).toHaveAttribute('aria-current', /page|location/)
     await page.getByRole('button', { name: 'Close navigation menu' }).first().click()
   }
 }

@@ -40,23 +40,32 @@ export async function logIn(page, account) {
   await page.getByRole('button', { name: 'Log in' }).click()
   // Wait for a signed-in page or a login error, then name the rate limit if that's what it was.
   // A finished account opens the Dashboard; one that hasn't finished onboarding opens its next step.
-  await page.locator('.nav-bar, .ob-page').or(page.getByRole('alert')).first().waitFor()
+  await page.locator('.app-shell, .ob-page').or(page.getByRole('alert')).first().waitFor()
   if (await page.getByText('Too many attempts.').isVisible()) throw new Error(RATE_LIMITED)
   await expect(page).toHaveURL(/#\/(dashboard|goal|experience|equipment|recommended)$/)
 }
 
-// A finished account logs out from the Dashboard's account menu. One that hasn't finished onboarding is sent
+// "Log out" at the bottom of the menu: in the sidebar on a computer, behind "Menu" on a phone.
+export async function menuLogOut(page) {
+  const sidebarLogOut = page.getByRole('navigation', { name: 'Primary' }).getByRole('button', { name: 'Log out' })
+  if (await sidebarLogOut.isVisible()) {
+    await sidebarLogOut.click()
+  } else {
+    await page.getByRole('button', { name: 'Open navigation menu' }).click()
+    await page.getByRole('navigation', { name: 'Mobile navigation' }).getByRole('button', { name: 'Log out' }).click()
+  }
+}
+
+// A finished account logs out from the menu on the Dashboard. One that hasn't finished onboarding is sent
 // back to its next step, which has its own "Log out" in the top-right corner of the photo band.
 export async function logOut(page) {
   await page.goto('#/dashboard')
-  const accountMenu = page.getByRole('button', { name: 'Open account menu' })
   const onboardingLogOut = page.locator('.ob-page').getByRole('button', { name: 'Log out' })
-  await accountMenu.or(onboardingLogOut).first().waitFor()
+  await page.locator('.app-shell').or(onboardingLogOut).first().waitFor()
   if (await onboardingLogOut.isVisible()) {
     await onboardingLogOut.click()
   } else {
-    await accountMenu.click()
-    await page.getByRole('menuitem', { name: 'Log out' }).click()
+    await menuLogOut(page)
   }
   await expect(page.getByText('You are logged out.')).toBeVisible()
 }

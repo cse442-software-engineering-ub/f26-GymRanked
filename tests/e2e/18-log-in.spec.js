@@ -100,7 +100,7 @@ acceptanceTests(
         const nav = page.getByRole('navigation', { name: phone ? 'Mobile navigation' : 'Primary' })
         await expect(nav).toBeVisible()
         await expect(nav).toHaveText(
-          /Dashboard\s*Workouts\s*Plans\s*Progress\s*Leaderboard\s*Today/,
+          /Dashboard\s*Workouts\s*Plans\s*Progress\s*Community\s*Rankings\s*Buddies/,
         )
       })
     },
@@ -195,9 +195,8 @@ acceptanceTests(
         await expect(page).toHaveURL(/#\/dashboard$/)
       })
 
-      await step('Step 1: press "Log out" in the profile menu', async () => {
-        await page.getByRole('button', { name: 'Open account menu' }).click()
-        await page.getByRole('menuitem', { name: 'Log out' }).click()
+      await step('Step 1: press "Log out" at the bottom of the menu', async () => {
+        await page.getByRole('navigation', { name: 'Primary' }).getByRole('button', { name: 'Log out' }).click()
       })
 
       await step('Step 2: the "Log in to GymRank" card shows again with "You are logged out."', async () => {
