@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-export default function ConfirmWorkoutModal({ busy, error, onConfirm, onCancel }) {
+export default function ConfirmWorkoutModal({ busy, error, retryLabel = false, onConfirm, onCancel }) {
   const confirmRef = useRef(null)
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export default function ConfirmWorkoutModal({ busy, error, onConfirm, onCancel }
       <h2 id="confirm-workout-title">Complete this workout?</h2>
       <p id="confirm-workout-description">Your saved sets will be added to your workout history. You won’t be able to edit them after completing.</p>
       {error && <p className="wl-message wl-message--error" role="alert">{error}</p>}
-      <button ref={confirmRef} type="button" className="wl-button wl-button--primary" onClick={onConfirm} disabled={busy}>{busy ? 'Completing…' : 'Complete workout'}</button>
+      <button ref={confirmRef} type="button" className="wl-button wl-button--primary" onClick={onConfirm} disabled={busy}>{busy ? 'Completing…' : error && retryLabel ? 'Try again' : 'Complete workout'}</button>
       <button type="button" className="confirm-workout-modal__cancel" onClick={onCancel} disabled={busy}>Cancel</button>
     </div>
   </div>

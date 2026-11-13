@@ -16,7 +16,7 @@ const NAV_LINKS = [
   { label: 'Buddies', to: '/buddies', icon: 'buddies' },
 ]
 
-function NavBar({ current, userName = '', showStartWorkout = true }) {
+function NavBar({ current, userName = '', showStartWorkout = true, mobileStartWorkout = false }) {
   const navigate = useNavigate()
   const [accountMenuOpen, setAccountMenuOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -67,7 +67,7 @@ function NavBar({ current, userName = '', showStartWorkout = true }) {
   }
 
   return (
-    <header className="nav-bar">
+    <header className={mobileStartWorkout ? 'nav-bar nav-bar--with-start' : 'nav-bar'}>
       <Link className="nav-bar__brand" to="/dashboard" aria-label="GymRank dashboard">
         <span className="nav-bar__logo" aria-hidden="true"><MobileDashboardIcon name="dumbbell" /></span>
         <span className="nav-bar__brand-name">GymRank</span>
@@ -91,7 +91,7 @@ function NavBar({ current, userName = '', showStartWorkout = true }) {
         })}
       </nav>
       <div className="nav-bar__actions">
-        {showStartWorkout && <button type="button" className="nav-bar__start-workout" onClick={() => navigate('/workouts/today')}>
+        {showStartWorkout && <button type="button" className="nav-bar__start-workout" onClick={() => navigate(window.matchMedia('(max-width: 640px)').matches ? '/workout/active' : '/workouts/today')}>
           Start Workout
         </button>}
         {(
@@ -140,7 +140,7 @@ function NavBar({ current, userName = '', showStartWorkout = true }) {
         {NAV_LINKS.map(({ label, to, futurePath, icon }) => {
           const className = label === current ? 'nav-bar__mobile-link is-current' : 'nav-bar__mobile-link'
           return to ? (
-            <Link key={label} to={to} className={className} aria-current={label === current ? 'page' : undefined} tabIndex={mobileMenuOpen ? 0 : -1} onClick={() => setMobileMenuOpen(false)}>
+            <Link key={label} to={label === 'Today' ? '/workout/active' : to} className={className} aria-current={label === current ? 'page' : undefined} tabIndex={mobileMenuOpen ? 0 : -1} onClick={() => setMobileMenuOpen(false)}>
               <MobileDashboardIcon name={icon} />{label}
             </Link>
           ) : (
