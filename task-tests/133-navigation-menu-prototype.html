@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Clickable example for task #133 (story #131), the navigation menu (Sprint 4 redesign review). Open this file in a browser; it needs no
+     server. Sample account and workout data, nothing is saved outside this browser tab. Not app code: the real menu
+     goes in src/navigation/. The same file is both the review page and, with ?app in the address, the GymRank screen
+     shown inside it, so the phone view is a real 375 px page with a real menu dialog. -->
+<title>Navigation Menu Prototype</title>
+<style>
+:root {
+  --gr-bg-page: #0e1015; --gr-bg-nav: #14161b; --gr-surface: #161820; --gr-surface-raised: #1d2029;
+  --gr-surface-sunken: #12131a; --gr-track: #2a2d38; --gr-text: #e8e9ec; --gr-text-label: #b4b6bf;
+  --gr-text-subtle: #d2d3d7; --gr-text-soft: #a2a5ad; --gr-text-muted: #8b8d94; --gr-nav-inactive: #8a8f99;
+  --gr-text-on-orange: #14161b; --gr-on-brand: #ffffff; --gr-brand: #f2652e; --gr-brand-icon: #f2652e;
+  --gr-action: #e0703f; --gr-action-text: #f2865a; --gr-border: rgba(255, 255, 255, 0.06);
+  --gr-border-strong: rgba(255, 255, 255, 0.08); --gr-input-bg: #ffffff; --gr-input-text: #1e1e1e;
+  --gr-input-border: #d9d9d9; --gr-success: #63c792; --gr-success-text: #8de0ad; --gr-success-bg: rgba(99, 199, 146, 0.08);
+  --gr-error-text: #ffb4aa; --gr-backdrop: rgba(0, 0, 0, 0.5); --gr-shadow-color: rgba(0, 0, 0, 0.3);
+  --proto-bg: #090a0e; --proto-line: rgba(255, 255, 255, 0.09);
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --gr-bg-page: #c9cdd4; --gr-bg-nav: #dde0e5; --gr-surface: #dde0e5; --gr-surface-raised: #d3d7dd;
+  --gr-surface-sunken: #d6d9df; --gr-track: #bfc4cc; --gr-text: #16181d; --gr-text-label: #3f444e;
+  --gr-text-subtle: #33373f; --gr-text-soft: #3f444e; --gr-text-muted: #4a4f59; --gr-nav-inactive: #4a4f59;
+  --gr-brand-icon: #b8441a; --gr-action-text: #8a3410; --gr-border: rgba(17, 19, 24, 0.12);
+  --gr-border-strong: rgba(17, 19, 24, 0.17); --gr-input-bg: #e9ebee; --gr-input-text: #16181d;
+  --gr-input-border: #aeb3bc; --gr-success: #1f7547; --gr-success-text: #155a35; --gr-success-bg: rgba(47, 158, 99, 0.10);
+  --gr-error-text: #9a1d12; --gr-backdrop: rgba(17, 19, 24, 0.35); --gr-shadow-color: rgba(17, 19, 24, 0.14);
+  --proto-bg: #b9bec6; --proto-line: rgba(17, 19, 24, 0.14);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; font: 14px/1.45 var(--font); color: var(--gr-text); }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--gr-brand); outline-offset: 2px; }
+
+/* ================= review page (around the example) ================= */
+body.review { background: var(--proto-bg); }
+.proto { max-width: 1400px; margin: 0 auto; padding: 20px 16px 48px; display: grid; gap: 16px; }
+.proto-tag { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gr-action-text); font-weight: 600; }
+.proto h1 { margin: 0; font-size: 22px; font-weight: 600; }
+.proto-head p { margin: 4px 0 0; color: var(--gr-text-muted); max-width: 78ch; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 20px; padding: 12px 14px; border: 1px solid var(--proto-line); border-radius: 12px; background: var(--gr-surface-sunken); align-items: center; }
+.ctl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ctl > span { font-size: 12px; color: var(--gr-text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.seg { display: inline-flex; border: 1px solid var(--proto-line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: transparent; padding: 6px 10px; min-height: 32px; cursor: pointer; color: var(--gr-text-soft); }
+.seg button[aria-pressed="true"] { background: var(--gr-surface-raised); color: var(--gr-text); font-weight: 600; }
+.reset { margin-left: auto; background: transparent; border: 1px solid var(--proto-line); border-radius: 8px; padding: 6px 10px; cursor: pointer; color: var(--gr-text-soft); }
+.layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 16px; align-items: start; }
+.scenes { border: 1px solid var(--proto-line); border-radius: 12px; background: var(--gr-surface-sunken); padding: 12px; display: grid; gap: 8px; position: sticky; top: 8px; }
+.scenes h2 { margin: 0 0 2px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gr-text-muted); font-weight: 600; }
+.scenes h3 { margin: 6px 0 2px; font-size: 12px; color: var(--gr-text-soft); font-weight: 600; }
+.scenes button { width: 100%; text-align: left; border: 0; background: transparent; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: var(--gr-text-soft); display: flex; gap: 8px; }
+.scenes button:hover { background: var(--gr-surface-raised); }
+.scenes button[aria-current="true"] { background: color-mix(in srgb, var(--gr-action) 16%, var(--gr-surface)); color: var(--gr-text); }
+.scenes b { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: var(--gr-action-text); min-width: 2.2em; padding-top: 2px; }
+.stage { display: grid; gap: 12px; min-width: 0; }
+.note { margin: 0; border-left: 3px solid var(--gr-action); background: var(--gr-surface-sunken); border-radius: 0 10px 10px 0; padding: 10px 14px; color: var(--gr-text-soft); }
+.note strong { color: var(--gr-text); }
+.note ol { margin: 6px 0 0; padding-left: 20px; }
+.frame-wrap { display: grid; justify-items: center; }
+#frame { width: 100%; height: 780px; border: 1px solid var(--proto-line); border-radius: 14px; background: var(--gr-bg-page); }
+#frame.phone { width: 387px; height: 824px; border: 6px solid var(--gr-surface-raised); border-radius: 30px; }
+#frame.tablet { width: 768px; }
+@media (max-width: 900px) { .layout { grid-template-columns: minmax(0, 1fr); } .scenes { position: static; } }
+
+/* ================= the GymRank screen (inside the frame) ================= */
+body.app { background: var(--gr-bg-page); min-height: 100vh; }
+.skip { position: absolute; left: 8px; top: -60px; z-index: 50; padding: 10px 14px; border-radius: 8px; background: var(--gr-surface-raised); color: var(--gr-text); }
+.skip:focus { top: 8px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-weight: 500; font-size: 16px; color: var(--gr-text); text-decoration: none; border-radius: 8px; }
+.brand i { width: 32px; height: 32px; border-radius: 8px; background: var(--gr-brand); display: grid; place-items: center; color: var(--gr-on-brand); }
+.brand i svg { width: 18px; height: 18px; }
+svg.ic { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* The menu: the same groups and links in the sidebar and in the phone dialog. */
+.menu { display: flex; flex-direction: column; gap: 20px; min-height: 0; flex: 1; }
+.menu-group { display: grid; gap: 2px; }
+.menu-group h2 { margin: 0 12px 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gr-text-muted); }
+.menu-link { position: relative; display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 10px 12px; border-radius: 8px; color: var(--gr-nav-inactive); font-weight: 500; text-decoration: none; }
+.menu-link:hover { background: var(--gr-surface-raised); color: var(--gr-text); }
+.menu-link[aria-current] { background: color-mix(in srgb, var(--gr-brand) 16%, transparent); color: var(--gr-text); font-weight: 600; }
+.menu-link[aria-current]::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 3px; background: var(--gr-brand); }
+.menu-link[aria-current] svg { color: var(--gr-brand-icon); }
+.menu-foot { margin-top: auto; border-top: 1px solid var(--gr-border-strong); padding-top: 12px; display: grid; gap: 2px; }
+.menu-profile { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 12px; border-radius: 8px; text-decoration: none; color: var(--gr-text); }
+.menu-profile:hover { background: var(--gr-surface-raised); }
+.menu-profile[aria-current] { background: color-mix(in srgb, var(--gr-brand) 16%, transparent); }
+.avatar { width: 36px; height: 36px; border-radius: 999px; background: var(--gr-brand); color: var(--gr-text-on-orange); display: grid; place-items: center; font-weight: 600; font-size: 13px; flex: none; }
+.menu-profile span.who { display: grid; min-width: 0; }
+.menu-profile strong { font-weight: 600; font-size: 14px; }
+.menu-profile small { color: var(--gr-text-muted); font-size: 12px; }
+.menu-profile svg { margin-left: auto; color: var(--gr-text-muted); }
+.menu-logout { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 10px 12px; border: 0; border-radius: 8px; background: transparent; color: var(--gr-text-soft); font-weight: 500; cursor: pointer; text-align: left; }
+.menu-logout:hover { background: var(--gr-surface-raised); color: var(--gr-text); }
+
+/* Desktop and tablet: the sidebar stays in place; only the page beside it changes. */
+.sidebar { position: fixed; inset: 0 auto 0 0; width: 232px; z-index: 20; display: flex; flex-direction: column; gap: 24px; padding: 20px 12px 16px; background: var(--gr-bg-nav); border-right: 1px solid var(--gr-border-strong); overflow-y: auto; }
+.sidebar .brand { margin-left: 8px; }
+.shell { margin-left: 232px; }
+.topstrip { display: none; }
+main { max-width: 1200px; margin: 0 auto; padding: 32px 48px 48px; display: grid; gap: 16px; }
+main:focus { outline: none; }
+h1 { margin: 0; font-size: 28px; font-weight: 500; }
+h1:focus { outline: none; }
+.lead { margin: 6px 0 0; color: var(--gr-text-muted); font-size: 15px; }
+.back { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--gr-action-text); font-weight: 600; text-decoration: none; justify-self: start; }
+.card { background: var(--gr-surface); border: 1px solid var(--gr-border); border-radius: 12px; padding: 20px; display: grid; gap: 12px; min-width: 0; }
+.card h2 { margin: 0; font-size: 20px; font-weight: 500; }
+.card p { margin: 0; color: var(--gr-text-soft); }
+.eyebrow { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gr-text-muted); }
+.eyebrow.live { color: var(--gr-action-text); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 16px; border: 1px solid transparent; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; text-decoration: none; }
+.btn.primary { background: var(--gr-action); color: var(--gr-text-on-orange); }
+.btn.secondary { background: var(--gr-surface-raised); color: var(--gr-text); border-color: var(--gr-border-strong); }
+.btn.text { background: transparent; color: var(--gr-action-text); padding-inline: 8px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+.rows { display: grid; }
+.rows > * { display: flex; justify-content: space-between; gap: 12px; align-items: center; min-height: 44px; padding: 8px 0; border-top: 1px solid var(--gr-border); color: var(--gr-text); text-decoration: none; }
+.rows > *:first-child { border-top: 0; }
+.rows small { color: var(--gr-text-muted); }
+.rows a { color: var(--gr-action-text); font-weight: 600; }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 13px; color: var(--gr-text-label); font-weight: 500; }
+.input { width: 96px; min-height: 44px; padding: 10px 12px; border: 1px solid var(--gr-input-border); border-radius: 8px; background: var(--gr-input-bg); color: var(--gr-input-text); font-size: 16px; }
+.ok { margin: 0; padding: 8px 12px; border: 1px solid var(--gr-success); border-radius: 8px; background: var(--gr-success-bg); color: var(--gr-success-text); font-size: 13px; }
+.err { margin: 0; color: var(--gr-error-text); font-size: 13px; }
+.sample { margin: 8px 0 0; font-size: 12px; color: var(--gr-text-muted); }
+
+/* Phone and small tablet: a strip with Menu and the brand; the same menu opens from the side as a dialog. */
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .shell { margin-left: 0; }
+  .topstrip { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 20px; background: var(--gr-bg-nav); border-bottom: 1px solid var(--gr-border-strong); position: sticky; top: 0; z-index: 20; }
+  .menu-open { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 12px 8px 8px; border: 1px solid var(--gr-border-strong); border-radius: 8px; background: var(--gr-surface); font-weight: 600; cursor: pointer; }
+  main { padding: 24px 20px 32px; }
+}
+dialog.drawer { margin: 0; padding: 0; border: 0; border-right: 1px solid var(--gr-border-strong); width: min(300px, 84vw); height: 100dvh; max-height: 100dvh; max-width: 100%; background: var(--gr-bg-nav); color: var(--gr-text); box-shadow: 10px 0 40px var(--gr-shadow-color); }
+dialog.drawer::backdrop { background: var(--gr-backdrop); }
+.drawer-body { display: flex; flex-direction: column; gap: 20px; min-height: 100%; padding: 12px 12px 16px; }
+.drawer-head { display: flex; align-items: center; justify-content: space-between; padding-left: 8px; }
+.drawer-close { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 8px; background: transparent; cursor: pointer; color: var(--gr-text-soft); }
+.drawer-close:hover { background: var(--gr-surface-raised); }
+@media (prefers-reduced-motion: no-preference) {
+  dialog.drawer[open] { animation: slide 160ms ease-out; }
+  @keyframes slide { from { transform: translateX(-24px); opacity: 0.4; } }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ review page ============ -->
+<div class="proto" id="review" hidden>
+  <header class="proto-head">
+    <div class="proto-tag">Card #133 · story #131 · how the menu works · for the redesign review</div>
+    <h1>Navigation menu: clickable example</h1>
+    <p>The menu on every signed-in page: a sidebar that stays in place on a computer, and the same groups behind "Menu" on a phone. Pick a screen on the left, or click through it yourself. The labels, order and which section is highlighted are Nick's task; this example uses the grouping from the assignment. Sample account and workout, nothing is saved.</p>
+  </header>
+  <section class="controls" aria-label="Example controls">
+    <div class="ctl"><span>Width</span>
+      <div class="seg" id="width" role="group" aria-label="Width">
+        <button type="button" data-w="desktop" aria-pressed="true">Computer</button>
+        <button type="button" data-w="tablet" aria-pressed="false">Tablet 768</button>
+        <button type="button" data-w="phone" aria-pressed="false">Phone 375</button>
+      </div>
+    </div>
+    <div class="ctl"><span>Theme</span>
+      <div class="seg" id="theme" role="group" aria-label="Theme">
+        <button type="button" data-t="dark" aria-pressed="true">Dark</button>
+        <button type="button" data-t="light" aria-pressed="false">Light</button>
+      </div>
+    </div>
+    <button type="button" class="reset" id="reset">Reset the sample workout</button>
+  </section>
+  <div class="layout">
+    <aside class="scenes" aria-label="Screens" id="scenes"></aside>
+    <div class="stage">
+      <div class="note" id="note" role="status"></div>
+      <div class="frame-wrap"><iframe id="frame" title="GymRank example screen"></iframe></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ the GymRank screen ============ -->
+<div id="app" hidden>
+  <a class="skip" href="#main" id="skip">Skip to the page</a>
+  <aside class="sidebar app-sidebar" id="sidebar"></aside>
+  <div class="shell">
+    <div class="topstrip">
+      <button type="button" class="menu-open app-menu-button" id="menu-open" aria-label="Open navigation menu" aria-haspopup="dialog" aria-expanded="false" aria-controls="drawer">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menu
+      </button>
+      <a class="brand" href="#/dashboard" aria-label="GymRank dashboard"><i aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="M3 9v6m3-9v12m3-7h6m3-5v12m3-9v6"/></svg></i>GymRank</a>
+    </div>
+    <main id="main" tabindex="-1"></main>
+  </div>
+  <dialog class="drawer app-drawer" id="drawer" aria-label="Navigation menu"><div class="drawer-body" id="drawer-body"></div></dialog>
+</div>
+
+<script>
+(() => {
+'use strict'
+const IS_APP = new URLSearchParams(location.search).has('app')
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+
+/* ====================================================================================================
+   The GymRank screen
+   ==================================================================================================== */
+if (IS_APP) {
+  document.body.className = 'app'
+  document.getElementById('app').hidden = false
+  const ICON = {
+    home: '<path d="m3 10 9-7 9 7v10H3V10Z"/><path d="M9 20v-7h6v7"/>',
+    dumbbell: '<path d="M3 9v6m3-9v12m3-7h6m3-5v12m3-9v6"/>',
+    plans: '<path d="M4 5a2 2 0 0 1 2-2h5v17H6a2 2 0 0 0-2 2V5Zm16 0a2 2 0 0 0-2-2h-5v17h5a2 2 0 0 1 2 2V5Z"/>',
+    progress: '<path d="M5 20v-5m7 5V9m7 11V4"/>',
+    trophy: '<path d="M7 4h10v7a5 5 0 0 1-10 0V4Zm0 2H4v3a4 4 0 0 0 3 4m10-7h3v3a4 4 0 0 1-3 4M12 16v4m-4 0h8"/>',
+    buddies: '<circle cx="9" cy="8" r="3"/><path d="M3 20v-1a6 6 0 0 1 12 0v1m1-14.8a3 3 0 0 1 0 5.6M18 14a6 6 0 0 1 3 5v1"/>',
+    chevron: '<path d="m9 5 7 7-7 7"/>', logout: '<path d="M10 4H4v16h6m4-12 4 4-4 4m-8-4h12"/>', close: '<path d="M6 6l12 12M18 6 6 18"/>',
+  }
+  const icon = (n) => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON[n]}</svg>`
+  // Nick's task decides these labels, their order and the section each page belongs to. This is the assignment's grouping.
+  const GROUPS = [
+    ['Training', [['dashboard', 'Dashboard', 'home'], ['workouts', 'Workouts', 'dumbbell'], ['plans', 'Plans', 'plans'], ['progress', 'Progress', 'progress']]],
+    ['Community', [['rankings', 'Rankings', 'trophy'], ['buddies', 'Buddies', 'buddies']]],
+  ]
+  const sectionOf = (route) => route.split('/')[0]
+  const EXERCISES = ['Hip hinge', 'Dumbbell press', 'Lat pulldown']
+
+  // The sample workout: saved sets, the exercise you are on and whatever is typed in the boxes.
+  const fresh = () => ({ stage: 'ready', selected: 0, sets: [[], [], []], drafts: [['', ''], ['', ''], ['', '']], loggedOut: false })
+  let model = fresh()
+  try { model = Object.assign(fresh(), JSON.parse(sessionStorage.getItem('nav-proto') || '{}')) } catch (e) { /* start fresh */ }
+  const save = () => { try { sessionStorage.setItem('nav-proto', JSON.stringify(model)) } catch (e) { /* optional */ } }
+  const totalSets = () => model.sets.reduce((n, s) => n + s.length, 0)
+  const volume = () => model.sets.flat().reduce((n, s) => n + s.reps * s.lb, 0)
+  const actionLabel = () => ({ ready: 'Start workout', active: 'Resume workout', complete: 'View summary' }[model.stage])
+  const actionRoute = () => (model.stage === 'complete' ? 'workouts/summary' : 'workouts/session')
+
+  function menuHtml(where) {
+    const route = current()
+    const groups = GROUPS.map(([name, links]) => `<div class="menu-group"><h2 id="${where}-${name}">${name}</h2>${links.map(([to, label, ic]) =>
+      `<a class="menu-link" href="#/${to}" data-menu ${sectionOf(route) === to ? `aria-current="${route === to ? 'page' : 'location'}"` : ''}>${icon(ic)}<span>${label}</span></a>`).join('')}</div>`).join('')
+    return `<nav class="menu app-menu" aria-label="${where === 'side' ? 'Primary' : 'Mobile navigation'}">${groups}
+      <div class="menu-foot">
+        <a class="menu-profile" href="#/profile" data-menu ${sectionOf(route) === 'profile' ? 'aria-current="page"' : ''}><span class="avatar" aria-hidden="true">CL</span><span class="who"><strong>Casey Lin</strong><small>View profile</small></span>${icon('chevron')}</a>
+        <button type="button" class="menu-logout" data-act="logout">${icon('logout')}Log out</button>
+      </div></nav>`
+  }
+  const brand = `<a class="brand" href="#/dashboard" data-menu aria-label="GymRank dashboard"><i aria-hidden="true">${icon('dumbbell')}</i>GymRank</a>`
+
+  const head = (title, lead, back) => `${back ? `<a class="back" href="#/${back[0]}">‹ ${back[1]}</a>` : ''}<div><h1 id="page-title" tabindex="-1">${title}</h1>${lead ? `<p class="lead">${lead}</p>` : ''}</div>`
+  const todayCard = () => `<section class="card" aria-label="Today's workout">
+      <p class="eyebrow ${model.stage === 'active' ? 'live' : ''}">${{ ready: "Today's workout · Ready to train", active: 'In progress', complete: "Today's workout · Complete" }[model.stage]}</p>
+      <h2>Full body B</h2>
+      <p>${model.stage === 'ready' ? 'Beginner Fundamentals · About 35 min · 3 exercises' : `Beginner Fundamentals · ${totalSets()} ${totalSets() === 1 ? 'set' : 'sets'} logged`}</p>
+      <div class="row"><a class="btn primary" href="#/${actionRoute()}" data-act="${model.stage === 'ready' ? 'start' : ''}">${actionLabel()} ›</a></div>
+    </section>`
+  const PAGES = {
+    dashboard: () => head('Dashboard', 'Wednesday, November 11') + todayCard() +
+      `<section class="card"><h2>This week</h2><div class="rows"><span>Training days logged <small>1 of 3</small></span><a href="#/rankings">Weekly consistency rank #2 ›</a></div></section>`,
+    workouts: () => head('Workouts', 'Today and your week') + todayCard() +
+      `<section class="card"><h2>Your week</h2><div class="rows"><span>Monday 9 · Full body A <small>Logged</small></span><span>Wednesday 11 · Full body B <small>Today</small></span><span>Friday 13 · Full body C <small>Scheduled</small></span></div></section>`,
+    'workouts/session': () => {
+      if (model.stage === 'ready') { model.stage = 'active'; save() }
+      if (model.stage === 'complete') return PAGES['workouts/summary']()
+      const i = model.selected, [reps, lb] = model.drafts[i]
+      return head('Workouts', 'Wednesday, November 11') +
+        `<section class="card"><p class="eyebrow live">In progress</p><h2>Full body B</h2><p>Beginner Fundamentals · ${totalSets()} ${totalSets() === 1 ? 'set' : 'sets'} logged</p></section>
+        <section class="card" aria-labelledby="log-title"><p class="eyebrow">Log a set · Exercise ${i + 1} of 3</p><h2 id="log-title">${EXERCISES[i]}</h2>
+          <form class="row" id="set-form" novalidate>
+            <div class="field"><label for="reps">Reps</label><input class="input" id="reps" inputmode="numeric" maxlength="3" value="${esc(reps)}"></div>
+            <div class="field"><label for="lb">Weight (lb)</label><input class="input" id="lb" inputmode="decimal" maxlength="6" value="${esc(lb)}"></div>
+            <button class="btn primary" type="submit">Log set</button>
+          </form>
+          ${model.notice ? `<p class="${model.notice.startsWith('Enter') ? 'err' : 'ok'}" role="${model.notice.startsWith('Enter') ? 'alert' : 'status'}">${esc(model.notice)}</p>` : ''}
+          <div class="rows">${model.sets[i].map((s, n) => `<span>Set ${n + 1} <small>${s.reps} reps × ${s.lb} lb</small></span>`).join('') || '<span><small>No sets saved for this exercise yet.</small></span>'}</div>
+        </section>
+        <section class="card"><h2>Exercises</h2><div class="rows">${EXERCISES.map((e, n) => `<a href="#/workouts/session" data-act="pick" data-n="${n}" ${n === i ? 'aria-current="true"' : ''}>${String(n + 1).padStart(2, '0')} ${e} <small>${model.sets[n].length} ${model.sets[n].length === 1 ? 'set' : 'sets'}</small></a>`).join('')}</div>
+          <div class="row"><button class="btn secondary" type="button" data-act="finish">Finish workout</button><a class="btn text" href="#/workouts">Leave and resume later</a></div>
+        </section>`
+    },
+    'workouts/summary': () => head('Workout summary', 'Wednesday, November 11', ['workouts', 'Back to Workouts']) +
+      `<section class="card"><p class="eyebrow">Today's workout · Complete</p><h2>Full body B</h2><div class="rows"><span>Sets logged <small>${totalSets()}</small></span><span>Total volume <small>${volume()} lb</small></span><span>Weekly goal at finish <small>2 of 3 days</small></span></div></section>`,
+    plans: () => head('Plan library') +
+      `<section class="card"><p class="eyebrow">Current plan</p><h2>Beginner Fundamentals</h2><p>Beginner · 3 days/week · 6 weeks</p><div class="row"><a class="btn secondary" href="#/plans/beginner-fundamentals">View plan ›</a></div></section>
+       <section class="card"><h2>Recommended for you</h2><div class="rows"><a href="#/plans/full-body-strength">Full Body Strength ›</a><a href="#/plans/bodyweight-basics">Bodyweight Basics ›</a></div></section>`,
+    progress: () => head('Progress', 'Wednesday, November 11') +
+      `<section class="card"><div class="rows"><span>Training days this week <small>1 of 3</small></span><span>Sets logged this week <small>2</small></span><span>Volume this week <small>500 lb</small></span></div></section>
+       <section class="card"><h2>Recent workouts</h2><div class="rows"><span>Full body A <small>Monday, November 9 · 2 sets</small></span><a href="#/progress/history">Workout history ›</a></div></section>`,
+    'progress/history': () => head('Workout history', '1 finished workout', ['progress', 'Back to progress']) +
+      `<section class="card"><div class="rows"><span>Full body A <small>Monday, November 9 · 2 sets · 500 lb</small></span></div></section>`,
+    rankings: () => head('Rankings', 'Weekly consistency') +
+      `<section class="card"><p class="eyebrow">The 3-day circle</p><h2>You're #2</h2><div class="rows"><span>#1 Maya R. <small>3 of 3 days</small></span><span>#2 Casey L. <small>1 of 3 days</small></span><a href="#/rankings/strength">Strength rankings ›</a></div></section>`,
+    'rankings/strength': () => head('Strength rankings', 'All-time strength score', ['rankings', 'Back to rankings']) +
+      `<section class="card"><div class="rows"><span>#1 Luis G. <small>412.50</small></span><span>#2 Robin P. <small>398.10</small></span></div></section>`,
+    buddies: () => head('Workout buddies', 'A private group for encouraging each other. Only members can see it.') +
+      `<section class="card"><p class="eyebrow">Your group</p><h2>Morning Lifters</h2><div class="rows"><span>Olivia G. <small>Owner</small></span><span>Casey L. <small>You</small></span><span>Ben C. <small></small></span></div></section>
+       <section class="card"><p class="eyebrow">Encouragements for you</p><div class="rows"><span>Olivia G. <small>Nice work getting your workout in this week!</small></span></div></section>`,
+    profile: () => head('Profile') +
+      `<section class="card"><p class="eyebrow">Your account</p><h2>Casey Lin</h2><div class="rows"><span>Current plan <small>Beginner Fundamentals</small></span><span>Weekly goal <small>3 training days</small></span><span>Appearance <small>Dark</small></span></div></section>`,
+  }
+  const planPage = (id) => head(id.split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join(' '), 'Plan details', ['plans', 'Back to plan library']) +
+    `<section class="card"><div class="rows"><span>Monday <small>Full body A</small></span><span>Wednesday <small>Full body B</small></span><span>Friday <small>Full body C</small></span></div></section>`
+  const loggedOut = () => `<div><h1 id="page-title" tabindex="-1">Log in to GymRank</h1><p class="lead">You are logged out.</p></div><div class="row"><button class="btn primary" type="button" data-act="login">Log in as the sample account</button></div>`
+
+  const current = () => location.hash.replace(/^#\/?/, '') || 'dashboard'
+  const main = document.getElementById('main'), sidebar = document.getElementById('sidebar')
+  const drawer = document.getElementById('drawer'), opener = document.getElementById('menu-open')
+  let sidebarBuilt = false
+
+  function render(focusTitle) {
+    const route = current()
+    const signedIn = !model.loggedOut
+    document.querySelector('.topstrip').hidden = !signedIn
+    sidebar.hidden = !signedIn
+    document.querySelector('.shell').style.marginLeft = signedIn ? '' : '0'
+    // The sidebar is built once and stays in the page; a page change only moves the highlight.
+    if (signedIn && !sidebarBuilt) { sidebar.innerHTML = brand + menuHtml('side'); sidebarBuilt = true; window.__sidebarBuilds = (window.__sidebarBuilds || 0) + 1 }
+    if (signedIn) for (const link of sidebar.querySelectorAll('[data-menu][href]')) {
+      const to = link.getAttribute('href').slice(2)
+      if (link.classList.contains('brand')) continue
+      if (sectionOf(route) === to) link.setAttribute('aria-current', route === to ? 'page' : 'location'); else link.removeAttribute('aria-current')
+    }
+    const page = !signedIn ? loggedOut : PAGES[route] || (route.startsWith('plans/') ? () => planPage(route.slice(6)) : null)
+    if (!page) { location.hash = '#/dashboard'; return }
+    main.innerHTML = page() + (signedIn ? '<p class="sample">Sample account and workout data.</p>' : '')
+    delete model.notice
+    document.title = (main.querySelector('h1')?.textContent || 'GymRank') + ' · GymRank example'
+    if (focusTitle) main.querySelector('h1')?.focus({ preventScroll: true })
+    window.scrollTo(0, 0)
+    document.body.dataset.route = signedIn ? route : 'login'
+    parent.postMessage({ navProto: 'state', route, section: sectionOf(route), stage: model.stage, sets: totalSets(), drafts: model.drafts, menuOpen: drawer.open }, '*')
+  }
+
+  // ---- the phone menu: a real dialog, so Tab stays inside it and Escape closes it
+  function openMenu() {
+    document.getElementById('drawer-body').innerHTML = `<div class="drawer-head">${brand}<button type="button" class="drawer-close" id="drawer-close" data-act="close-menu" aria-label="Close navigation menu">${icon('close')}</button></div>${menuHtml('drawer')}`
+    drawer.showModal()
+    opener.setAttribute('aria-expanded', 'true')
+    drawer.querySelector('.drawer-close').focus()
+  }
+  let returnFocusToMenu = true
+  function closeMenu(returnFocus) { returnFocusToMenu = returnFocus; if (drawer.open) drawer.close() }
+  // "close" fires for Escape, the Close button, a tap outside and choosing a page.
+  drawer.addEventListener('close', () => {
+    opener.setAttribute('aria-expanded', 'false')
+    if (returnFocusToMenu) opener.focus()
+    returnFocusToMenu = true
+    parent.postMessage({ navProto: 'menu', open: false, focus: document.activeElement?.id || document.activeElement?.tagName }, '*')
+  })
+  drawer.addEventListener('click', (e) => { if (e.target === drawer) closeMenu(true) })
+  opener.addEventListener('click', openMenu)
+  matchMedia('(min-width: 901px)').addEventListener('change', (e) => { if (e.matches) closeMenu(false) })
+
+  document.addEventListener('input', (e) => {
+    if (e.target.id === 'reps') model.drafts[model.selected][0] = e.target.value.replace(/\D/g, '').slice(0, 3)
+    if (e.target.id === 'lb') model.drafts[model.selected][1] = e.target.value.replace(/[^\d.]/g, '').slice(0, 6)
+    if (e.target.id === 'reps' || e.target.id === 'lb') { e.target.value = model.drafts[model.selected][e.target.id === 'reps' ? 0 : 1]; save() }
+  })
+  document.addEventListener('submit', (e) => {
+    if (e.target.id !== 'set-form') return
+    e.preventDefault()
+    const [r, w] = model.drafts[model.selected], reps = Number(r), lb = Number(w)
+    if (r === '' || w === '' || !Number.isInteger(reps) || reps < 1 || !Number.isFinite(lb) || lb < 0) model.notice = 'Enter the reps (1 to 999) and the weight (0 to 9999 lb).'
+    else { model.sets[model.selected].push({ reps, lb }); model.drafts[model.selected] = ['', '']; model.notice = 'Set saved.' }
+    save(); render(false); document.getElementById('reps')?.focus()
+  })
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-act], [data-menu]')
+    if (!el) return
+    const act = el.dataset.act
+    if (act === 'close-menu') { closeMenu(true); return }
+    if (act === 'logout') { closeMenu(false); model.loggedOut = true; save(); render(true); return }
+    if (act === 'login') { model.loggedOut = false; save(); sidebarBuilt = false; location.hash = '#/dashboard'; render(true); return }
+    if (act === 'start') { model.stage = 'active'; save() }
+    if (act === 'pick') { e.preventDefault(); model.selected = Number(el.dataset.n); save(); render(false); return }
+    if (act === 'finish') { if (!totalSets()) { model.notice = 'Enter the reps (1 to 999) and the weight (0 to 9999 lb).'; render(false); return } model.stage = 'complete'; save(); location.hash = '#/workouts/summary'; return }
+    // Choosing a page in the phone menu closes it; the new page's title takes the focus.
+    if (el.hasAttribute('data-menu') && drawer.open) { closeMenu(false); if (el.getAttribute('href') === '#/' + current()) render(true) }
+  })
+  let fromDrawer = false
+  drawer.addEventListener('click', (e) => { if (e.target.closest('[data-menu]')) fromDrawer = true })
+  window.addEventListener('hashchange', () => { render(fromDrawer || document.activeElement === document.body || main.contains(document.activeElement)); fromDrawer = false })
+  // Messages from the review page: theme, reset and jumping to a screen.
+  window.addEventListener('message', (e) => {
+    const m = e.data || {}
+    if (m.navProto === 'theme') document.documentElement.dataset.theme = m.theme
+    if (m.navProto === 'reset') { model = fresh(); save(); sidebarBuilt = false; closeMenu(false); location.hash = '#/dashboard'; render(false) }
+    if (m.navProto === 'scene') {
+      model = Object.assign(fresh(), m.model || {}); save(); closeMenu(false)
+      if (current() !== m.route) location.hash = '#/' + m.route; else render(false)
+      if (m.menu) setTimeout(openMenu, 150)
+    }
+  })
+  window.navProto = { openMenu, model: () => model }
+  render(false)
+  return
+}
+
+/* ====================================================================================================
+   The review page
+   ==================================================================================================== */
+document.body.className = 'review'
+document.getElementById('review').hidden = false
+const frame = document.getElementById('frame')
+const here = location.href.split('#')[0].split('?')[0]
+frame.src = here + '?app#/dashboard'
+const send = (msg) => frame.contentWindow.postMessage(Object.assign({ navProto: msg.type }, msg), '*')
+const ACTIVE = { stage: 'active', selected: 0, sets: [[{ reps: 10, lb: 25 }], [], []], drafts: [['8', '30'], ['', ''], ['', '']] }
+const SCENES = [
+  ['On a computer', [
+    { id: 'desk-dashboard', label: 'Sidebar on Dashboard', w: 'desktop', route: 'dashboard', note: 'The sidebar holds Training (Dashboard, Workouts, Plans, Progress), Community (Rankings, Buddies) and, at the bottom, your profile and Log out. There is no top bar, no "Start Workout" button in the navigation and no "Today" entry.' },
+    { id: 'desk-plan', label: 'Plan details keeps Plans', w: 'desktop', route: 'plans/beginner-fundamentals', note: 'Opening a plan changes only the page. The sidebar does not reload or move, and Plans stays highlighted. "Back to plan library" is the one way back, as in #130.' },
+    { id: 'desk-history', label: 'Workout history keeps Progress', w: 'desktop', route: 'progress/history', note: 'Workout history belongs to Progress, so Progress stays highlighted.' },
+    { id: 'desk-session', label: 'Logging a set keeps the menu', w: 'desktop', route: 'workouts/session', model: ACTIVE, note: 'While you log sets the sidebar is still there and Workouts is highlighted. Starting or resuming is a button beside the workout itself.' },
+    { id: 'desk-profile', label: 'Profile', w: 'desktop', route: 'profile', note: 'Your name at the bottom of the sidebar opens Profile and is highlighted while you are there.' },
+  ]],
+  ['On a phone', [
+    { id: 'phone-closed', label: 'Menu closed', w: 'phone', route: 'dashboard', note: 'A strip at the top holds "Menu" and the GymRank mark. The page uses the full width.' },
+    { id: 'phone-open', label: 'Menu open', w: 'phone', route: 'dashboard', menu: true, note: 'Menu opens the same groups from the side, with the current section highlighted and your profile at the bottom. The page behind is dimmed and cannot be clicked or tabbed to.' },
+    { id: 'phone-open-session', label: 'Menu open while logging', w: 'phone', route: 'workouts/session', model: ACTIVE, menu: true, note: 'The menu is available in the middle of a workout. Workouts is highlighted.' },
+    { id: 'tablet', label: 'Tablet 768', w: 'tablet', route: 'progress', note: 'Up to 900 px wide the page keeps its full width and the menu stays behind "Menu". From 901 px the sidebar shows.' },
+  ]],
+  ['Check 1 · Buddies during a workout', [
+    { id: 'check1', label: 'Leave for Buddies, resume the same session', w: 'phone', route: 'workouts/session', model: ACTIVE, note: 'One set (10 reps × 25 lb) is saved and 8 and 30 are typed in the boxes but not logged.', steps: ['Press Menu and choose Buddies. The menu closes and Workout buddies opens.', 'Press Menu and choose Workouts. Workouts shows "In progress", "1 set logged" and "Resume workout".', 'Press "Resume workout". The same session opens on Hip hinge with Set 1, 10 reps × 25 lb, and 8 and 30 still in the boxes.'] },
+  ]],
+  ['Check 2 · Phone menu with the keyboard', [
+    { id: 'check2', label: 'Open with Enter, close with Escape', w: 'phone', route: 'dashboard', note: 'Click once on the page title, then use only the keyboard.', steps: ['Press Tab until "Menu" has the orange outline, then press Enter. The menu opens and the outline is on its Close button.', 'Press Tab a few times: the outline moves through the links and never leaves the menu.', 'Press Escape. The menu closes and the outline is back on "Menu".', 'Press Enter, Tab to Buddies and press Enter. The menu closes and Workout buddies opens.'] },
+  ]],
+  ['Leaving', [
+    { id: 'logout', label: 'Log out from the menu', w: 'desktop', route: 'dashboard', note: 'Log out sits under your profile in both layouts. Press it: the login page opens with "You are logged out." and no menu is shown.' },
+  ]],
+]
+const scenesEl = document.getElementById('scenes')
+let n = 0
+scenesEl.innerHTML = '<h2>Screens</h2>' + SCENES.map(([group, items]) => `<h3>${esc(group)}</h3>${items.map((s) => `<button type="button" data-scene="${s.id}"><b>${String(++n).padStart(2, '0')}</b><span>${esc(s.label)}</span></button>`).join('')}`).join('')
+const byId = Object.fromEntries(SCENES.flatMap(([, items]) => items).map((s) => [s.id, s]))
+function setWidth(w) {
+  frame.className = w === 'desktop' ? '' : w
+  document.querySelectorAll('#width button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.w === w)))
+}
+function setTheme(t) {
+  document.documentElement.dataset.theme = t
+  document.querySelectorAll('#theme button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.t === t)))
+  send({ type: 'theme', theme: t })
+}
+function showScene(id) {
+  const s = byId[id]; if (!s) return
+  setWidth(s.w)
+  document.getElementById('note').innerHTML = `<strong>${esc(s.label)}.</strong> ${esc(s.note)}${s.steps ? `<ol>${s.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>` : ''}`
+  scenesEl.querySelectorAll('button').forEach((b) => b.setAttribute('aria-current', String(b.dataset.scene === id)))
+  // Wait for the frame to take its new width before opening the menu in it.
+  setTimeout(() => send({ type: 'scene', route: s.route, model: s.model, menu: !!s.menu }), 120)
+  try { history.replaceState(null, '', '#' + id) } catch (e) { /* optional */ }
+}
+scenesEl.addEventListener('click', (e) => { const b = e.target.closest('[data-scene]'); if (b) showScene(b.dataset.scene) })
+document.getElementById('width').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setWidth(b.dataset.w) })
+document.getElementById('theme').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setTheme(b.dataset.t) })
+document.getElementById('reset').addEventListener('click', () => send({ type: 'reset' }))
+frame.addEventListener('load', () => { setTheme(document.documentElement.dataset.theme || 'dark'); const start = location.hash.slice(1); showScene(byId[start] ? start : 'desk-dashboard') }, { once: true })
+window.navReview = { showScene, setWidth, setTheme, scenes: Object.keys(byId) }
+})()
+</script>
+</body>
+</html>
