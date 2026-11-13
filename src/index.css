@@ -186,6 +186,7 @@
 .leaderboard-page__content,
 .weekly-page__content,
 .weekly-goal-page__content,
+.buddies-page__content,
 .workout-summary,
 .profile-content,
 .onboarding {
@@ -328,6 +329,13 @@ body {
 
 .nav-bar__link[aria-disabled="true"] {
   cursor: default;
+}
+
+/* Seven links (Buddies, card #79) need a narrower gap to stay on one row between the phone menu and 900px. */
+@media (min-width: 641px) and (max-width: 900px) {
+  .nav-bar__links {
+    gap: 16px;
+  }
 }
 
 .nav-bar__actions {
