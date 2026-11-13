@@ -66,12 +66,12 @@ async function asRiley(page) {
 // lines) on a phone; it opens story #8's Progress page, which links to the history.
 async function openHistory(page) {
   const menu = page.getByRole('button', { name: 'Open navigation menu' })
-  const topLink = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Progress' })
+  const topLink = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Progress', exact: true })
   // isVisible() doesn't wait, so wait until the navigation has drawn one of the two before choosing.
   await menu.or(topLink).filter({ visible: true }).waitFor()
   if (await menu.isVisible()) {
     await menu.click()
-    await page.getByRole('navigation', { name: 'Mobile navigation' }).getByRole('link', { name: 'Progress' }).click()
+    await page.getByRole('navigation', { name: 'Mobile navigation' }).getByRole('link', { name: 'Progress', exact: true }).click()
   } else {
     await topLink.click()
   }
@@ -147,7 +147,7 @@ acceptanceTests('9-workout-history.md', {
     await step('Setup: log in as Riley', () => asRiley(page))
     await step('Step 1: Progress opens Workout history with 6 completed workouts', async () => {
       await openHistory(page)
-      await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Progress' })).toHaveClass(/nav-bar__link--current/)
+      await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Progress', exact: true })).toHaveAttribute('aria-current', /page|location/)
       await expect(page.locator('.breadcrumb__crumb')).toHaveText(['Progress', 'Workout history'])
       await expect(main(page).getByText('6 completed workouts', { exact: true })).toBeVisible()
     })
@@ -219,9 +219,8 @@ acceptanceTests('9-workout-history.md', {
       await openHistory(page)
       await expect(main(page).getByText('6 completed workouts', { exact: true })).toBeVisible()
     })
-    await step('Step 1: log out from the account menu', async () => {
-      await page.getByRole('button', { name: 'Open account menu' }).click()
-      await page.getByRole('menuitem', { name: 'Log out' }).click()
+    await step('Step 1: log out from the menu', async () => {
+      await page.getByRole('navigation', { name: 'Primary' }).getByRole('button', { name: 'Log out' }).click()
       await expect(page.getByText('You are logged out.')).toBeVisible()
     })
     await step('Step 2: logging back in shows the same workouts', async () => {

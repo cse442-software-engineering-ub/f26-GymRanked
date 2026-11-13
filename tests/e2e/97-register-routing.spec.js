@@ -117,8 +117,7 @@ test('logout reopens registration and blocks protected routes in another tab', a
   await second.goto('#/register')
   await expect(second).toHaveURL(/#\/dashboard$/)
 
-  await page.getByRole('button', { name: 'Open account menu' }).click()
-  await page.getByRole('menuitem', { name: 'Log out' }).click()
+  await page.getByRole('navigation', { name: 'Primary' }).getByRole('button', { name: 'Log out' }).click()
   await expect(page).toHaveURL(/#\/login$/)
   await second.reload()
   await expect(second).toHaveURL(/#\/login$/)
