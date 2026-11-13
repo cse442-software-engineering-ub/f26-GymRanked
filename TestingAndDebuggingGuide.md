@@ -209,9 +209,13 @@ Every test needs:
 
 - **A title** saying what must work: `Test N: <what must be true>`.
 - **Numbered steps** with every input spelled out: exact URL, command, file, field value, and screen size.
-- **An `Expected outcome:` paragraph** with exact results: quoted text, status codes, and command output. Not
-  "works" or "loads correctly".
-- **Edge cases**, not just the working path: empty data, a stopped server, wrong input. Use
+- **An observable result at each relevant step**, either in that numbered step or in an `Expected outcome:`
+  paragraph that identifies the step. Use quoted text, status codes, and command output, not "works" or
+  "loads correctly". Card #123 keeps results inside its numbered steps.
+- **Independent setup** for each test. A tester should not need another test's data or progress. Give the
+  starting link, account, and reset action when the scenario needs them.
+- **Meaningful edge, failure, and persistence cases**, not just the working path: empty data, a stopped server,
+  wrong input, refresh, and reopening where relevant. Avoid redundant cases. Use
   [Common failures](#3-common-failures) for exact messages.
 - For documentation tasks, the phrase **"Using only the doc's instructions"**, so the tester can't fill gaps from
   memory.
@@ -226,7 +230,7 @@ Test N: <what must be true>
 1. <exact action, with every input>
 2. <exact action>
 
-Expected outcome: <exact text, status code, or output for each step this task implemented>
+Expected outcome: <exact text, status code, or output for each step this task implemented, unless already stated in its step>
 ```
 
 Example, testing the empty state of the workout list:
@@ -438,3 +442,5 @@ steps are for the owner of the story's Playwright task card, who writes the code
 Apply migration 016 to a **local** database before testing a new completion. `npm test` checks the summary text and existing Home/weekly-goal formatters; `php tests/weekly_goal_calculation.php` checks New York week boundaries, distinct completed dates, same-day credit and capped progress without MySQL. `php -l` the changed endpoints and run `npm run build`. These checks do not prove the SQL transaction or browser rendering.
 
 For the new browser-only card #123 setup, apply migration 017 to a local test database, bootstrap its 13 accounts once, and enable `GYMRANK_WEEKLY123_RESET=true`, `GYMRANK_WEEKLY123_ENV='local'` only in ignored local `api/config.php`. Start the PHP and Vite servers. Open a card test's `#/login?card123=N` link, select **Start Test N**, and log in. This password-verified action prepares one account on any weekday. Refresh and ordinary re-login keep its fixture state; a new Start selection prepares the next independent test. Finish at `#/card-123/finish`. See `database/seeds/README.md` for lease and historical-date rules. `php tests/weekly123_fixtures.php` checks Monday, daylight saving time, account states and no future completions without a database; `php tests/weekly123_local.php` checks repeatability, isolation, re-login and conflicting starts inside a rolled-back local transaction. Never run that integration test against shared data. Do not use Playwright for this task.
+
+`tests/weekly123_demo_api.mjs` checks the real local login, saved set and totals, completion, Home/Weekly goal API data, immutable summary, logout/re-login, next-goal change, explicit reset, account isolation, the Wednesday-to-Friday history, same-day credit and legacy fallback. Serve `api/` locally on port 8001, then set `GYMRANK_TEST_PASSWORD` to the card's dedicated test password and run `node tests/weekly123_demo_api.mjs`. The script refuses non-local HTTP hosts and changes only dedicated accounts in the local database; it restores the two demo accounts to their starting fixtures before finishing. It does not replace the PM's browser checks on aptitude or the blocked-request Retry check in card Test 10.

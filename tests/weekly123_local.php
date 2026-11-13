@@ -46,15 +46,19 @@ try {
     $stmt->bind_param('s', $history_email); $stmt->execute();
     $history = (int) $stmt->get_result()->fetch_assoc()['id'];
     weekly123_prepare($db, $history, 'history', new DateTimeImmutable('now', new DateTimeZone(GOAL_TIME_ZONE)));
-    $stmt = $db->prepare('SELECT g.target_days, g.completed_dates FROM workout_weekly_goal_snapshots g JOIN workout_sessions s ON s.id = g.session_id WHERE s.user_id = ? ORDER BY s.completed_at DESC LIMIT 1');
+    $stmt = $db->prepare('SELECT g.target_days, g.completed_dates FROM workout_weekly_goal_snapshots g JOIN workout_sessions s ON s.id = g.session_id WHERE s.user_id = ? ORDER BY s.completed_at LIMIT 1 OFFSET 1');
     $stmt->bind_param('i', $history); $stmt->execute();
     $snapshot = $stmt->get_result()->fetch_assoc();
-    expect123((int) $snapshot['target_days'] === 3 && count(json_decode($snapshot['completed_dates'], true)) === 2, 'historical snapshot changed');
+    expect123((int) $snapshot['target_days'] === 3 && count(json_decode($snapshot['completed_dates'], true)) === 2, 'Wednesday snapshot should stay 2 of 3');
+    $stmt = $db->prepare('SELECT g.completed_dates FROM workout_weekly_goal_snapshots g JOIN workout_sessions s ON s.id = g.session_id WHERE s.user_id = ? ORDER BY s.completed_at DESC LIMIT 1');
+    $stmt->bind_param('i', $history); $stmt->execute();
+    expect123(count(json_decode($stmt->get_result()->fetch_assoc()['completed_dates'], true)) === 3, 'Friday should reach 3 of 3');
     $stmt = $db->prepare('UPDATE user_weekly_goals SET target_days = 5 WHERE user_id = ? AND week_start = ?');
     $stmt->bind_param('is', $history, $week); $stmt->execute();
-    $stmt = $db->prepare('SELECT g.target_days FROM workout_weekly_goal_snapshots g JOIN workout_sessions s ON s.id = g.session_id WHERE s.user_id = ? ORDER BY s.completed_at DESC LIMIT 1');
+    $stmt = $db->prepare('SELECT g.target_days, g.completed_dates FROM workout_weekly_goal_snapshots g JOIN workout_sessions s ON s.id = g.session_id WHERE s.user_id = ? ORDER BY s.completed_at LIMIT 1 OFFSET 1');
     $stmt->bind_param('i', $history); $stmt->execute();
-    expect123((int) $stmt->get_result()->fetch_assoc()['target_days'] === 3, 'historical snapshot followed new goal');
+    $after = $stmt->get_result()->fetch_assoc();
+    expect123((int) $after['target_days'] === 3 && $after['completed_dates'] === $snapshot['completed_dates'], 'Wednesday snapshot followed new goal');
     foreach (['zero', 'one', 'finish', 'duplicate', 'cancel', 'recovery', 'summary', 'boundary', 'failure', 'other', 'legacy'] as $alias) {
         $account_email = "weekly123-$alias@example.com";
         $stmt = $db->prepare('SELECT id FROM users WHERE email = ? FOR UPDATE');

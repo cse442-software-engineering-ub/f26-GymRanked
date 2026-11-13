@@ -55,7 +55,7 @@ function weekly123_spec($alias) {
         'boundary' => ['target' => 3, 'previous' => [0, 2, 4]],
         'failure' => ['target' => 1, 'active' => true],
         'other' => ['target' => 2],
-        'history' => ['target' => 4, 'previous_target' => 3, 'previous' => [0, 2]],
+        'history' => ['target' => 4, 'previous_target' => 3, 'previous' => [0, 2, 4]],
         'legacy' => ['target' => 3, 'previous' => [0], 'legacy' => true],
     };
 }

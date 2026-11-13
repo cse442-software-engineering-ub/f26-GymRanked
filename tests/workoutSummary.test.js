@@ -2,6 +2,26 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { displaySummary, formatDuration } from '../src/workoutLog/workoutSummary.js'
 import { createWorkoutLogApi } from '../src/workoutLog/workoutLogApi.js'
+import { workoutWeeklyMessage } from '../src/workoutLog/workoutWeeklyFeedback.js'
+import { progressText, weekDays } from '../src/weeklyGoal/weeklyGoalFormat.js'
+
+test('Wednesday summary keeps 2 of 3 after Friday reaches the goal', () => {
+  const wednesday = {
+    week_start: '2026-11-09', target_days: 3, completed_dates: ['2026-11-09', '2026-11-11'],
+    completed_count: 2, progress_days: 2, goal_reached: false,
+  }
+  const friday = {
+    ...wednesday, completed_dates: [...wednesday.completed_dates, '2026-11-13'],
+    completed_count: 3, progress_days: 3, goal_reached: true,
+  }
+  assert.equal(progressText(wednesday), '2 of 3 training days')
+  assert.equal(workoutWeeklyMessage(wednesday), '1 day to go')
+  assert.deepEqual(weekDays(wednesday, '2026-11-11').filter(day => day.state === 'completed').map(day => day.date),
+    ['2026-11-09', '2026-11-11'])
+  assert.equal(progressText(friday), '3 of 3 training days')
+  assert.equal(workoutWeeklyMessage(friday), 'Weekly goal complete')
+  assert.equal(progressText(wednesday), '2 of 3 training days', 'a later result must not replace the earlier snapshot')
+})
 
 test('completed session data becomes accurate summary values and top sets', () => {
   const session = {

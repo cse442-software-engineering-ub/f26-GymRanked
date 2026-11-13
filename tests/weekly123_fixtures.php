@@ -26,6 +26,7 @@ check123(weekly123_spec('progress')['current'] === [0], 'progress fixture');
 check123(empty(weekly123_spec('one')['current']) && weekly123_spec('one')['active'], 'one fixture');
 check123(weekly123_spec('finish')['target'] === 1 && weekly123_spec('finish')['active'], 'finish fixture');
 check123(weekly123_spec('duplicate')['previous'] === [0, 0, 1], 'duplicate fixture');
+check123(weekly123_spec('history')['previous'] === [0, 2, 4], 'Wednesday-Friday history fixture');
 $spring = weekly123_date(goal_week_start(new DateTimeImmutable('2026-03-09 12:00:00', $zone))->modify('-7 days'), 4, new DateTimeImmutable('2026-03-09 12:00:00', $zone));
 $fall = weekly123_date(goal_week_start(new DateTimeImmutable('2026-11-02 12:00:00', $zone))->modify('-7 days'), 4, new DateTimeImmutable('2026-11-02 12:00:00', $zone));
 check123($spring->setTimezone(new DateTimeZone('UTC'))->format('H:i') === '17:00', 'spring DST fixture time');

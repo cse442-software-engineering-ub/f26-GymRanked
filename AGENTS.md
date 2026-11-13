@@ -70,6 +70,8 @@ php -l api/config.example.php
 
 For frontend or API behavior changes, also run the Vite and PHP servers, load the app, and verify the affected loading, success, empty, and error behavior as applicable. Testing the successful API response requires a configured MySQL instance and `workouts` table. Follow `TestingAndDebuggingGuide.md` for detailed local and server procedures, task-test expectations, debugging, and fix verification. Record exactly what was checked and any environment limitation.
 
+Write task and acceptance tests so an average human can follow and verify them. Give each independent test its own starting link, account or other setup, numbered actions, exact inputs, and observable result at the step where it should appear; do not rely on another test having run first. Cover the meaningful normal, edge, failure, and persistence cases for the feature without repeating equivalent scenarios. When a test fails, record the scenario and step, expected and actual result, and enough context to reproduce and debug it (such as the page, request status, and relevant error text, without secrets). Use the test-authoring and failure-reporting examples in `TestingAndDebuggingGuide.md`.
+
 ## User stories and acceptance tests
 
 Every user story on the scrum board has a file in `stories/` named `<card number>-<short-name>.md`, holding the story's title and its acceptance tests under `## Acceptance Test N: <title>` headings. The format is in `stories/README.md`.
