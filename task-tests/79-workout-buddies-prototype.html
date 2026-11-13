@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Clickable example for task #79 (story #78). Open this file in a browser; it needs no server.
+     Fake copy of the #71 responses in the page, same six test accounts. Not app code: the real page goes in src/buddies/. -->
+<style>body { margin: 0; } [hidden] { display: none !important; }</style>
+<title>Workout Buddies Prototype</title>
+<style>
+/* Layout: a review strip (account, network, width, theme) over a screen list and a framed copy of the GymRank page.
+   Tokens are GymRank's own --gr- values from src/index.css (DESIGN.md), dark first like the app. */
+:root {
+  --gr-bg-page: #0e1015; --gr-bg-nav: #14161b; --gr-surface: #161820; --gr-surface-raised: #1d2029;
+  --gr-surface-sunken: #12131a; --gr-track: #2a2d38; --gr-text: #e8e9ec; --gr-text-strong: #f4f6f9;
+  --gr-text-label: #b4b6bf; --gr-text-subtle: #d2d3d7; --gr-text-soft: #a2a5ad; --gr-text-muted: #8b8d94;
+  --gr-nav-inactive: #8a8f99; --gr-text-on-orange: #14161b; --gr-brand: #f2652e; --gr-brand-text: #ff7035;
+  --gr-action: #e0703f; --gr-action-text: #f2865a; --gr-border: rgba(255, 255, 255, 0.06);
+  --gr-border-strong: rgba(255, 255, 255, 0.08); --gr-control-outline: #6b6f7a; --gr-input-bg: #ffffff;
+  --gr-input-text: #1e1e1e; --gr-input-placeholder: #aaaaaa; --gr-input-border: #d9d9d9; --gr-success: #63c792;
+  --gr-success-text: #8de0ad; --gr-success-bg: rgba(99, 199, 146, 0.08); --gr-error: #ff968b;
+  --gr-error-text: #ffb4aa; --gr-error-bg: rgba(255, 150, 139, 0.08); --gr-backdrop: rgba(0, 0, 0, 0.5);
+  --gr-shadow-color: rgba(0, 0, 0, 0.3);
+  --gr-selected-bg: color-mix(in srgb, var(--gr-action) 16%, var(--gr-surface));
+  --proto-bg: #090a0e; --proto-line: rgba(255, 255, 255, 0.09);
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --gr-bg-page: #c9cdd4; --gr-bg-nav: #dde0e5; --gr-surface: #dde0e5; --gr-surface-raised: #d3d7dd;
+    --gr-surface-sunken: #d6d9df; --gr-track: #bfc4cc; --gr-text: #16181d; --gr-text-strong: #111318;
+    --gr-text-label: #3f444e; --gr-text-subtle: #33373f; --gr-text-soft: #3f444e; --gr-text-muted: #4a4f59;
+    --gr-nav-inactive: #4a4f59; --gr-brand-text: #8a3410; --gr-action-text: #8a3410;
+    --gr-border: rgba(17, 19, 24, 0.12); --gr-border-strong: rgba(17, 19, 24, 0.17); --gr-control-outline: #6a6f79;
+    --gr-input-bg: #e9ebee; --gr-input-text: #16181d; --gr-input-placeholder: #555a64; --gr-input-border: #aeb3bc;
+    --gr-success: #1f7547; --gr-success-text: #155a35; --gr-success-bg: rgba(47, 158, 99, 0.10);
+    --gr-error: #b8302a; --gr-error-text: #9a1d12; --gr-error-bg: rgba(217, 68, 58, 0.08);
+    --gr-backdrop: rgba(17, 19, 24, 0.35); --gr-shadow-color: rgba(17, 19, 24, 0.14);
+    --proto-bg: #b9bec6; --proto-line: rgba(17, 19, 24, 0.14);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --gr-bg-page: #c9cdd4; --gr-bg-nav: #dde0e5; --gr-surface: #dde0e5; --gr-surface-raised: #d3d7dd;
+  --gr-surface-sunken: #d6d9df; --gr-track: #bfc4cc; --gr-text: #16181d; --gr-text-strong: #111318;
+  --gr-text-label: #3f444e; --gr-text-subtle: #33373f; --gr-text-soft: #3f444e; --gr-text-muted: #4a4f59;
+  --gr-nav-inactive: #4a4f59; --gr-brand-text: #8a3410; --gr-action-text: #8a3410;
+  --gr-border: rgba(17, 19, 24, 0.12); --gr-border-strong: rgba(17, 19, 24, 0.17); --gr-control-outline: #6a6f79;
+  --gr-input-bg: #e9ebee; --gr-input-text: #16181d; --gr-input-placeholder: #555a64; --gr-input-border: #aeb3bc;
+  --gr-success: #1f7547; --gr-success-text: #155a35; --gr-success-bg: rgba(47, 158, 99, 0.10);
+  --gr-error: #b8302a; --gr-error-text: #9a1d12; --gr-error-bg: rgba(217, 68, 58, 0.08);
+  --gr-backdrop: rgba(17, 19, 24, 0.35); --gr-shadow-color: rgba(17, 19, 24, 0.14);
+  --proto-bg: #b9bec6; --proto-line: rgba(17, 19, 24, 0.14);
+  color-scheme: light;
+}
+:root[data-theme="dark"] { color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--proto-bg); color: var(--gr-text); font: 14px/1.45 var(--font); }
+button, input, textarea, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--gr-brand); outline-offset: 3px; }
+
+/* ---------- review chrome ---------- */
+.proto { max-width: 1320px; margin: 0 auto; padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 16px; }
+.proto-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 8px 24px; }
+.proto-head h1 { margin: 0; font-size: 22px; font-weight: 600; text-wrap: balance; }
+.proto-head p { margin: 4px 0 0; color: var(--gr-text-muted); max-width: 70ch; }
+.proto-tag { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gr-brand-text); font-weight: 600; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 20px; padding: 12px 14px; border: 1px solid var(--proto-line);
+  border-radius: 12px; background: var(--gr-surface-sunken); align-items: center; }
+.ctl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ctl > span { font-size: 12px; color: var(--gr-text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.seg { display: inline-flex; border: 1px solid var(--proto-line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: transparent; padding: 6px 10px; min-height: 32px; cursor: pointer; color: var(--gr-text-soft); }
+.seg button[aria-pressed="true"] { background: var(--gr-surface-raised); color: var(--gr-text); font-weight: 600; }
+.controls select { background: var(--gr-surface-raised); border: 1px solid var(--proto-line); border-radius: 8px; padding: 6px 8px; min-height: 32px; }
+.reset { margin-left: auto; background: transparent; border: 1px solid var(--proto-line); border-radius: 8px; padding: 6px 10px; cursor: pointer; color: var(--gr-text-soft); }
+.layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 16px; align-items: start; }
+.scenes { border: 1px solid var(--proto-line); border-radius: 12px; background: var(--gr-surface-sunken); padding: 12px; display: grid; gap: 10px; position: sticky; top: env(safe-area-inset-top, 0px); }
+.scenes h2 { margin: 0 0 2px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gr-text-muted); font-weight: 600; }
+.scene-group { display: grid; gap: 2px; }
+.scene-group h3 { margin: 6px 0 2px; font-size: 12px; color: var(--gr-text-soft); font-weight: 600; }
+.scene-group button { text-align: left; border: 0; background: transparent; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: var(--gr-text-soft); display: flex; gap: 8px; }
+.scene-group button:hover { background: var(--gr-surface-raised); }
+.scene-group button[aria-current="true"] { background: var(--gr-selected-bg); color: var(--gr-text); }
+.scene-group b { font-family: var(--mono); font-size: 11px; color: var(--gr-action-text); font-weight: 600; min-width: 2.2em; padding-top: 2px; }
+.stage { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; }
+.note { border-left: 3px solid var(--gr-action); background: var(--gr-surface-sunken); border-radius: 0 10px 10px 0; padding: 10px 14px; color: var(--gr-text-soft); }
+.note strong { color: var(--gr-text); }
+.note .tests { display: block; margin-top: 4px; font-size: 12px; color: var(--gr-text-muted); }
+@media (max-width: 900px) { .layout { grid-template-columns: minmax(0, 1fr); } .scenes { position: static; } }
+
+/* ---------- the GymRank page ---------- */
+.device { container-type: inline-size; background: var(--gr-bg-page); border: 1px solid var(--proto-line); border-radius: 14px; overflow: hidden; margin-inline: auto; width: 100%; position: relative; }
+.device.phone { width: 375px; max-width: 100%; border-radius: 28px; border-width: 6px; border-color: var(--gr-surface-raised); }
+.nav { background: var(--gr-bg-nav); border-bottom: 1px solid var(--gr-border-strong); display: flex; align-items: center; gap: 24px; padding: 18px 28px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: 16px; color: var(--gr-text); text-decoration: none; }
+.brand i { width: 32px; height: 32px; border-radius: 8px; background: var(--gr-brand); display: grid; place-items: center; color: var(--gr-text-on-orange); font-style: normal; font-weight: 700; }
+.links { display: flex; gap: 22px; flex: 1; min-width: 0; flex-wrap: wrap; }
+.links a { color: var(--gr-nav-inactive); text-decoration: none; font-weight: 500; font-size: 14px; }
+.links a[aria-current="page"] { color: var(--gr-text); font-weight: 600; }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.start { background: var(--gr-brand); color: var(--gr-text-on-orange); border: 0; border-radius: 8px; padding: 8px 14px; font-weight: 600; font-size: 14px; }
+.avatar { width: 40px; height: 40px; border-radius: 999px; background: var(--gr-brand); color: var(--gr-text-on-orange); display: grid; place-items: center; font-weight: 600; font-size: 14px; border: 0; }
+.menu-btn { display: none; width: 44px; height: 44px; border: 1px solid var(--gr-border-strong); background: var(--gr-surface); border-radius: 8px; cursor: pointer; place-items: center; }
+.drawer { position: absolute; inset: 0; background: var(--gr-backdrop); display: flex; justify-content: flex-end; z-index: 5; }
+.drawer nav { width: 78%; background: var(--gr-bg-nav); padding: 20px 16px; display: grid; align-content: start; gap: 4px; box-shadow: 0 12px 30px var(--gr-shadow-color); }
+.drawer a { padding: 12px; border-radius: 8px; color: var(--gr-text-soft); text-decoration: none; min-height: 44px; }
+.drawer a[aria-current="page"] { background: var(--gr-surface-raised); color: var(--gr-text); font-weight: 600; }
+@container (max-width: 640px) {
+  .nav { padding: 12px 16px; gap: 12px; }
+  .links, .start { display: none; }
+  .nav-right { margin-left: auto; }
+  .menu-btn { display: grid; }
+}
+
+.buddies-page { max-width: 900px; margin: 0 auto; padding: 24px 28px 40px; display: grid; gap: 16px; }
+@container (max-width: 640px) { .buddies-page { padding: 20px 16px 32px; } }
+.page-head h1 { margin: 0; font-size: 28px; font-weight: 500; color: var(--gr-text); }
+.page-head p { margin: 6px 0 0; color: var(--gr-text-muted); font-size: 15px; }
+.card { background: var(--gr-surface); border: 1px solid var(--gr-border); border-radius: 12px; padding: 20px; display: grid; gap: 14px; min-width: 0; }
+.eyebrow { margin: 0; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gr-text-muted); }
+.card h2 { margin: 0; font-size: 22px; font-weight: 500; color: var(--gr-text); overflow-wrap: anywhere; }
+.card p { margin: 0; }
+.muted { color: var(--gr-text-muted); }
+.soft { color: var(--gr-text-soft); }
+.loading { color: var(--gr-text-muted); padding: 8px 0; }
+.msg { border: 1px solid; border-radius: 8px; padding: 10px 12px; font-size: 13px; display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.msg.ok { border-color: var(--gr-success); background: var(--gr-success-bg); color: var(--gr-success-text); }
+.msg.err { border-color: var(--gr-error); background: var(--gr-error-bg); color: var(--gr-error-text); }
+.msg .icon { font-weight: 700; margin-right: 6px; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field label { font-size: 13px; color: var(--gr-text-label); font-weight: 500; }
+.field label .req { color: var(--gr-action-text); }
+.hint { font-size: 13px; color: var(--gr-text-muted); }
+.field-error { font-size: 13px; color: var(--gr-error-text); }
+.input { background: var(--gr-input-bg); color: var(--gr-input-text); border: 1px solid var(--gr-input-border); border-radius: 8px; min-height: 44px; padding: 10px 12px; font-size: 16px; width: 100%; }
+.input.code { font-family: var(--mono); letter-spacing: 0.18em; text-transform: uppercase; max-width: 220px; }
+.input[aria-invalid="true"] { outline: 2px solid var(--gr-error); outline-offset: 0; }
+.input::placeholder { color: var(--gr-input-placeholder); }
+textarea.input { resize: vertical; min-height: 88px; line-height: 1.4; }
+.row { display: flex; gap: 10px; align-items: start; flex-wrap: wrap; }
+.btn { min-height: 44px; min-width: 44px; border-radius: 8px; padding: 10px 16px; font-weight: 600; font-size: 15px; cursor: pointer; border: 1px solid transparent; }
+.btn.primary { background: var(--gr-action); color: var(--gr-text-on-orange); }
+.btn.secondary { background: var(--gr-surface-raised); color: var(--gr-text); border-color: var(--gr-border-strong); }
+.btn.subtle { background: transparent; color: var(--gr-text-subtle); }
+.btn.text { background: transparent; color: var(--gr-action-text); padding: 10px 8px; font-size: 14px; }
+.btn:disabled { background: var(--gr-surface-raised); color: var(--gr-nav-inactive); cursor: not-allowed; border-color: transparent; }
+#open-create { justify-self: start; }
+.or { display: flex; align-items: center; gap: 10px; color: var(--gr-text-muted); font-size: 13px; }
+.or::before, .or::after { content: ""; height: 1px; flex: 1; background: var(--gr-border-strong); }
+.group-head { display: flex; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; align-items: start; }
+.invite { background: var(--gr-surface-sunken); border-radius: 10px; padding: 14px 16px; display: grid; gap: 6px; min-width: 240px; flex: 0 1 320px; }
+.invite .label { font-size: 12px; color: var(--gr-text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+.buddies-invite-code { font-family: var(--mono); font-size: 26px; letter-spacing: 0.16em; font-weight: 600; color: var(--gr-text); user-select: all; }
+.invite.expired .buddies-invite-code { text-decoration: line-through; color: var(--gr-text-muted); }
+.pill { display: inline-flex; align-items: center; border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 600; border: 1px solid var(--gr-border-strong); color: var(--gr-text-soft); }
+.pill.me { border-color: var(--gr-action); color: var(--gr-action-text); }
+.pill.warn { border-color: var(--gr-error); color: var(--gr-error-text); background: var(--gr-error-bg); }
+.members { list-style: none; margin: 0; padding: 0; display: grid; }
+.buddies-member { border-top: 1px solid var(--gr-border); padding: 10px 0; display: grid; gap: 10px; }
+.buddies-member:first-child { border-top: 0; }
+.member-line { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+.initials { width: 32px; height: 32px; border-radius: 999px; background: var(--gr-surface-raised); display: grid; place-items: center; font-size: 12px; font-weight: 600; flex: none; color: var(--gr-text-soft); }
+.buddies-member.is-me .initials { background: var(--gr-action); color: var(--gr-text-on-orange); }
+.member-name { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; flex: 1; min-width: 0; }
+.buddies-member-name { font-size: 15px; font-weight: 500; color: var(--gr-text); }
+.compose { background: var(--gr-surface-sunken); border-radius: 10px; padding: 14px; display: grid; gap: 10px; margin-left: 44px; }
+@container (max-width: 640px) { .compose { margin-left: 0; } .compose .row .btn { flex: 1; } .join-row .btn, .join-row .input.code { flex: 1 1 100%; max-width: none; } }
+.counter { font-size: 12px; color: var(--gr-text-muted); font-variant-numeric: tabular-nums; margin-left: auto; }
+.counter.full { color: var(--gr-action-text); font-weight: 600; }
+.label-row { display: flex; align-items: baseline; gap: 8px; }
+.inbox { list-style: none; margin: 0; padding: 0; display: grid; }
+.buddies-message { border-top: 1px solid var(--gr-border); padding: 12px 0; display: grid; gap: 4px; }
+.buddies-message:first-child { border-top: 0; padding-top: 0; }
+.buddies-message header { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.buddies-message-from { font-weight: 600; color: var(--gr-text); }
+.buddies-message time { font-size: 12px; color: var(--gr-text-muted); }
+.buddies-message-text { color: var(--gr-text-soft); overflow-wrap: anywhere; white-space: pre-wrap; margin: 0; }
+.solo { font-size: 13px; color: var(--gr-text-muted); background: var(--gr-surface-sunken); border-radius: 10px; padding: 10px 12px; }
+@media (prefers-reduced-motion: no-preference) { .btn, .scene-group button { transition: background-color 120ms; } }
+</style>
+</head>
+<body>
+
+<div class="proto">
+  <header class="proto-head">
+    <div>
+      <div class="proto-tag">Card #79 · story #78 · for the November 11 review</div>
+      <h1>Workout buddies: clickable screen flow</h1>
+      <p>Every screen of the Workout buddies page, run against a fake copy of Mansur's #71 responses with the same six test accounts. Pick a screen on the left, or click through it yourself. Nothing is saved; reload to start over.</p>
+    </div>
+  </header>
+
+  <section class="controls" aria-label="Prototype controls">
+    <label class="ctl" for="acct"><span>Signed in as</span>
+      <select id="acct">
+        <option value="omar">Omar Reyes (no group, outside)</option>
+        <option value="nina">Nina Park (no group, joins)</option>
+        <option value="cal">Cal Moss (no group, creates)</option>
+        <option value="olivia">Olivia Grant (owner, Morning Lifters)</option>
+        <option value="ben">Ben Cruz (member, Morning Lifters)</option>
+        <option value="pete">Pete Lowe (owner, expired code)</option>
+      </select>
+    </label>
+    <div class="ctl"><span>Network</span>
+      <div class="seg" id="net" role="group" aria-label="Network">
+        <button type="button" data-net="normal" aria-pressed="true">Normal</button>
+        <button type="button" data-net="slow" aria-pressed="false">Slow</button>
+        <button type="button" data-net="fail" aria-pressed="false">Fail next request</button>
+      </div>
+    </div>
+    <div class="ctl"><span>Width</span>
+      <div class="seg" id="width" role="group" aria-label="Width">
+        <button type="button" data-w="desktop" aria-pressed="true">Desktop</button>
+        <button type="button" data-w="phone" aria-pressed="false">Phone 375</button>
+      </div>
+    </div>
+    <div class="ctl"><span>Theme</span>
+      <div class="seg" id="theme" role="group" aria-label="Theme">
+        <button type="button" data-t="dark" aria-pressed="false">Dark</button>
+        <button type="button" data-t="light" aria-pressed="false">Light</button>
+      </div>
+    </div>
+    <button type="button" class="reset" id="reset">Reset test data</button>
+  </section>
+
+  <div class="layout">
+    <aside class="scenes" aria-label="Screens" id="scenes"></aside>
+    <div class="stage">
+      <p class="note" id="note" role="status"></p>
+      <div class="device" id="device"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict'
+const HOUR = 3600e3, DAY = 24 * HOUR
+const NOW = Date.now()
+const USERS = {
+  olivia: ['Olivia', 'Grant'], ben: ['Ben', 'Cruz'], nina: ['Nina', 'Park'],
+  cal: ['Cal', 'Moss'], omar: ['Omar', 'Reyes'], pete: ['Pete', 'Lowe'],
+}
+const CODE_RE = /^[A-HJ-NP-Z2-9]{8}$/
+const MSG = {
+  code: 'Enter the 8-character invite code.',
+  badCode: "That invite code isn't valid or has expired.",
+  already: 'You are already in a workout buddies group.',
+  name: 'Name your group in 1 to 40 characters.',
+  message: 'Write a message of 1 to 140 characters.',
+  load: "Couldn't load your workout buddies. Check your connection and try again.",
+  join: "Couldn't join the group. Check your connection and try again.",
+  create: "Couldn't create the group. Check your connection and try again.",
+  send: "Couldn't send your encouragement. Check your connection and try again.",
+}
+const shortName = (u) => USERS[u][0] + ' ' + USERS[u][1][0] + '.'
+const initials = (u) => USERS[u][0][0] + USERS[u][1][0]
+const chars = (s) => [...s].length
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+const iso = (ms) => new Date(ms).toISOString().replace(/\.\d{3}Z$/, 'Z')
+const NY = 'America/New_York'
+const fmtWhen = (s) => new Date(s).toLocaleString('en-US', { timeZone: NY, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+const fmtExpiry = (s) => new Date(s).toLocaleString('en-US', { timeZone: NY, month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })
+
+// ---------- fake #71 backend (same rules, messages and shapes as the card) ----------
+function freshDb() {
+  return {
+    groups: [
+      { id: 1, name: 'Morning Lifters', owner: 'olivia', code: '7KQ2MXP9', expires: NOW + 7 * DAY },
+      { id: 2, name: 'Late Starters', owner: 'pete', code: '4MXT8H2R', expires: NOW - DAY },
+    ],
+    members: [
+      { id: 11, group: 1, user: 'olivia', joined: NOW - 3 * DAY },
+      { id: 12, group: 1, user: 'ben', joined: NOW - 2 * DAY },
+      { id: 13, group: 2, user: 'pete', joined: NOW - 8 * DAY },
+    ],
+    enc: [{ id: 4, group: 1, from: 'olivia', to: 'ben', message: 'Nice work on leg day!', at: NOW - 26 * HOUR }],
+    next: { member: 15, enc: 5, group: 3 },
+  }
+}
+let db = freshDb()
+const err = (status, body) => ({ status, body })
+function view(user) {
+  const me = db.members.find((m) => m.user === user)
+  if (!me) return { group: null, me: null, encouragements: [] }
+  const g = db.groups.find((x) => x.id === me.group)
+  const owner = g.owner === user
+  const members = db.members.filter((m) => m.group === g.id)
+    .sort((a, b) => (b.user === g.owner) - (a.user === g.owner) || a.joined - b.joined)
+    .map((m) => ({ member_id: m.id, name: shortName(m.user), is_me: m.user === user, is_owner: m.user === g.owner }))
+  const encouragements = db.enc.filter((e) => e.to === user).sort((a, b) => b.id - a.id).slice(0, 20)
+    .map((e) => ({ id: e.id, from: shortName(e.from), message: e.message, sent_at: iso(e.at) }))
+  return {
+    group: { name: g.name, member_count: members.length, invite_code: owner ? g.code : null, invite_expires_at: owner ? iso(g.expires) : null, members },
+    me: { member_id: me.id, is_owner: owner }, encouragements,
+  }
+}
+const api = {
+  group: (u) => ({ status: 200, body: view(u) }),
+  join(u, code) {
+    if (typeof code !== 'string' || !CODE_RE.test(code)) return err(400, { error: 'Invalid request.', errors: { code: MSG.code } })
+    if (db.members.some((m) => m.user === u)) return err(409, { error: MSG.already })
+    const g = db.groups.find((x) => x.code === code && x.expires > Date.now())
+    if (!g) return err(404, { error: MSG.badCode })
+    db.members.push({ id: db.next.member++, group: g.id, user: u, joined: Date.now() })
+    return { status: 200, body: view(u) }
+  },
+  create(u, name) {
+    const n = (name || '').trim()
+    if (chars(n) < 1 || chars(n) > 40) return err(400, { error: 'Invalid request.', errors: { name: MSG.name } })
+    if (db.members.some((m) => m.user === u)) return err(409, { error: MSG.already })
+    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+    let code = ''; for (let i = 0; i < 8; i++) code += alphabet[Math.floor(Math.random() * alphabet.length)]
+    const g = { id: db.next.group++, name: n, owner: u, code, expires: Date.now() + 7 * DAY }
+    db.groups.push(g); db.members.push({ id: db.next.member++, group: g.id, user: u, joined: Date.now() })
+    return { status: 201, body: view(u) }
+  },
+  encourage(u, memberId, message) {
+    const text = (message || '').trim()
+    if (chars(text) < 1 || chars(text) > 140) return err(400, { error: 'Invalid request.', errors: { message: MSG.message } })
+    const me = db.members.find((m) => m.user === u)
+    if (!me) return err(404, { error: 'Group not found.' })
+    const to = db.members.find((m) => m.id === memberId && m.group === me.group)
+    if (!to) return err(404, { error: 'Member not found.' })
+    if (to.user === u) return err(400, { error: 'Invalid request.', errors: { member_id: "You can't encourage yourself." } })
+    const e = { id: db.next.enc++, group: me.group, from: u, to: to.user, message: text, at: Date.now() }
+    db.enc.push(e)
+    return { status: 201, body: { encouragement: { id: e.id, to: shortName(to.user), message: text, sent_at: iso(e.at) } } }
+  },
+}
+let net = 'normal'
+function request(fn) {
+  return new Promise((resolve, reject) => {
+    const delay = net === 'slow' ? 2200 : 350
+    const failing = net === 'fail'
+    if (failing) setNet('normal')
+    setTimeout(() => (failing ? reject(new Error('network')) : resolve(fn())), delay)
+  })
+}
+
+// ---------- the page ----------
+let user = 'omar'
+let ui = blankUi()
+let load = { status: 'loading', data: null }
+let hold = false
+let menuOpen = false
+let loadId = 0
+function blankUi() {
+  return { code: '', codeError: '', joinBusy: false, joinError: '', conflict: false, createOpen: false, name: '',
+    nameError: '', createBusy: false, createError: '', notice: '', composeFor: null, message: '', msgError: '',
+    sendBusy: false, sendError: '', focus: null }
+}
+async function reload(quiet) {
+  const id = ++loadId
+  if (!quiet) { load = { status: 'loading', data: null }; render() }
+  if (hold) return
+  try {
+    const r = await request(() => api.group(user))
+    if (id !== loadId) return
+    load = { status: 'ready', data: r.body }
+  } catch (e) {
+    if (id !== loadId) return
+    if (!quiet) load = { status: 'error', data: null }
+  }
+  render()
+}
+
+const device = document.getElementById('device')
+const NAV = ['Dashboard', 'Workouts', 'Plans', 'Progress', 'Leaderboard', 'Today', 'Buddies']
+function navHtml() {
+  const links = NAV.map((l) => `<a href="#" data-nav ${l === 'Buddies' ? 'aria-current="page"' : ''}>${l}</a>`).join('')
+  return `<header class="nav">
+    <a class="brand" href="#" data-nav aria-label="GymRank dashboard"><i aria-hidden="true">G</i>GymRank</a>
+    <nav class="links" aria-label="Primary">${links}</nav>
+    <div class="nav-right">
+      <button type="button" class="menu-btn" data-act="menu" aria-label="Open navigation menu" aria-expanded="${menuOpen}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <span class="start">Start Workout</span>
+      <span class="avatar" aria-label="Account menu">${initials(user)}</span>
+    </div>
+  </header>${menuOpen ? `<div class="drawer" data-act="menu"><nav aria-label="Mobile navigation">${links}</nav></div>` : ''}`
+}
+function noGroupHtml() {
+  const u = ui
+  const codeErr = u.codeError ? `<p class="field-error" id="code-error">${esc(u.codeError)}</p>` : ''
+  const create = u.createOpen ? `
+    <form class="field" data-form="create" novalidate>
+      <label for="group-name">Group name <span class="req" aria-hidden="true">*</span></label>
+      <input class="input" id="group-name" name="name" maxlength="40" required autocomplete="off" value="${esc(u.name)}"
+        aria-describedby="name-hint${u.nameError ? ' name-error' : ''}" ${u.nameError ? 'aria-invalid="true"' : ''} ${u.createBusy ? 'readonly' : ''}>
+      <p class="hint" id="name-hint">Up to 40 characters. Members see this name.</p>
+      ${u.nameError ? `<p class="field-error" id="name-error">${esc(u.nameError)}</p>` : ''}
+      <div class="row">
+        <button class="btn primary" type="submit" ${u.createBusy ? 'disabled' : ''}>${u.createBusy ? 'Creating…' : 'Create'}</button>
+        <button class="btn subtle" type="button" data-act="cancel-create" ${u.createBusy ? 'disabled' : ''}>Cancel</button>
+      </div>
+      ${u.createError ? `<p class="field-error" role="alert">${esc(u.createError)}</p>` : ''}
+    </form>`
+    : `<button class="btn secondary" type="button" data-act="open-create" id="open-create">Create a group</button>`
+  return `<section class="card" aria-labelledby="empty-title">
+    <h2 class="buddies-empty-title" id="empty-title">You're not in a group yet.</h2>
+    <p class="soft">Join a friend's group with their invite code, or start your own.</p>
+    ${u.conflict ? `<div class="msg err" role="alert"><span><span class="icon" aria-hidden="true">!</span>${esc(MSG.already)}</span><button class="btn secondary" type="button" data-act="show-group">Show my group</button></div>` : ''}
+    <form class="field" data-form="join" novalidate>
+      <label for="invite-code">Invite code <span class="req" aria-hidden="true">*</span></label>
+      <div class="row join-row">
+        <input class="input code" id="invite-code" name="code" required maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" autocorrect="off"
+          value="${esc(u.code)}" aria-describedby="code-hint${u.codeError ? ' code-error' : ''}" ${u.codeError ? 'aria-invalid="true"' : ''} ${u.joinBusy ? 'readonly' : ''}>
+        <button class="btn primary" type="submit" ${u.joinBusy ? 'disabled' : ''}>${u.joinBusy ? 'Joining…' : 'Join group'}</button>
+      </div>
+      <p class="hint" id="code-hint">8 letters and numbers, for example 7KQ2MXP9. Ask the group's owner for it.</p>
+      ${codeErr}
+      ${u.joinError ? `<p class="field-error" role="alert">${esc(u.joinError)}</p>` : ''}
+    </form>
+    <div class="or">or</div>
+    ${create}
+  </section>`
+}
+function composeHtml(m) {
+  const u = ui
+  const n = chars(u.message)
+  return `<form class="compose" data-form="send" data-member="${m.member_id}" novalidate>
+    <p class="soft">To <strong>${esc(m.name)}</strong></p>
+    <div class="field">
+      <div class="label-row"><label for="message">Your message <span class="req" aria-hidden="true">*</span></label>
+        <span class="counter${n >= 140 ? ' full' : ''}" id="counter" aria-hidden="true">${n}/140</span></div>
+      <textarea class="input" id="message" name="message" required aria-describedby="message-hint${u.msgError ? ' message-error' : ''}"
+        ${u.msgError ? 'aria-invalid="true"' : ''} ${u.sendBusy ? 'readonly' : ''}>${esc(u.message)}</textarea>
+      <p class="hint" id="message-hint">Only ${esc(m.name)} will see this. Up to 140 characters.</p>
+      ${u.msgError ? `<p class="field-error" id="message-error">${esc(u.msgError)}</p>` : ''}
+    </div>
+    <div class="row">
+      <button class="btn primary" type="submit" ${u.sendBusy ? 'disabled' : ''}>${u.sendBusy ? 'Sending…' : 'Send'}</button>
+      <button class="btn subtle" type="button" data-act="cancel-send" ${u.sendBusy ? 'disabled' : ''}>Cancel</button>
+    </div>
+    ${u.sendError ? `<p class="field-error" role="alert">${esc(u.sendError)}</p>` : ''}
+  </form>`
+}
+function groupHtml(d) {
+  const g = d.group
+  const expired = g.invite_expires_at && new Date(g.invite_expires_at) <= Date.now()
+  const invite = g.invite_code ? `<div class="invite${expired ? ' expired' : ''}">
+      <span class="label">Invite code</span>
+      <span class="buddies-invite-code">${esc(g.invite_code)}</span>
+      ${expired
+        ? `<span><span class="pill warn">Expired ${esc(fmtExpiry(g.invite_expires_at))}</span></span><span class="hint">This code no longer works, so nobody new can join. Getting a new code isn't part of this version.</span>`
+        : `<span class="soft">Expires ${esc(fmtExpiry(g.invite_expires_at))}</span><span class="hint">Share it in person or by text. Anyone with the code can join until it expires.</span>`}
+    </div>` : ''
+  const rows = g.members.map((m) => {
+    const cls = ['buddies-member', m.is_owner ? 'is-owner' : '', m.is_me ? 'is-me' : ''].join(' ').trim()
+    const open = ui.composeFor === m.member_id
+    return `<li class="${cls}">
+      <div class="member-line">
+        <span class="initials" aria-hidden="true">${esc(m.name.replace(/[^A-Z]/g, ''))}</span>
+        <span class="member-name"><span class="buddies-member-name">${esc(m.name)}</span>
+          ${m.is_owner ? '<span class="pill">Owner</span>' : ''}${m.is_me ? '<span class="pill me">You</span>' : ''}</span>
+        ${m.is_me ? '' : `<button class="btn text buddies-encourage" type="button" data-act="encourage" data-member="${m.member_id}" id="enc-${m.member_id}" aria-expanded="${open}">Encourage</button>`}
+      </div>
+      ${open ? composeHtml(m) : ''}
+    </li>`
+  }).join('')
+  const solo = g.member_count === 1 && d.me.is_owner ? `<p class="solo">You're the only member. Share your invite code so friends can join.</p>` : ''
+  const inbox = d.encouragements.length
+    ? `<ul class="inbox">${d.encouragements.map((e) => `<li class="buddies-message"><header><span class="buddies-message-from">${esc(e.from)}</span><time datetime="${esc(e.sent_at)}">${esc(fmtWhen(e.sent_at))}</time></header><p class="buddies-message-text">${esc(e.message)}</p></li>`).join('')}</ul>`
+    : `<p class="muted">No encouragements yet. When someone in your group encourages you, it appears here.</p>`
+  return `<section class="card" aria-labelledby="group-name-title">
+      <div class="group-head">
+        <div>
+          <p class="eyebrow">Your group</p>
+          <h2 class="buddies-group-name" id="group-name-title" tabindex="-1">${esc(g.name)}</h2>
+          <p class="buddies-count muted">${g.member_count} ${g.member_count === 1 ? 'member' : 'members'}</p>
+        </div>
+        ${invite}
+      </div>
+      <ul class="members" aria-label="Members">${rows}</ul>
+      ${solo}
+    </section>
+    <section class="card" aria-labelledby="inbox-title">
+      <p class="eyebrow" id="inbox-title">Encouragements for you</p>
+      ${inbox}
+    </section>`
+}
+function render() {
+  let body
+  if (load.status === 'loading') body = `<section class="card" aria-busy="true"><p class="loading">Loading your workout buddies…</p></section>`
+  else if (load.status === 'error') body = `<div class="msg err" role="alert"><span><span class="icon" aria-hidden="true">!</span>${esc(MSG.load)}</span><button class="btn secondary" type="button" data-act="retry">Try again</button></div>`
+  else body = (load.data.group ? groupHtml(load.data) : noGroupHtml())
+  const notice = ui.notice ? `<div class="msg ok" role="status"><span><span class="icon" aria-hidden="true">✓</span>${esc(ui.notice)}</span></div>` : ''
+  device.innerHTML = navHtml() + `<main class="buddies-page">
+    <div class="page-head"><h1>Workout buddies</h1><p>A private group for encouraging each other. Only members can see it.</p></div>
+    ${notice}${body}</main>`
+  if (ui.focus) {
+    const el = document.getElementById(ui.focus)
+    if (el) { el.focus({ preventScroll: true }); if (el.setSelectionRange && el.value) el.setSelectionRange(el.value.length, el.value.length) }
+    ui.focus = null
+  }
+}
+
+// ---------- events ----------
+device.addEventListener('click', (ev) => {
+  const t = ev.target.closest('[data-act], [data-nav]')
+  if (!t) return
+  if (t.hasAttribute('data-nav')) { ev.preventDefault(); if (menuOpen) { menuOpen = false; render() } return }
+  const act = t.dataset.act
+  if (act === 'menu') { if (ev.target.closest('nav')) return; menuOpen = !menuOpen; render(); return }
+  if (act === 'retry') { ui = blankUi(); reload(false) }
+  if (act === 'show-group') { ui = blankUi(); reload(false) }
+  if (act === 'open-create') { ui.createOpen = true; ui.focus = 'group-name'; render() }
+  if (act === 'cancel-create') { closeCreate() }
+  if (act === 'encourage') {
+    const id = Number(t.dataset.member)
+    if (ui.composeFor === id) { closeCompose(); return }
+    Object.assign(ui, { composeFor: id, message: '', msgError: '', sendError: '', notice: '', focus: 'message' }); render()
+  }
+  if (act === 'cancel-send') closeCompose()
+})
+function closeCreate() { const keep = ui.notice; ui = blankUi(); ui.notice = keep; ui.focus = 'open-create'; render() }
+function closeCompose() { const id = ui.composeFor; Object.assign(ui, { composeFor: null, message: '', msgError: '', sendError: '', focus: id ? 'enc-' + id : null }); render() }
+device.addEventListener('keydown', (ev) => {
+  if (ev.key !== 'Escape') return
+  if (ui.composeFor && !ui.sendBusy) { ev.preventDefault(); closeCompose() }
+  else if (ui.createOpen && !ui.createBusy) { ev.preventDefault(); closeCreate() }
+  else if (menuOpen) { menuOpen = false; render() }
+})
+device.addEventListener('input', (ev) => {
+  const t = ev.target
+  if (t.id === 'invite-code') {
+    const v = t.value.toUpperCase().replace(/\s+/g, '').slice(0, 8)
+    if (v !== t.value) t.value = v
+    ui.code = v
+  } else if (t.id === 'group-name') {
+    ui.name = t.value
+  } else if (t.id === 'message') {
+    const v = [...t.value].slice(0, 140).join('')
+    if (v !== t.value) { const end = v.length; t.value = v; t.setSelectionRange(end, end) }
+    ui.message = v
+    const c = document.getElementById('counter'); const n = chars(v)
+    c.textContent = n + '/140'; c.classList.toggle('full', n >= 140)
+  }
+})
+device.addEventListener('submit', async (ev) => {
+  ev.preventDefault()
+  const form = ev.target.dataset.form
+  if (form === 'join') {
+    if (ui.joinBusy) return
+    Object.assign(ui, { codeError: '', joinError: '', conflict: false, notice: '' })
+    if (!CODE_RE.test(ui.code)) { ui.codeError = MSG.code; ui.focus = 'invite-code'; render(); return }
+    ui.joinBusy = true; render()
+    try {
+      const r = await request(() => api.join(user, ui.code))
+      ui.joinBusy = false
+      if (r.status === 200) { const name = r.body.group.name; ui = blankUi(); ui.notice = 'You joined ' + name + '.'; ui.focus = 'group-name-title'; load = { status: 'ready', data: r.body } }
+      else if (r.status === 409) ui.conflict = true
+      else if (r.status === 404) { ui.codeError = r.body.error; ui.focus = 'invite-code' }
+      else if (r.status === 400) { ui.codeError = r.body.errors.code; ui.focus = 'invite-code' }
+      else ui.joinError = MSG.join
+    } catch (e) { ui.joinBusy = false; ui.joinError = MSG.join }
+    render()
+  }
+  if (form === 'create') {
+    if (ui.createBusy) return
+    Object.assign(ui, { nameError: '', createError: '', conflict: false })
+    const n = ui.name.trim()
+    if (chars(n) < 1 || chars(n) > 40) { ui.nameError = MSG.name; ui.focus = 'group-name'; render(); return }
+    ui.createBusy = true; render()
+    try {
+      const r = await request(() => api.create(user, ui.name))
+      ui.createBusy = false
+      if (r.status === 201) { ui = blankUi(); ui.notice = 'You created ' + r.body.group.name + '. Share the invite code below so friends can join.'; ui.focus = 'group-name-title'; load = { status: 'ready', data: r.body } }
+      else if (r.status === 409) { ui.conflict = true; ui.createOpen = false }
+      else if (r.status === 400) ui.nameError = r.body.errors.name
+      else ui.createError = MSG.create
+    } catch (e) { ui.createBusy = false; ui.createError = MSG.create }
+    render()
+  }
+  if (form === 'send') {
+    if (ui.sendBusy) return
+    const id = Number(ev.target.dataset.member)
+    const to = load.data.group.members.find((m) => m.member_id === id)
+    Object.assign(ui, { msgError: '', sendError: '', notice: '' })
+    const n = chars(ui.message.trim())
+    if (n < 1 || n > 140) { ui.msgError = MSG.message; ui.focus = 'message'; render(); return }
+    ui.sendBusy = true; render()
+    try {
+      const r = await request(() => api.encourage(user, id, ui.message))
+      ui.sendBusy = false
+      if (r.status === 201) { Object.assign(ui, { composeFor: null, message: '', notice: 'Encouragement sent to ' + r.body.encouragement.to, focus: 'enc-' + id }) }
+      else if (r.status === 400) ui.msgError = r.body.errors.message || r.body.errors.member_id
+      else if (r.status === 404) { ui = blankUi(); ui.notice = ''; ui.sendError = ''; render(); reload(true); return }
+      else ui.sendError = MSG.send
+    } catch (e) { ui.sendBusy = false; ui.sendError = MSG.send }
+    render()
+    void to
+  }
+})
+// The page loads the group again (quietly) when the tab comes back into view.
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && load.status === 'ready') reload(true) })
+
+// ---------- review controls ----------
+const acct = document.getElementById('acct')
+function setNet(v) { net = v; document.querySelectorAll('#net button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.net === v))) }
+document.getElementById('net').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setNet(b.dataset.net) })
+document.getElementById('width').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return
+  setWidth(b.dataset.w)
+})
+function setWidth(w) {
+  device.classList.toggle('phone', w === 'phone'); menuOpen = false
+  document.querySelectorAll('#width button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.w === w)))
+  render()
+}
+function currentTheme() {
+  const t = document.documentElement.dataset.theme
+  if (t) return t
+  return matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+}
+function paintTheme() { const t = currentTheme(); document.querySelectorAll('#theme button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.t === t))) }
+document.getElementById('theme').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; document.documentElement.dataset.theme = b.dataset.t; paintTheme() })
+matchMedia('(prefers-color-scheme: light)').addEventListener('change', paintTheme)
+acct.addEventListener('change', () => { user = acct.value; ui = blankUi(); hold = false; setCurrent(null); setNote('Signed in as ' + USERS[user].join(' ') + '. Click through the page.'); reload(false) })
+document.getElementById('reset').addEventListener('click', () => { db = freshDb(); ui = blankUi(); hold = false; setNet('normal'); setCurrent(null); setNote('Test data reset to the seed: Morning Lifters has Olivia and Ben, Late Starters has Pete.'); reload(false) })
+
+// ---------- screens ----------
+const addNina = () => db.members.push({ id: db.next.member++, group: 1, user: 'nina', joined: Date.now() })
+const addCal = () => { db.groups.push({ id: db.next.group++, name: "Cal's Crew", owner: 'cal', code: '9HX4T2KM', expires: Date.now() + 7 * DAY }); db.members.push({ id: db.next.member++, group: 3, user: 'cal', joined: Date.now() }) }
+const addSent = () => db.enc.push({ id: db.next.enc++, group: 1, from: 'olivia', to: 'ben', message: 'Great session today, keep it up!', at: Date.now() - 2 * 60e3 })
+const SCENES = [
+  { group: 'Opening the page', items: [
+    { id: 'loading', label: 'Loading', user: 'omar', state: 'loading', note: 'Shown until the server answers. The page never guesses "not in a group" before then.', tests: 'Test 10' },
+    { id: 'load-failed', label: 'Load failed', user: 'omar', state: 'error', note: 'Network or server error on the first load. No join form and no group, because the page does not know which applies. "Try again" loads again.', tests: 'Test 10' },
+  ] },
+  { group: 'A · No group (receiving an invite)', items: [
+    { id: 'no-group', label: 'Not in a group', user: 'omar', note: 'Omar, the outside account, sees only the join screen: no group name, no code, no names. The format of the code is shown before typing.', tests: 'Tests 1, 2' },
+    { id: 'code-short', label: 'Code too short', user: 'omar', ui: { code: '7KQ2', codeError: MSG.code }, note: 'Checked in the page before any request: empty, too short or not the allowed letters and digits.', tests: 'Test 3' },
+    { id: 'code-wrong', label: 'Wrong or expired code', user: 'omar', ui: { code: 'ZZZZZZZZ', codeError: MSG.badCode }, note: "The server's 404. A wrong code and Late Starters' expired 4MXT8H2R get exactly the same words.", tests: 'Test 3' },
+    { id: 'joining', label: 'Joining…', user: 'nina', ui: { code: '7KQ2MXP9', joinBusy: true }, hold: true, data: 'none', note: 'While the request runs the button is disabled, so a second click sends nothing.', tests: 'Test 4' },
+    { id: 'join-failed', label: 'Join failed', user: 'omar', ui: { code: '7KQ2MXP9', joinError: MSG.join }, note: 'Network or server error: the code stays in the box and "Join group" tries again.', tests: 'Test 10' },
+    { id: 'already', label: 'Already in a group', user: 'nina', setup: addNina, data: 'none', ui: { code: '7KQ2MXP9', conflict: true }, note: "Nina's second tab, opened before she joined, tries the code again (409). \"Show my group\" loads her group.", tests: 'Test 5' },
+  ] },
+  { group: 'B · Create a group', items: [
+    { id: 'create-form', label: 'Create form, empty name', user: 'cal', ui: { createOpen: true, nameError: MSG.name }, note: 'Cal opens "Create a group". An empty or blank name is refused in the page; the box stops at 40 characters.', tests: 'Test 8' },
+    { id: 'created', label: 'Group created', user: 'cal', setup: addCal, ui: { notice: "You created Cal's Crew. Share the invite code below so friends can join." }, note: 'Cal owns the new group and is the only member, so the page tells him to share the code. Only the owner sees the code.', tests: 'Test 8' },
+  ] },
+  { group: 'C · The group', items: [
+    { id: 'joined', label: 'Joined (member view)', user: 'nina', setup: addNina, ui: { notice: 'You joined Morning Lifters.' }, note: 'Nina after joining with 7KQ2MXP9: 3 members, owner first, then by join time. No invite code for members, and no messages yet.', tests: 'Test 4' },
+    { id: 'owner', label: 'Owner view', user: 'olivia', note: 'Olivia sees the invite code and when it expires (New York time). Her own row has "You" and no Encourage button.', tests: 'Test 6' },
+    { id: 'expired', label: 'Owner, code expired', user: 'pete', note: 'Pete owns Late Starters, whose code expired yesterday. Getting a new code is outside this feature, and the page says so.', tests: 'Test 9' },
+  ] },
+  { group: 'Sending an encouragement', items: [
+    { id: 'compose', label: 'Writing a message', user: 'olivia', ui: { composeFor: 12, message: 'Great session today, keep it up!', focus: 'message' }, note: 'The form opens under Ben\'s row and says who will see it. The box stops at 140 characters and the counter shows how many are used.', tests: 'Tests 6, 7' },
+    { id: 'compose-error', label: 'Empty message', user: 'olivia', ui: { composeFor: 12, message: '', msgError: MSG.message }, note: 'Empty or only spaces is refused in the page, next to the box.', tests: 'Test 7' },
+    { id: 'send-failed', label: 'Send failed', user: 'olivia', ui: { composeFor: 12, message: 'Keep going!', sendError: MSG.send }, note: 'Network or server error: the message stays in the box and "Send" tries again.', tests: 'Test 10' },
+    { id: 'sent', label: 'Sent', user: 'olivia', setup: addSent, ui: { notice: 'Encouragement sent to Ben C.' }, note: 'The form closes and the sender sees this message only. Olivia\'s own list stays empty: the sender gets no copy.', tests: 'Test 6' },
+  ] },
+  { group: 'Receiving an encouragement', items: [
+    { id: 'recipient', label: 'Ben receives it', user: 'ben', setup: addSent, note: 'Ben sees it the next time he opens Workout buddies (or comes back to the tab): newest first, with the sender and the time. No notification, email or badge.', tests: 'Test 6' },
+    { id: 'others', label: 'Other members see nothing', user: 'nina', setup: () => { addNina(); addSent() }, note: 'Nina is in the same group but sees neither message. Only the person it was sent to can read it.', tests: 'Test 6' },
+  ] },
+]
+const scenesEl = document.getElementById('scenes')
+let n = 0
+scenesEl.innerHTML = '<h2>Screens</h2>' + SCENES.map((g) => `<div class="scene-group"><h3>${esc(g.group)}</h3>${g.items.map((s) => `<button type="button" data-scene="${s.id}"><b>${String(++n).padStart(2, '0')}</b><span>${esc(s.label)}</span></button>`).join('')}</div>`).join('')
+const byId = Object.fromEntries(SCENES.flatMap((g) => g.items).map((s) => [s.id, s]))
+function setCurrent(id) { scenesEl.querySelectorAll('button').forEach((b) => b.setAttribute('aria-current', String(b.dataset.scene === id))) }
+function setNote(html) { document.getElementById('note').innerHTML = html }
+function showScene(id) {
+  const s = byId[id]; if (!s) return
+  db = freshDb(); if (s.setup) s.setup()
+  user = s.user; acct.value = user; setNet('normal'); menuOpen = false
+  ui = Object.assign(blankUi(), s.ui || {})
+  hold = !!s.hold || s.state === 'loading'
+  loadId++
+  if (s.state === 'loading') load = { status: 'loading', data: null }
+  else if (s.state === 'error') load = { status: 'error', data: null }
+  else if (s.data === 'none') load = { status: 'ready', data: { group: null, me: null, encouragements: [] } }
+  else load = { status: 'ready', data: view(user) }
+  setCurrent(id)
+  setNote(`<strong>${esc(s.label)}</strong> · signed in as ${esc(USERS[user].join(' '))}. ${esc(s.note)}<span class="tests">Checked by card #79 ${esc(s.tests)}</span>`)
+  render()
+  try { history.replaceState(null, '', '#' + id) } catch (e) { /* hash is optional */ }
+}
+scenesEl.addEventListener('click', (e) => { const b = e.target.closest('[data-scene]'); if (b) showScene(b.dataset.scene) })
+window.addEventListener('hashchange', () => { const id = location.hash.slice(1); if (byId[id]) showScene(id) })
+window.buddiesPrototype = { showScene, setWidth, scenes: Object.keys(byId) }
+
+paintTheme()
+const start = location.hash.slice(1)
+showScene(byId[start] ? start : 'no-group')
+})()
+</script>
+</body>
+</html>

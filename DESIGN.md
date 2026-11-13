@@ -203,7 +203,7 @@ Each entry lists the values and the class that implements it today.
 
 - `bg-nav` background, `border-strong` bottom edge, 20px 48px padding.
 - Left: 32px `brand` square with 8px corners, then "GymRank" in 16px / 500.
-- Middle: Dashboard, Workouts, Plans, Progress, Leaderboard, Today. Current page: `text`, 600. Others: `nav-inactive`, 500. Pages that don't exist yet stay in the list with `aria-disabled="true"`.
+- Middle: Dashboard, Workouts, Plans, Progress, Leaderboard, Today, Buddies. The gap between links is 32px, and 16px from 641px to 900px so the seven links stay on one row. Current page: `text`, 600. Others: `nav-inactive`, 500. Pages that don't exist yet stay in the list with `aria-disabled="true"`.
 - Right: "Start Workout" (`brand` background, dark text, 14px / 600, 8px corners, 8px 16px padding), then the 40px `brand` avatar with initials.
 - On phones the bar wraps into rows: brand, links, actions. It never hides links behind a back button.
 
@@ -312,7 +312,7 @@ Follows research task 113's frames D1, D4 and P1b without the tier parts (no sou
 
 Follows page 3 of the Monday visual brief ("A competition that starts fresh each week"). Leaderboard in the navigation opens it at `#/leaderboard/weekly`.
 
-- A two-way "Weekly consistency" / "Strength" switch (`LeaderboardSwitch`, links with `aria-current="page"`) at the top of both leaderboard views: `surface-sunken` track, the open one on `surface-raised` at 600. Full width on a phone.
+- A two-way "Weekly consistency" / "Strength" switch (`LeaderboardSwitch`, links with `aria-current="page"`) at the top of both leaderboard views: `surface-sunken` track, the open one on `surface-raised` at 600. Full width on a phone, where each choice is 44px tall; the "Leave" text button is at least 44 × 44px.
 - Your card (`surface`, 24px padding): an uppercase `brand-text` eyebrow with the group ("The 3-day circle"), "You're #2" at 32/600, "Show up. Move up. Start fresh.", and on the right "2/3 days · 67%" in `action-text` 18/600. An 8px `track` bar fills in `action`. At the goal the days and the bar turn `success` and a "Goal reached" pill (`success` outline on `success-bg`) appears. Then a clock icon and "3d 7h 28m left · Resets Monday, 12:00 AM New York time" in `text-muted`, with a "Leave" text button in `action-text` on the right. Not joined: "Join the weekly competition", a privacy sentence and a "Join the weekly competition" button. In the practice week (the week you join): "Practice week" and the Monday your ranked weeks start. After leaving, a `success` notice says the workouts are kept.
 - The standings card (`surface`): uppercase Rank / Member / Training days / Goal reached headers, then 56px rows with "#1", a 32px initials circle, the name, "3 of 3 days" over a 6px `success` bar, and the percentage (100% in `success-text`). Shared ranks repeat the number (#1, #1, #3). Your row has an `action` outline on `selected-bg`, an `action` initials circle, an `action` bar and a "You" pill. A 12px note: "Shared progress = shared rank. Everyone here has the same 3-day goal."
 - On a phone the header is hidden and each row puts the bar and "3 of 3 days" under the name, with the percentage on the right.
@@ -324,6 +324,19 @@ Follows page 3 of the Monday visual brief ("A competition that starts fresh each
 - A **See alternatives** button (the same outlined `action-text` look as **How to perform it**) sits under the exercise heading on the active workout's exercise page, beside the guide button in a row that wraps on phones.
 - It opens a dialog: `surface`, 12px corners, at most 380px wide (the window width minus 32px on a phone), with the title "Alternatives to Bench press" and **Close** in a header that stays put while the body scrolls. The body has a "You're doing" box on `surface-sunken` (uppercase eyebrow, the exercise, its muscles), "Your setup: …", then one `<ol>` of alternatives divided by `border` lines: the name (15/500), a level badge (`.level-badge`) and an equipment tag (`control-outline` border), the muscles, and a reason sentence in `text-soft`. A 12px footer line says the plan, saved sets and history stay the same.
 - Loading "Finding alternatives to Bench press...", "No alternative fits your setup" with an **Update training preferences ›** link, "No alternatives listed for … yet", the `error` box with **Try again**, and a logged-out line with **Log in**. Focus moves to the title, Tab stays inside, the page behind is `inert`, and focus returns to the button on close.
+
+### Workout buddies page (`src/buddies/`, added by #79)
+
+Buddies in the navigation opens it at `#/buddies`. Shared page column; the cards stop at 760px inside it.
+
+- Heading "Workout buddies" at 28/500 with a `text-muted` line under it.
+- Not in a group: one `surface` card with "You're not in a group yet.", the "Invite code \*" box (monospace, capitals, 220px wide) beside the primary "Join group", the hint under both, an "or" rule, and the secondary "Create a group", which opens "Group name \*" with "Create" and a subtle "Cancel" in its place. On a phone: box, hint, error, then the full-width button.
+- The group card: uppercase `text-muted` eyebrow "Your group", the name at 22/500 and "3 members". The owner also gets an "Invite code" panel on `surface-sunken` with the code at 26/600 monospace and its expiry; an expired code is struck through with an `error` "Expired …" pill.
+- Member rows (at least 44px): a 32px initials circle (`action` for your own row), the name at 15/500, "Owner" and "You" pills, and a text-style "Encourage" button on every row but yours. It opens the message form under the row on `surface-sunken`: "To Ben C.", "Your message \*", a "32/140" counter (in `action-text` at the limit), "Send" and "Cancel".
+- "Encouragements for you" card: sender at 600, the time in `text-muted` 12px, the text in `text-soft`, newest first; empty: "No encouragements yet. When someone in your group encourages you, it appears here."
+- Limits: the code box stops at 8 characters and the name at 40. The message box does not stop: it keeps whatever is typed or pasted, the counter goes past the limit ("141/140") in `error-text` at 600, and "Send" is refused with "Write a message of 1 to 140 characters." under the box until the text fits (an emoji counts as one). Story #78 checks that a too-long message is refused and kept, so the lifter can shorten it instead of losing its end.
+- Messages: success in the `success` box with a tick and `role="status"`; "already in a group" and a failed load in the `error` box with a button ("Show my group", "Try again"); a wrong code or a failed request as `error-text` under the box or button it belongs to, with the red outline and `aria-invalid` on a refused box. Busy buttons say "Joining…", "Creating…" or "Sending…" and are disabled.
+- Keyboard: Enter submits each form, Escape closes the create and message forms and puts focus back on the button that opened them; after joining or creating, focus moves to the group's name.
 
 ### Gym backdrop (`src/components/GymBackdrop.jsx`, added by #93)
 
