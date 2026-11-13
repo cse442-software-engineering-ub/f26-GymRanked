@@ -1549,52 +1549,6 @@ button.nav-bar__avatar {
   }
 }
 
-/* "More plans": a native <details> that starts closed. The summary is a full-width button-sized row. */
-.plan-more > summary {
-  list-style: none;
-}
-
-.plan-more > summary::-webkit-details-marker {
-  display: none;
-}
-
-.plan-more__toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 44px;
-  margin: 0 0 12px;
-  padding: 0 16px;
-  background: var(--gr-surface);
-  border: 1px solid var(--gr-border);
-  border-radius: var(--gr-radius-card);
-  color: var(--gr-text);
-  font-size: 1.125rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.plan-more__toggle:hover {
-  border-color: var(--gr-border-strong);
-  background: var(--gr-surface-raised);
-}
-
-.plan-more__toggle:focus-visible {
-  outline: 2px solid var(--gr-brand);
-  outline-offset: 2px;
-}
-
-.plan-more__chevron {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-}
-
-.plan-more[open] .plan-more__chevron {
-  transform: rotate(180deg);
-}
-
 /* Phones: the recommended plans are a swipeable row that snaps card by card, with the next card peeking
    in; the dots below follow it. the plans under "More plans" are a row too. */
 @media (max-width: 640px) {
@@ -2925,4 +2879,231 @@ a.today-workout__details:hover {
   color: var(--gr-text-muted);
   text-align: center;
   width: 100%;
+}
+
+/* Plan library (#/plans): the plan you follow, the plans that match your setup, then the rest behind a row that
+   starts closed. Cards are links to the plan's details. Colours are the --gr- variables, so light mode needs nothing. */
+.plan-lib {
+  gap: 0;
+}
+
+.plan-lib__title {
+  margin: 0 0 22px;
+  font-size: clamp(34px, 3vw, 47px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  color: var(--gr-text);
+}
+
+.plan-lib h2 {
+  margin: 0 0 13px;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--gr-text);
+}
+
+.plan-lib__current {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 23px 24px;
+  background: var(--gr-surface);
+  border: 1px solid var(--gr-border);
+  border-radius: 10px;
+}
+
+.plan-lib__current h2 {
+  margin: 0 0 5px;
+  font-size: clamp(25px, 3vw, 39px);
+}
+
+.plan-lib__current p,
+.plan-lib__card p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--gr-text-soft);
+}
+
+.plan-lib__current small,
+.plan-lib__card small {
+  display: block;
+  margin-top: 13px;
+  font-size: 12px;
+  color: var(--gr-text-muted);
+}
+
+.plan-lib__current .plan-lib__kicker {
+  margin: 0 0 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--gr-action-text);
+}
+
+.plan-lib__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--gr-control-outline);
+  border-radius: 5px;
+  color: var(--gr-text);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.plan-lib__group {
+  margin-top: 26px;
+}
+
+.plan-lib__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plan-lib__card {
+  display: block;
+  height: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 15px 17px;
+  border: 1px solid var(--gr-border);
+  border-radius: 7px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.plan-lib__card:hover,
+.plan-lib__button:hover {
+  border-color: var(--gr-border-strong);
+  background: var(--gr-surface);
+  text-decoration: none; /* a global a:hover underlines links */
+}
+
+.plan-lib__card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--gr-text);
+}
+
+.plan-lib__card-title span {
+  color: var(--gr-action-text);
+}
+
+.plan-lib__card p {
+  margin-top: 5px;
+  font-size: 13px;
+}
+
+.plan-lib__card small {
+  margin-top: 10px;
+}
+
+.plan-lib__more {
+  margin-top: 22px;
+  border-block: 1px solid var(--gr-border);
+}
+
+.plan-lib__more summary {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 58px;
+  list-style: none;
+  cursor: pointer;
+  color: var(--gr-text);
+}
+
+.plan-lib__more summary::-webkit-details-marker {
+  display: none;
+}
+
+.plan-lib__more summary strong {
+  font-size: 17px;
+}
+
+.plan-lib__more summary span {
+  font-size: 12px;
+  color: var(--gr-text-muted);
+}
+
+.plan-lib__more summary .plan-lib__chevron {
+  margin-left: auto;
+  font-size: 21px;
+  line-height: 1;
+  color: var(--gr-text);
+}
+
+.plan-lib__more[open] .plan-lib__chevron {
+  transform: rotate(180deg);
+}
+
+.plan-lib__more .plan-lib__grid {
+  padding-bottom: 16px;
+}
+
+.plan-lib summary:focus-visible,
+.plan-lib a:focus-visible {
+  outline: 2px solid var(--gr-brand);
+  outline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+  .plan-lib__title {
+    margin-bottom: 15px;
+  }
+
+  .plan-lib__current {
+    display: block;
+    padding: 17px;
+  }
+
+  .plan-lib__current .plan-lib__button {
+    margin-top: 13px;
+  }
+
+  .plan-lib__group {
+    margin-top: 20px;
+  }
+
+  .plan-lib__more {
+    margin-top: 17px;
+  }
+
+  .plan-lib h2 {
+    font-size: 19px;
+  }
+
+  .plan-lib__current h2 {
+    font-size: 26px;
+  }
+
+  .plan-lib__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .plan-lib__card {
+    padding: 12px 14px;
+  }
+
+  .plan-lib__card p {
+    font-size: 12px;
+  }
 }
