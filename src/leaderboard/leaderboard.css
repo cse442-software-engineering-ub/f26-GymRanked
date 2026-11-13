@@ -872,6 +872,7 @@ a.leaderboard-step__action {
   .leaderboard-switch a {
     flex: 1 1 0;
     justify-content: center;
+    min-height: 44px;
     padding: 6px 8px;
     text-align: center;
   }

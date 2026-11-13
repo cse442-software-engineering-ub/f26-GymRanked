@@ -25,6 +25,8 @@
 .profile-message--error { border-color: var(--gr-error); background: var(--gr-error-bg); color: var(--gr-error-text); }
 .profile-back { display: inline-block; margin-bottom: 24px; color: var(--gr-action-text); text-decoration: none; }
 .profile-form { max-width: 720px; }
+/* The two edit pages (a heading and one form) are a 720px column centred in the page column. */
+.profile-content:has(> .profile-form) > :not(.modal-backdrop) { max-width: 720px; margin-inline: auto; }
 .profile-field { display: grid; gap: 8px; margin-bottom: 20px; font-size: 14px; font-weight: 600; }
 .profile-field :is(input, select) { min-height: 46px; padding: 10px 12px; border: 1px solid var(--gr-control-outline); border-radius: var(--gr-radius-button); background: var(--gr-surface-raised); color: var(--gr-text); font: inherit; }
 .profile-field :is(input, select)[aria-invalid="true"] { border-color: var(--gr-error); }

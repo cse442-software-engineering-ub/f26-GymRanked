@@ -242,6 +242,12 @@
   font-weight: 600;
 }
 
+/* Over the limit: the number itself says so ("141/140"), in the error colour. */
+.buddies-counter--over {
+  color: var(--gr-error-text);
+  font-weight: 600;
+}
+
 .buddies-or {
   display: flex;
   align-items: center;
