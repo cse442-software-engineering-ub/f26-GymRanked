@@ -10,13 +10,9 @@
 }
 
 .leaderboard-page__content {
-  box-sizing: content-box;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 40px 48px 48px;
 }
 
 .leaderboard-page__heading h1 {
@@ -726,7 +722,7 @@ a.leaderboard-step__action {
    off screen. */
 @media (max-width: 640px) {
   .leaderboard-page__content {
-    padding: 24px 20px 96px;
+    padding-bottom: 96px; /* room for your pinned row */
   }
 
   .leaderboard-me__card,

@@ -8,6 +8,7 @@ export default function MobileDashboardIcon({ name, className = '' }) {
     home: <><path d="m3 10 9-7 9 7v10H3V10Z" /><path d="M9 20v-7h6v7" /></>,
     progress: <><path d="M5 20v-5m7 5V9m7 11V4" /></>,
     today: <><rect x="4" y="5" width="16" height="16" rx="2" /><path d="M8 3v4m8-4v4M4 10h16m5 5h6" /></>,
+    buddies: <><circle cx="9" cy="8" r="3" /><path d="M3 20v-1a6 6 0 0 1 12 0v1m1-14.8a3 3 0 0 1 0 5.6M18 14a6 6 0 0 1 3 5v1" /></>,
     logout: <><path d="M10 4H4v16h6m4-12 4 4-4 4m-8-4h12" /></>,
   }
 

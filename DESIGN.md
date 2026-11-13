@@ -148,7 +148,7 @@ Spacing values in use: 2, 4, 6, 8, 10, 12, 16, 20, 24, 32, 48px. Prefer 8, 12, 1
 
 | Where | Value |
 |---|---|
-| Page padding | 24px top and bottom, 48px sides (desktop); 20px at 900px wide or less |
+| Page column | Every signed-in page: at most 1200px wide, side padding included, centred; 32px top, 48px sides and bottom; 24px top, 20px sides and 32px bottom at 640px or less. See [Page layout](#page-layout) |
 | Between page sections and rows of cards | 16px |
 | Between the two large cards side by side | 24px |
 | Inside a card | 20px padding (metric tiles: 16px); 16px between items |
@@ -166,9 +166,19 @@ Layout patterns:
 
 | Width | What changes | Source |
 |---|---|---|
-| 900px or less | Dashboard grids become one column; page padding 20px | index.css |
+| 900px or less | Dashboard grids become one column | index.css |
 | 850px or less | Login and sign-up switch to the phone layout; the sign-up "×" appears | auth.css |
-| 640px or less | Nav bar padding and link gaps shrink; plan rows wrap; weekly plan shows 2 days per row; onboarding goes to one column | index.css, onboarding.css |
+| 640px or less | Page side padding becomes 20px; nav bar padding and link gaps shrink; plan rows wrap; weekly plan shows 2 days per row; onboarding goes to one column | index.css, onboarding.css |
+
+### Page layout
+
+Every signed-in page (Dashboard, Workouts, Plans and plan details, Weekly goal, the workout pages, Progress, history, both rankings pages, Profile and its edit pages, the onboarding steps) sits in one column, so the page title and content start and end at the same points when you switch between pages (task #130, story #86).
+
+- **Width:** `--gr-page-width: 1200px`, side padding included, centred. On a 1440px screen the title starts 168px from the left (120px margin + 48px padding) and the content is 1104px wide; on a 1920px screen the column stops at 1200px. Side padding is `--gr-page-gutter` (48px, or 20px at 640px or less); the top is `--gr-page-top` (32px, or 24px) and the bottom `--gr-page-bottom` (48px, or 32px).
+- **How a page gets it:** add its wrapper class to the shared rule in `src/index.css` (the one that lists `.dashboard-content`, `.progress-page__content` and the others). A page's own CSS says only what is inside the column (grids, gaps), never its `max-width`, `margin` or side padding.
+- **Short forms and reading columns stay narrow inside it,** at the left under the title, not centred: the profile, personal-details and weekly-goal forms 720px, the exercise logger 640px, plan details 796px.
+- **Photo bands** (`GymBackdrop`, Active workout and onboarding) stay full width, but their text sits on the same column.
+- **No breadcrumb trail.** The nav bar already shows where you are. Where a page needs a way back, it has one `BackLink` (`src/BackLink.jsx`) above the title: "Back to plan library" on plan details, "Back to workout" on an individual exercise, "Back to progress" on workout history, and the onboarding "Back to …" links. Top-level pages (Dashboard, Plans, Progress) have none.
 
 New pages should use 900px and 640px. Test every page at 375×812 (phone) and 1440×900 (desktop), the sizes the Playwright tests use (`playwright.config.js`), and at a tablet width such as 768×1024.
 
@@ -193,7 +203,7 @@ Each entry lists the values and the class that implements it today.
 
 - `bg-nav` background, `border-strong` bottom edge, 20px 48px padding.
 - Left: 32px `brand` square with 8px corners, then "GymRank" in 16px / 500.
-- Middle: Dashboard, Workouts, Plans, Progress, Leaderboard, Today. Current page: `text`, 600. Others: `nav-inactive`, 500. Pages that don't exist yet stay in the list with `aria-disabled="true"`.
+- Middle: Dashboard, Workouts, Plans, Progress, Leaderboard, Today, Buddies. The gap between links is 32px, and 16px from 641px to 900px so the seven links stay on one row. Current page: `text`, 600. Others: `nav-inactive`, 500. Pages that don't exist yet stay in the list with `aria-disabled="true"`.
 - Right: "Start Workout" (`brand` background, dark text, 14px / 600, 8px corners, 8px 16px padding), then the 40px `brand` avatar with initials.
 - On phones the bar wraps into rows: brand, links, actions. It never hides links behind a back button.
 
@@ -256,6 +266,7 @@ A box above the form: 10px 12px padding, 8px corners, 1px border, 13px text, col
 
 - A `surface` card with 12px corners: "N days/wk" in `action-text`, the plan name, a coloured level badge (Beginner `success`, Intermediate `warning`, Advanced `error`) with the length, the equipment it needs as icons with labels, and a green or red dot for whether you have that equipment (Suryamur10, PR #44).
 - The whole card opens the plan's details; its button, name link and dot keep their own actions.
+- The plan library (`#/plans`) lists, in order: "Your current plan" (that plan's card, only when the user follows one), "Recommended plans" (matches the saved setup, without the current plan), then the rest under one "More plans (N)" row. "More plans" is a native `<details>`: closed on every visit, opened and closed by a click, Enter or Space, at least 44px tall, with a chevron that turns. With no current plan and no recommended plan the rest are shown open under "All plans".
 - "Select" is a full-width primary button. Your current plan's card has an `action` border, and its button reads "Current plan" with a tick, greyed out.
 - "Your setup" (`src/YourSetup.jsx`) sits under the heading of the plan library and of "Choose your workout plan": an eyebrow label, the saved goal · experience · equipment, and an "Edit" text action to the goal page.
 
@@ -265,14 +276,14 @@ A box above the form: 10px 12px padding, 8px corners, 1px border, 13px text, col
 
 ### Workout history row and set tables (`src/history/`, added by #106)
 
-- The page is a 900px column centred under the nav (Figma "1 — Workout history"), with 20px between the breadcrumb, heading, rows and pager.
+- The page uses the shared column (Figma "1 — Workout history" showed 900px; the column is now 1200px), with a "Back to progress" link above the heading and 20px between the heading, rows and pager.
 - Each finished workout is a `surface` card with 12px corners whose top is one button: the name (16/500) over the date in `text-soft` ("Friday, October 9, 2026", New York time) on the left, and the size in `text-muted` ("3 exercises · 9 sets") and a chevron that turns when open on the right. `aria-expanded` says whether it is open. Phones move the size under the date.
 - Open, it shows one table per exercise on `surface-sunken` with 10px corners: the exercise name as the caption, then Set, Reps and Weight (right-aligned). A 0 lb set reads "Bodyweight". Computers fit up to three tables per row; phones show one.
 - Pager: "Showing 1–4 of 6 workouts" in `text-muted`, then Previous, page numbers and Next, each at least 44 × 44px. The current page is an `action` button; disabled ends are at 40% opacity.
 
 ### Progress page (`src/progress/`, added by #110)
 
-- The same 900px column as the history page (Figma "1 — Progress (30 days · Bench press)", narrowed to one exercise at a time). Heading "Your progress", then "<name> · All time" in `text-muted`.
+- The same shared column as the history page (Figma "1 — Progress (30 days · Bench press)", narrowed to one exercise at a time). Heading "Your progress", then "<name> · All time" in `text-muted`.
 - Range control: "30 days", "90 days" and "All time" in one `surface` box; the selected one is `surface-raised` with `aria-pressed="true"`. Each button is at least 44px tall and the three stay on one line on a phone.
 - Four total tiles (Volume, Strength gain, New PRs, Workouts logged): `surface` cards with a 13px `text-muted` label over a 22px value, 4 across on a computer and 2 × 2 below 900px. A value that can't be worked out is "—".
 - "Workout history" is a full-width `surface` link card with a caption and a chevron, opening `#/progress/history`.
@@ -283,7 +294,7 @@ A box above the form: 10px 12px padding, 8px corners, 1px border, 13px text, col
 
 Follows research task 113's frames D1, D4 and P1b without the tier parts (no sourced DOTS tier cutoffs yet).
 
-- The same 900px column as the Progress page. Heading "Leaderboard", then one `text-muted` line on how DOTS scores are worked out.
+- The same shared column as the Progress page. Heading "Leaderboard", then one `text-muted` line on how DOTS scores are worked out.
 - Your card (`surface`, 12px corners): a 48px `action` initials circle, your name (18/500) and "Body weight 200 lb · Leave the leaderboard" in `text-muted`; on the right "Rank · Overall" (12px), the rank in `action-text` 20/600 ("#15 of 51 on Overall") and the score ("156.29 DOTS points"). Under it, three lift tiles on `surface-sunken` (lift name, your estimated 1RM at 22px; the current board's lift outlined in `action`) and a 12px note. Only you see lb. Not ranked: an "Unranked" pill, "Not on any board yet" and Rank "—".
 - "How to get ranked": its own `surface` card with an uppercase eyebrow, four steps with 28px numbered markers that become `success` ticks, a 4px `track`/`action` bar for workouts, and "Start a workout ›". Nonbinary and Prefer not to say accounts get a "Scoring table" radio group on `surface-sunken` in step 1.
 - The board card (`surface`): an Everyone / Friends (Later, disabled) switch, then underlined lift tabs ("Overall", "Bench press", "Back squat", "Deadlift"; `aria-pressed`, `action` underline; on a phone one line of short labels, Overall · Bench · Squat · Deadlift, with the full name as the accessible name; the board is in the address, `#/leaderboard?board=bench`). While another board loads, the last one stays on screen at 55% opacity so the page keeps its scroll position. Uppercase Rank / Athlete / Score headers, 48px rows with a 28px initials circle and the score right-aligned with tabular figures. Your row has an `action` outline on `selected-bg`, an `action` initials circle and a "You" pill. A centred "· · ·" row marks the jump from the top 10 (plus anyone tied with 10th) to your place, and a 12px note explains ties. On a phone your row is pinned to the bottom (`surface-raised`, `action` outline, `shadow-menu`) while it is off screen.
@@ -295,7 +306,7 @@ Follows research task 113's frames D1, D4 and P1b without the tier parts (no sou
 - A saved workout Summary has a separate Weekly goal card beneath the workout totals. It shows the result saved at that completion: the New York week, count, progress bar, remaining-day or completion message, and labelled dates. Its loading or retry state never hides the workout totals. An older workout without a saved snapshot gets an explanation rather than today's weekly progress. The card uses the same `--gr-` palette in both themes.
 - Two boxes on `surface-sunken`, side by side (stacked on a phone): "This week's goal" with a "Locked until Monday" pill once locked, and "Next week's goal". A saved next-week change gets an `action` border and an `action-text` "Change saved" pill, so it never looks like this week's value.
 - Seven day tiles, Monday first. Completed: `success` border, `success-bg` tint, `success-text` text, a filled `success` circle with a tick, and the word "Completed". Today: `action` border and the word "Today". Earlier days without a finished workout say "No workout" (not "Missed"); later days say "Upcoming" at 75% opacity. Each tile also has a full sentence for screen readers ("Monday, October 26: Completed"). At 640px or less the tiles become a one-per-line list so the labels never break mid-word.
-- The page (`#/weekly-goal`) is opened from a "Set weekly goal ›" secondary button (`.dashboard-milestone__goal-button`, the same look as Today's workout's "View your weekly plan ›"; full width on phones) at the bottom of the Weekly milestone card on Home, and from the Weekly goal card on Profile. It uses the 900px column with a "← Back to Dashboard" link. Its form card has radio inputs drawn as 44px buttons (selected: `action` border on `selected-bg` with `action-text`; "This week" / "Next week" also get a tick), "Review goal ›" as the primary button, then a confirmation box with an `action` border, "Confirm and save" and a subtle "Go back". Focus moves to the question when it opens and back to "Review goal ›" on "Go back". Results use the `success` and `error` message boxes.
+- The page (`#/weekly-goal`) is opened from a "Set weekly goal ›" secondary button (`.dashboard-milestone__goal-button`, the same look as Today's workout's "View your weekly plan ›"; full width on phones) at the bottom of the Weekly milestone card on Home, and from the Weekly goal card on Profile. It uses the shared page column with a "← Back to Dashboard" link. Its form card has radio inputs drawn as 44px buttons (selected: `action` border on `selected-bg` with `action-text`; "This week" / "Next week" also get a tick), "Review goal ›" as the primary button, then a confirmation box with an `action` border, "Confirm and save" and a subtle "Go back". Focus moves to the question when it opens and back to "Review goal ›" on "Go back". Results use the `success` and `error` message boxes.
 
 ### Weekly consistency view (`src/weekly/`, weekly consistency competition story)
 
@@ -307,6 +318,19 @@ Follows page 3 of the Monday visual brief ("A competition that starts fresh each
 - On a phone the header is hidden and each row puts the bar and "3 of 3 days" under the name, with the percentage on the right.
 - Home's weekly card shows the same rank ("Weekly rank": "#2", or "Practice week", "Not joined" or "Test account" when there is none) and links to this view with "View weekly standings ›" and the circle's name.
 - Loading "Loading this week's standings…", the `error` box with "Try again", and "Nobody is ranked with a 3-day goal this week yet." when the group is empty. A group of one shows its single row.
+
+### Workout buddies page (`src/buddies/`, added by #79)
+
+Buddies in the navigation opens it at `#/buddies`. Shared page column; the cards stop at 760px inside it.
+
+- Heading "Workout buddies" at 28/500 with a `text-muted` line under it.
+- Not in a group: one `surface` card with "You're not in a group yet.", the "Invite code \*" box (monospace, capitals, 220px wide) beside the primary "Join group", the hint under both, an "or" rule, and the secondary "Create a group", which opens "Group name \*" with "Create" and a subtle "Cancel" in its place. On a phone: box, hint, error, then the full-width button.
+- The group card: uppercase `text-muted` eyebrow "Your group", the name at 22/500 and "3 members". The owner also gets an "Invite code" panel on `surface-sunken` with the code at 26/600 monospace and its expiry; an expired code is struck through with an `error` "Expired …" pill.
+- Member rows (at least 44px): a 32px initials circle (`action` for your own row), the name at 15/500, "Owner" and "You" pills, and a text-style "Encourage" button on every row but yours. It opens the message form under the row on `surface-sunken`: "To Ben C.", "Your message \*", a "32/140" counter (in `action-text` at the limit), "Send" and "Cancel".
+- "Encouragements for you" card: sender at 600, the time in `text-muted` 12px, the text in `text-soft`, newest first; empty: "No encouragements yet. When someone in your group encourages you, it appears here."
+- Limits stop typing: the code at 8 characters, the name at 40, the message at 140 (an emoji counts as one).
+- Messages: success in the `success` box with a tick and `role="status"`; "already in a group" and a failed load in the `error` box with a button ("Show my group", "Try again"); a wrong code or a failed request as `error-text` under the box or button it belongs to, with the red outline and `aria-invalid` on a refused box. Busy buttons say "Joining…", "Creating…" or "Sending…" and are disabled.
+- Keyboard: Enter submits each form, Escape closes the create and message forms and puts focus back on the button that opened them; after joining or creating, focus moves to the group's name.
 
 ### Gym backdrop (`src/components/GymBackdrop.jsx`, added by #93)
 

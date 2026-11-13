@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import Breadcrumb from './Breadcrumb.jsx'
+import BackLink from './BackLink.jsx'
 import NavBar from './NavBar.jsx'
 import BodyFigure from './BodyFigure.jsx'
 import PlanEquipmentDot from './PlanEquipmentDot.jsx'
@@ -26,14 +26,11 @@ function PlanDetails() {
       .catch((err) => setError(err.message))
   }, [id])
 
-  const crumbs = [{ label: 'Weekly plan', to: '/weekly-plan' }, { label: 'Plans', to: '/plans' }]
-  if (plan) crumbs.push({ label: plan.name })
-
   return (
     <div className="plan-library">
       <NavBar current="Plans" />
       <main className="plan-details">
-        <Breadcrumb crumbs={crumbs} />
+        <BackLink to="/plans">Back to plan library</BackLink>
         <PlanSelectionStatus loggedOut={selection.loggedOut} notice={selection.notice} />
         {error && <p className="status">Error loading plan: {error}</p>}
         {!error && plan === null && <p className="status">Loading plan...</p>}

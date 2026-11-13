@@ -31,14 +31,8 @@
   justify-content: space-between;
   gap: 12px;
   height: 100%;
-  padding: 20px 48px 14px;
-}
-
-@media (max-width: 900px) {
-  .gym-backdrop__content {
-    padding-right: 20px;
-    padding-left: 20px;
-  }
+  /* The band is full width but its text sits on the page column (src/index.css --gr-page-width). */
+  padding: 20px max(var(--gr-page-gutter), calc((100% - var(--gr-page-width)) / 2 + var(--gr-page-gutter))) 14px;
 }
 
 @media (max-width: 640px) {
