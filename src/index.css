@@ -2745,64 +2745,115 @@ a.today-workout__details:hover {
   }
 }
 
-.exercise-guide-modal {
+/* While a tool's panel is open its button is highlighted, and pressing it again closes the panel. */
+.wl-button.exercise-tool[aria-expanded='true'] {
+  border-color: var(--gr-action);
+  background: var(--gr-selected-bg);
+}
+
+/* With a docked side panel open (src/components/SidePanel.css, 1100px and wider) the exercise column slides away from
+   it by just enough to keep 16px clear: not at all at 1440px, 170px at 1100px. A panel spans 400px from its edge of
+   the window (24px margin + 360px + 16px gap), so the slide is (50vw + 320px) - (100vw - 400px) = 720px - 50vw.
+   A panel on each side only stays open at 1440px and wider, where no slide is needed. Relative offset rather than
+   transform, so a fixed pop-up inside the column still covers the window. */
+@media (min-width: 1100px) {
+  .exercise-session > :not(.modal-backdrop) {
+    position: relative;
+    left: 0;
+  }
+
+  body:has(.side-panel-backdrop--right):not(:has(.side-panel-backdrop--left)) .exercise-session > :not(.modal-backdrop) {
+    left: calc(-1 * max(0px, 720px - 50vw));
+  }
+
+  body:has(.side-panel-backdrop--left):not(:has(.side-panel-backdrop--right)) .exercise-session > :not(.modal-backdrop) {
+    left: max(0px, 720px - 50vw);
+  }
+}
+
+@media (min-width: 1100px) and (prefers-reduced-motion: no-preference) {
+  .exercise-session > :not(.modal-backdrop) {
+    transition: left 0.2s ease;
+  }
+}
+
+/* The contents of the "How to perform it" panel (src/ExerciseGuide.jsx). */
+.exercise-guide__video {
+  display: block;
   width: 100%;
-  max-width: 520px;
-  max-height: 90vh;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 24px;
-  box-sizing: border-box;
-  background: var(--gr-surface);
-  border-radius: var(--gr-radius-card);
-  box-shadow: var(--gr-shadow-menu);
-}
-
-.exercise-guide-modal__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.exercise-guide-modal__header h2 {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 500;
-  color: var(--gr-text);
-}
-
-.exercise-guide-modal__video {
-  width: 100%;
-  max-height: 340px;
+  max-height: 260px;
   object-fit: contain;
   background: var(--gr-surface-sunken);
+  border: 1px solid var(--gr-border-strong);
   border-radius: var(--gr-radius-inner);
 }
 
-.exercise-guide-modal h3 {
-  margin: 8px 0 0;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.exercise-guide-modal ol,
-.exercise-guide-modal ul {
-  margin: 0;
-  padding-left: 20px;
+.exercise-guide__section {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 14px;
-  color: var(--gr-text-subtle);
+  gap: 10px;
 }
 
-.exercise-guide-modal__message {
+.exercise-guide__section h3 {
   margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gr-text);
+}
+
+.exercise-guide__steps,
+.exercise-guide__tips {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
   font-size: 14px;
-  color: var(--gr-text-subtle);
+  color: var(--gr-text-soft);
+}
+
+.exercise-guide__steps {
+  counter-reset: guide-step;
+}
+
+.exercise-guide__steps li,
+.exercise-guide__tips li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.exercise-guide__steps li::before {
+  counter-increment: guide-step;
+  content: counter(guide-step);
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gr-action);
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gr-action-text);
+}
+
+.exercise-guide__tips {
+  padding: 14px 16px;
+  background: var(--gr-surface-raised);
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-inner);
+}
+
+.exercise-guide__tips svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 4px;
+  color: var(--gr-success);
 }
 
 .exercise-session__set {
