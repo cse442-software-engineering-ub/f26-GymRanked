@@ -16,7 +16,7 @@ Two tasks under it:
 | Is there a proposed card with tests? | Yes: card #133 holds the design details and **9 task tests** on aptitude, and a proposal for story #131's **6 acceptance tests** is in [`133-navigation-story-tests-proposal.md`](133-navigation-story-tests-proposal.md) for Nicholas, who leads the story, and Samuel to agree (section 7). |
 | Is there an example to walk through? | Yes: [`133-navigation-menu-prototype.html`](133-navigation-menu-prototype.html), next to this file. Open it in a browser. It shows 12 screens at computer, tablet and phone width in dark and light mode, with a sample account and workout, and needs no server. The phone view is a real 375 px page, so the menu, Tab and Escape behave as they will in the app. |
 | Is it built? | No. Programming starts after the review. |
-| What is verified? | The example, with a script: 52 of 52 checks passed. They cover the sidebar staying in place over nine page changes, the highlighted section on nine pages, the Tab order, the two review checks (section 4), every menu row at least 44 px, no sideways scrolling at 1280, 1024, 901, 900, 768, 375 and 320 px, the menu closing when the window is widened, logging out, and the card's three Console lines. |
+| What is verified? | The example, with a script: 58 of 58 checks passed. They cover the sidebar staying in place over nine page changes, the highlighted section on nine pages, the Tab order, the two review checks (section 4), every menu row at least 44 px, no sideways scrolling at 1280, 1024, 901, 900, 768, 701, 700, 641, 375 and 320 px, the menu closing when the window is widened, logging out, and the card's three Console lines. |
 | What is **not** verified yet? | Anything in the real app. The menu map is Nicholas's and this example uses the grouping from the assignment. "Resume workout" on Workouts and Dashboard is Surya's and Eric's (section 6). |
 
 ## 2. What the lifter sees
@@ -28,7 +28,7 @@ Two tasks under it:
 | 03 | Workout history keeps Progress highlighted | <img src="133-navigation-menu-screens/03-desktop-workout-history.png" alt="Workout history keeps Progress highlighted" width="420"> | |
 | 04 | Logging a set: the menu is still there and Workouts is highlighted | <img src="133-navigation-menu-screens/04-desktop-logging.png" alt="Logging a set with the sidebar" width="420"> | <img src="133-navigation-menu-screens/08-phone-menu-open-logging.png" alt="Phone menu open during a workout" width="170"> |
 | 05 | Profile, reached from the bottom of the menu | <img src="133-navigation-menu-screens/05-desktop-profile.png" alt="Profile" width="420"> | |
-| 06 | Tablet, 768 px: the page keeps its full width and the menu is behind "Menu" | <img src="133-navigation-menu-screens/09-tablet-768.png" alt="Tablet at 768 px" width="300"> | |
+| 06 | Tablet, 768 px: the sidebar is narrower (184 px) and the page has less padding | <img src="133-navigation-menu-screens/09-tablet-768.png" alt="Tablet at 768 px" width="300"> | |
 | 07 | After "Log out": the login page, with no menu | <img src="133-navigation-menu-screens/10-logged-out.png" alt="Logged out" width="420"> | |
 | 08 | Light mode | <img src="133-navigation-menu-screens/light-desktop-logging.png" alt="Light mode, computer" width="420"> | <img src="133-navigation-menu-screens/light-phone-menu-open.png" alt="Light mode, phone menu" width="170"> |
 
@@ -38,7 +38,7 @@ The example file itself:
 
 ## 3. How the menu works
 
-- **One menu, two layouts.** The same groups and rows are shown in the sidebar (901 px wide or more) and behind "Menu" (900 px or less): Training (Dashboard, Workouts, Plans, Progress), Community (Rankings, Buddies), then the profile row and "Log out".
+- **One menu, two layouts.** The same groups and rows are shown in the sidebar (701 px wide or more, as in the PM's mockup) and behind "Menu" (700 px or less): Training (Dashboard, Workouts, Plans, Progress), Community (Rankings, Buddies), then the profile row and "Log out".
 - **The sidebar stays in place.** It is part of the frame around the signed-in pages, not part of each page, so changing pages changes only the page beside it.
 - **"Menu" on a phone** opens the same groups from the left. The page behind is dimmed and cannot be clicked or tabbed to. Choosing a page, Escape, "Close" or a tap outside closes it.
 - **Where you are** is always highlighted with an orange bar, a tinted row and bolder text, and is marked for screen readers. A page inside a section keeps the section highlighted.
@@ -70,7 +70,7 @@ Both can be done in the example (screens 10 and 11 in its list) and are task tes
 
 ## 5. Open points for the review
 
-1. **Where the sidebar starts.** Proposed: sidebar from 901 px, "Menu" up to 900 px, so a 768 px tablet keeps the full page width. The PM's mockup switches at 701 px. The code is the same either way.
+1. **Pages beside the sidebar on a tablet.** The sidebar shows from 701 px, the same width as the PM's mockup, and is 184 px wide up to 900 px (232 px above that). At 768 px that leaves the page 584 px, and at 701 px 517 px. The app's pages switch to their phone layout by the width of the window (640 px or less), so between 701 and about 870 px a page would keep its computer layout in a space narrower than 640 px. This task therefore has to make the pages choose their layout by the space they actually have. It touches the 640 px rules in every page's styles, which is the largest part of the work and overlaps Mansur's page-width task.
 2. **Log out in the menu.** The PM's mockup shows only the profile row. Proposed: keep "Log out" under it, because story tests log out from the navigation on most stories.
 3. **Story checks that name the old bar.** Logging out through "Open account menu" (`tests/e2e/helpers.js` and stories 8, 9, 18, 86, 97), the class `nav-bar__link--current` (stories 8, 9, 72), the bar's text in story 18, and the link name "Leaderboard" (stories 10, 124) if it becomes "Rankings". The names "Primary", "Mobile navigation" and "Open navigation menu" are kept so the other checks keep working. Proposed: update these checks in this task.
 4. **Story cards that describe the old bar** ("the row of links across the top", the round initials button), for example #78, need the new wording after this ships.
