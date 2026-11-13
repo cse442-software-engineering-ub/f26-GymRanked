@@ -4,7 +4,6 @@ import {
   MESSAGE_MAX,
   NAME_MAX,
   cleanInviteCode,
-  clipChars,
   countChars,
   fitsLimit,
   formatExpiry,
@@ -36,9 +35,8 @@ test('the 140-character count treats an emoji as one character', () => {
   assert.equal(countChars('Great session today, keep it up!'), 32)
   assert.equal(countChars('💪'), 1)
   assert.equal(countChars('a'.repeat(139) + '💪'), 140)
-  assert.equal(clipChars('a'.repeat(141), MESSAGE_MAX), 'a'.repeat(140))
-  assert.equal(clipChars('a'.repeat(139) + '💪💪', MESSAGE_MAX), 'a'.repeat(139) + '💪')
-  assert.equal(clipChars('short', MESSAGE_MAX), 'short')
+  assert.equal(countChars('1234567890'.repeat(14) + 'A'), 141)
+  assert.equal(countChars('a'.repeat(139) + '💪💪'), 141)
 })
 
 test('empty, blank and too long text is refused', () => {
@@ -47,6 +45,10 @@ test('empty, blank and too long text is refused', () => {
   assert.equal(fitsLimit('Keep going!', MESSAGE_MAX), true)
   assert.equal(fitsLimit('a'.repeat(140), MESSAGE_MAX), true)
   assert.equal(fitsLimit('a'.repeat(141), MESSAGE_MAX), false)
+  assert.equal(fitsLimit('a'.repeat(139) + '💪', MESSAGE_MAX), true)
+  assert.equal(fitsLimit('a'.repeat(139) + '💪💪', MESSAGE_MAX), false)
+  // Spaces around the text are not counted, the same as the backend's trim.
+  assert.equal(fitsLimit('  ' + 'a'.repeat(140) + '  ', MESSAGE_MAX), true)
   assert.equal(fitsLimit("Cal's Crew", NAME_MAX), true)
   assert.equal(fitsLimit('a'.repeat(41), NAME_MAX), false)
 })

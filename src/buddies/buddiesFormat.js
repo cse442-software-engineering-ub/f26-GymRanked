@@ -34,12 +34,6 @@ export function countChars(value) {
   return [...String(value)].length
 }
 
-// The first `max` characters, never cutting an emoji in half.
-export function clipChars(value, max) {
-  const chars = [...String(value)]
-  return chars.length > max ? chars.slice(0, max).join('') : String(value)
-}
-
 // True when the trimmed text has between 1 and `max` characters.
 export function fitsLimit(value, max) {
   const count = countChars(String(value).trim())
