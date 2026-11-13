@@ -1658,8 +1658,18 @@ button.nav-bar__avatar {
 
 /* Plan details */
 
-.plan-details > * {
+/* A reading column centred in the page column. Popups (.modal-backdrop) are direct children too and must stay full
+   screen, so they are left out; the back link is inline, so it is moved to the column's left edge by hand. */
+.plan-details > :not(.modal-backdrop):not(.back-link) {
+  width: 100%;
   max-width: 796px;
+  margin-inline: auto;
+}
+
+.plan-details > .back-link {
+  display: flex;
+  width: fit-content;
+  margin-left: max(0px, calc((100% - 796px) / 2));
 }
 
 .plan-details {
@@ -2618,9 +2628,15 @@ a.today-workout__details:hover {
 
 /* Exercise session (one exercise of the active workout) */
 
-/* The page uses the shared column; the exercise itself stays 640px wide inside it, at the left like every title. */
-.exercise-session > * {
+/* The page uses the shared column; the exercise itself is a 640px column centred inside it. */
+.exercise-session > :not(.modal-backdrop):not(.back-link) {
+  width: 100%;
   max-width: 640px;
+  margin-inline: auto;
+}
+
+.exercise-session > .back-link {
+  margin-left: max(0px, calc((100% - 640px) / 2));
 }
 
 .exercise-session__header {
