@@ -13,6 +13,7 @@ const NAV_LINKS = [
   { label: 'Progress', to: '/progress', icon: 'progress' },
   { label: 'Leaderboard', to: '/leaderboard/weekly', icon: 'trophy' },
   { label: 'Today', to: '/workouts/today', icon: 'today' },
+  { label: 'Buddies', to: '/buddies', icon: 'buddies' },
 ]
 
 function NavBar({ current, userName = '', showStartWorkout = true }) {

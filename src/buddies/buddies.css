@@ -1,0 +1,528 @@
+/* Workout buddies page (story #78, card #79). Colours, radii and type follow DESIGN.md, from the --gr- variables
+   only so light mode works. .buddies-screen wraps the nav bar and the page; .buddies-page is the page itself (the
+   card's phone check measures the controls inside it). The page uses the shared page column; its cards stop at a readable 760px inside it.
+   Phones (640px or less): the code box and "Join group" stack, the message form is full width, every control is
+   at least 44px tall and wide. */
+
+.buddies-screen {
+  min-height: 100vh;
+  background: var(--gr-bg-page);
+  color: var(--gr-text);
+  font-family: var(--gr-font);
+}
+
+.buddies-page__content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.buddies-page__content > * {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 760px;
+}
+
+.buddies-page *,
+.buddies-page *::before,
+.buddies-page *::after {
+  box-sizing: border-box;
+}
+
+.buddies-page :focus-visible {
+  outline: 3px solid var(--gr-brand);
+  outline-offset: 3px;
+}
+
+.buddies-heading h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.buddies-heading p {
+  margin: 6px 0 0;
+  color: var(--gr-text-muted);
+  font-size: 15px;
+}
+
+.buddies-status {
+  margin: 0;
+  padding: 12px 0;
+  color: var(--gr-text-muted);
+  font-size: 14px;
+}
+
+/* Cards */
+.buddies-card {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+}
+
+.buddies-card p,
+.buddies-card h2 {
+  margin: 0;
+}
+
+.buddies-empty-title,
+.buddies-group-name {
+  color: var(--gr-text);
+  font-size: 22px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.buddies-group-name:focus-visible {
+  border-radius: 4px;
+}
+
+.buddies-card__lead,
+.buddies-compose__to,
+.buddies-invite__expires {
+  color: var(--gr-text-soft);
+  font-size: 14px;
+}
+
+.buddies-compose__to strong {
+  color: var(--gr-text);
+}
+
+.buddies-eyebrow {
+  color: var(--gr-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.buddies-count,
+.buddies-empty-inbox {
+  color: var(--gr-text-muted);
+  font-size: 14px;
+}
+
+/* Success and error boxes: an icon and words as well as colour. */
+.buddies-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid;
+  border-radius: var(--gr-radius-button);
+  font-size: 14px;
+}
+
+.buddies-notice p {
+  flex: 1 1 220px;
+  margin: 0;
+}
+
+.buddies-notice--ok {
+  justify-content: flex-start;
+  gap: 0;
+  border-color: var(--gr-success);
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
+}
+
+.buddies-notice--error {
+  border-color: var(--gr-error);
+  background: var(--gr-error-bg);
+  color: var(--gr-error-text);
+}
+
+.buddies-notice__icon {
+  margin-right: 8px;
+  font-weight: 700;
+}
+
+/* Fields */
+.buddies-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.buddies-field label {
+  color: var(--gr-text-label);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.buddies-required {
+  color: var(--gr-action-text);
+}
+
+.buddies-hint {
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+
+.buddies-field-error {
+  color: var(--gr-error-text);
+  font-size: 13px;
+}
+
+.buddies-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--gr-input-border);
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-input-bg);
+  color: var(--gr-input-text);
+  font: inherit;
+  font-size: 16px;
+}
+
+.buddies-input[aria-invalid="true"] {
+  outline: 2px solid var(--gr-error);
+  outline-offset: 0;
+}
+
+.buddies-input--code {
+  max-width: 220px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  letter-spacing: 0.18em;
+}
+
+.buddies-input--message {
+  min-height: 88px;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+.buddies-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+/* Code box and "Join group" side by side with the hint and error under both; on phones box, hint, error, button. */
+.buddies-join-row {
+  display: grid;
+  grid-template-columns: minmax(0, 220px) auto 1fr;
+  grid-template-areas: "box button ." "hint hint hint" "error error error";
+  gap: 6px 10px;
+}
+
+.buddies-join-row__code {
+  display: contents;
+}
+
+.buddies-join-row .buddies-input--code { grid-area: box; }
+.buddies-join-row .buddies-button { grid-area: button; }
+.buddies-join-row .buddies-hint { grid-area: hint; }
+.buddies-join-row .buddies-field-error { grid-area: error; }
+
+.buddies-label-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.buddies-counter {
+  margin-left: auto;
+  color: var(--gr-text-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.buddies-counter--full {
+  color: var(--gr-action-text);
+  font-weight: 600;
+}
+
+.buddies-or {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+
+.buddies-or::before,
+.buddies-or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--gr-border-strong);
+}
+
+/* Buttons */
+.buddies-button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--gr-radius-button);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.buddies-button--primary {
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+}
+
+.buddies-button--secondary {
+  border-color: var(--gr-border-strong);
+  background: var(--gr-surface-raised);
+  color: var(--gr-text);
+}
+
+.buddies-button--subtle {
+  background: transparent;
+  color: var(--gr-text-subtle);
+}
+
+.buddies-button--text {
+  padding: 10px 8px;
+  background: transparent;
+  color: var(--gr-action-text);
+  font-size: 14px;
+}
+
+.buddies-button:disabled {
+  border-color: transparent;
+  background: var(--gr-surface-raised);
+  color: var(--gr-nav-inactive);
+  cursor: not-allowed;
+}
+
+.buddies-open-create {
+  justify-self: start;
+}
+
+/* The group */
+.buddies-group-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+
+.buddies-group-head > div:first-child {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.buddies-invite {
+  display: grid;
+  flex: 0 1 320px;
+  gap: 6px;
+  min-width: 240px;
+  padding: 14px 16px;
+  border-radius: var(--gr-radius-inner);
+  background: var(--gr-surface-sunken);
+}
+
+.buddies-invite__label {
+  color: var(--gr-text-muted);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.buddies-invite-code {
+  color: var(--gr-text);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  user-select: all;
+}
+
+.buddies-invite--expired .buddies-invite-code {
+  color: var(--gr-text-muted);
+  text-decoration: line-through;
+}
+
+.buddies-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: 999px;
+  color: var(--gr-text-soft);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.buddies-pill--me {
+  border-color: var(--gr-action);
+  color: var(--gr-action-text);
+}
+
+.buddies-pill--warn {
+  border-color: var(--gr-error);
+  background: var(--gr-error-bg);
+  color: var(--gr-error-text);
+}
+
+.buddies-members,
+.buddies-inbox {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.buddies-member {
+  display: grid;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid var(--gr-border);
+}
+
+.buddies-member:first-child {
+  border-top: 0;
+}
+
+.buddies-member__line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+}
+
+.buddies-initials {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--gr-surface-raised);
+  color: var(--gr-text-soft);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.buddies-member.is-me .buddies-initials {
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+}
+
+.buddies-member__labels {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  min-width: 0;
+}
+
+.buddies-member-name {
+  color: var(--gr-text);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.buddies-compose {
+  display: grid;
+  gap: 10px;
+  margin-left: 44px;
+  padding: 14px;
+  border-radius: var(--gr-radius-inner);
+  background: var(--gr-surface-sunken);
+}
+
+.buddies-solo {
+  padding: 10px 12px;
+  border-radius: var(--gr-radius-inner);
+  background: var(--gr-surface-sunken);
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+
+/* Encouragements for you */
+.buddies-message {
+  display: grid;
+  gap: 4px;
+  padding: 12px 0;
+  border-top: 1px solid var(--gr-border);
+}
+
+.buddies-message:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.buddies-message:last-child {
+  padding-bottom: 0;
+}
+
+.buddies-message__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.buddies-message-from {
+  color: var(--gr-text);
+  font-weight: 600;
+}
+
+.buddies-message time {
+  color: var(--gr-text-muted);
+  font-size: 12px;
+}
+
+.buddies-message-text {
+  color: var(--gr-text-soft);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 640px) {
+  .buddies-card {
+    padding: 16px;
+  }
+
+  .buddies-join-row {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "box" "hint" "error" "button";
+  }
+
+  .buddies-join-row .buddies-button {
+    margin-top: 4px;
+  }
+
+  .buddies-input--code {
+    max-width: none;
+  }
+
+  .buddies-compose {
+    margin-left: 0;
+  }
+
+  .buddies-compose .buddies-actions .buddies-button {
+    flex: 1;
+  }
+
+  .buddies-invite {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .buddies-button {
+    transition: background-color 120ms;
+  }
+}
