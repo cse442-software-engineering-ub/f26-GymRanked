@@ -1171,30 +1171,19 @@ button.nav-bar__avatar {
   height: 18px;
 }
 
-/* Plan cards: a responsive grid. Each li is a card (DESIGN.md "Card"): surface, 1px border, 12px corners. */
+/* Plan cards: a responsive grid. Each li is a card (DESIGN.md "Card"): surface, 1px border, 12px corners.
+   Columns are as many as fit at 250px or more, so a card is never squeezed narrower than its text needs, whatever
+   the width of the page column (the five fixed columns made cards 208px wide once the page column was 1200px). */
 .plan-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 16px;
 }
 
-/* Five columns on wide screens, three on medium, two on tablets, one on phones (the recommended row
-   becomes a swipeable carousel there, see the 640px block below). */
-@media (max-width: 1399px) {
-  .plan-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 899px) {
-  .plan-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
+/* On phones one column (the recommended row becomes a swipeable carousel there, see the 640px block below). */
 @media (max-width: 640px) {
   .plan-list {
     grid-template-columns: 1fr;
@@ -1494,9 +1483,8 @@ button.nav-bar__avatar {
 }
 
 .plan-card__stats {
-  display: grid;
-  grid-template-columns: repeat(3, auto);
-  justify-content: start;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px 20px;
   margin: 0;
 }
