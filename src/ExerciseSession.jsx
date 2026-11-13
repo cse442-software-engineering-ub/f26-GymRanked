@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import BodyFigure from './BodyFigure.jsx'
-import Breadcrumb from './Breadcrumb.jsx'
+import BackLink from './BackLink.jsx'
 import ExerciseGuide from './ExerciseGuide.jsx'
 import { markFinished } from './finishedExercises.js'
 import { EMPTY_DRAFT, loadDraft, saveDraft } from './setDraft.js'
@@ -165,13 +165,7 @@ function ExerciseSession() {
     <div className="dashboard-page">
       <NavBar current="Workouts" />
       <main className="dashboard-content exercise-session" aria-busy={status === 'loading'}>
-        <Breadcrumb
-          crumbs={[
-            { label: 'Weekly plan', to: '/weekly-plan' },
-            { label: 'Active workout', to: '/workout/active' },
-            { label: exercise?.name ?? 'Exercise' },
-          ]}
-        />
+        <BackLink to="/workout/active">Back to workout</BackLink>
         {status === 'loading' && <p className="status">Loading your exercise...</p>}
         {status === 'loggedOut' && (
           <p className="status">
@@ -185,7 +179,7 @@ function ExerciseSession() {
         )}
         {status === 'missing' && (
           <p className="status">
-            This exercise isn&apos;t available (the workout may be finished). <Link to="/workout/active">Back to your workout</Link>
+            This exercise isn&apos;t available (the workout may be finished).
           </p>
         )}
         {status === 'ready' && (
