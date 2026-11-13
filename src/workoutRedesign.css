@@ -4,6 +4,11 @@
 .active-workout__mobile-time {
   display: none;
 }
+.active-workout__mobile-heading,
+.active-step__index,
+.active-step__count,
+.day-card__date { display: none; }
+.weekly-plan__mobile-title { display: none; }
 .workout-redesign__mobile-label { display: none; }
 
 @media (min-width: 641px) {
@@ -11,6 +16,28 @@
 }
 
 @media (max-width: 640px) {
+  .active-workout__mobile-heading { display: block; padding: 18px 20px 10px; }
+  .active-workout__mobile-heading h1 { margin: 0; font-size: 28px; font-weight: 500; }
+  .dashboard-page:has(.active-workout__mobile-heading) > .gym-backdrop {
+    height: auto;
+    min-height: 104px;
+    margin: 0 20px;
+    border: 1px solid var(--gr-border);
+    border-left: 3px solid var(--gr-action);
+    border-radius: var(--gr-radius-card);
+    background: var(--gr-surface);
+  }
+  .dashboard-page:has(.active-workout__mobile-heading) > .gym-backdrop::before { display: none; }
+  .dashboard-page:has(.active-workout__mobile-heading) > .gym-backdrop .gym-backdrop__content { padding: 16px; }
+  .dashboard-page:has(.active-workout__mobile-heading) .dashboard-header h1 { font-size: 22px; }
+  .dashboard-page:has(.active-workout__mobile-heading) .dashboard-header p { margin: 3px 0; }
+  .dashboard-page:has(.active-workout__mobile-heading) .active-metrics,
+  .dashboard-page:has(.active-workout__mobile-heading) .active-workout__position { display: none; }
+  .dashboard-page:has(.active-workout__mobile-heading) .active-workout__mobile-log { order: 1; }
+  .dashboard-page:has(.active-workout__mobile-heading) .active-steps { order: 2; }
+  .dashboard-page:has(.active-workout__mobile-heading) .wl-complete { order: 3; }
+  .dashboard-page:has(.active-workout__mobile-heading) .active-workout__leave { order: 4; }
+
   .nav-bar--with-start .nav-bar__actions {
     display: flex;
     order: 3;
@@ -31,52 +58,55 @@
   .weekly-plan__days { order: 2; }
 
   .weekly-plan > .today-workout {
-    gap: 12px;
+    gap: 8px;
     border-left: 3px solid var(--gr-action);
+    background-image: linear-gradient(to right, var(--gr-surface) 20%, color-mix(in srgb, var(--gr-surface) 86%, transparent)), var(--workout-hero-image);
+    background-position: center;
+    background-size: cover;
   }
+  .weekly-plan__desktop-title { display: none; }
+  .weekly-plan__mobile-title { display: inline; }
+  .weekly-plan__days { display: block; border-top: 1px solid var(--gr-border); }
+  .weekly-plan__days::before { content: 'Your week'; display: block; margin: 14px 0; font-size: 22px; font-weight: 500; }
+  .day-card { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 12px 4px; border: 0; border-bottom: 1px solid var(--gr-border); border-radius: 0; background: transparent; }
+  .day-card--today { padding-left: 12px; border-left: 3px solid var(--gr-action); background: var(--gr-selected-bg); }
+  .day-card__weekday { grid-column: 1; }
+  .day-card__date { display: inline; }
+  .day-card__name { grid-column: 1; font-size: 15px; }
+  .day-card__status { grid-column: 2; grid-row: 1 / 3; align-self: center; }
+  .day-card__status a { color: var(--gr-action-text); min-height: 44px; display: inline-flex; align-items: center; }
 
   .today-workout__mobile-exercises {
     display: block;
     width: 100%;
     margin-top: 4px;
-    border-top: 1px solid var(--gr-border);
   }
 
   .today-workout__mobile-exercises h3 {
-    margin: 16px 0 4px;
-    font-size: 16px;
-    font-weight: 600;
+    display: inline;
+    margin: 0 4px 0 0;
+    font-size: 13px;
+    font-weight: 500;
   }
 
   .today-workout__mobile-exercises ol {
+    display: inline;
     list-style: none;
     margin: 0;
     padding: 0;
   }
 
   .today-workout__mobile-exercises li {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 44px;
-    border-top: 1px solid var(--gr-border);
-    font-size: 14px;
+    display: inline;
+    font-size: 13px;
   }
 
-  .today-workout__mobile-exercises li:first-child { border-top: 0; }
-  .today-workout__mobile-exercises li span {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--gr-surface-raised);
-    color: var(--gr-action-text);
-    font-size: 12px;
-  }
+  .today-workout__mobile-exercises li + li::before { content: ' · '; }
+  .today-workout__mobile-exercises li span { display: none; }
 
-  .today-workout__mobile-exercises li strong { font-weight: 500; }
+  .today-workout__mobile-exercises li strong { font-weight: 400; }
+  .today-workout__details { display: none; }
+  button.today-workout__start { min-height: 44px; }
 
   .active-workout__desktop-exercises,
   .active-workout__nav { display: none; }
@@ -89,9 +119,13 @@
     border-radius: var(--gr-radius-card);
     background: var(--gr-surface);
   }
+  .active-steps::before { content: 'Exercises'; display: block; padding: 16px 16px 8px; font-size: 18px; font-weight: 600; }
 
   .active-steps li + li { border-top: 1px solid var(--gr-border); }
   .active-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     width: 100%;
     min-height: 48px;
     text-align: left;
@@ -99,6 +133,10 @@
     border-radius: 0;
     background: none;
   }
+  .active-step__index, .active-step__count { display: inline; }
+  .active-step__index { color: var(--gr-text-muted); font-size: 12px; }
+  .active-step__name { overflow: hidden; text-overflow: ellipsis; }
+  .active-step__count { margin-left: auto; color: var(--gr-text-muted); font-size: 12px; }
   .active-step--current {
     border-left: 3px solid var(--gr-action);
     background: var(--gr-selected-bg);
@@ -106,6 +144,26 @@
 
   .active-workout__position { margin-bottom: 4px; }
   .active-workout__mobile-log { min-width: 0; }
+  .quick-set { padding: 16px; border: 1px solid var(--gr-border); border-radius: var(--gr-radius-card); background: var(--gr-surface); }
+  .quick-set__heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .quick-set__heading h2 { margin: 0; font-size: 18px; }
+  .quick-set__heading span, .quick-set__count { color: var(--gr-text-muted); font-size: 13px; }
+  .quick-set h3 { margin: 12px 0; font-size: 20px; }
+  .quick-set form { display: flex; align-items: flex-end; gap: 8px; }
+  .quick-set form label { flex: 1; min-width: 0; color: var(--gr-text-label); font-size: 12px; }
+  .quick-set input { box-sizing: border-box; display: block; width: 100%; height: 44px; margin-top: 4px; padding: 8px; border: 1px solid var(--gr-input-border); border-radius: var(--gr-radius-button); background: var(--gr-input-bg); color: var(--gr-input-text); font: inherit; font-size: 16px; }
+  .quick-set input[aria-invalid="true"] { outline: 2px solid var(--gr-error); }
+  .quick-set form button { flex: none; min-height: 44px; padding-inline: 12px; }
+  .quick-set__count { margin: 16px 0 6px; }
+  .quick-set__saved { list-style: none; margin: 0; padding: 0; }
+  .quick-set__saved li { display: flex; align-items: center; gap: 8px; min-height: 40px; border-top: 1px solid var(--gr-border); font-size: 13px; }
+  .quick-set__saved li strong { margin-left: auto; font-weight: 500; }
+  .quick-set__saved li span:last-child { color: var(--gr-success-text); }
+  .quick-set__rest { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; color: var(--gr-text-soft); font-size: 13px; }
+  .quick-set__rest button, .quick-set__rest-start { min-height: 44px; padding: 0; border: 0; background: none; color: var(--gr-action-text); font: inherit; cursor: pointer; }
+  .quick-set__rest-start { margin-top: 8px; }
+  .active-workout__leave { display: grid; place-items: center; min-height: 44px; color: var(--gr-text-soft); text-decoration: underline; }
+  .active-workout__leave:focus-visible { outline: 2px solid var(--gr-action-text); }
   .exercise-session--inline {
     display: grid;
     gap: 16px;

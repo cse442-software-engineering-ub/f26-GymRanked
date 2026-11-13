@@ -9,18 +9,19 @@ import { summaryPath } from './workoutLog/setLog.js'
 import { easternDate, todaySessionState } from './weeklyTimeline.js'
 
 const STATUS_LABELS = { past: 'Earlier this week', today: 'Today', upcoming: 'Upcoming' }
+const calendarDate = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 
-function DayCard({ day }) {
+function DayCard({ day, date, savedSession }) {
   const classes = ['day-card']
   if (day.when === 'today') classes.push('day-card--today')
   if (!day.workout) classes.push('day-card--rest')
   return (
     <li className={classes.join(' ')} aria-current={day.when === 'today' ? 'date' : undefined}>
-      <span className="day-card__weekday">{day.label}</span>
-      <span className="day-card__name">{day.workout ? day.workout.name : 'Rest day'}</span>
+      <span className="day-card__weekday">{day.label}<span className="day-card__date"> {date.getDate()}{day.when === 'today' ? ' · Today' : ''}</span></span>
+      <span className="day-card__name">{savedSession?.name || day.workout?.name || 'Rest day'}</span>
       <span className="day-card__status">
         {/* Today always says "Today", so it isn't marked by colour alone, even on a rest day. */}
-        {day.when === 'today' ? 'Today' : day.workout ? STATUS_LABELS[day.when] : 'Recovery'}
+        {savedSession ? <Link to={summaryPath(savedSession.id)}>View summary</Link> : day.when === 'today' ? 'Today' : day.workout ? STATUS_LABELS[day.when] : 'Recovery'}
       </span>
     </li>
   )
@@ -69,6 +70,8 @@ function WeeklyPlan() {
   // A workout left over from a previously selected plan isn't resumed: the API starts the new plan's workout instead.
   const resumable = unfinished && plan && unfinished.plan === plan.name ? unfinished : null
   const days = plan ? buildWeek(plan, today) : []
+  const monday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7))
+  const dayDates = days.map((_, index) => new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + index))
   const scheduledWorkout = days.find((day) => day.when === 'today')?.workout
   // What is saved today wins over the weekday schedule: it is the workout the start button opens.
   const saved = todaySessionState(history, unfinished, plan, easternDate(today))
@@ -76,7 +79,7 @@ function WeeklyPlan() {
 
   return (
     <div className="plan-library">
-      <NavBar current="Workouts" mobileStartWorkout />
+      <NavBar current="Workouts" />
       <main className="weekly-plan" aria-busy={!loggedOut && !error && current === null}>
         {loggedOut && (
           <p className="status">
@@ -104,17 +107,15 @@ function WeeklyPlan() {
         {plan && (
           <>
             <div className="weekly-plan__heading">
-              <h1>
-                {plan.name} — Week {current.week}
-              </h1>
+              <h1><span className="weekly-plan__desktop-title">{plan.name} — Week {current.week}</span><span className="weekly-plan__mobile-title">Workouts</span></h1>
               <p>{weekRangeLabel(today)}</p>
             </div>
-            <ol className="weekly-plan__days">
-              {days.map((day) => (
-                <DayCard key={day.label} day={day} />
+            <ol className="weekly-plan__days" aria-label="Your week">
+              {days.map((day, index) => (
+                <DayCard key={day.label} day={day} date={dayDates[index]} savedSession={history.find((session) => easternDate(session.completed_at) === calendarDate(dayDates[index]))} />
               ))}
             </ol>
-            <section className="today-workout" aria-labelledby="today-workout-name">
+            <section className="today-workout" aria-labelledby="today-workout-name" style={{ '--workout-hero-image': `url("${import.meta.env.BASE_URL}backdrops/dumbbells.webp")` }}>
               <p className="today-workout__label">
                 {saved?.state === 'in_progress' ? "Today's workout · In progress" : saved ? "Today's workout · Completed" : "Today's workout"}
               </p>
@@ -123,7 +124,7 @@ function WeeklyPlan() {
               </h2>
               <p className="today-workout__meta">
                 {todayWorkout
-                  ? `${todayWorkout.focus} · ~${todayWorkout.duration_minutes} min`
+                  ? `${plan.name} · ${todayWorkout.focus} · About ${todayWorkout.duration_minutes} min · ${todayWorkout.exercises?.length ?? 0} exercises`
                   : 'Recovery'}
               </p>
               {todayWorkout?.exercises?.length > 0 && (

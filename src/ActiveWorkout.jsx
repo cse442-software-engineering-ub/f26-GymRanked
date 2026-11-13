@@ -5,6 +5,7 @@ import GymBackdrop from './components/GymBackdrop.jsx'
 import ExerciseSession from './ExerciseSession.jsx'
 import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
 import MobileDashboardIcon from './MobileDashboardIcon.jsx'
+import QuickSetLogger from './QuickSetLogger.jsx'
 import NavBar from './NavBar.jsx'
 import { fetchCurrentPlan, fetchPlan } from './plansApi.js'
 import CompleteWorkoutButton from './workoutLog/CompleteWorkoutButton.jsx'
@@ -123,12 +124,13 @@ function ActiveWorkout() {
   return (
     <div className="dashboard-page">
       <NavBar current="Workouts" showStartWorkout={!mobile} />
+      {status === 'ready' && <div className="active-workout__mobile-heading"><h1>Workouts</h1></div>}
       {status === 'ready' && (
         <GymBackdrop image="backdrops/dumbbells.webp" height={240} phoneHeight={200}>
           <span />
           <header className="dashboard-header">
             <div>
-              <span className="dashboard-header__eyebrow">{completed ? 'WORKOUT COMPLETE' : 'ACTIVE WORKOUT'}</span>
+              <span className="dashboard-header__eyebrow">{completed ? 'WORKOUT COMPLETE' : mobile ? 'IN PROGRESS' : 'ACTIVE WORKOUT'}</span>
               <h1>{session.name}</h1>
               <p>{session.plan} · {session.focus}</p>
               {expectedMinutes && <p className="active-workout__mobile-time">About {expectedMinutes} min</p>}
@@ -200,7 +202,9 @@ function ActiveWorkout() {
                       aria-current={index === current ? 'step' : undefined}
                       onClick={() => goTo(index)}
                     >
-                      {finished.has(name) ? '✓ ' : ''}{name}
+                      <span className="active-step__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                      <span className="active-step__name">{finished.has(name) ? '✓ ' : ''}{name}</span>
+                      <span className="active-step__count">{countFor(name)} {countFor(name) === 1 ? 'set' : 'sets'}</span>
                     </button>
                   </li>
                 )
@@ -213,22 +217,15 @@ function ActiveWorkout() {
 
             {mobile && !completed && (
               <div className="active-workout__mobile-log">
-                <ExerciseSession
-                  key={current}
-                  embedded
-                  exerciseIndexOverride={current}
-                  sessionOverride={{ ...session, exercises: exercises.map((exercise) => ({
-                    ...exercise,
-                    sets: savedSets[exercise.name] ?? exercise.sets,
-                  })) }}
+                <QuickSetLogger
+                  key={`${session.id}-${exercises[current].name}`}
+                  sessionId={session.id}
+                  exercise={exercises[current].name}
+                  sets={savedSets[exercises[current].name] ?? []}
                   onSetSaved={(name, set) => setSavedSets((previous) => ({
                     ...previous,
                     [name]: upsertSet(previous[name] ?? [], set),
                   }))}
-                  onExerciseFinished={(index) => {
-                    setFinished(loadFinished(session.id))
-                    if (index + 1 < exercises.length) setCurrent(index + 1)
-                  }}
                 />
               </div>
             )}
@@ -310,6 +307,7 @@ function ActiveWorkout() {
               onCompleted={() => navigate(summaryPath(session.id))}
               onSessionEnded={() => setStatus('loggedOut')}
             />
+            {mobile && !completed && <Link className="active-workout__leave" to="/dashboard">Leave and resume later</Link>}
             {completed && <Link to="/weekly-plan" className="active-workout__back">Back to weekly plan</Link>}
           </>
         )}
