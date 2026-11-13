@@ -393,18 +393,18 @@
   }
 
   /* Relative offset rather than transform, so the guide's fixed pop-up inside the column still covers the window. */
-  .exercise-session > * {
+  .exercise-session > :not(.modal-backdrop) {
     position: relative;
     left: 0;
   }
 
-  body:has(.alternatives-backdrop) .exercise-session > * {
+  body:has(.alternatives-backdrop) .exercise-session > :not(.modal-backdrop) {
     left: calc(-1 * max(0px, 720px - 50vw));
   }
 }
 
 @media (min-width: 1100px) and (prefers-reduced-motion: no-preference) {
-  .exercise-session > * {
+  .exercise-session > :not(.modal-backdrop) {
     transition: left 0.2s ease;
   }
 }
