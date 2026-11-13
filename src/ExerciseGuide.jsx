@@ -70,13 +70,17 @@ function ExerciseGuide({ name }) {
       <button
         ref={buttonRef}
         type="button"
-        className="wl-button exercise-guide__button"
+        className="wl-button exercise-tool"
         aria-haspopup="dialog"
         onPointerEnter={() => setWarm(true)}
         onFocus={() => setWarm(true)}
         onTouchStart={() => setWarm(true)}
         onClick={() => setOpen(true)}
       >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M10 8.5l5 3.5-5 3.5z" />
+        </svg>
         How to perform it
       </button>
       {guide && warm && !open && <video src={guide.video} preload="auto" muted hidden aria-hidden="true" />}

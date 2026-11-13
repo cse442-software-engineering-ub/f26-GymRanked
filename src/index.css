@@ -2630,9 +2630,12 @@ a.today-workout__details:hover {
 
 /* Exercise session (one exercise of the active workout) */
 
-/* The page uses the shared column; the exercise itself stays 640px wide inside it, at the left like every title. */
+/* The page uses the shared column; the exercise itself is a 640px column centred inside it, back link included. */
 .exercise-session > * {
+  box-sizing: border-box;
+  width: 100%;
   max-width: 640px;
+  margin-inline: auto;
 }
 
 .exercise-session__header {
@@ -2752,14 +2755,39 @@ a.today-workout__details:hover {
   margin: 10px 0 8px;
 }
 
-.exercise-guide__button {
-  align-self: flex-start;
-  color: var(--gr-action-text);
-  border-color: var(--gr-action);
+/* "How to perform it" and "See alternatives": two equal dark buttons with an icon, filling the row under the heading
+   (.exercise-session__tools). */
+.wl-button.exercise-tool {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  font-size: 14px;
+  color: var(--gr-text);
+  background: var(--gr-surface-raised);
+  border-color: var(--gr-border-strong);
+  border-radius: var(--gr-radius-inner);
 }
 
-.exercise-guide__button:hover {
-  background: var(--gr-selected-bg);
+.wl-button.exercise-tool:hover {
+  background: var(--gr-surface-hover);
+}
+
+.exercise-tool svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--gr-text-soft);
+}
+
+@media (max-width: 640px) {
+  .wl-button.exercise-tool {
+    gap: 6px;
+    padding: 0 8px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
 }
 
 .exercise-guide-modal {
@@ -2879,7 +2907,7 @@ a.today-workout__details:hover {
 }
 
 .exercise-session__hint {
-  margin: -12px 0 0;
+  margin: -12px auto 0;
   font-size: 13px;
   color: var(--gr-text-muted);
   text-align: right;
