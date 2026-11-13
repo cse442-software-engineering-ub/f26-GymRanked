@@ -76,7 +76,7 @@ function WeeklyPlan() {
 
   return (
     <div className="plan-library">
-      <NavBar current="Workouts" />
+      <NavBar current="Workouts" mobileStartWorkout />
       <main className="weekly-plan" aria-busy={!loggedOut && !error && current === null}>
         {loggedOut && (
           <p className="status">
@@ -126,6 +126,16 @@ function WeeklyPlan() {
                   ? `${todayWorkout.focus} · ~${todayWorkout.duration_minutes} min`
                   : 'Recovery'}
               </p>
+              {todayWorkout?.exercises?.length > 0 && (
+                <div className="today-workout__mobile-exercises">
+                  <h3>Exercises</h3>
+                  <ol aria-label={`${todayWorkout.name} exercises`}>
+                    {todayWorkout.exercises.map((exercise, index) => (
+                      <li key={`${exercise}-${index}`}><span aria-hidden="true">{index + 1}</span><strong>{exercise}</strong></li>
+                    ))}
+                  </ol>
+                </div>
+              )}
               {saved && scheduledWorkout?.name !== saved.session.name && (
                 <p className="today-workout__meta">
                   {scheduledWorkout ? `Scheduled today: ${scheduledWorkout.name}. You're doing ${saved.session.name} instead.` : `Not a scheduled training day. You're doing ${saved.session.name}.`}
@@ -141,7 +151,8 @@ function WeeklyPlan() {
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z" />
                   </svg>
-                  {resumable ? `Resume ${resumable.name}` : "Start today's workout"}
+                  <span className="workout-redesign__desktop-label">{resumable ? `Resume ${resumable.name}` : "Start today's workout"}</span>
+                  <span className="workout-redesign__mobile-label">{resumable ? 'Resume workout' : 'Start workout'}</span>
                 </button>
               )}
               {todayWorkout && resumable && (

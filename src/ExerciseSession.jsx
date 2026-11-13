@@ -20,9 +20,9 @@ function formatClock(seconds) {
   return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`
 }
 
-// One exercise of the active workout (opened by "Begin exercise"): for each set the user starts a timer,
-// can pause and end it, enters the weight and reps, and finishes the set, which saves it and starts a rest.
-function ExerciseSession() {
+// One exercise of the active workout: inline on phones, or opened by "Begin exercise" on desktop.
+// Each set has its own timer, weight and reps, followed by a rest after saving.
+function ExerciseSession({ embedded = false, exerciseIndexOverride, sessionOverride, onSetSaved, onExerciseFinished }) {
   const { exerciseIndex } = useParams()
   const navigate = useNavigate()
   const [session, setSession] = useState(null)
@@ -37,11 +37,11 @@ function ExerciseSession() {
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
 
-  const index = Number(exerciseIndex)
+  const index = embedded ? exerciseIndexOverride : Number(exerciseIndex)
   const exercise = session?.exercises[index]
 
   useEffect(() => {
-    startSession()
+    (sessionOverride ? Promise.resolve(sessionOverride) : startSession())
       .then((started) => {
         setSession(started)
         const found = started.exercises[index]
@@ -61,7 +61,7 @@ function ExerciseSession() {
           setStatus('error')
         }
       })
-  }, [index])
+  }, [index, sessionOverride?.id])
 
   // Remember the set in progress, once it has been loaded back.
   useEffect(() => {
@@ -144,6 +144,7 @@ function ExerciseSession() {
         reps: checked.values.reps,
       })
       setSets((previous) => upsertSet(previous, saved))
+      onSetSaved?.(exercise.name, saved)
       // The next set starts fresh, after a rest of the length the user last chose.
       setDraft({ ...EMPTY_DRAFT, restTotal, restEndsAt: Date.now() + restTotal * 1000 })
     } catch (err) {
@@ -161,10 +162,10 @@ function ExerciseSession() {
   const setNumber = nextSetNumber(sets)
 
   return (
-    <div className="dashboard-page">
-      <NavBar current="Workouts" />
-      <main className="dashboard-content exercise-session" aria-busy={status === 'loading'}>
-        <BackLink to="/workout/active">Back to workout</BackLink>
+    <div className={embedded ? 'exercise-session-embedded' : 'dashboard-page'}>
+      {!embedded && <NavBar current="Workouts" />}
+      <main className={embedded ? 'exercise-session exercise-session--inline' : 'dashboard-content exercise-session'} aria-busy={status === 'loading'}>
+        {!embedded && <BackLink to="/workout/active">Back to workout</BackLink>}
         {status === 'loading' && <p className="status">Loading your exercise...</p>}
         {status === 'loggedOut' && (
           <p className="status">
@@ -193,10 +194,10 @@ function ExerciseSession() {
                   <p className="active-muscles__text">{muscles.map((muscle) => MUSCLE_LABELS[muscle]).join(' · ')}</p>
                 )}
               </div>
-              {muscles.length > 0 && <BodyFigure muscles={muscles} />}
+              {!embedded && muscles.length > 0 && <BodyFigure muscles={muscles} />}
             </header>
 
-            <ExerciseGuide name={exercise.name} />
+            {!embedded && <ExerciseGuide name={exercise.name} />}
 
             {resting ? (
               <RestTimer endsAt={restEndsAt} total={restTotal} onAdjust={adjustRest} onDone={endRest} />
@@ -245,6 +246,7 @@ function ExerciseSession() {
                   </p>
                 ) : (
                   <>
+                    <div className="exercise-session__entry">
                     <div className="wl-fields">
                       <div className="wl-field">
                         <label htmlFor="set-weight">Weight (lb)</label>
@@ -288,6 +290,7 @@ function ExerciseSession() {
                     >
                       {saving ? 'Saving…' : 'Log set'}
                     </button>
+                    </div>
                   </>
                 )}
               </section>
@@ -307,7 +310,7 @@ function ExerciseSession() {
               </section>
             )}
 
-            <div className="exercise-session__footer">
+            {!embedded && <div className="exercise-session__footer">
               <button
                 type="button"
                 className="wl-button wl-button--quiet"
@@ -327,8 +330,14 @@ function ExerciseSession() {
               >
                 Finish exercise
               </button>
-            </div>
-            {sets.length === 0 && <p className="exercise-session__hint">Save at least one set to finish this exercise.</p>}
+            </div>}
+            {embedded && sets.length > 0 && (
+              <button type="button" className="wl-button wl-button--quiet exercise-session__next" onClick={() => {
+                markFinished(session.id, exercise.name)
+                onExerciseFinished?.(index)
+              }}>Finish exercise</button>
+            )}
+            {!embedded && sets.length === 0 && <p className="exercise-session__hint">Save at least one set to finish this exercise.</p>}
           </>
         )}
       </main>

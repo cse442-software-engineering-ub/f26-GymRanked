@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import BodyFigure from './BodyFigure.jsx'
 import GymBackdrop from './components/GymBackdrop.jsx'
+import ExerciseSession from './ExerciseSession.jsx'
 import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
 import MobileDashboardIcon from './MobileDashboardIcon.jsx'
 import NavBar from './NavBar.jsx'
+import { fetchCurrentPlan, fetchPlan } from './plansApi.js'
 import CompleteWorkoutButton from './workoutLog/CompleteWorkoutButton.jsx'
-import { formatSet, summaryPath } from './workoutLog/setLog.js'
+import { formatSet, summaryPath, upsertSet } from './workoutLog/setLog.js'
 import { loadFinished } from './finishedExercises.js'
 import { clearUnloggedSets, findUnloggedExercise } from './setDraft.js'
 import { startSession } from './workoutSessionApi.js'
@@ -29,6 +31,7 @@ function ExerciseMuscles({ name, finished }) {
 
 function ActiveWorkout() {
   const navigate = useNavigate()
+  const [mobile, setMobile] = useState(() => window.matchMedia('(max-width: 640px)').matches)
   const [session, setSession] = useState(null)
   const [status, setStatus] = useState('loading') // loading | ready | none | loggedOut | error
   const [errorMessage, setErrorMessage] = useState('')
@@ -38,19 +41,58 @@ function ActiveWorkout() {
   // Names of the exercises the user finished on their own page (ticked below).
   const [finished, setFinished] = useState(() => new Set())
   const [completed, setCompleted] = useState(false)
+  const [expectedMinutes, setExpectedMinutes] = useState(null)
+
+  useEffect(() => {
+    if (!mobile || !session) return
+    try { sessionStorage.setItem(`gymrank.activeExercise.${session.id}`, String(current)) } catch { /* Storage is optional. */ }
+  }, [current, mobile, session])
+
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 640px)')
+    const update = () => setMobile(query.matches)
+    query.addEventListener('change', update)
+    return () => query.removeEventListener('change', update)
+  }, [])
+
+  useEffect(() => {
+    if (!mobile || !session) return undefined
+    let active = true
+    fetchCurrentPlan().then(({ plan }) => (
+      plan?.name === session.plan ? fetchPlan(plan.id) : null
+    )).then((details) => {
+      const day = details?.days?.find((item) => item.name === session.name)
+      if (active) setExpectedMinutes(day?.duration_minutes ?? null)
+    }).catch(() => { if (active) setExpectedMinutes(null) })
+    return () => { active = false }
+  }, [mobile, session?.id])
 
   useEffect(() => {
     startSession()
       .then((started) => {
+        if (window.matchMedia('(max-width: 640px)').matches && started.completed_at) {
+          navigate(summaryPath(started.id), { replace: true })
+          return
+        }
         setSession(started)
         setCompleted(Boolean(started.completed_at))
         const saved = {}
         started.exercises.forEach((exercise) => {
           saved[exercise.name] = exercise.sets
         })
-        // Reopening an unfinished workout lands on its first exercise that still has no sets.
+        // On phones, reopen the selected exercise so an unfinished set remains in view.
+        // Desktop keeps its first exercise without saved sets behavior.
         const firstEmpty = started.exercises.findIndex((exercise) => exercise.sets.length === 0)
-        if (firstEmpty > 0) setCurrent(firstEmpty)
+        const fallback = firstEmpty > 0 ? firstEmpty : 0
+        let selected = fallback
+        if (window.matchMedia('(max-width: 640px)').matches) {
+          try {
+            const savedIndex = sessionStorage.getItem(`gymrank.activeExercise.${started.id}`)
+            const remembered = Number(savedIndex)
+            if (savedIndex !== null && Number.isInteger(remembered) && remembered >= 0 && remembered < started.exercises.length) selected = remembered
+          } catch { /* Use the first unfinished exercise. */ }
+        }
+        setCurrent(selected)
         setSavedSets(saved)
         setFinished(loadFinished(started.id))
         setStatus('ready')
@@ -80,7 +122,7 @@ function ActiveWorkout() {
 
   return (
     <div className="dashboard-page">
-      <NavBar current="Workouts" />
+      <NavBar current="Workouts" showStartWorkout={!mobile} />
       {status === 'ready' && (
         <GymBackdrop image="backdrops/dumbbells.webp" height={240} phoneHeight={200}>
           <span />
@@ -89,6 +131,7 @@ function ActiveWorkout() {
               <span className="dashboard-header__eyebrow">{completed ? 'WORKOUT COMPLETE' : 'ACTIVE WORKOUT'}</span>
               <h1>{session.name}</h1>
               <p>{session.plan} · {session.focus}</p>
+              {expectedMinutes && <p className="active-workout__mobile-time">About {expectedMinutes} min</p>}
             </div>
           </header>
         </GymBackdrop>
@@ -168,7 +211,29 @@ function ActiveWorkout() {
               Current exercise: {exercises[current].name} ({current + 1} of {exercises.length})
             </p>
 
-            <div className="wl-workout">
+            {mobile && !completed && (
+              <div className="active-workout__mobile-log">
+                <ExerciseSession
+                  key={current}
+                  embedded
+                  exerciseIndexOverride={current}
+                  sessionOverride={{ ...session, exercises: exercises.map((exercise) => ({
+                    ...exercise,
+                    sets: savedSets[exercise.name] ?? exercise.sets,
+                  })) }}
+                  onSetSaved={(name, set) => setSavedSets((previous) => ({
+                    ...previous,
+                    [name]: upsertSet(previous[name] ?? [], set),
+                  }))}
+                  onExerciseFinished={(index) => {
+                    setFinished(loadFinished(session.id))
+                    if (index + 1 < exercises.length) setCurrent(index + 1)
+                  }}
+                />
+              </div>
+            )}
+
+            <div className="wl-workout active-workout__desktop-exercises">
               {exercises.map((exercise, index) => (
                 <div
                   key={exercise.name}
@@ -233,8 +298,14 @@ function ActiveWorkout() {
               sessionId={session.id}
               setCount={setCount}
               completed={completed}
+              buttonLabel={mobile ? 'Finish workout' : 'Complete workout'}
+              retryLabel={mobile}
               findUnlogged={() => findUnloggedExercise(session.id, exercises.map(({ name }) => name))}
-              onLogUnlogged={(name) => navigate(`/workout/active/${exercises.findIndex((exercise) => exercise.name === name)}`)}
+              onLogUnlogged={(name) => {
+                const index = exercises.findIndex((exercise) => exercise.name === name)
+                if (mobile) setCurrent(index)
+                else navigate(`/workout/active/${index}`)
+              }}
               onEndUnlogged={() => clearUnloggedSets(session.id, exercises.map(({ name }) => name))}
               onCompleted={() => navigate(summaryPath(session.id))}
               onSessionEnded={() => setStatus('loggedOut')}

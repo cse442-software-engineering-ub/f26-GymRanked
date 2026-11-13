@@ -1,0 +1,200 @@
+/* Card 132: the PM's workout flow adapted to GymRank tokens on phones only. */
+.today-workout__mobile-exercises,
+.workout-summary__mobile-links,
+.active-workout__mobile-time {
+  display: none;
+}
+.workout-redesign__mobile-label { display: none; }
+
+@media (min-width: 641px) {
+  .exercise-session__entry { display: contents; }
+}
+
+@media (max-width: 640px) {
+  .nav-bar--with-start .nav-bar__actions {
+    display: flex;
+    order: 3;
+    margin-left: auto;
+  }
+  .nav-bar--with-start .nav-bar__account { display: none; }
+  .nav-bar--with-start .nav-bar__start-workout {
+    min-height: 44px;
+    padding: 8px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .workout-redesign__desktop-label { display: none; }
+  .workout-redesign__mobile-label { display: inline; }
+  .active-workout__mobile-time { display: block; }
+  .weekly-plan__heading { order: 0; }
+  .weekly-plan > .today-workout { order: 1; }
+  .weekly-plan__days { order: 2; }
+
+  .weekly-plan > .today-workout {
+    gap: 12px;
+    border-left: 3px solid var(--gr-action);
+  }
+
+  .today-workout__mobile-exercises {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+    border-top: 1px solid var(--gr-border);
+  }
+
+  .today-workout__mobile-exercises h3 {
+    margin: 16px 0 4px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .today-workout__mobile-exercises ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .today-workout__mobile-exercises li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    border-top: 1px solid var(--gr-border);
+    font-size: 14px;
+  }
+
+  .today-workout__mobile-exercises li:first-child { border-top: 0; }
+  .today-workout__mobile-exercises li span {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--gr-surface-raised);
+    color: var(--gr-action-text);
+    font-size: 12px;
+  }
+
+  .today-workout__mobile-exercises li strong { font-weight: 500; }
+
+  .active-workout__desktop-exercises,
+  .active-workout__nav { display: none; }
+
+  .active-steps {
+    display: grid;
+    gap: 0;
+    overflow: visible;
+    border: 1px solid var(--gr-border);
+    border-radius: var(--gr-radius-card);
+    background: var(--gr-surface);
+  }
+
+  .active-steps li + li { border-top: 1px solid var(--gr-border); }
+  .active-step {
+    width: 100%;
+    min-height: 48px;
+    text-align: left;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+  .active-step--current {
+    border-left: 3px solid var(--gr-action);
+    background: var(--gr-selected-bg);
+  }
+
+  .active-workout__position { margin-bottom: 4px; }
+  .active-workout__mobile-log { min-width: 0; }
+  .exercise-session--inline {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+    padding: 0;
+  }
+  .exercise-session--inline .exercise-session__header {
+    padding: 16px 20px;
+    border: 1px solid var(--gr-border);
+    border-radius: var(--gr-radius-card);
+    background: var(--gr-surface);
+  }
+  .exercise-session--inline .exercise-session__header h1 { font-size: 22px; }
+  .exercise-session--inline .exercise-session__set { padding: 20px; }
+  .exercise-session--inline .exercise-session__set .set-timer {
+    margin-bottom: 16px;
+    padding: 16px;
+    border-radius: var(--gr-radius-inner);
+    background: var(--gr-surface-sunken);
+  }
+
+  .exercise-session__entry {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    min-width: 0;
+  }
+  .exercise-session__entry .wl-fields {
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 8px;
+    margin: 0;
+  }
+  .exercise-session__entry .wl-field { min-width: 0; }
+  .exercise-session__entry .wl-field input {
+    min-width: 0;
+    height: 46px;
+    padding-inline: 8px;
+  }
+  .exercise-session__entry > .wl-button {
+    flex: none;
+    width: auto;
+    min-height: 46px;
+    margin: 0;
+    padding-inline: 10px;
+    font-size: 13px;
+  }
+  .exercise-session__next {
+    width: 100%;
+    border: 1px solid var(--gr-border-strong);
+  }
+
+  .dashboard-content > .wl-complete {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 16px;
+    border: 1px solid var(--gr-border);
+    border-radius: var(--gr-radius-card);
+    background: var(--gr-surface);
+  }
+  .dashboard-content > .wl-complete > .wl-button { width: 100%; }
+
+  .workout-summary__mobile-links {
+    display: grid;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .workout-summary__mobile-links a {
+    display: grid;
+    place-items: center;
+    min-height: 44px;
+    padding: 10px 16px;
+    border: 1px solid var(--gr-border-strong);
+    border-radius: var(--gr-radius-button);
+    background: var(--gr-surface);
+    color: var(--gr-text);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .workout-summary__mobile-links a:focus-visible {
+    outline: 2px solid var(--gr-action-text);
+    outline-offset: 2px;
+  }
+}
+
+@media (max-width: 340px) {
+  .nav-bar--with-start .nav-bar__brand-name { display: none; }
+  .exercise-session__entry { flex-wrap: wrap; }
+  .exercise-session__entry .wl-fields { flex-basis: 100%; }
+  .exercise-session__entry > .wl-button { width: 100%; }
+}
