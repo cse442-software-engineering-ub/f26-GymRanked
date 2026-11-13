@@ -83,6 +83,11 @@
 
   /* Shape */
   --gr-radius-card: 12px;
+  /* Page column (DESIGN.md "Page layout"): every signed-in page is at most this wide, side padding included. */
+  --gr-page-width: 1200px;
+  --gr-page-gutter: 48px;
+  --gr-page-top: 32px;
+  --gr-page-bottom: 48px;
   --gr-radius-inner: 10px;
   --gr-radius-button: 8px;
   --gr-shadow-menu: 0 12px 30px var(--gr-shadow-color);
@@ -160,6 +165,34 @@
 
 * {
   box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --gr-page-gutter: 20px;
+    --gr-page-top: 24px;
+    --gr-page-bottom: 32px;
+  }
+}
+
+/* The one page column. Each page's own CSS says only what is inside it (columns, gaps), never its width or side
+   padding, so Dashboard, Progress and the rest start and end at the same points. */
+.dashboard-content,
+.weekly-plan,
+.plan-library__content,
+.plan-details,
+.progress-page__content,
+.history-page__content,
+.leaderboard-page__content,
+.weekly-page__content,
+.weekly-goal-page__content,
+.workout-summary,
+.profile-content,
+.onboarding {
+  box-sizing: border-box;
+  width: min(100%, var(--gr-page-width));
+  margin: 0 auto;
+  padding: var(--gr-page-top) var(--gr-page-gutter) var(--gr-page-bottom);
 }
 
 body {
@@ -420,7 +453,6 @@ button.nav-bar__avatar {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 24px 48px;
 }
 
 .dashboard-header {
@@ -1053,10 +1085,6 @@ button.nav-bar__avatar {
 }
 
 @media (max-width: 900px) {
-  .dashboard-content {
-    padding: 20px 20px 32px;
-  }
-
   .dashboard-metrics,
   .dashboard-overview {
     grid-template-columns: 1fr;
@@ -1069,10 +1097,6 @@ button.nav-bar__avatar {
 
 /* Weekly plan at tablet width: 4 days per row so the day cards aren't cramped */
 @media (max-width: 900px) {
-  .weekly-plan {
-    padding: 20px;
-  }
-
   .weekly-plan__days {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -1087,7 +1111,6 @@ button.nav-bar__avatar {
 }
 
 .plan-library__content {
-  padding: 8px 48px 48px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -1118,35 +1141,26 @@ button.nav-bar__avatar {
   color: var(--gr-text-muted);
 }
 
-.breadcrumb {
-  display: flex;
+/* "Back to ..." link above a page title: the one way back where the breadcrumb trail used to be. */
+.back-link {
+  display: inline-flex;
   align-items: center;
-  gap: 2px;
-  font-size: 13px;
-}
-
-.breadcrumb__crumb {
-  color: var(--gr-text-muted);
-  padding: 3px 6px;
-  border-radius: 4px;
-}
-
-.breadcrumb__crumb--current {
-  color: var(--gr-text);
-  font-weight: 500;
-}
-
-.breadcrumb__separator {
-  display: block;
-  flex-shrink: 0;
-}
-
-.breadcrumb__crumb--link {
+  align-self: flex-start;
+  gap: 4px;
+  min-height: 44px;
+  color: var(--gr-text-soft);
+  font-size: 14px;
   text-decoration: none;
 }
 
-.breadcrumb__crumb--link:hover {
+.back-link:hover {
   color: var(--gr-text);
+  text-decoration: underline;
+}
+
+.back-link svg {
+  width: 18px;
+  height: 18px;
 }
 
 /* Plan cards: a responsive grid. Each li is a card (DESIGN.md "Card"): surface, 1px border, 12px corners. */
@@ -1179,7 +1193,7 @@ button.nav-bar__avatar {
   }
 }
 
-/* "Recommended for you" / "More plans" labels above the library's two groups of cards. */
+/* "Your current plan" / "Recommended plans" / "All plans" labels above the library's groups of cards. */
 .plan-library__group {
   margin: 0 0 12px;
   font-size: 1.125rem;
@@ -1527,8 +1541,54 @@ button.nav-bar__avatar {
   }
 }
 
+/* "More plans": a native <details> that starts closed. The summary is a full-width button-sized row. */
+.plan-more > summary {
+  list-style: none;
+}
+
+.plan-more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.plan-more__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  margin: 0 0 12px;
+  padding: 0 16px;
+  background: var(--gr-surface);
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  color: var(--gr-text);
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.plan-more__toggle:hover {
+  border-color: var(--gr-border-strong);
+  background: var(--gr-surface-raised);
+}
+
+.plan-more__toggle:focus-visible {
+  outline: 2px solid var(--gr-brand);
+  outline-offset: 2px;
+}
+
+.plan-more__chevron {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.plan-more[open] .plan-more__chevron {
+  transform: rotate(180deg);
+}
+
 /* Phones: the recommended plans are a swipeable row that snaps card by card, with the next card peeking
-   in; the dots below follow it. "More plans" stays a stacked list. */
+   in; the dots below follow it. the plans under "More plans" are a row too. */
 @media (max-width: 640px) {
   .plan-prefs__edit {
     width: 100%;
@@ -1554,6 +1614,11 @@ button.nav-bar__avatar {
   .plan-list--carousel > li {
     flex: 0 0 82%;
     scroll-snap-align: start;
+  }
+
+  /* "Your current plan" holds one card: nothing to swipe to, so it takes the full width. */
+  .plan-list--carousel > li:only-child {
+    flex-basis: 100%;
   }
 
   .plan-dots {
@@ -1597,11 +1662,11 @@ button.nav-bar__avatar {
 
 /* Plan details */
 
-.plan-details {
-  width: 100%;
+.plan-details > * {
   max-width: 796px;
-  margin: 0 auto;
-  padding: 8px 48px 48px;
+}
+
+.plan-details {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -1752,7 +1817,6 @@ button.nav-bar__avatar {
 /* Weekly workout plan */
 
 .weekly-plan {
-  padding: 24px 48px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -2005,14 +2069,6 @@ a.today-workout__details:hover {
     gap: 16px;
   }
 
-  .plan-library__content {
-    padding: 8px 20px 32px;
-  }
-
-  .plan-details {
-    padding: 8px 20px 32px;
-  }
-
   /* Phones: the week is a stacked list, one row per day: weekday, workout, status. */
   .weekly-plan__days {
     grid-template-columns: 1fr;
@@ -2223,7 +2279,7 @@ a.today-workout__details:hover {
   .nav-bar__mobile-logout svg { color: var(--gr-danger-text); }
   .nav-bar__mobile-error { padding: 10px; color: var(--gr-error-text); font-size: 12px; }
 
-  .dashboard-content { gap: 12px; padding: 24px 18px 36px; }
+  .dashboard-content { gap: 12px; }
   .dashboard-header__eyebrow { color: var(--gr-brand-text); font-size: 12px; font-weight: 700; }
   .dashboard-header h1 { margin-top: 6px; color: var(--gr-text-strong); font-size: clamp(25px, 7vw, 34px); font-weight: 700; }
   .dashboard-header p { margin-top: 6px; color: var(--gr-mobile-text-soft); font-size: 16px; line-height: 1.35; }
@@ -2566,11 +2622,9 @@ a.today-workout__details:hover {
 
 /* Exercise session (one exercise of the active workout) */
 
-.exercise-session {
+/* The page uses the shared column; the exercise itself stays 640px wide inside it, at the left like every title. */
+.exercise-session > * {
   max-width: 640px;
-  margin: 0 auto;
-  width: 100%;
-  box-sizing: border-box;
 }
 
 .exercise-session__header {
@@ -2680,8 +2734,6 @@ a.today-workout__details:hover {
 /* Spacing for the exercise session page */
 .exercise-session {
   gap: 28px;
-  padding-top: 32px;
-  padding-bottom: 64px;
 }
 
 .exercise-session__header {
@@ -2805,7 +2857,6 @@ a.today-workout__details:hover {
 @media (max-width: 640px) {
   .exercise-session {
     gap: 20px;
-    padding-top: 20px;
   }
 
   .exercise-session__set {

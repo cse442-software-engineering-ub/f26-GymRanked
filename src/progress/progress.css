@@ -10,13 +10,9 @@
 }
 
 .progress-page__content {
-  box-sizing: content-box;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 40px 48px 48px;
 }
 
 .progress-page__heading h1 {
@@ -409,10 +405,6 @@ a.progress-empty__action:focus-visible {
 
 /* Phones: totals 2 × 2, metrics two across, and the table tightens so it fits 320px. */
 @media (max-width: 640px) {
-  .progress-page__content {
-    padding: 24px 20px 32px;
-  }
-
   .progress-summary,
   .progress-exercise__metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));

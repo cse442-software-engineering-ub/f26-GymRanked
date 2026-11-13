@@ -16,8 +16,6 @@
 
 .onboarding {
   flex: 1;
-  width: 100%;
-  padding: 24px 48px 48px;
   font-size: 14px;
   line-height: 1.5;
 }
@@ -344,27 +342,7 @@
   opacity: 1;
 }
 
-/* "Back to …" link above the heading */
-.ob-back {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-  gap: 4px;
-  min-height: 44px;
-  color: var(--gr-text-soft);
-  font-size: 14px;
-  text-decoration: none;
-}
-
-.ob-back:hover {
-  color: var(--gr-text);
-  text-decoration: underline;
-}
-
-.ob-back svg {
-  width: 18px;
-  height: 18px;
-}
+/* "Back to …" link above the heading: the shared .back-link (src/index.css); .ob-back only places it in the form grid. */
 
 /* Experience level icon: three bars, lit up to the level */
 .ob-level-bars path {
@@ -697,12 +675,6 @@
 @media (max-width: 960px) {
   .ob-card-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 900px) {
-  .onboarding {
-    padding: 24px 20px 32px;
   }
 }
 
