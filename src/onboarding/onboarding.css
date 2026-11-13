@@ -20,23 +20,29 @@
   line-height: 1.5;
 }
 
-/* Logo on the photo band. It reuses the NavBar's logo classes, so these rules keep the band's own order and
-   size where the mobile NavBar changes them (src/index.css, max-width 640px). */
+/* Logo on the photo band: the orange square and the name. */
 .ob-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   align-self: flex-start;
+  text-decoration: none;
 }
 
 .gym-backdrop .ob-brand {
   order: 0;
 }
 
-.ob-brand .nav-bar__logo {
+.ob-brand__mark {
+  display: grid;
+  place-items: center;
   width: 32px;
   height: 32px;
+  border-radius: 8px;
   background: var(--gr-brand);
 }
 
-.ob-brand .nav-bar__brand-name {
+.ob-brand__name {
   color: var(--gr-text);
   font-size: 16px;
   font-weight: 500;

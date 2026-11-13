@@ -157,7 +157,7 @@
   white-space: nowrap;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .weekly-goal { padding: 16px; }
   .weekly-goal__targets { grid-template-columns: 1fr; }
   /* Seven columns are too narrow for the labels on a phone, so the days become a list: "Mon 26 ✓ Completed". */
@@ -252,7 +252,7 @@
 .weekly-goal-message--error { border-color: var(--gr-error); background: var(--gr-error-bg); color: var(--gr-error-text); }
 .weekly-goal-message a { color: inherit; font-weight: 600; }
 
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .weekly-goal-form { padding: 16px; }
   .weekly-goal-form__days { grid-template-columns: repeat(4, minmax(44px, 1fr)); }
   .weekly-goal-form__actions .weekly-goal-button { flex: 1 1 100%; }

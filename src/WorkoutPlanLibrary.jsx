@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import NavBar from './NavBar.jsx'
 import PlanSelectionStatus from './PlanSelectionStatus.jsx'
 import { fetchPlans } from './plansApi.js'
 import { orderByRecommendation } from './planEquipment.js'
@@ -50,7 +49,6 @@ function WorkoutPlanLibrary() {
 
   return (
     <div className="plan-library">
-      <NavBar current="Plans" />
       <main className="plan-library__content plan-lib">
         <h1 className="plan-lib__title">Plan library</h1>
         <PlanSelectionStatus loggedOut={selection.loggedOut} notice={selection.notice} />

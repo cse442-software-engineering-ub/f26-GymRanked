@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
-import NavBar from './NavBar.jsx'
 import MobileDashboardIcon from './MobileDashboardIcon.jsx'
 import { authRequest } from './auth/api.js'
 import { apiRequest } from './onboarding/api.js'
@@ -307,7 +306,6 @@ function Dashboard() {
 
   return (
     <div className="dashboard-page">
-      <NavBar current="Dashboard" userName={fullName} showStartWorkout={false} />
       <main className="dashboard-content">
         {!personalDetails.complete && <section className="dashboard-card dashboard-personal-details" aria-label="Personal details for ranking">
           <p className="dashboard-card__text">You can't qualify for ranking without entering weight and gender</p>

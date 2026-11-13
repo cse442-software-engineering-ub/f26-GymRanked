@@ -2,10 +2,11 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import './SidePanel.css'
 
-// Wide enough for a 640px page column and one 360px panel beside it. Keep in sync with SidePanel.css.
-const DOCKED_QUERY = '(min-width: 1100px)'
-// Wide enough for a panel on each side of the column at once (640px + 2 × 400px).
-const BOTH_QUERY = '(min-width: 1440px)'
+// Wide enough for the 232px sidebar, a 640px page column and one 360px panel beside it. Keep in sync with
+// SidePanel.css.
+const DOCKED_QUERY = '(min-width: 1332px)'
+// Wide enough for a panel on each side of the column at once (232px sidebar + 640px + 2 × 400px).
+const BOTH_QUERY = '(min-width: 1672px)'
 const FOCUSABLE = 'button:not(:disabled), a[href], [tabindex="0"]'
 const OPEN_EVENT = 'gymrank:side-panel-open'
 
@@ -26,9 +27,9 @@ function InfoIcon() {
 }
 
 // A dialog with a title, Close, a scrolling body and an optional footer note, rendered on <body>. On screens at least
-// 1100px wide it is a panel docked on the left or right (`side`) beside the page, which stays usable: no dimming, no
+// 1332px wide it is a panel docked on the left or right (`side`) beside the page, which stays usable: no dimming, no
 // inert page, Tab not trapped. The page column makes room for it (see .exercise-session in index.css). A panel on
-// each side fits at 1440px and wider; narrower, opening one closes the other. Below 1100px it is a centred modal:
+// each side fits at 1672px and wider; narrower, opening one closes the other. Below 1332px it is a centred modal:
 // the page behind is inert and Tab stays inside. Escape and Close call onClose; so does a click on the modal's
 // backdrop. Focus goes to the title on open (pass titleRef to move it there again) and back to returnFocusRef on
 // close, unless the user has moved into the page beside the panel.
@@ -105,24 +106,6 @@ function SidePanel({ open, onClose, side = 'right', title, titleRef: givenTitleR
       if (page) page.inert = false
     }
   }, [open, docked, id])
-
-  // The docked panel starts 16px under the nav bar and, as the page scrolls the nav bar away, grows up to 16px from
-  // the top of the window, so it never leaves a gap above it or covers the nav bar.
-  useEffect(() => {
-    if (!open || !docked) return undefined
-    const update = () => {
-      const nav = document.querySelector('.nav-bar')
-      const below = nav ? nav.getBoundingClientRect().bottom + 16 : 16
-      backdropRef.current?.style.setProperty('--side-panel-top', `${Math.max(16, Math.round(below))}px`)
-    }
-    update()
-    window.addEventListener('scroll', update, { passive: true })
-    window.addEventListener('resize', update)
-    return () => {
-      window.removeEventListener('scroll', update)
-      window.removeEventListener('resize', update)
-    }
-  }, [open, docked])
 
   // Declared after the inert effect, so the page is no longer inert when focus returns to it.
   useEffect(() => {

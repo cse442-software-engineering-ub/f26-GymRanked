@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { authRequest } from '../auth/api.js'
-import NavBar from '../NavBar.jsx'
 import BoardList from './BoardList.jsx'
 import LeaderboardSwitch from './LeaderboardSwitch.jsx'
 import YourStanding from './YourStanding.jsx'
@@ -88,7 +87,6 @@ function LeaderboardPage() {
 
   return (
     <div className="leaderboard-page">
-      <NavBar current="Leaderboard" />
       <main className="leaderboard-page__content" aria-busy={status === 'loading' || status === 'updating'}>
         <LeaderboardSwitch />
         <div className="leaderboard-page__heading">

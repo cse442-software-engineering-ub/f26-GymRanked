@@ -6,7 +6,6 @@ import ExerciseGuide from './ExerciseGuide.jsx'
 import { markFinished } from './finishedExercises.js'
 import { EMPTY_DRAFT, loadDraft, saveDraft } from './setDraft.js'
 import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
-import NavBar from './NavBar.jsx'
 import RestTimer from './RestTimer.jsx'
 import ExerciseAlternatives from './workoutLog/ExerciseAlternatives.jsx'
 import { formatSet, nextSetNumber, saveErrorMessage, upsertSet } from './workoutLog/setLog.js'
@@ -183,7 +182,6 @@ function ExerciseSession() {
 
   return (
     <div className="dashboard-page">
-      <NavBar current="Workouts" />
       <main className="dashboard-content exercise-session" aria-busy={status === 'loading'}>
         <BackLink to="/workout/active">Back to workout</BackLink>
         {status === 'loading' && <p className="status">Loading your exercise...</p>}

@@ -175,6 +175,17 @@
   }
 }
 
+/* Signed-in pages sit beside the sidebar (src/navigation/navigation.css), which takes 184px of a tablet. Their phone
+   rules therefore start at 824px (640px + 184px), and their other width rules are 232px later than the space they
+   need (900px of page is a 1132px window), so a page always gets the layout that fits beside the sidebar. */
+@media (max-width: 824px) {
+  .app-shell {
+    --gr-page-gutter: 20px;
+    --gr-page-top: 24px;
+    --gr-page-bottom: 32px;
+  }
+}
+
 /* The one page column. Each page's own CSS says only what is inside it (columns, gaps), never its width or side
    padding, so Dashboard, Progress and the rest start and end at the same points. */
 .dashboard-content,
@@ -250,203 +261,14 @@ body {
   }
 }
 
-/* Nav bar */
-
-.nav-bar {
-  position: relative;
-  z-index: 20;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 20px 48px;
-  background: var(--gr-bg-nav);
-  border-bottom: 1px solid var(--gr-border-strong);
-}
-
-.nav-bar__brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-}
-
-.nav-bar__logo {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--gr-brand);
-}
-
-.nav-bar__logo svg {
-  display: block;
-  width: 22px;
-  height: 22px;
-  color: var(--gr-on-brand);
-  stroke-width: 2.6;
-}
-
 .dashboard-metric__icon svg,
 .dashboard-mobile-only,
 .dashboard-today__mobile-summary,
 .dashboard-exercise__mobile-icon,
 .dashboard-exercise__chevron,
 .dashboard-checklist__mobile-title,
-.dashboard-header__mobile-copy,
-.nav-bar__mobile-toggle,
-.nav-bar__mobile-backdrop,
-.nav-bar__mobile-drawer {
+.dashboard-header__mobile-copy {
   display: none;
-}
-
-.nav-bar__brand-name {
-  color: var(--gr-text);
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.nav-bar__links {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 32px;
-  font-size: 14px;
-}
-
-.nav-bar__link {
-  color: var(--gr-nav-inactive);
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.nav-bar__link--current {
-  color: var(--gr-text);
-  font-weight: 600;
-}
-
-.nav-bar__link[aria-disabled="true"] {
-  cursor: default;
-}
-
-/* Seven links (Buddies, card #79) need a narrower gap to stay on one row between the phone menu and 900px. */
-@media (min-width: 641px) and (max-width: 900px) {
-  .nav-bar__links {
-    gap: 16px;
-  }
-}
-
-.nav-bar__actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.nav-bar__start-workout {
-  background: var(--gr-brand);
-  color: var(--gr-text-on-orange);
-  font-size: 14px;
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
-  cursor: pointer;
-}
-
-.nav-bar__avatar {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: var(--gr-brand);
-  color: var(--gr-text-on-orange);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 500;
-  font-family: inherit;
-}
-
-button.nav-bar__avatar {
-  cursor: pointer;
-}
-
-.nav-bar__avatar-text--single {
-  font-size: 18px;
-}
-
-.nav-bar__account {
-  position: relative;
-}
-
-.nav-bar__menu-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 20;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: default;
-}
-
-.nav-bar__account-menu {
-  position: absolute;
-  z-index: 21;
-  top: calc(100% + 8px);
-  right: 0;
-  width: 200px;
-  padding: 6px 0;
-  overflow: hidden;
-  border-radius: 8px;
-  background: var(--gr-surface);
-  box-shadow: 0 12px 30px var(--gr-shadow-color);
-}
-
-.nav-bar__account-item,
-.nav-bar__logout {
-  display: block;
-  width: 100%;
-  padding: 9px 14px;
-  border: 0;
-  background: transparent;
-  font: inherit;
-  font-size: 14px;
-  line-height: normal;
-  text-align: left;
-}
-
-.nav-bar__account-item {
-  color: var(--gr-text);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.nav-bar__account-item:hover,
-.nav-bar__account-item:focus-visible {
-  background: var(--gr-surface-raised);
-}
-
-.nav-bar__account-item[aria-disabled="true"] {
-  color: var(--gr-nav-inactive);
-}
-
-.nav-bar__logout {
-  color: var(--gr-danger);
-  cursor: pointer;
-}
-
-.nav-bar__logout:hover:not(:disabled),
-.nav-bar__logout:focus-visible {
-  background: color-mix(in srgb, var(--gr-danger) 12%, transparent);
-}
-
-.nav-bar__logout:disabled {
-  opacity: 0.65;
-  cursor: default;
 }
 
 /* Home dashboard — beginner layout */
@@ -1092,7 +914,7 @@ button.nav-bar__avatar {
   color: var(--gr-text);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1132px) {
   .dashboard-metrics,
   .dashboard-overview {
     grid-template-columns: 1fr;
@@ -1104,7 +926,7 @@ button.nav-bar__avatar {
 }
 
 /* Weekly plan at tablet width: 4 days per row so the day cards aren't cramped */
-@media (max-width: 900px) {
+@media (max-width: 1132px) {
   .weekly-plan__days {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -1184,7 +1006,7 @@ button.nav-bar__avatar {
 }
 
 /* On phones one column (the recommended row becomes a swipeable carousel there, see the 640px block below). */
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .plan-list {
     grid-template-columns: 1fr;
   }
@@ -1527,7 +1349,7 @@ button.nav-bar__avatar {
   display: none;
 }
 
-@media (max-width: 899px) {
+@media (max-width: 1131px) {
   .plan-prefs__list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1539,7 +1361,7 @@ button.nav-bar__avatar {
 
 /* Phones: the recommended plans are a swipeable row that snaps card by card, with the next card peeking
    in; the dots below follow it. the plans under "More plans" are a row too. */
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .plan-prefs__edit {
     width: 100%;
     justify-content: center;
@@ -1604,7 +1426,7 @@ button.nav-bar__avatar {
   }
 }
 
-@media (max-width: 640px) and (prefers-reduced-motion: no-preference) {
+@media (max-width: 824px) and (prefers-reduced-motion: no-preference) {
   .plan-dots__dot::before {
     transition: width 120ms ease, background-color 120ms ease;
   }
@@ -2020,15 +1842,7 @@ a.today-workout__details:hover {
   color: var(--gr-action-text);
 }
 
-@media (max-width: 640px) {
-  .nav-bar {
-    padding: 16px 20px;
-  }
-
-  .nav-bar__links {
-    gap: 16px;
-  }
-
+@media (max-width: 824px) {
   /* Phones: the week is a stacked list, one row per day: weekday, workout, status. */
   .weekly-plan__days {
     grid-template-columns: 1fr;
@@ -2055,189 +1869,10 @@ a.today-workout__details:hover {
 }
 
 /* Dashboard and signed-in navigation at phone widths. Desktop rules above stay intact. */
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .dashboard-page {
     background: var(--gr-bg-page);
   }
-
-  .nav-bar {
-    position: sticky;
-    top: 0;
-    z-index: 40;
-    min-height: 57px;
-    flex-wrap: nowrap;
-    padding: 10px 18px;
-    background: var(--gr-bg-nav);
-  }
-
-  .nav-bar__brand { order: 2; }
-
-  .nav-bar__logo {
-    display: grid;
-    place-items: center;
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, var(--gr-brand-light), var(--gr-brand-deep));
-  }
-
-  .nav-bar__logo svg {
-    display: block;
-    width: 24px;
-    height: 24px;
-    color: var(--gr-on-brand);
-    stroke-width: 2.6;
-  }
-
-  .nav-bar__brand-name {
-    color: var(--gr-text-strong);
-    font-size: 22px;
-    font-weight: 700;
-  }
-
-  .nav-bar__links,
-  .nav-bar__actions {
-    display: none;
-  }
-
-  .nav-bar__mobile-toggle {
-    display: flex;
-    order: 1;
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-    width: 34px;
-    height: 34px;
-    padding: 3px;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-  }
-
-  .nav-bar__mobile-toggle span {
-    display: block;
-    width: 100%;
-    height: 2px;
-    border-radius: 2px;
-    background: var(--gr-text-strong);
-    transition: transform .2s ease, opacity .2s ease;
-  }
-
-  .nav-bar__mobile-toggle[aria-expanded="true"] span:first-child { transform: translateY(7px) rotate(45deg); }
-  .nav-bar__mobile-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
-  .nav-bar__mobile-toggle[aria-expanded="true"] span:last-child { transform: translateY(-7px) rotate(-45deg); }
-
-  .nav-bar__mobile-backdrop {
-    display: block;
-    position: fixed;
-    inset: 57px 0 0;
-    z-index: 1;
-    width: 100%;
-    padding: 0;
-    border: 0;
-    background: var(--gr-backdrop-strong);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .25s ease;
-  }
-
-  .nav-bar__mobile-backdrop.is-open { opacity: 1; pointer-events: auto; }
-
-  .nav-bar__mobile-drawer {
-    display: flex;
-    position: fixed;
-    top: 57px;
-    left: 0;
-    bottom: 0;
-    z-index: 2;
-    flex-direction: column;
-    width: min(55vw, 300px);
-    min-width: 185px;
-    padding: 22px 12px;
-    overflow-y: auto;
-    border-right: 1px solid var(--gr-mobile-border);
-    background: var(--gr-bg-nav);
-    box-shadow: 14px 0 30px var(--gr-shadow-drawer);
-    transform: translateX(-100%);
-    visibility: hidden;
-    transition: transform .25s ease, visibility 0s linear .25s;
-  }
-
-  .nav-bar__mobile-drawer.is-open {
-    transform: translateX(0);
-    visibility: visible;
-    transition: transform .25s ease;
-  }
-
-  .nav-bar__mobile-caption {
-    margin: 0 8px 14px;
-    color: var(--gr-mobile-text-soft);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-  }
-
-  .nav-bar__mobile-link,
-  .nav-bar__mobile-logout {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 52px;
-    padding: 0 12px;
-    border: 0;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--gr-text-strong);
-    font: inherit;
-    font-size: 15px;
-    text-decoration: none;
-    text-align: left;
-  }
-
-  .nav-bar__mobile-link svg,
-  .nav-bar__mobile-logout svg {
-    flex: 0 0 22px;
-    width: 22px;
-    height: 22px;
-    color: var(--gr-mobile-text-soft);
-  }
-
-  .nav-bar__mobile-link.is-current {
-    border-left: 3px solid var(--gr-brand);
-    background: color-mix(in srgb, var(--gr-brand) 20%, transparent);
-  }
-
-  .nav-bar__mobile-link.is-current svg { color: var(--gr-brand-icon); }
-  .nav-bar__mobile-link[aria-disabled="true"] { cursor: default; }
-  .nav-bar__mobile-link:not([aria-disabled="true"]):hover,
-  .nav-bar__mobile-link:not([aria-disabled="true"]):focus-visible { background: color-mix(in srgb, var(--gr-brand) 15%, transparent); }
-  .nav-bar__mobile-link[href$="/workouts/today"] { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--gr-mobile-border); border-radius: 0; }
-
-  .nav-bar__mobile-account {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 12px 0 0;
-    padding: 18px 10px;
-    border-top: 1px solid var(--gr-mobile-border);
-    border-bottom: 1px solid var(--gr-mobile-border);
-    color: var(--gr-text-strong);
-    font-size: 14px;
-    overflow-wrap: anywhere;
-  }
-
-  .nav-bar__mobile-avatar {
-    display: grid;
-    flex: 0 0 38px;
-    place-items: center;
-    height: 38px;
-    border-radius: 50%;
-    background: var(--gr-mobile-raised-border);
-  }
-
-  .nav-bar__mobile-logout { margin-top: 14px; color: var(--gr-danger-text); cursor: pointer; }
-  .nav-bar__mobile-logout svg { color: var(--gr-danger-text); }
-  .nav-bar__mobile-error { padding: 10px; color: var(--gr-error-text); font-size: 12px; }
 
   .dashboard-content { gap: 12px; }
   .dashboard-header__eyebrow { color: var(--gr-brand-text); font-size: 12px; font-weight: 700; }
@@ -2316,14 +1951,14 @@ a.today-workout__details:hover {
   .dashboard-metric:not(:first-child) .dashboard-metric__icon svg { width: 25px; height: 25px; }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1132px) {
   .dashboard-weekly__hero { gap: 20px; }
   .dashboard-weekly__ring { flex-basis: 150px; width: 150px; height: 150px; }
   .dashboard-weekly__ring-center { width: 122px; height: 122px; }
   .dashboard-weekly__ring-center strong { font-size: 36px; }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .dashboard-personal-details { flex-direction: column; align-items: stretch; }
   .dashboard-personal-details .dashboard-primary-action { width: 100%; box-sizing: border-box; }
   .dashboard-weekly__hero { flex-direction: column; align-items: stretch; padding: 18px; }
@@ -2736,7 +2371,7 @@ a.today-workout__details:hover {
   color: var(--gr-text-soft);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .wl-button.exercise-tool {
     gap: 6px;
     padding: 0 8px;
@@ -2751,27 +2386,28 @@ a.today-workout__details:hover {
   background: var(--gr-selected-bg);
 }
 
-/* With a docked side panel open (src/components/SidePanel.css, 1100px and wider) the exercise column slides away from
-   it by just enough to keep 16px clear: not at all at 1440px, 170px at 1100px. A panel spans 400px from its edge of
-   the window (24px margin + 360px + 16px gap), so the slide is (50vw + 320px) - (100vw - 400px) = 720px - 50vw.
-   A panel on each side only stays open at 1440px and wider, where no slide is needed. Relative offset rather than
+/* With a docked side panel open (src/components/SidePanel.css, 1332px and wider) the exercise column slides away from
+   it by just enough to keep 16px clear: not at all at 1672px, 170px at 1332px. A panel spans 400px from its edge of
+   the page area (24px margin + 360px + 16px gap) and the column is centred in what the sidebar leaves, so with a
+   sidebar S wide the slide is 720px + S/2 - 50vw (S is --app-sidebar-width, 232px at these widths).
+   A panel on each side only stays open at 1672px and wider, where no slide is needed. Relative offset rather than
    transform, so a fixed pop-up inside the column still covers the window. */
-@media (min-width: 1100px) {
+@media (min-width: 1332px) {
   .exercise-session > :not(.modal-backdrop) {
     position: relative;
     left: 0;
   }
 
   body:has(.side-panel-backdrop--right):not(:has(.side-panel-backdrop--left)) .exercise-session > :not(.modal-backdrop) {
-    left: calc(-1 * max(0px, 720px - 50vw));
+    left: calc(-1 * max(0px, 720px + var(--app-sidebar-width) / 2 - 50vw));
   }
 
   body:has(.side-panel-backdrop--left):not(:has(.side-panel-backdrop--right)) .exercise-session > :not(.modal-backdrop) {
-    left: max(0px, 720px - 50vw);
+    left: max(0px, 720px + var(--app-sidebar-width) / 2 - 50vw);
   }
 }
 
-@media (min-width: 1100px) and (prefers-reduced-motion: no-preference) {
+@media (min-width: 1332px) and (prefers-reduced-motion: no-preference) {
   .exercise-session > :not(.modal-backdrop) {
     transition: left 0.2s ease;
   }
@@ -2902,7 +2538,7 @@ a.today-workout__details:hover {
   margin-top: 4px;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .exercise-session {
     gap: 20px;
   }
@@ -3151,7 +2787,7 @@ a.today-workout__details:hover {
   outline-offset: 3px;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 884px) {
   .plan-lib__title {
     margin-bottom: 15px;
   }

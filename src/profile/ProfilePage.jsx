@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
-import NavBar from '../NavBar.jsx'
 import { authRequest } from '../auth/api.js'
 import { apiRequest, errorMessage } from '../onboarding/api.js'
 import { EQUIPMENT, LEVELS, toggleEquipment } from '../onboarding/setupOptions.js'
@@ -60,7 +59,6 @@ function useProfileData() {
 
 function ProfileFrame({ user, children }) {
   return <div className="profile-page">
-    <NavBar current="Profile" userName={user?.full_name || ''} />
     <main className="profile-content">{children}</main>
   </div>
 }
