@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authRequest } from '../auth/api.js';
+import SharedBackLink from '../BackLink.jsx';
 import GymBackdrop from '../components/GymBackdrop.jsx';
 import './onboarding.css';
 
@@ -187,14 +188,7 @@ export function SaveBar({ label, saving, disabled, help, showHelp, onSave }) {
 
 // "Back to …" link above the heading.
 export function BackLink({ to, children }) {
-  return (
-    <Link className="ob-back" to={to}>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="M15 5l-7 7 7 7" />
-      </svg>
-      {children}
-    </Link>
-  );
+  return <SharedBackLink to={to} className="ob-back">{children}</SharedBackLink>;
 }
 
 export function Message({ tone, children }) {
