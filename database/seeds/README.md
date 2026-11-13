@@ -15,6 +15,19 @@ For aptitude, copy the reviewed bootstrap file there and run `mysql -u UBIT_USER
 
 The automatic fixture is built from the current America/New_York week at successful sign-in, on any weekday. Current-week completed sessions use today; scenarios needing multiple earlier dates use **the previous week**. No future completion is fabricated. The account's reset and its four-hour lease are one database transaction. A second browser that starts the same account while the lease is active gets a clear conflict and does not reset the first tester's work. The same browser tab can start a new independent test; use one tab for a test. If a private window is closed without Finish, a different tester must wait for the four-hour lease to expire or ask a developer to release that exact account. An active test left idle beyond four hours can be displaced; finish sooner or coordinate account use. Never use this on ordinary users or production.
 
+### Two saved-summary demonstrations
+
+Both accounts are already in the 13-account bootstrap. They have completed onboarding, the Beginner Fundamentals plan, and one unfinished workout started today with a saved 135 lb × 8 Goblet squat set. No current-week workout is completed. **Test 1 uses `weekly123-progress`, which starts at 1 of 3; use Tests 3 and 4 for the two before-and-after demonstrations.**
+
+| Card test and login link on aptitude | Account | Starting goal | Saved result after completing once |
+| --- | --- | --- | --- |
+| [Test 3](https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login?card123=3) | `weekly123-one@example.com` | 0 of 3 | 1 of 3 training days; 2 days to go |
+| [Test 4](https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login?card123=4) | `weekly123-finish@example.com` | 0 of 1 | 1 of 1 training day; Weekly goal complete |
+
+For each test, open its link in one private browser tab, select **Start Test 3** or **Start Test 4**, and sign in using the dedicated password printed on card #123. Confirm Home starts at zero, then open `#/workout/active`, confirm the saved set, select **Complete workout**, and confirm. Refresh the saved Summary, check Home and `#/weekly-goal`, then reopen the same Summary through Progress → Workout history. All three views must agree; reopening must not add credit. Finish at `#/card-123/finish`. To repeat, return to that test's login link in the **same tab** and explicitly select **Start Test** again before signing in. Do not select Start during a demonstration: normal navigation, refresh, retry, and logout/re-login preserve the same run ID in that tab's session storage. The reset requires aptitude's test-only configuration; uploading code or bootstrapping accounts alone does not enable it.
+
+The saved weekly feedback is an immutable completion snapshot. A later change to next week's target cannot alter it. Card Test 14 has previous-week workouts on Monday, Wednesday, and Friday. Wednesday's saved summary stays at 2 of 3 after Friday reaches 3 of 3, and the current week has a different target of 4. This historical scenario works on any weekday without changing the test server's clock. A newly completed Test 3 or 4 workout cannot honestly be advanced into a later week without waiting for Monday. A demonstration crossing New York midnight should be finished and restarted. The four-hour lease and concurrent-tester rules above still apply.
+
 Fake accounts for testing login on a local or dev database. Each account has its own password.
 
 | Full name | Email | Password | Useful for |
