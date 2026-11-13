@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import BackLink from '../BackLink.jsx'
-import NavBar from '../NavBar.jsx'
 import workoutLogApi from '../workoutLog/workoutLogApi.js'
 import WorkoutHistoryItem from './WorkoutHistoryItem.jsx'
 import { PAGE_SIZE, countLabel, pageCount, pageList, rangeLabel } from './historyFormat.js'
@@ -67,7 +66,6 @@ function WorkoutHistoryPage() {
 
   return (
     <div className="history-page">
-      <NavBar current="Progress" />
       <main className="history-page__content" aria-busy={status === 'loading'}>
         <BackLink to="/progress">Back to progress</BackLink>
         <div className="history-page__heading">

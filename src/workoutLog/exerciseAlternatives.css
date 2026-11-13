@@ -194,13 +194,13 @@
 }
 
 /* In the 360px docked panel the muscles go on their own line under the tags. */
-@media (min-width: 1100px) {
+@media (min-width: 1332px) {
   .side-panel-backdrop .alternatives-item__muscles {
     flex-basis: 100%;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .alternatives-item {
     padding: 12px 14px;
   }

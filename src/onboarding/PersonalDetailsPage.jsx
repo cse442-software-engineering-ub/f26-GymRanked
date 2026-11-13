@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
-import NavBar from '../NavBar.jsx'
 import { apiRequest } from './api.js'
 import { BackLink, Message, OnboardingShell, StepHeader, Tick } from './parts.jsx'
 import { GENDERS, validatePersonalDetails } from './personalDetails.js'
@@ -10,7 +9,6 @@ export default function PersonalDetailsPage() {
   const { personalDetails, trainingComplete } = useOutletContext()
   const form = <PersonalDetailsForm details={personalDetails} returning={trainingComplete} />
   if (trainingComplete) return <div className="ob-page">
-    <NavBar current="Profile" />
     <main className="onboarding">{form}</main>
   </div>
   return <OnboardingShell step={0} backdrop="backdrops/rack.webp">{() => form}</OnboardingShell>

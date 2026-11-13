@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import BackLink from './BackLink.jsx'
-import NavBar from './NavBar.jsx'
 import BodyFigure from './BodyFigure.jsx'
 import PlanEquipmentDot from './PlanEquipmentDot.jsx'
 import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
@@ -28,7 +27,6 @@ function PlanDetails() {
 
   return (
     <div className="plan-library">
-      <NavBar current="Plans" />
       <main className="plan-details">
         <BackLink to="/plans">Back to plan library</BackLink>
         <PlanSelectionStatus loggedOut={selection.loggedOut} notice={selection.notice} />

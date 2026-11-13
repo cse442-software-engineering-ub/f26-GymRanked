@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import NavBar from './NavBar.jsx'
 import { fetchCurrentPlan, fetchPlan } from './plansApi.js'
 import { fetchUnfinishedSession } from './workoutSessionApi.js'
 import { buildWeek, weekRangeLabel } from './weeklySchedule.js'
@@ -76,7 +75,6 @@ function WeeklyPlan() {
 
   return (
     <div className="plan-library">
-      <NavBar current="Workouts" />
       <main className="weekly-plan" aria-busy={!loggedOut && !error && current === null}>
         {loggedOut && (
           <p className="status">

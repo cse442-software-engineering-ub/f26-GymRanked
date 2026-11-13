@@ -4,7 +4,6 @@ import BodyFigure from './BodyFigure.jsx'
 import GymBackdrop from './components/GymBackdrop.jsx'
 import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
 import MobileDashboardIcon from './MobileDashboardIcon.jsx'
-import NavBar from './NavBar.jsx'
 import CompleteWorkoutButton from './workoutLog/CompleteWorkoutButton.jsx'
 import { formatSet, summaryPath } from './workoutLog/setLog.js'
 import { loadFinished } from './finishedExercises.js'
@@ -80,7 +79,6 @@ function ActiveWorkout() {
 
   return (
     <div className="dashboard-page">
-      <NavBar current="Workouts" />
       {status === 'ready' && (
         <GymBackdrop image="backdrops/dumbbells.webp" height={240} phoneHeight={200}>
           <span />

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authRequest } from '../auth/api.js'
-import NavBar from '../NavBar.jsx'
 import workoutLogApi from '../workoutLog/workoutLogApi.js'
 import ExerciseProgress from './ExerciseProgress.jsx'
 import { NO_VALUE, RANGES, emptyRangeText, formatCount, formatPercent, formatPounds, rangeByKey, rangeDates } from './progressFormat.js'
@@ -58,7 +57,6 @@ function ProgressPage() {
 
   return (
     <div className="progress-page">
-      <NavBar current="Progress" />
       <main className="progress-page__content" aria-busy={status === 'loading'}>
         <div className="progress-page__heading">
           <h1>Your progress</h1>

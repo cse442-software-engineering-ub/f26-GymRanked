@@ -303,7 +303,7 @@ a.history-empty__action:focus-visible {
 }
 
 /* Phones: each row stacks name, date and size; tables take the full width. */
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .history-item__toggle {
     grid-template-columns: minmax(0, 1fr) 20px;
     grid-template-areas: 'title chevron' 'size chevron';

@@ -404,7 +404,7 @@
   font-size: 14px;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .weekly-page__content {
     padding-bottom: 96px;
   }

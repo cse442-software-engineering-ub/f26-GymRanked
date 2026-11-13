@@ -161,13 +161,13 @@
   outline-offset: 2px;
 }
 
-/* At 1100px and wider (DOCKED_QUERY in SidePanel.jsx) the dialog is a 360px panel fixed on the left or right, from
-   under the nav bar (or 16px from the top of the window once the nav bar scrolls away) to the bottom, with no
-   dimming: clicks reach the page. --side-panel-top is set by SidePanel.jsx. */
-@media (min-width: 1100px) {
+/* At 1332px and wider (DOCKED_QUERY in SidePanel.jsx: the old 1100px plus the 232px sidebar) the dialog is a 360px
+   panel fixed on the left or right of the page area, from 16px under the top of the window to the bottom, with no
+   dimming: clicks reach the page. A left panel starts after the sidebar (--app-sidebar-width, navigation.css). */
+@media (min-width: 1332px) {
   .modal-backdrop.side-panel-backdrop {
     align-items: stretch;
-    padding: var(--side-panel-top, 96px) 24px 24px;
+    padding: 16px 24px 24px;
     background: transparent;
     pointer-events: none;
   }
@@ -178,6 +178,7 @@
 
   .modal-backdrop.side-panel-backdrop--left {
     justify-content: flex-start;
+    padding-left: calc(var(--app-sidebar-width) + 24px);
   }
 
   .side-panel-backdrop .side-panel {
