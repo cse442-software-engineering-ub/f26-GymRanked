@@ -179,6 +179,25 @@ Steps:
 2. Log out. The Log in page should open, and opening `#/dashboard` while signed out should return to Log in.
 3. Run `npm run build`. It should finish without errors (a deleted `Breadcrumb.jsx` must not leave a missing import).
 
+## Task Test 12: Plan cards fit their text at every screen width (added after the first release)
+
+Found after #130 was merged: with the 1200 px page column the Plans page still used five fixed card columns, so on a 1440 px screen each card was only 208 px wide and the stats row ("Schedule 3 days/wk", "Session 40 min", "Intensity Moderate") spilled out of the card. The grid is now as many columns as fit at 250 px or more, and the stats row wraps.
+
+Setup for this test: sign in as `layout-86@test.com` (or any account with a plan selected, so "Your current plan" shows one card and "Recommended plans" shows several), and open the Plans page (`#/plans`).
+
+Steps:
+1. In Chrome DevTools device mode set 1440 x 900 and reload. Look at every plan card, including "Your current plan". All the text in each card (the name, the description, "Schedule", "Session", "Intensity" and their values, the equipment names, "Equipment ready" and the button) should be inside the card's rounded border, with nothing touching or crossing its right edge.
+2. Each card should be at least 250 px wide. Paste this in the console. It should print `[]` (no card has anything outside its right edge) and a width of 250 or more:
+
+   ```js
+   [...document.querySelectorAll('article.plan-list__item')].filter((c) => { const r = c.getBoundingClientRect(); return [...c.querySelectorAll('*')].some((e) => e.getBoundingClientRect().width && e.getBoundingClientRect().right > r.right + 0.5) }).length + ' cards overflow, first card ' + Math.round(document.querySelector('article.plan-list__item').getBoundingClientRect().width) + 'px wide'
+   ```
+
+   It should print `0 cards overflow, first card 264px wide` (or another width of 250 or more).
+3. Repeat steps 1 and 2 at 1920 x 1080, 1280 x 800, 1000 x 800, 768 x 1024 and 375 x 812. At every size the result should be `0 cards overflow`. On a computer the cards are in rows of as many as fit (4 across at 1440); on a phone the cards are a swipeable row.
+4. Open "More plans" and repeat step 2. The cards inside it should also print `0 cards overflow`.
+5. Choose "Light" in Profile > Appearance and repeat step 1 at 1440 x 900. The text should still sit inside every card. Choose "Dark" again afterwards.
+
 ## Existing tests and documents this changes
 
 Removing the breadcrumb breaks these checks. They belong to other owners (stories to the story owners, Playwright code to the Playwright task owners, per AGENTS.md), so this card lists them and does not edit them unless asked:
