@@ -4,6 +4,9 @@ import NavBar from './NavBar.jsx'
 import { fetchCurrentPlan, fetchPlan } from './plansApi.js'
 import { fetchUnfinishedSession } from './workoutSessionApi.js'
 import { buildWeek, weekRangeLabel } from './weeklySchedule.js'
+import workoutLogApi from './workoutLog/workoutLogApi.js'
+import { summaryPath } from './workoutLog/setLog.js'
+import { easternDate, todaySessionState } from './weeklyTimeline.js'
 
 const STATUS_LABELS = { past: 'Earlier this week', today: 'Today', upcoming: 'Upcoming' }
 
@@ -55,12 +58,21 @@ function WeeklyPlan() {
     fetchUnfinishedSession().then(setUnfinished)
   }, [])
 
+  // Completed workouts, so a workout already finished today is shown as done rather than offered again.
+  const [history, setHistory] = useState([])
+  useEffect(() => {
+    workoutLogApi.getHistory().then((sessions) => setHistory(Array.isArray(sessions) ? sessions : [])).catch(() => {})
+  }, [])
+
   const today = new Date()
   const plan = current?.plan
   // A workout left over from a previously selected plan isn't resumed: the API starts the new plan's workout instead.
   const resumable = unfinished && plan && unfinished.plan === plan.name ? unfinished : null
   const days = plan ? buildWeek(plan, today) : []
-  const todayWorkout = days.find((day) => day.when === 'today')?.workout
+  const scheduledWorkout = days.find((day) => day.when === 'today')?.workout
+  // What is saved today wins over the weekday schedule: it is the workout the start button opens.
+  const saved = todaySessionState(history, unfinished, plan, easternDate(today))
+  const todayWorkout = saved ? plan.days.find((day) => day.name === saved.session.name) ?? scheduledWorkout : scheduledWorkout
 
   return (
     <div className="plan-library">
@@ -103,7 +115,9 @@ function WeeklyPlan() {
               ))}
             </ol>
             <section className="today-workout" aria-labelledby="today-workout-name">
-              <p className="today-workout__label">Today&apos;s workout</p>
+              <p className="today-workout__label">
+                {saved?.state === 'in_progress' ? "Today's workout · In progress" : saved ? "Today's workout · Completed" : "Today's workout"}
+              </p>
               <h2 id="today-workout-name" className="today-workout__name">
                 {todayWorkout ? todayWorkout.name : 'Rest day'}
               </h2>
@@ -112,12 +126,22 @@ function WeeklyPlan() {
                   ? `${todayWorkout.focus} · ~${todayWorkout.duration_minutes} min`
                   : 'Recovery'}
               </p>
-              {todayWorkout && (
+              {saved && scheduledWorkout?.name !== saved.session.name && (
+                <p className="today-workout__meta">
+                  {scheduledWorkout ? `Scheduled today: ${scheduledWorkout.name}. You're doing ${saved.session.name} instead.` : `Not a scheduled training day. You're doing ${saved.session.name}.`}
+                </p>
+              )}
+              {saved?.state === 'completed' && (
+                <Link to={summaryPath(saved.session.id)} className="button-primary today-workout__action today-workout__start">
+                  View workout summary ›
+                </Link>
+              )}
+              {todayWorkout && saved?.state !== 'completed' && (
                 <button type="button" className="button-primary today-workout__action today-workout__start" onClick={() => navigate('/workout/active')}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z" />
                   </svg>
-                  {resumable ? 'Resume workout' : "Start today's workout"}
+                  {resumable ? `Resume ${resumable.name}` : "Start today's workout"}
                 </button>
               )}
               {todayWorkout && resumable && (

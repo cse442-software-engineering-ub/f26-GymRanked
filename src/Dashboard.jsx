@@ -14,11 +14,11 @@ import { fetchUnfinishedSession } from './workoutSessionApi.js'
 import { getWeeklyStandings } from './weekly/weeklyApi.js'
 import { circleLabel, homeRank } from './weekly/weeklyFormat.js'
 import WeeklyMilestoneCard from './WeeklyMilestoneCard.jsx'
-import { weeklyDayState } from './weeklyTimeline.js'
+import { easternDate, savedNamesByDate, todaySessionState, weeklyDayState } from './weeklyTimeline.js'
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-function WeeklyGoalCard({ state, standings, plan, planReady, planError, schedule, progress, historyStatus, today, nextWorkout, unfinished, completedSession, onRetry, onStart }) {
+function WeeklyGoalCard({ state, standings, plan, planReady, planError, schedule, progress, historyStatus, today, nextWorkout, unfinished, inProgress, savedNames, completedSession, onRetry, onStart }) {
   const { status, data } = state
   const dates = data?.completed_dates ?? []
   const easternToday = new Intl.DateTimeFormat('en-US', {
@@ -47,7 +47,7 @@ function WeeklyGoalCard({ state, standings, plan, planReady, planError, schedule
           <h3>{daysLeft === 0 ? 'A week well earned.' : daysLeft === 1 ? 'One more day. A week well earned.' : `${daysLeft} more days. Keep going.`}</h3>
           <p>Log a workout on {data.target_days} different {data.target_days === 1 ? 'day' : 'days'} this week. Consistency is the win.</p>
         </>}
-        <div className="dashboard-weekly__actions">{!planReady ? null : plan && today && !completedSession ? <button type="button" className="dashboard-primary-action" onClick={onStart}>{action} →</button> : plan && completedSession ? <Link className="dashboard-weekly__secondary" to={summaryPath(completedSession.id)}>View workout summary ›</Link> : plan ? <Link className="dashboard-weekly__secondary" to="/weekly-plan">View your weekly plan ›</Link> : <Link className="dashboard-primary-action" to="/plans">Browse workout plans ›</Link>}</div>
+        <div className="dashboard-weekly__actions">{!planReady ? null : plan && (today || inProgress) && !completedSession ? <button type="button" className="dashboard-primary-action" onClick={onStart}>{action} →</button> : plan && completedSession ? <Link className="dashboard-weekly__secondary" to={summaryPath(completedSession.id)}>View workout summary ›</Link> : plan ? <Link className="dashboard-weekly__secondary" to="/weekly-plan">View your weekly plan ›</Link> : <Link className="dashboard-primary-action" to="/plans">Browse workout plans ›</Link>}</div>
       </div>
       {status === 'ready' && <div className="dashboard-weekly__ring" style={{ '--dashboard-goal-progress': `${data.progress_percent}%` }} role="progressbar" aria-label="Weekly goal progress" aria-valuemin={0} aria-valuemax={data.target_days} aria-valuenow={data.progress_days} aria-valuetext={`${data.progress_days} of ${data.target_days} training days`}>
         <div className="dashboard-weekly__ring-center"><strong>{data.progress_days}<span>/{data.target_days}</span></strong><small>training days logged</small></div>
@@ -56,7 +56,7 @@ function WeeklyGoalCard({ state, standings, plan, planReady, planError, schedule
     {status === 'ready' && <div className="dashboard-weekly__timeline">
       <div className="dashboard-weekly__section-heading"><h3>A little progress, day by day</h3><Link to="/weekly-plan">Weekly plan ›</Link></div>
       <ol className="dashboard-weekly__days" aria-label="This week's training days">{weekDays.map((date, index) => {
-        const day = weeklyDayState(date, todayDate, schedule[index]?.workout, Boolean(plan), dates.includes(date))
+        const day = weeklyDayState(date, todayDate, schedule[index]?.workout, Boolean(plan), dates.includes(date), savedNames[date])
         return <li key={date} className={`dashboard-weekly__day${day.complete ? ' dashboard-weekly__day--done' : ''}${day.today ? ' dashboard-weekly__day--today' : ''}`}>
           <span className="dashboard-weekly__weekday">{DAY_NAMES[(index + 1) % 7]}</span>
           <span className="dashboard-weekly__day-mark" aria-hidden="true">{day.mark}</span>
@@ -68,7 +68,7 @@ function WeeklyGoalCard({ state, standings, plan, planReady, planError, schedule
     </div>}
     <div className="dashboard-weekly__next-row">
       <span className="dashboard-weekly__next-icon" aria-hidden="true"><MobileDashboardIcon name="dumbbell" /></span>
-      <div><p className="dashboard-weekly__eyebrow">Your next workout</p><strong>{nextWorkout ? nextWorkout.name : planError ? 'Plan unavailable' : plan ? 'Rest day' : 'Choose a plan to begin'}</strong><span>{plan?.name ?? 'Your workout plan'}{nextWorkout?.duration_minutes ? ` · About ${nextWorkout.duration_minutes} min` : ''}</span></div>
+      <div><p className="dashboard-weekly__eyebrow">{inProgress ? 'Workout in progress' : 'Your next workout'}</p><strong>{inProgress ? inProgress.name : nextWorkout ? nextWorkout.name : planError ? 'Plan unavailable' : plan ? 'Rest day' : 'Choose a plan to begin'}</strong><span>{plan?.name ?? 'Your workout plan'}{nextWorkout?.duration_minutes ? ` · About ${nextWorkout.duration_minutes} min` : ''}</span></div>
       {planError ? <button type="button" onClick={onRetry}>Try again</button> : <Link to={plan ? `/plans/${plan.id}` : '/plans'}>View plan ›</Link>}
     </div>
     <div className="dashboard-weekly__stats" aria-label="Weekly summary">
@@ -81,7 +81,9 @@ function WeeklyGoalCard({ state, standings, plan, planReady, planError, schedule
 }
 
 // plan is null when the user hasn't selected one; today is that day's workout or null on a rest day.
-function TodayWorkoutCard({ plan, today, completedSession, weekLabel, onBrowse, onView }) {
+// today is the day shown (the saved workout's plan day when the lifter is doing a different one than scheduled);
+// scheduledName is the weekday's scheduled workout, shown only when it differs.
+function TodayWorkoutCard({ plan, today, scheduledName, inProgress, completedSession, weekLabel, onBrowse, onView }) {
   if (!plan) {
     return (
       <article className="dashboard-card dashboard-today" aria-label="Today's workout">
@@ -107,6 +109,8 @@ function TodayWorkoutCard({ plan, today, completedSession, weekLabel, onBrowse, 
       <p className="dashboard-today__plan">
         Current plan: <Link to={`/plans/${plan.id}`}>{plan.name}</Link>
       </p>
+      {inProgress && <p className="dashboard-today__completed">In progress · saved to your account</p>}
+      {today && scheduledName && scheduledName !== today.name && <p className="dashboard-card__text">Scheduled today: {scheduledName}. You're doing {today.name} instead.</p>}
       {completedSession && <p className="dashboard-today__completed">Completed today · {completedSession.set_count} sets · {formatVolume(completedSession.total_volume_lb)}</p>}
       <h3 className="dashboard-card__title">{today ? today.name : 'Rest day'}</h3>
       <p className="dashboard-card__text">
@@ -269,7 +273,11 @@ function Dashboard() {
   const goal = setup?.goal ?? null
   const currentDate = new Date()
   const schedule = plan ? buildWeek(plan, currentDate) : []
-  const today = schedule.find((day) => day.when === 'today')?.workout ?? null
+  const scheduledToday = schedule.find((day) => day.when === 'today')?.workout ?? null
+  // What is actually saved today wins over the weekday schedule, so every card names the workout Today opens.
+  const saved = todaySessionState(historyState.sessions, unfinished, plan, easternDate(currentDate))
+  const today = saved ? plan?.days?.find((day) => day.name === saved.session.name) ?? scheduledToday : scheduledToday
+  const savedNames = savedNamesByDate(historyState.sessions)
   const progress = historyState.status === 'ready' ? dashboardHistory(historyState.sessions, plan, currentDate) : null
   const nextWorkout = schedule.find((day) => (day.when === 'today' && !progress?.todaySession || day.when === 'upcoming') && day.workout)?.workout ?? plan?.days?.[0] ?? null
   const checklist = [
@@ -332,7 +340,7 @@ function Dashboard() {
           </div>
         </header>
 
-        <WeeklyGoalCard state={weeklyState} standings={standingState} plan={plan} planReady={setup !== null && !planError} planError={planError} schedule={schedule} progress={progress} historyStatus={historyState.status} today={today} nextWorkout={nextWorkout} unfinished={unfinished} completedSession={progress?.todaySession} onRetry={retryPlan} onStart={() => navigate('/workout/active')} />
+        <WeeklyGoalCard state={weeklyState} standings={standingState} plan={plan} planReady={setup !== null && !planError} planError={planError} schedule={schedule} progress={progress} historyStatus={historyState.status} today={today} nextWorkout={nextWorkout} unfinished={unfinished} inProgress={saved?.state === 'in_progress' ? saved.session : null} savedNames={savedNames} completedSession={progress?.todaySession} onRetry={retryPlan} onStart={() => navigate('/workout/active')} />
         {historyState.status === 'error' && (
           <div className="dashboard-history-error" role="alert">
             <span>Couldn't load your completed workouts. Check your connection and try again.</span>
@@ -357,6 +365,8 @@ function Dashboard() {
             <TodayWorkoutCard
               plan={plan}
               today={today}
+              scheduledName={scheduledToday?.name}
+              inProgress={saved?.state === 'in_progress'}
               completedSession={progress?.todaySession}
               weekLabel={weekRangeLabel(currentDate)}
               onBrowse={() => navigate('/plans')}
