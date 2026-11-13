@@ -37,3 +37,10 @@ Use a phone-sized browser (375 × 812), a signed-in test account with a selected
 3. Log `10` reps at `25` lb, then tap “Finish workout”. Confirm a completion prompt appears. Choose “Keep training”; confirm the active workout and set remain.
 4. Tap “Finish workout” again and confirm. Confirm the saved summary opens.
 5. Open Workouts and confirm it offers “View workout summary” instead of “Resume workout”.
+
+## Test 6: Photo header and phone layout
+
+1. Open the app link with `#/workout/active` appended in a 375 px wide browser and sign in to a prepared account with a workout available today.
+2. Confirm the dumbbell photo appears behind the workout name, with the plan, expected time, logged-set count and exercise position readable below it.
+3. Confirm the set form has two inputs side by side and a full-width “Log set” button below them; the exercise list and “Leave and resume later” action remain visible without sideways scrolling.
+4. Switch Appearance to Light and revisit the same link. Confirm the photo, headings, fields, progress chips, exercise rows and both action buttons remain readable. Repeat at 320 px wide and in Dark.

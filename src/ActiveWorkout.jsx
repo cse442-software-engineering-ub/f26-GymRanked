@@ -134,6 +134,10 @@ function ActiveWorkout() {
               <h1>{session.name}</h1>
               <p>{session.plan} · {session.focus}</p>
               {expectedMinutes && <p className="active-workout__mobile-time">About {expectedMinutes} min</p>}
+              <div className="active-workout__hero-stats" aria-label="Workout progress">
+                <span><strong>{setCount}</strong> {setCount === 1 ? 'set' : 'sets'} logged</span>
+                <span><strong>{current + 1}</strong> of {exercises.length} exercises</span>
+              </div>
             </div>
           </header>
         </GymBackdrop>
@@ -221,6 +225,8 @@ function ActiveWorkout() {
                   key={`${session.id}-${exercises[current].name}`}
                   sessionId={session.id}
                   exercise={exercises[current].name}
+                  exercisePosition={current + 1}
+                  exerciseTotal={exercises.length}
                   sets={savedSets[exercises[current].name] ?? []}
                   onSetSaved={(name, set) => setSavedSets((previous) => ({
                     ...previous,
@@ -291,23 +297,26 @@ function ActiveWorkout() {
               </button>
             </div>
 
-            <CompleteWorkoutButton
-              sessionId={session.id}
-              setCount={setCount}
-              completed={completed}
-              buttonLabel={mobile ? 'Finish workout' : 'Complete workout'}
-              retryLabel={mobile}
-              findUnlogged={() => findUnloggedExercise(session.id, exercises.map(({ name }) => name))}
-              onLogUnlogged={(name) => {
-                const index = exercises.findIndex((exercise) => exercise.name === name)
-                if (mobile) setCurrent(index)
-                else navigate(`/workout/active/${index}`)
-              }}
-              onEndUnlogged={() => clearUnloggedSets(session.id, exercises.map(({ name }) => name))}
-              onCompleted={() => navigate(summaryPath(session.id))}
-              onSessionEnded={() => setStatus('loggedOut')}
-            />
-            {mobile && !completed && <Link className="active-workout__leave" to="/dashboard">Leave and resume later</Link>}
+            <section className="active-workout__finish" aria-label="Workout actions">
+              {mobile && !completed && <div className="active-workout__finish-copy"><h2>Ready to wrap up?</h2><p>Your logged sets are saved as you go.</p></div>}
+              <CompleteWorkoutButton
+                sessionId={session.id}
+                setCount={setCount}
+                completed={completed}
+                buttonLabel={mobile ? 'Finish workout' : 'Complete workout'}
+                retryLabel={mobile}
+                findUnlogged={() => findUnloggedExercise(session.id, exercises.map(({ name }) => name))}
+                onLogUnlogged={(name) => {
+                  const index = exercises.findIndex((exercise) => exercise.name === name)
+                  if (mobile) setCurrent(index)
+                  else navigate(`/workout/active/${index}`)
+                }}
+                onEndUnlogged={() => clearUnloggedSets(session.id, exercises.map(({ name }) => name))}
+                onCompleted={() => navigate(summaryPath(session.id))}
+                onSessionEnded={() => setStatus('loggedOut')}
+              />
+              {mobile && !completed && <Link className="active-workout__leave" to="/dashboard">Leave and resume later</Link>}
+            </section>
             {completed && <Link to="/weekly-plan" className="active-workout__back">Back to weekly plan</Link>}
           </>
         )}

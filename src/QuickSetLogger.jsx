@@ -5,7 +5,7 @@ import { validateSet } from './workoutLog/setValidation.js'
 import workoutLogApi from './workoutLog/workoutLogApi.js'
 
 // The phone logger follows the short entry flow in the workout mockup.
-export default function QuickSetLogger({ sessionId, exercise, sets, onSetSaved }) {
+export default function QuickSetLogger({ sessionId, exercise, exercisePosition, exerciseTotal, sets, onSetSaved }) {
   const [draft, setDraft] = useState(() => loadDraft(sessionId, exercise))
   const [errors, setErrors] = useState({})
   const [saveError, setSaveError] = useState('')
@@ -62,6 +62,7 @@ export default function QuickSetLogger({ sessionId, exercise, sets, onSetSaved }
   return (
     <section className="quick-set" aria-label={`Log sets for ${exercise}`}>
       <div className="quick-set__heading"><h2>Log a set</h2><span>Set {nextSetNumber(sets)}</span></div>
+      <p className="quick-set__context">Exercise {exercisePosition} of {exerciseTotal}</p>
       <h3>{exercise}</h3>
       <form onSubmit={logSet}>
         <label>Reps
