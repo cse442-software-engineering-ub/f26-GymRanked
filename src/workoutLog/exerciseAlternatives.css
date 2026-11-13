@@ -1,0 +1,212 @@
+/* The contents of the exercise alternatives panel (task #82, src/workoutLog/ExerciseAlternatives.jsx). The panel
+   itself (frame, header, body, footer, docking, loading and message cards) is src/components/SidePanel.css. */
+
+.exercise-session__tools {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.alternatives-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gr-text-muted);
+}
+
+/* The exercise being replaced and the setup the suggestions are for, in one card. */
+.alternatives-current {
+  background: var(--gr-surface-sunken);
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-inner);
+}
+
+.alternatives-current__exercise {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--gr-text-soft);
+}
+
+.alternatives-current__exercise strong {
+  margin-top: 2px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gr-text);
+  overflow-wrap: anywhere;
+}
+
+.alternatives-current__setup {
+  padding: 10px 16px;
+  border-top: 1px solid var(--gr-border-strong);
+  font-size: 13px;
+  color: var(--gr-text-soft);
+}
+
+.alternatives-results {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.alternatives-results__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alternatives-modal__count {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gr-text);
+}
+
+.alternatives-modal__intro {
+  font-size: 13px;
+  color: var(--gr-text-muted);
+}
+
+.alternatives-modal__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--gr-surface-sunken);
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-button);
+  font-size: 13px;
+  color: var(--gr-text-soft);
+}
+
+.alternatives-modal__note svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+}
+
+.alternatives-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--gr-radius-inner);
+}
+
+.alternatives-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  background: var(--gr-surface-raised);
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-inner);
+}
+
+.alternatives-item__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.alternatives-item h4 {
+  min-width: 0;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gr-text);
+  overflow-wrap: anywhere;
+}
+
+.alternatives-item__tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+
+.alternatives-item__equipment {
+  display: inline-block;
+  padding: 1px 8px;
+  border: 1px solid var(--gr-control-outline);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gr-text-soft);
+}
+
+.alternatives-item__muscles {
+  font-size: 13px;
+  color: var(--gr-text-muted);
+}
+
+.alternatives-item__reason {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--gr-text-soft);
+}
+
+.alternatives-item__reason svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+  color: var(--gr-success);
+}
+
+.wl-button.alternatives-item__switch {
+  flex: none;
+  min-height: 36px;
+  padding: 0 16px;
+  font-size: 13px;
+  color: var(--gr-action-text);
+  background: transparent;
+  border-color: var(--gr-action);
+}
+
+.wl-button.alternatives-item__switch:not(:disabled):hover {
+  background: var(--gr-selected-bg);
+}
+
+.wl-button.alternatives-item__switch:disabled {
+  color: var(--gr-nav-inactive);
+  background: transparent;
+  border-color: var(--gr-border-strong);
+}
+
+.alternatives-item__note {
+  flex: none;
+  padding: 2px 10px;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gr-text-muted);
+}
+
+/* In the 360px docked panel the muscles go on their own line under the tags. */
+@media (min-width: 1100px) {
+  .side-panel-backdrop .alternatives-item__muscles {
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .alternatives-item {
+    padding: 12px 14px;
+  }
+
+  /* On a phone the button keeps a 44px tap target. */
+  .wl-button.alternatives-item__switch {
+    min-height: 44px;
+  }
+}

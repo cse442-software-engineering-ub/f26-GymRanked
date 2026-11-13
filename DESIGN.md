@@ -319,6 +319,29 @@ Follows page 3 of the Monday visual brief ("A competition that starts fresh each
 - Home's weekly card shows the same rank ("Weekly rank": "#2", or "Practice week", "Not joined" or "Test account" when there is none) and links to this view with "View weekly standings ›" and the circle's name.
 - Loading "Loading this week's standings…", the `error` box with "Try again", and "Nobody is ranked with a 3-day goal this week yet." when the group is empty. A group of one shows its single row.
 
+### Exercise tools: guide and alternatives (`src/ExerciseGuide.jsx`, `src/workoutLog/ExerciseAlternatives.jsx`, added by #82)
+
+- **How to perform it** and **See alternatives** sit under the exercise heading on the active workout's exercise page as two equal buttons filling the row (`.exercise-tool`): `surface-raised` with a `border-strong` edge, `radius-inner` (10px) corners, 44px tall, `text` at 14/600 (13px on phones, still one line at 320px), each with a 16px `text-soft` line icon (a play circle and swap arrows); `surface-hover` on hover.
+- Each opens a [side panel](#side-panel-srccomponentssidepaneljsx): **How to perform it** on the left, **See alternatives** on the right ("Alternatives to Bench press"). While a panel is open its button gets an `action` border and `selected-bg`, and pressing it again closes the panel.
+- The alternatives body starts with one `surface-sunken` card: "You're doing" eyebrow, the exercise (16/600), its level and equipment, its muscles, and under a divider "Your setup: …". Then "4 alternatives" as the list heading (15/600, `text`) with the intro sentence under it in `text-muted`.
+- Each alternative in the `<ol>` is its own `surface-raised` card (10px corners, 10px apart): the name (15/600) with an outlined **Switch** button on the right (`action` border and `action-text`, 36px tall, 44px on phones; "Switching…" while it saves; its accessible name is "Switch to Dumbbell press"), then one wrapping row with the level badge (`.level-badge`), the equipment tag (`control-outline` border) and the muscles in `text-muted`, then the reason in `text-soft` after a `success` tick. An alternative already in the workout shows an "Already in this workout" pill instead of the button. Once the exercise has saved sets, no card has a button and a `surface-sunken` note with an info icon above the list says it stays. A failed switch shows the `error` box under the list.
+- No match, not covered, failed and logged out each show the panel's message card with its title, the explanation and its one action.
+- The footer says switching changes today's workout only, and the plan, saved sets and history stay the same.
+- After a switch the panel closes, the page shows the replacement with the set in progress kept, and a `success` box under the buttons says "Switched from Bench press to Dumbbell press for today's workout. Your plan stays the same."
+- Loading "Finding alternatives to Bench press..." after a small spinner (still when reduced motion is on), "No alternative fits your setup" with an **Update training preferences ›** link, "No alternatives listed for … yet", the `error` box with **Try again**, and a logged-out line with **Log in**.
+- **How to perform it** (`src/ExerciseGuide.jsx`), titled "How to perform Bench press": the looping demo clip in a `surface-sunken` frame (at most 260px tall), then "Steps" (15/600) as a numbered list, each number in a 22px circle with an `action` border and `action-text`, then "Form tips" in a `surface-raised` card, each tip after a `success` tick. The footer credits WorkoutX. Loading shows "Loading the guide…" after the spinner; no guide shows a message card, "No guide yet".
+
+### Side panel (`src/components/SidePanel.jsx`)
+
+The panel both exercise tools open; use it for any other panel that should sit beside a page rather than over it.
+
+- **Frame:** `surface` with a `border-strong` edge, 12px corners. A header (title at 20/600, 18 on phones, and a quiet **Close**) and an optional footer (`surface-sunken` strip, info icon, 12px `text-muted`) stay put while the body scrolls between them, with a thin scrollbar in `control-border` on a transparent track.
+- **Shared parts** in `SidePanel.css`: `.side-panel__status` (loading text after a small spinner, still with reduced motion) and `.side-panel__message` (a `surface-raised` card with a 15/600 title, the explanation and one action).
+- **1100px and wider: docked.** 360px wide, fixed on the `side` you give it (`left` or `right`), from 16px under the nav bar to 24px above the bottom of the window; as the page scrolls the nav bar away, its top follows up to 16px from the top of the window, so there is never a gap above it. A shadow on its inner side, no dimming, and the page stays usable (a set can be timed and logged while it is open); Tab is not trapped. On the exercise page the column slides away from the panel (0.2s, none with reduced motion) by just enough to stay 16px clear: not at all at 1440px, 170px at 1100px.
+- **Two panels:** one on each side fits at 1440px and wider, with the column untouched. Narrower, opening one closes the other, and shrinking the window below 1440px closes the older one.
+- **Below 1100px: a centred modal**, at most 480px wide (the window width minus 32px on a phone), over the dimmed page, which is `inert`; Tab stays inside and a click on the backdrop closes it.
+- **Keyboard:** focus moves to the title on open. Escape closes the panel holding focus, or the newest one when focus is in the page. On close, focus returns to the button that opened it unless the user has moved into the page beside the panel.
+
 ### Workout buddies page (`src/buddies/`, added by #79)
 
 Buddies in the navigation opens it at `#/buddies`. Shared page column; the cards stop at 760px inside it.
