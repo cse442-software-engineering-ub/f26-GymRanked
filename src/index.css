@@ -2808,6 +2808,12 @@ a.today-workout__details:hover {
   color: var(--gr-text-subtle);
 }
 
+.exercise-guide-modal__message {
+  margin: 0;
+  font-size: 14px;
+  color: var(--gr-text-subtle);
+}
+
 .exercise-session__set {
   padding: 28px;
 }
