@@ -44,3 +44,19 @@ Use a phone-sized browser (375 × 812), a signed-in test account with a selected
 2. Confirm the dumbbell photo appears behind the workout name, with the plan, expected time, logged-set count and exercise position readable below it.
 3. Confirm the set form has two inputs side by side and a full-width “Log set” button below them; the exercise list and “Leave and resume later” action remain visible without sideways scrolling.
 4. Switch Appearance to Light and revisit the same link. Confirm the photo, headings, fields, progress chips, exercise rows and both action buttons remain readable. Repeat at 320 px wide and in Dark.
+
+## Test 7: Set timer survives leaving and switching exercises
+
+1. Open the app link with `#/workout/active` appended in a phone-sized browser and sign in to a prepared account with a workout available today.
+2. Tap “Start timer” in the set timer. Confirm the clock advances from `00:00` and says “In progress”.
+3. Tap “Pause”, wait at least two seconds, and confirm the clock stays fixed and says “Paused”. Tap “Resume” and confirm it advances again.
+4. Choose another exercise, then return to the first exercise. Confirm its timer still runs from the earlier elapsed time, while the other exercise has its own timer.
+5. Tap “Leave and resume later”, return through Workouts, then tap “Finish set”. Confirm the elapsed time is retained and the clock stops. Tap “Restart timer” and confirm it starts again at `00:00`.
+
+## Test 8: Rest starts only after a saved set
+
+1. Open the app link with `#/workout/active` appended in a phone-sized browser and sign in to a prepared account with a workout available today and no sets logged.
+2. Enter `10` reps and `25` lb, then tap “Log set”. Confirm “Set 1 saved” appears and the rest timer starts near `01:30` without another tap. Confirm the set timer is reset to `00:00`.
+3. Tap “+15s” and confirm the rest time increases by about 15 seconds. Tap “−15s” and confirm it decreases by about 15 seconds.
+4. Tap “Leave and resume later”, return through Workouts, and confirm the rest countdown has continued. Tap “Skip rest” and confirm the rest panel closes.
+5. Enter `0` reps and `25` lb, then tap “Log set”. Confirm a validation error appears, the saved-set count does not increase, and no new rest countdown starts.
