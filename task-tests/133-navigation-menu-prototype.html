@@ -93,14 +93,15 @@ svg.ic { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor
 .menu-profile:hover { background: var(--gr-surface-raised); }
 .menu-profile[aria-current] { background: color-mix(in srgb, var(--gr-brand) 16%, transparent); }
 .avatar { width: 36px; height: 36px; border-radius: 999px; background: var(--gr-brand); color: var(--gr-text-on-orange); display: grid; place-items: center; font-weight: 600; font-size: 13px; flex: none; }
-.menu-profile span.who { display: grid; min-width: 0; }
+.menu-profile span.who { display: grid; min-width: 0; flex: 1; }
+.menu-profile strong, .menu-profile small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .menu-profile strong { font-weight: 600; font-size: 14px; }
 .menu-profile small { color: var(--gr-text-muted); font-size: 12px; }
 .menu-profile svg { margin-left: auto; color: var(--gr-text-muted); }
 .menu-logout { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 10px 12px; border: 0; border-radius: 8px; background: transparent; color: var(--gr-text-soft); font-weight: 500; cursor: pointer; text-align: left; }
 .menu-logout:hover { background: var(--gr-surface-raised); color: var(--gr-text); }
 
-/* Desktop and tablet: the sidebar stays in place; only the page beside it changes. */
+/* Computer and tablet (701 px or more): the sidebar stays in place; only the page beside it changes. */
 .sidebar { position: fixed; inset: 0 auto 0 0; width: 232px; z-index: 20; display: flex; flex-direction: column; gap: 24px; padding: 20px 12px 16px; background: var(--gr-bg-nav); border-right: 1px solid var(--gr-border-strong); overflow-y: auto; }
 .sidebar .brand { margin-left: 8px; }
 .shell { margin-left: 232px; }
@@ -133,8 +134,17 @@ h1:focus { outline: none; }
 .err { margin: 0; color: var(--gr-error-text); font-size: 13px; }
 .sample { margin: 8px 0 0; font-size: 12px; color: var(--gr-text-muted); }
 
-/* Phone and small tablet: a strip with Menu and the brand; the same menu opens from the side as a dialog. */
-@media (max-width: 900px) {
+/* Tablet (701 to 900 px): a narrower sidebar and tighter page padding, so the page keeps as much width as it can. */
+@media (min-width: 701px) and (max-width: 900px) {
+  .sidebar { width: 184px; padding-inline: 8px; }
+  .sidebar .brand { margin-left: 4px; }
+  .sidebar .menu-profile { gap: 10px; padding-inline: 8px; }
+  .sidebar .menu-profile svg { display: none; }
+  .shell { margin-left: 184px; }
+  main { padding: 24px 24px 32px; }
+}
+/* Phone (700 px or less): a strip with Menu and the brand; the same menu opens from the side as a dialog. */
+@media (max-width: 700px) {
   .sidebar { display: none; }
   .shell { margin-left: 0; }
   .topstrip { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 20px; background: var(--gr-bg-nav); border-bottom: 1px solid var(--gr-border-strong); position: sticky; top: 0; z-index: 20; }
@@ -357,7 +367,7 @@ if (IS_APP) {
   })
   drawer.addEventListener('click', (e) => { if (e.target === drawer) closeMenu(true) })
   opener.addEventListener('click', openMenu)
-  matchMedia('(min-width: 901px)').addEventListener('change', (e) => { if (e.matches) closeMenu(false) })
+  matchMedia('(min-width: 701px)').addEventListener('change', (e) => { if (e.matches) closeMenu(false) })
 
   document.addEventListener('input', (e) => {
     if (e.target.id === 'reps') model.drafts[model.selected][0] = e.target.value.replace(/\D/g, '').slice(0, 3)
@@ -426,7 +436,7 @@ const SCENES = [
     { id: 'phone-closed', label: 'Menu closed', w: 'phone', route: 'dashboard', note: 'A strip at the top holds "Menu" and the GymRank mark. The page uses the full width.' },
     { id: 'phone-open', label: 'Menu open', w: 'phone', route: 'dashboard', menu: true, note: 'Menu opens the same groups from the side, with the current section highlighted and your profile at the bottom. The page behind is dimmed and cannot be clicked or tabbed to.' },
     { id: 'phone-open-session', label: 'Menu open while logging', w: 'phone', route: 'workouts/session', model: ACTIVE, menu: true, note: 'The menu is available in the middle of a workout. Workouts is highlighted.' },
-    { id: 'tablet', label: 'Tablet 768', w: 'tablet', route: 'progress', note: 'Up to 900 px wide the page keeps its full width and the menu stays behind "Menu". From 901 px the sidebar shows.' },
+    { id: 'tablet', label: 'Tablet 768', w: 'tablet', route: 'progress', note: 'From 701 px wide the sidebar shows, as in the PM\'s mockup. Between 701 and 900 px it is narrower (184 px) and the page has less padding. At 700 px or less the menu is behind "Menu".' },
   ]],
   ['Check 1 · Buddies during a workout', [
     { id: 'check1', label: 'Leave for Buddies, resume the same session', w: 'phone', route: 'workouts/session', model: ACTIVE, note: 'One set (10 reps × 25 lb) is saved and 8 and 30 are typed in the boxes but not logged.', steps: ['Press Menu and choose Buddies. The menu closes and Workout buddies opens.', 'Press Menu and choose Workouts. Workouts shows "In progress", "1 set logged" and "Resume workout".', 'Press "Resume workout". The same session opens on Hip hinge with Set 1, 10 reps × 25 lb, and 8 and 30 still in the boxes.'] },
