@@ -1,5 +1,5 @@
 <?php
-// GET api/leaderboard.php[?board=overall|bench|squat|deadlift] -> 200
+// GET api/leaderboard.php[?board=overall|bench|squat|deadlift][&scope=everyone|buddies] -> 200
 //   {"board":"overall","ranked_count":51,"workouts_needed":3,
 //    "rows":[{"rank":1,"name":"Cy P.","score":319.16,"lift":null,"is_me":false,"gap_before":false}, ...],
 //    "me":{"ranked":true,"rank":2,"score":243.63,"reason":null,"joined":true,"bodyweight_lb":200,"gender":"man",
@@ -42,13 +42,17 @@
 // test_account, not_joined, no_bodyweight, needs_scoring_table, too_few_workouts, no_lift, missing_lifts (Overall only:
 // ranked on some lift but missing one or two; me.lifts shows which).
 //
-// 400 {"error":"Invalid request.","errors":{"board"|"join"|"scoring_table": "..."}}, 401 {"error":"Please log in."},
+// scope=buddies ranks only the caller's workout buddies group (api/ranking_scope.php); ranked_count, rows and me.rank
+// are then among those people. The default, everyone, is the board above.
+//
+// 400 {"error":"Invalid request.","errors":{"board"|"scope"|"join"|"scoring_table": "..."}}, 401 {"error":"Please log in."},
 // 405 with Allow: GET, POST, DELETE, 500 {"error":"Database error"}.
 //
 // ponytail: every joined user is read and ranked in PHP on each request, which is fine for hundreds or a few thousand
 // members; past that, keep the best lifts in a small table updated when a workout is completed.
 
 require __DIR__ . '/workout_common.php';
+require __DIR__ . '/ranking_scope.php';
 
 const WORKOUTS_NEEDED = 3;
 const TOP_ROWS = 10;
@@ -171,6 +175,7 @@ if (array_key_exists('board', $_GET)) {
     }
     $board = $_GET['board'];
 }
+$scope = ranking_scope_param();
 
 $db = database();
 $me_id = workout_user_id($db);
@@ -231,6 +236,10 @@ function unranked_reason($person, $board, $table) {
     }
     return isset($person['q'][$board]) ? null : 'no_lift';
 }
+
+// scope=buddies: only the caller's buddies group (the caller is always kept).
+$scope_ids = ranking_scope_ids($db, $me_id, $scope);
+if ($scope_ids !== null) $people = array_intersect_key($people, $scope_ids);
 
 $entries = [];   // everyone ranked on this board
 foreach ($people as $id => $person) {

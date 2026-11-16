@@ -1,0 +1,535 @@
+/* Redesigned Dashboard (#136): today's workout first, then the week, buddies and rankings.
+   Colours come only from the --gr- variables in src/index.css (DESIGN.md), so both themes work. */
+
+.home {
+  gap: 28px;
+}
+
+.home-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ header */
+.home-header__date {
+  margin: 0 0 6px;
+  color: var(--gr-text-muted);
+  font-size: 14px;
+}
+
+.home-header h1 {
+  margin: 0;
+  color: var(--gr-text);
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+/* ------------------------------------------------------------ the two rows */
+.home-top,
+.home-bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 48px;
+}
+
+.home-top {
+  align-items: center;
+}
+
+.home-bottom {
+  padding-top: 28px;
+  border-top: 1px solid var(--gr-border-strong);
+}
+
+.home-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.home-section-heading h2 {
+  margin: 0;
+  color: var(--gr-text);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.home-section-heading a {
+  color: var(--gr-action-text);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.home-section-heading a:hover {
+  text-decoration: underline;
+}
+
+.home-muted {
+  margin: 0;
+  color: var(--gr-text-soft);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.home-muted a {
+  color: var(--gr-action-text);
+}
+
+.home-error {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--gr-error);
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-error-bg);
+  color: var(--gr-error-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.home-error button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------ today's workout */
+.home-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 280px;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+  display: flex;
+  align-items: center;
+}
+
+/* The gym photo (public/backdrops/rack.webp) on the right, faded into the card so the text side stays plain. */
+.home-hero::before,
+.home-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 50%;
+  pointer-events: none;
+}
+
+.home-hero::before {
+  background: url('/backdrops/rack.webp') 68% 100% / cover no-repeat;
+}
+
+.home-hero::after {
+  background: linear-gradient(90deg, var(--gr-surface) 0%, color-mix(in srgb, var(--gr-surface) 55%, transparent) 40%, transparent 100%);
+}
+
+.home-hero__body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  max-width: 70%;
+  padding: 32px;
+}
+
+.home-hero__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--gr-action-text);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.home-hero__badge {
+  padding: 3px 8px;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: 6px;
+  background: var(--gr-surface-raised);
+  color: var(--gr-text);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.home-hero--done .home-hero__badge {
+  border-color: var(--gr-success);
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
+}
+
+.home-hero__title {
+  margin: 0;
+  color: var(--gr-text);
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+/* Longer titles ("No workout plan selected") stay clear of the photo. */
+.home-hero--no-plan .home-hero__title,
+.home-hero--error .home-hero__title {
+  font-size: 34px;
+}
+
+.home-hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 0;
+  color: var(--gr-text-soft);
+  font-size: 15px;
+}
+
+.home-hero__meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.home-hero__meta svg {
+  width: 16px;
+  height: 16px;
+}
+
+.home-hero__text {
+  margin: 0;
+  color: var(--gr-text-soft);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.home-hero__exercises {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--gr-text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.home-hero__exercises li::before {
+  content: '•';
+  margin-right: 8px;
+  color: var(--gr-brand-icon);
+}
+
+.home-hero__exercises .home-hero__more {
+  color: var(--gr-text-muted);
+}
+
+.home-hero__exercises .home-hero__more::before {
+  content: none;
+}
+
+.home-hero__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  margin-top: 8px;
+  padding: 12px 22px;
+  border: 1px solid var(--gr-action);
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.home-hero__action:hover {
+  filter: brightness(1.06);
+}
+
+.home-hero__action--quiet {
+  border-color: var(--gr-control-border);
+  background: var(--gr-surface-raised);
+  color: var(--gr-text);
+}
+
+.home-hero__action:focus-visible,
+.home-section-heading a:focus-visible,
+.home-rankings__row:focus-visible,
+.home-rankings__scope select:focus-visible {
+  outline: 2px solid var(--gr-brand);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------ this week */
+.home-week__count {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  margin: 0 0 20px;
+  color: var(--gr-text);
+}
+
+.home-week__count strong {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.home-week__target {
+  color: var(--gr-text-muted);
+  font-size: 24px;
+}
+
+.home-week__label {
+  margin-left: 10px;
+  color: var(--gr-text-soft);
+  font-size: 15px;
+}
+
+.home-week__days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-week__day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.home-week__weekday {
+  color: var(--gr-text-muted);
+  font-size: 12px;
+}
+
+.home-week__mark {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid transparent;
+  border-radius: 50%;
+  color: var(--gr-text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.home-week__day--done .home-week__mark {
+  border-color: var(--gr-success);
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
+}
+
+.home-week__day--today .home-week__mark {
+  border-color: var(--gr-brand);
+  color: var(--gr-action-text);
+}
+
+.home-week__facts {
+  display: grid;
+  gap: 8px;
+  margin: 20px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--gr-border-strong);
+  font-size: 13px;
+}
+
+.home-week__facts div {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.home-week__facts dt {
+  color: var(--gr-text-muted);
+}
+
+.home-week__facts dd {
+  margin: 0;
+  color: var(--gr-text-soft);
+}
+
+.home-week__facts strong {
+  color: var(--gr-text);
+}
+
+.home-week__facts a {
+  color: var(--gr-action-text);
+}
+
+/* ------------------------------------------------------------ from your buddies */
+.home-buddies__message {
+  margin: 0;
+}
+
+.home-buddies__message figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  color: var(--gr-text);
+  font-size: 14px;
+}
+
+.home-buddies__avatar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gr-surface-raised);
+  color: var(--gr-text-soft);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.home-buddies__where {
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+
+.home-buddies__message blockquote {
+  margin: 14px 0 0 46px;
+  color: var(--gr-text);
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+/* ------------------------------------------------------------ your rankings */
+.home-rankings__scope select {
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 1px solid var(--gr-control-border);
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-surface);
+  color: var(--gr-text);
+  font: inherit;
+  font-size: 14px;
+}
+
+.home-rankings__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-rankings__list li + li {
+  border-top: 1px solid var(--gr-border-strong);
+}
+
+.home-rankings__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 0;
+  color: var(--gr-text);
+  text-decoration: none;
+}
+
+.home-rankings__name {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.home-rankings__name strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.home-rankings__name span {
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+
+.home-rankings__rank {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.home-rankings__chevron {
+  width: 16px;
+  height: 16px;
+  color: var(--gr-text-muted);
+}
+
+.home-rankings__row:hover .home-rankings__name strong {
+  text-decoration: underline;
+}
+
+/* ------------------------------------------------------------ smaller screens */
+@media (max-width: 1132px) {
+  .home-top,
+  .home-bottom {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+}
+
+@media (max-width: 824px) {
+  .home-header h1 {
+    font-size: 30px;
+  }
+
+  /* The photo fills the card on a phone, darkened from the bottom so the text over it stays readable. */
+  .home-hero::before,
+  .home-hero::after {
+    width: 100%;
+  }
+
+  .home-hero::before {
+    opacity: 0.45;
+  }
+
+  .home-hero::after {
+    background: linear-gradient(0deg, var(--gr-surface) 35%, color-mix(in srgb, var(--gr-surface) 60%, transparent) 100%);
+  }
+
+  .home-hero__body {
+    max-width: none;
+    padding: 24px 20px;
+  }
+
+  .home-hero__title {
+    font-size: 36px;
+  }
+
+  .home-hero__action {
+    align-self: stretch;
+    justify-content: center;
+  }
+
+  .home-buddies__message blockquote {
+    margin-left: 0;
+    font-size: 18px;
+  }
+}

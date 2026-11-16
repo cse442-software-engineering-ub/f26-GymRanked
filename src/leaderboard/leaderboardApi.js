@@ -8,8 +8,10 @@
 // Every function resolves to apiRequest's {ok, status, data}; it never throws.
 import { apiRequest } from '../onboarding/api.js'
 
-export function getLeaderboard(board) {
-  return apiRequest(`leaderboard.php?board=${encodeURIComponent(board)}`)
+// scope 'buddies' ranks only your workout buddies group (the Dashboard's rankings filter); the default is everyone.
+export function getLeaderboard(board, scope = 'everyone') {
+  const query = `board=${encodeURIComponent(board)}${scope === 'buddies' ? '&scope=buddies' : ''}`
+  return apiRequest(`leaderboard.php?${query}`)
 }
 
 export function joinLeaderboard(scoringTable) {

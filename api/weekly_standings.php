@@ -1,5 +1,5 @@
 <?php
-// GET    api/weekly_standings.php               -> 200 the standings (below)
+// GET    api/weekly_standings.php[?scope=everyone|buddies] -> 200 the standings (below)
 // POST   api/weekly_standings.php {"join":true} -> 200 the same body, after joining the weekly competition
 // DELETE api/weekly_standings.php               -> 200 the same body, after leaving it (workouts and goals are kept)
 //
@@ -31,11 +31,15 @@
 // - now is the server's time so the page's countdown doesn't depend on the phone's clock; resets_at is next Monday
 //   00:00 New York time in UTC (see weekly_standings_time.php).
 //
-// 400 {"error":"Invalid request.","errors":{"join":"Use true."}} for a POST body that isn't {"join": true}, 401 not
+// - scope=buddies (GET only) keeps only the caller's workout buddies group (api/ranking_scope.php): the circle is then
+//   the ranked buddies with the viewer's target, and member_count and rank are among them. The default is everyone.
+//
+// 400 {"error":"Invalid request.","errors":{"join":"Use true."}} (or {"scope":"Use everyone or buddies."}) for a POST body that isn't {"join": true}, 401 not
 // logged in, 405 with Allow: GET, POST, DELETE, 415/413/403 as the other POST endpoints, 500 {"error":"Database error"}.
 
 require __DIR__ . '/workout_common.php';
 require __DIR__ . '/weekly_standings_time.php';
+require __DIR__ . '/ranking_scope.php';
 
 const STANDINGS_DEFAULT_TARGET = 3; // the same default as api/weekly_goal.php
 
@@ -63,6 +67,7 @@ if ($method === 'POST') {
     }
 }
 
+$scope = $method === 'GET' ? ranking_scope_param() : 'everyone';
 $db = database();
 $user_id = workout_user_id($db);
 $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
@@ -137,6 +142,10 @@ foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
     $date = (new DateTimeImmutable($row['completed_at'], $utc))->setTimezone($zone)->format('Y-m-d');
     $people[(int) $row['user_id']]['dates'][$date] = true;
 }
+
+// scope=buddies: only the caller's buddies group (the caller is always kept).
+$scope_ids = ranking_scope_ids($db, $user_id, $scope);
+if ($scope_ids !== null) $people = array_intersect_key($people, $scope_ids);
 
 foreach ($people as &$person) {
     $person['completed'] = count($person['dates']);

@@ -9,8 +9,9 @@
 // Every function resolves to apiRequest's {ok, status, data}; it never throws.
 import { apiRequest } from '../onboarding/api.js'
 
-export function getWeeklyStandings() {
-  return apiRequest('weekly_standings.php')
+// scope 'buddies' ranks only your workout buddies group (the Dashboard's rankings filter); the default is everyone.
+export function getWeeklyStandings(scope = 'everyone') {
+  return apiRequest(scope === 'buddies' ? 'weekly_standings.php?scope=buddies' : 'weekly_standings.php')
 }
 
 export function joinWeeklyCompetition() {
