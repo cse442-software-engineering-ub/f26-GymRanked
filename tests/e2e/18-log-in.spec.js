@@ -72,9 +72,6 @@ acceptanceTests(
         await expect(page.getByRole('checkbox', { name: 'Keep me logged in' })).toBeVisible()
         await expect(page.getByRole('button', { name: 'Forgot password?' })).toBeVisible()
         await expect(loginButton(page)).toBeVisible()
-        await expect(page.locator('.divider')).toHaveText('OR')
-        await expect(page.getByRole('button', { name: 'Google' })).toHaveText('Continue with Google')
-        await expect(page.getByRole('button', { name: 'Apple' })).toHaveText('Continue with Apple')
         await expect(page.locator('.account-link')).toHaveText('New to GymRank? Create an account')
       })
 
@@ -254,27 +251,7 @@ acceptanceTests(
         ).toBeVisible()
       })
 
-      await step('Step 3: press "Continue with Google"', async () => {
-        await page.getByRole('button', { name: 'Google' }).click()
-      })
-
-      await step('Step 4: the Google message appears', async () => {
-        await expect(
-          loginMessage(page, 'Google sign-in is not available yet. Please use your email and password.'),
-        ).toBeVisible()
-      })
-
-      await step('Step 5: press "Continue with Apple"', async () => {
-        await page.getByRole('button', { name: 'Apple' }).click()
-      })
-
-      await step('Step 6: the Apple message appears', async () => {
-        await expect(
-          loginMessage(page, 'Apple sign-in is not available yet. Please use your email and password.'),
-        ).toBeVisible()
-      })
-
-      await step('Step 7: still on the login screen', async () => {
+      await step('Step 3: still on the login screen', async () => {
         await expect(page).toHaveURL(/#\/login$/)
         await expect(loginCard(page)).toBeVisible()
       })
