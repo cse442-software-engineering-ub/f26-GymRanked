@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { completeErrorMessage, summaryPath } from './setLog.js'
 import ConfirmWorkoutModal from './ConfirmWorkoutModal.jsx'
 import UnloggedSetModal from './UnloggedSetModal.jsx'
+import IncompleteWorkoutModal from './IncompleteWorkoutModal.jsx'
 import defaultApi from './workoutLogApi.js'
 import './workoutLog.css'
 
@@ -26,6 +27,7 @@ export default function CompleteWorkoutButton({
   setCount,
   hasUnsaved = false,
   findUnlogged,
+  findMissingExercises,
   onLogUnlogged,
   onEndUnlogged,
   completed = false,
@@ -40,6 +42,7 @@ export default function CompleteWorkoutButton({
   const [message, setMessage] = useState('')
   const [confirming, setConfirming] = useState(false)
   const [unlogged, setUnlogged] = useState(null) // exercise name while the unlogged-set prompt is open
+  const [missing, setMissing] = useState(null)
   const submitting = useRef(false)
   const openButton = useRef(null)
 
@@ -81,8 +84,16 @@ export default function CompleteWorkoutButton({
     openButton.current?.focus()
   }
 
+  function confirmOrWarn() {
+    const missingExercises = findMissingExercises?.() ?? []
+    if (missingExercises.length > 0) {
+      setConfirming(false)
+      setMissing(missingExercises)
+    } else complete()
+  }
+
   async function complete() {
-    if (submitting.current || completed || !confirming) return
+    if (submitting.current || completed || (!confirming && !missing)) return
     submitting.current = true
     setBusy(true)
     setMessage('')
@@ -115,9 +126,10 @@ export default function CompleteWorkoutButton({
       <button ref={openButton} type="button" className="wl-button wl-button--primary wl-button--wide" onClick={openConfirmation} disabled={busy}>
         {buttonLabel}
       </button>
-      {!confirming && message && <p className="wl-message wl-message--error" role="alert">{message}</p>}
-      {unlogged && <UnloggedSetModal exercise={unlogged} onLog={() => onLogUnlogged?.(unlogged)} onEnd={endWithoutUnlogged} onCancel={() => setUnlogged(null)} />}
-      {confirming && <ConfirmWorkoutModal busy={busy} error={message} retryLabel={retryLabel} onConfirm={complete} onCancel={cancelConfirmation} />}
+      {!confirming && !missing && message && <p className="wl-message wl-message--error" role="alert">{message}</p>}
+      {unlogged && <UnloggedSetModal exercise={unlogged} onLog={() => { onLogUnlogged?.(unlogged); setUnlogged(null) }} onEnd={endWithoutUnlogged} onCancel={() => setUnlogged(null)} />}
+      {confirming && <ConfirmWorkoutModal busy={busy} error={message} retryLabel={retryLabel} onConfirm={confirmOrWarn} onCancel={cancelConfirmation} />}
+      {missing && <IncompleteWorkoutModal exercises={missing} busy={busy} error={message} onConfirm={complete} onCancel={() => { setMissing(null); setMessage(''); openButton.current?.focus() }} />}
     </div>
   )
 }

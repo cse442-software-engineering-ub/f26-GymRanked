@@ -3,7 +3,6 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import BodyFigure from './BodyFigure.jsx'
 import BackLink from './BackLink.jsx'
 import ExerciseGuide from './ExerciseGuide.jsx'
-import { markFinished } from './finishedExercises.js'
 import { EMPTY_DRAFT, loadDraft, saveDraft } from './setDraft.js'
 import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
 import RestTimer from './RestTimer.jsx'
@@ -348,19 +347,7 @@ function ExerciseSession() {
               >
                 ‹ Return to workout
               </button>
-              <button
-                type="button"
-                className="wl-button wl-button--primary"
-                disabled={saving || sets.length === 0}
-                onClick={() => {
-                  markFinished(session.id, exercise.name)
-                  navigate('/workout/active')
-                }}
-              >
-                Finish exercise
-              </button>
             </div>
-            {sets.length === 0 && <p className="exercise-session__hint">Save at least one set to finish this exercise.</p>}
           </>
         )}
       </main>

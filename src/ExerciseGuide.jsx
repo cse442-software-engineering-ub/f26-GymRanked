@@ -8,7 +8,7 @@ const API_URL = `${import.meta.env.BASE_URL}api/exercise_guide.php`
 const guides = new Map()
 
 // A "How to perform it" button that opens a panel with a looping demo clip, the steps and the form tips, from
-// WorkoutX through api/exercise_guide.php. The panel is a SidePanel on the left: docked beside the exercise column on
+// WorkoutX through api/exercise_guide.php. The panel is a SidePanel on the right: docked beside the exercise column on
 // wide screens, so the set can still be timed and logged, and a centred modal on narrow ones. The button always
 // shows, beside See alternatives. The guide is fetched up front; while it loads, or when the exercise has none (404)
 // or it can't load, the panel says so instead, so the timer and set logging are never blocked by it. To make the
@@ -75,7 +75,7 @@ function ExerciseGuide({ name }) {
       <SidePanel
         open={open}
         onClose={() => setOpen(false)}
-        side="left"
+        side="right"
         title={`How to perform ${name}`}
         returnFocusRef={buttonRef}
         busy={!guide && loading}
