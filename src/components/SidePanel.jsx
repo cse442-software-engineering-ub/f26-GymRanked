@@ -53,13 +53,13 @@ function SidePanel({ open, onClose, side = 'right', title, titleRef: givenTitleR
     return () => query.removeEventListener?.('change', onChange)
   }, [open])
 
-  // Without room for two panels, the one opened first closes.
+  // Panels on the same side replace one another. Opposite sides can coexist when there is room.
   useEffect(() => {
     if (!open) return undefined
     openPanels.push(id)
-    window.dispatchEvent(new CustomEvent(OPEN_EVENT, { detail: id }))
+    window.dispatchEvent(new CustomEvent(OPEN_EVENT, { detail: { id, side } }))
     const onOtherOpen = (event) => {
-      if (event.detail !== id && !matches(BOTH_QUERY)) closeRef.current()
+      if (event.detail.id !== id && (event.detail.side === side || !matches(BOTH_QUERY))) closeRef.current()
     }
     const both = window.matchMedia?.(BOTH_QUERY)
     const onResize = () => {
@@ -72,7 +72,7 @@ function SidePanel({ open, onClose, side = 'right', title, titleRef: givenTitleR
       window.removeEventListener(OPEN_EVENT, onOtherOpen)
       both?.removeEventListener?.('change', onResize)
     }
-  }, [open, id])
+  }, [open, id, side])
 
   useEffect(() => {
     if (!open) return undefined
