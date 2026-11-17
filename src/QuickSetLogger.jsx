@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import ExerciseGuide from './ExerciseGuide.jsx'
+import ExerciseAlternatives from './workoutLog/ExerciseAlternatives.jsx'
 import { EMPTY_DRAFT, loadDraft, saveDraft } from './setDraft.js'
 import { formatSet, nextSetNumber, saveErrorMessage } from './workoutLog/setLog.js'
 import { validateSet } from './workoutLog/setValidation.js'
@@ -25,7 +26,7 @@ function formatVolume(value) {
 }
 
 // The phone logger follows the short entry flow in the workout mockup.
-export default function QuickSetLogger({ sessionId, exercise, exercisePosition, exerciseTotal, exerciseIndex, totalVolume, sets, onSetSaved }) {
+export default function QuickSetLogger({ sessionId, exercise, exercisePosition, exerciseTotal, workoutExercises, onSwitchExercise, totalVolume, sets, onSetSaved }) {
   const [draft, setDraft] = useState(() => readDraft(sessionId, exercise))
   const [errors, setErrors] = useState({})
   const [saveError, setSaveError] = useState('')
@@ -156,7 +157,15 @@ export default function QuickSetLogger({ sessionId, exercise, exercisePosition, 
       <div className="quick-set__heading"><h2>Log a set</h2><span>Set {nextSetNumber(sets)}</span></div>
       <p className="quick-set__context">Exercise {exercisePosition} of {exerciseTotal}</p>
       <h3>{exercise}</h3>
-      <Link className="quick-set__guide" to={`/workout/active/${exerciseIndex}`}>Exercise guide & alternatives →</Link>
+      <div className="quick-set__tools" aria-label="Exercise information">
+        <ExerciseGuide name={exercise} />
+        <ExerciseAlternatives
+          exercise={exercise}
+          workoutExercises={workoutExercises}
+          locked={sets.length > 0}
+          onSwitch={onSwitchExercise}
+        />
+      </div>
       <div className="quick-set__timers">
       <div className="quick-set__timer" role="group" aria-label="Set timer">
         <div><span className="quick-set__timer-label">Set timer</span><strong role="timer" aria-live="off">{formatClock(elapsedSeconds)}</strong><span className="quick-set__timer-state">{restSeconds !== null ? 'Resting' : draft.timer === 'idle' ? 'Ready' : draft.timer === 'running' ? 'In progress' : draft.timer === 'paused' ? 'Paused' : 'Set finished'}</span></div>

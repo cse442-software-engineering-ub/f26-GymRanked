@@ -76,3 +76,10 @@ Use a phone-sized browser (375 × 812), a signed-in test account with a selected
 2. Enter `10` reps and `25` lb, tap “Leave and return later”, then resume the workout from Dashboard. Confirm both entries remain and the photo header is visible.
 3. Start the set timer, wait at least two seconds, and tap “Finish set”. Confirm the rest timer appears beside the set timer. Log the set and confirm the set timer remains frozen at the elapsed value while rest counts down.
 4. Tap “Skip rest” and confirm the set timer returns to `00:00`. Confirm the orange “Complete workout” action and “Leave and return later” link are visible.
+
+## Test 11: Exercise guide and alternatives stay on the workout
+
+1. Open the app link with `#/workout/active` appended in a 1440 px wide browser and sign in to a prepared account with a fresh workout today.
+2. Tap “How to perform it”. Confirm a side panel opens with the exercise demonstration clip and any available steps or form tips. Confirm the URL remains `#/workout/active` and the set form stays available. Close the panel.
+3. Tap “See alternatives”. Confirm a side panel opens with matching alternatives or an explanation that none are available, while the URL remains `#/workout/active`. Close it.
+4. Repeat steps 2 and 3 in a 375 px wide browser. Confirm each panel fits the screen, can be closed, and the values already typed in Reps and Weight remain in place.

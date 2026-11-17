@@ -294,9 +294,9 @@
 .active-workout-page .active-workout__finish { display: block; }
 .active-workout-page .active-workout__finish-copy { display: block; }
 .active-workout-page .active-workout__leave { display: grid; place-items: center; min-height: 44px; margin-top: 10px; color: var(--gr-action-text); font-size: 14px; font-weight: 600; text-decoration: none; }
-.active-workout-page .active-workout__leave:focus-visible,
-.quick-set__guide:focus-visible { outline: 2px solid var(--gr-action-text); outline-offset: 2px; }
-.quick-set__guide { display: inline-flex; align-items: center; min-height: 44px; margin: -8px 0 12px; color: var(--gr-action-text); font-size: 13px; text-decoration: none; }
+.active-workout-page .active-workout__leave:focus-visible { outline: 2px solid var(--gr-action-text); outline-offset: 2px; }
+.quick-set__tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 2px 0 18px; }
+.quick-set__tools .exercise-tool { min-width: 0; min-height: 44px; }
 .quick-set__rest-placeholder { display: none; }
 .quick-set__volume { display: flex; flex-wrap: wrap; gap: 5px 20px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--gr-border); color: var(--gr-text-muted); font-size: 12px; }
 

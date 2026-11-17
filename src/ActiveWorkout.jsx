@@ -6,8 +6,9 @@ import QuickSetLogger from './QuickSetLogger.jsx'
 import { fetchCurrentPlan, fetchPlan } from './plansApi.js'
 import CompleteWorkoutButton from './workoutLog/CompleteWorkoutButton.jsx'
 import { summaryPath, upsertSet } from './workoutLog/setLog.js'
-import { clearUnloggedSets, findUnloggedExercise } from './setDraft.js'
+import { clearUnloggedSets, EMPTY_DRAFT, findUnloggedExercise, loadDraft, saveDraft } from './setDraft.js'
 import { startSession } from './workoutSessionApi.js'
+import workoutLogApi from './workoutLog/workoutLogApi.js'
 
 // Active workout screen: the user selects an exercise and logs sets inline.
 function ActiveWorkout() {
@@ -86,6 +87,25 @@ function ActiveWorkout() {
   function goTo(index) {
     setCurrent(index)
     document.querySelector('.active-workout__mobile-log')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }
+
+  async function switchExercise(replacement) {
+    const previousName = session.exercises[current].name
+    try {
+      const updated = await workoutLogApi.swapExercise({ sessionId: session.id, exercise: previousName, replacement })
+      saveDraft(session.id, replacement, loadDraft(session.id, previousName))
+      saveDraft(session.id, previousName, EMPTY_DRAFT)
+      setSavedSets((previous) => {
+        const next = { ...previous }
+        delete next[previousName]
+        next[replacement] = updated.exercises[current].sets
+        return next
+      })
+      setSession(updated)
+    } catch (error) {
+      if (error.status === 401) setStatus('loggedOut')
+      throw error
+    }
   }
 
   const exercises = session?.exercises ?? []
@@ -201,7 +221,8 @@ function ActiveWorkout() {
                   exerciseTotal={exercises.length}
                   sets={savedSets[exercises[current].name] ?? []}
                   totalVolume={volume}
-                  exerciseIndex={current}
+                  workoutExercises={exercises.map(({ name }) => name)}
+                  onSwitchExercise={switchExercise}
                   onSetSaved={(name, set) => setSavedSets((previous) => ({
                     ...previous,
                     [name]: upsertSet(previous[name] ?? [], set),
