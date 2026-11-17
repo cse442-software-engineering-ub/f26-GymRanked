@@ -3,11 +3,10 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import BodyFigure from './BodyFigure.jsx'
 import BackLink from './BackLink.jsx'
 import ExerciseGuide from './ExerciseGuide.jsx'
-import { markFinished } from './finishedExercises.js'
 import { EMPTY_DRAFT, loadDraft, saveDraft } from './setDraft.js'
 import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
-import NavBar from './NavBar.jsx'
 import RestTimer from './RestTimer.jsx'
+import ExerciseAlternatives from './workoutLog/ExerciseAlternatives.jsx'
 import { formatSet, nextSetNumber, saveErrorMessage, upsertSet } from './workoutLog/setLog.js'
 import { validateSet } from './workoutLog/setValidation.js'
 import workoutLogApi from './workoutLog/workoutLogApi.js'
@@ -36,11 +35,13 @@ function ExerciseSession() {
   const [fieldErrors, setFieldErrors] = useState({})
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
+  const [switchedFrom, setSwitchedFrom] = useState(null) // the exercise this one replaced, for the notice
 
   const index = Number(exerciseIndex)
   const exercise = session?.exercises[index]
 
   useEffect(() => {
+    setSwitchedFrom(null)
     startSession()
       .then((started) => {
         setSession(started)
@@ -126,6 +127,24 @@ function ExerciseSession() {
     setDraft((d) => ({ ...d, restEndsAt: null }))
   }
 
+  // Switches this exercise of today's workout for an alternative (from the alternatives dialog). Only allowed before
+  // any set is saved, so there are no saved sets to move; a set in progress carries over to the replacement.
+  // Rejects with the server's message so the dialog can show it.
+  async function switchExercise(replacement) {
+    try {
+      const updated = await workoutLogApi.swapExercise({ sessionId: session.id, exercise: exercise.name, replacement })
+      const name = updated.exercises[index].name
+      saveDraft(session.id, exercise.name, EMPTY_DRAFT)
+      saveDraft(session.id, name, draft)
+      setSwitchedFrom(exercise.name)
+      setSession(updated)
+      setSets(updated.exercises[index].sets.map((set) => ({ ...set, exercise: name })))
+    } catch (err) {
+      if (err.status === 401) setStatus('loggedOut')
+      throw err
+    }
+  }
+
   async function finishSet() {
     if (saving) return
     const checked = validateSet(values)
@@ -162,7 +181,6 @@ function ExerciseSession() {
 
   return (
     <div className="dashboard-page">
-      <NavBar current="Workouts" />
       <main className="dashboard-content exercise-session" aria-busy={status === 'loading'}>
         <BackLink to="/workout/active">Back to workout</BackLink>
         {status === 'loading' && <p className="status">Loading your exercise...</p>}
@@ -196,7 +214,20 @@ function ExerciseSession() {
               {muscles.length > 0 && <BodyFigure muscles={muscles} />}
             </header>
 
-            <ExerciseGuide name={exercise.name} />
+            <div className="exercise-session__tools">
+              <ExerciseGuide name={exercise.name} />
+              <ExerciseAlternatives
+                exercise={exercise.name}
+                workoutExercises={session.exercises.map((other) => other.name)}
+                locked={sets.length > 0}
+                onSwitch={switchExercise}
+              />
+            </div>
+            {switchedFrom && (
+              <p className="wl-message wl-message--success" role="status">
+                Switched from {switchedFrom} to {exercise.name} for today&apos;s workout. Your plan stays the same.
+              </p>
+            )}
 
             {resting ? (
               <RestTimer endsAt={restEndsAt} total={restTotal} onAdjust={adjustRest} onDone={endRest} />
@@ -316,19 +347,7 @@ function ExerciseSession() {
               >
                 ‹ Return to workout
               </button>
-              <button
-                type="button"
-                className="wl-button wl-button--primary"
-                disabled={saving || sets.length === 0}
-                onClick={() => {
-                  markFinished(session.id, exercise.name)
-                  navigate('/workout/active')
-                }}
-              >
-                Finish exercise
-              </button>
             </div>
-            {sets.length === 0 && <p className="exercise-session__hint">Save at least one set to finish this exercise.</p>}
           </>
         )}
       </main>

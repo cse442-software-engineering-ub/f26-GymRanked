@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import NavBar from '../NavBar.jsx'
 import MobileDashboardIcon from '../MobileDashboardIcon.jsx'
 import GymBackdrop from '../components/GymBackdrop.jsx'
 import WorkoutLogger from './WorkoutLogger.jsx'
@@ -41,7 +40,6 @@ export default function WorkoutLogPreview() {
 
   return (
     <div className="dashboard-page">
-      <NavBar current="Workouts" />
       <GymBackdrop image="backdrops/dumbbells.webp" height={210} phoneHeight={180}>
         <span />
         <header className="wl-hero">

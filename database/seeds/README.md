@@ -42,6 +42,8 @@ Fake accounts for testing login on a local or dev database. Each account has its
 | Wes Fresh | weekly.fresh@example.com | `Weekly-Fresh-88!` | Weekly goal (#88): no goal saved, no workout this week. Loaded by `weekly_goals.sql` |
 | Lena Locked | weekly.locked@example.com | `Weekly-Locked-88!` | Weekly goal (#88): last week's goal 4, workouts Monday and today, so this week is locked. Loaded by `weekly_goals.sql` |
 | Nia Next | weekly.next@example.com | `Weekly-Next-88!` | Weekly goal (#88): this week 2 and next week 5 saved, three workout days. Loaded by `weekly_goals.sql` |
+| Alex Alternatives | alt.alex@example.com | `Alt-Alex-82!` | Exercise alternatives (#82, story #80): Intermediate, Dumbbells only; today's unfinished workout is Bench press, Pull-up, Romanian deadlift. Loaded by `exercise_alternatives.sql` (reload on the test day) |
+| Gio Gym | alt.gio@example.com | `Alt-Gio-82!` | Exercise alternatives (#82, story #80): Advanced, Full gym access; same workout as Alex. Loaded by `exercise_alternatives.sql` |
 | Olivia Grant | buddy-olivia@example.com | `Buddy-Test-78!` | Workout buddies (#78): owner of the group Morning Lifters, invite code `7KQ2MXP9`. Loaded by `workout_buddies.sql` |
 | Ben Cruz | buddy-ben@example.com | `Buddy-Test-78!` | Workout buddies (#78): a member of Morning Lifters with one message waiting |
 | Nina Park | buddy-nina@example.com | `Buddy-Test-78!` | Workout buddies (#78): no group, joins Morning Lifters with the code |

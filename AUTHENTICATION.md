@@ -94,8 +94,9 @@ expired auth_sessions and old auth_attempts rows; do not delete active records.
 - Leaderboard numbers are illustrative and labeled Preview instead of Live.
 - The mobile terms/privacy notice is omitted until the team supplies actual
   policies; no invented agreement is presented during registration.
-- Google/Apple and password recovery show availability messages. OAuth credentials
-  and password-reset email delivery are not configured by this change.
+- The login page has no Google/Apple sign-in buttons (removed in #135). Password
+  recovery shows an availability message; password-reset email delivery is not
+  configured.
 - Registration returns to login without creating a session. After login, the app
   reads the saved training goal and experience/equipment setup. Missing steps
   route to the goal or setup page; completed accounts may enter the dashboard.

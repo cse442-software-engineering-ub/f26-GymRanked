@@ -15,8 +15,8 @@ This is GymRank's design system: the colours, type, spacing, shapes, components 
 
 These come from the course [UI/UX checklist](https://webdev.cse.buffalo.edu/cse404/design/) and the Sprint 2 rubric, applied to GymRank.
 
-1. **One app, one look.** Every page uses the same background, card, button and nav bar. A user should not be able to tell which teammate built a page.
-2. **Always show where you are.** The top nav bar appears on every signed-in page, with the current page in white and bold. Onboarding shows a step indicator instead.
+1. **One app, one look.** Every page uses the same background, card, button and menu. A user should not be able to tell which teammate built a page.
+2. **Always show where you are.** The menu appears on every signed-in page, with the current section highlighted. Onboarding shows a step indicator instead.
 3. **Every action gets feedback.** Success and failure look different, and neither relies on colour alone: use text, an icon or a tick as well.
 4. **Errors say what, why and how to fix.** Errors go next to the field they belong to, all at once, never one at a time.
 5. **Empty is never blank.** An empty section says what is missing and offers the next step ("No workout selected yet" with "Browse workout plans ›").
@@ -33,14 +33,14 @@ Every screen supports two themes: **dark**, the default, and **light**. Text on 
 - **Always-dark pages:** sign-in, create account and the onboarding steps (personal details, training goal, experience, equipment, recommended plans) always show dark, whatever theme the account has saved. `isAlwaysDarkPath()` in `src/onboarding/onboardingRoute.js` lists them and `OnboardingGate` applies it, so these pages need no theme code; `index.html` repeats the list so they never flash light. They don't need checking in light mode.
 - **Need a new colour?** Add a variable to BOTH blocks in `src/index.css`: the dark value in `:root` and the light value in `:root[data-theme="light"]`. Then add a row to the tables below with both values. A variable left out of the light block keeps its dark value in light mode.
 - **Light-mode values:** pages are mid-light greys (page `#c9cdd4`, cards `#dde0e5`), never white. Orange *fills* (`brand`, `action`) are the same in both themes; orange and feedback *text* is darker in light mode so it keeps 4.5:1.
-- **Check both themes.** Before opening a pull request for UI work, look at the page in light mode too: avatar menu → **Profile** → Appearance → **Light** (this saves to your account; select **Dark** to switch back). For a quick look without saving, run `document.documentElement.dataset.theme = 'light'` in the browser console.
+- **Check both themes.** Before opening a pull request for UI work, look at the page in light mode too: your name at the bottom of the menu → **Profile** → Appearance → **Light** (this saves to your account; select **Dark** to switch back). For a quick look without saving, run `document.documentElement.dataset.theme = 'light'` in the browser console.
 
 ### Backgrounds
 
 | Token | Dark | Light | Use | Source |
 |---|---|---|---|---|
 | `bg-page` | `#0e1015` | `#c9cdd4` | Page background | `.dashboard-page`, `body` (auth.css) |
-| `bg-nav` | `#14161b` | `#dde0e5` | Top nav bar | `.nav-bar` |
+| `bg-nav` | `#14161b` | `#dde0e5` | The menu (sidebar, phone strip and phone menu) | `.app-sidebar` |
 | `surface` | `#161820` | `#dde0e5` | Cards, metric tiles, panels, dialogs | `.dashboard-card`, `.dashboard-metric` |
 | `surface-raised` | `#1d2029` | `#d3d7dd` | Icon tiles, numbered step markers, chips | `.dashboard-metric__icon`, `.dashboard-step__marker` |
 | `surface-hover` | `#2a2e38` | `#c8ccd3` | Hover on a raised button (sign-in buttons) | `.social-buttons button:hover` |
@@ -69,7 +69,7 @@ GymRank uses three oranges, each with one job. Don't swap them.
 
 | Token | Dark | Light | Use | Text on it |
 |---|---|---|---|---|
-| `brand` | `#f2652e` | `#f2652e` | Logo square, "Start Workout" nav button, avatar, focus ring, today's day card border | `text-on-orange` (6.0:1) |
+| `brand` | `#f2652e` | `#f2652e` | Logo square, avatar, focus ring, today's day card border | `text-on-orange` (6.0:1) |
 | `action` | `#e0703f` | `#e0703f` | Primary buttons, progress fill, completed step markers, selected borders | `text-on-orange` (5.7:1) |
 | `action-text` | `#f2865a` | `#8a3410` | Orange text: text actions ("Choose goal"), accent values ("Getting started"), counts ("1 of 3") | n/a (7.0:1 on `surface` / 5.1:1 on `bg-page`) |
 | `brand-text` | `#ff7035` | `#8a3410` | Orange eyebrows on the phone Dashboard | n/a |
@@ -133,7 +133,7 @@ One family everywhere: `system-ui, sans-serif` (the device's own font: San Franc
 | Hint | 13px / 400 | `text-muted` | "Record weight and reps to track progress" | `.dashboard-metric__hint` |
 | Text action | 13px / 600 | `action-text` | "Choose goal", "Browse plans" | `.dashboard-step__action` |
 | Eyebrow | 12px / 500, uppercase, letter-spacing 0.1em | `text-muted` | "TODAY'S WORKOUT" | `.dashboard-card__heading h2` |
-| Nav link | 14px / 500 (current: 600) | `nav-inactive` (current: `text`) | "Plans" | `.nav-bar__link` |
+| Menu row | 14px / 500 (current: 600) | `nav-inactive` (current: `text`) | "Plans" | `.app-menu__link` |
 | Button | 15px / 600 | dark on orange | "Browse workout plans ›" | `.dashboard-primary-action` |
 
 Rules:
@@ -166,9 +166,12 @@ Layout patterns:
 
 | Width | What changes | Source |
 |---|---|---|
-| 900px or less | Dashboard grids become one column | index.css |
+| 1132px or less | Dashboard grids become one column (the page is 900px or less beside the 232px sidebar) | index.css |
+| 900px or less | The sidebar is 184px wide instead of 232px | navigation.css |
 | 850px or less | Login and sign-up switch to the phone layout; the sign-up "×" appears | auth.css |
-| 640px or less | Page side padding becomes 20px; nav bar padding and link gaps shrink; plan rows wrap; weekly plan shows 2 days per row; onboarding goes to one column | index.css, onboarding.css |
+| 824px or less | Signed-in pages use their phone layout (the page is 640px or less beside the 184px sidebar): side padding 20px, plan rows wrap, weekly plan shows 2 days per row | index.css and the page stylesheets |
+| 700px or less | No sidebar: the "Menu" strip and the phone menu | navigation.css |
+| 640px or less | Onboarding goes to one column; page side padding becomes 20px there too | index.css, onboarding.css |
 
 ### Page layout
 
@@ -176,9 +179,9 @@ Every signed-in page (Dashboard, Workouts, Plans and plan details, Weekly goal, 
 
 - **Width:** `--gr-page-width: 1200px`, side padding included, centred. On a 1440px screen the title starts 168px from the left (120px margin + 48px padding) and the content is 1104px wide; on a 1920px screen the column stops at 1200px. Side padding is `--gr-page-gutter` (48px, or 20px at 640px or less); the top is `--gr-page-top` (32px, or 24px) and the bottom `--gr-page-bottom` (48px, or 32px).
 - **How a page gets it:** add its wrapper class to the shared rule in `src/index.css` (the one that lists `.dashboard-content`, `.progress-page__content` and the others). A page's own CSS says only what is inside the column (grids, gaps), never its `max-width`, `margin` or side padding.
-- **Short forms and reading columns stay narrow inside it,** at the left under the title, not centred: the profile, personal-details and weekly-goal forms 720px, the exercise logger 640px, plan details 796px.
+- **Narrow pages are a narrow column centred in it:** the two profile edit pages and the personal-details step 720px, weekly goal 852px, plan details 796px, the exercise page 640px. The back link, title and content go together, so the whole column sits in the middle. A popup (`.modal-backdrop`) is a direct child of some of these pages; keep it out of the narrow-column rule (`:not(.modal-backdrop)`) so it always covers the full screen.
 - **Photo bands** (`GymBackdrop`, Active workout and onboarding) stay full width, but their text sits on the same column.
-- **No breadcrumb trail.** The nav bar already shows where you are. Where a page needs a way back, it has one `BackLink` (`src/BackLink.jsx`) above the title: "Back to plan library" on plan details, "Back to workout" on an individual exercise, "Back to progress" on workout history, and the onboarding "Back to …" links. Top-level pages (Dashboard, Plans, Progress) have none.
+- **No breadcrumb trail.** The menu already shows where you are. Where a page needs a way back, it has one `BackLink` (`src/BackLink.jsx`) above the title: plan details returns to the page that opened it (Plans, Workouts, Dashboard, or recommendations), defaulting to the plan library for a direct link; an individual exercise returns to its workout; workout history returns to Progress. Top-level pages (Dashboard, Plans, Progress) have none.
 
 New pages should use 900px and 640px. Test every page at 375×812 (phone) and 1440×900 (desktop), the sizes the Playwright tests use (`playwright.config.js`), and at a tablet width such as 768×1024.
 
@@ -199,13 +202,19 @@ Elevation is flat: cards are separated by colour and a 1px `border`, not by shad
 
 Each entry lists the values and the class that implements it today.
 
-### Nav bar (`src/NavBar.jsx`, `.nav-bar`)
+### Menu (`src/navigation/`, `.app-shell`)
 
-- `bg-nav` background, `border-strong` bottom edge, 20px 48px padding.
-- Left: 32px `brand` square with 8px corners, then "GymRank" in 16px / 500.
-- Middle: Dashboard, Workouts, Plans, Progress, Leaderboard, Today, Buddies. The gap between links is 32px, and 16px from 641px to 900px so the seven links stay on one row. Current page: `text`, 600. Others: `nav-inactive`, 500. Pages that don't exist yet stay in the list with `aria-disabled="true"`.
-- Right: "Start Workout" (`brand` background, dark text, 14px / 600, 8px corners, 8px 16px padding), then the 40px `brand` avatar with initials.
-- On phones the bar wraps into rows: brand, links, actions. It never hides links behind a back button.
+The menu on every signed-in page (story #131, card #133). `OnboardingGate` renders it once around the pages, so it stays in place while only the page beside it changes. Login, create account and the onboarding steps have none.
+
+- **What it holds**, from `src/navigation/menuMap.js`: the group "Training" with Dashboard, Workouts, Plans and Progress; the group "Community" with Rankings and Buddies; at the bottom the 36px `brand` circle with your initials, your name and "View profile", then "Log out". There is no top bar, no "Start Workout" button in the navigation and no "Today" entry: starting or resuming belongs beside the workout.
+- **901px and wider:** a sidebar fixed on the left, 232px wide, `bg-nav` with a `border-strong` right edge, 20px 12px padding. The GymRank mark (32px `brand` square with the dumbbell, name at 16/500) at the top.
+- **701px to 900px:** the same sidebar, 184px wide, without the chevron on the profile row.
+- **700px and narrower:** no sidebar. A strip that stays at the top of the window holds a "Menu" button (three lines and the word, `surface` with a `border-strong` edge, 44px tall) and the mark. "Menu" opens the same rows from the left as a dialog at most 300px wide (never over 84% of the screen) over the `backdrop`; the page behind cannot be clicked or reached with Tab.
+- **Rows:** 44px tall, 8px corners, 20px icon, `nav-inactive` at 500; hover `surface-raised`. Group names are 11px uppercase `text-muted`.
+- **Where you are:** the row of the open section has an orange (`brand`) bar on its left, a 16% `brand` tint, `text` at 600 and a `brand-icon` icon, and `aria-current` ("page" on the row's own page, "location" on a page inside the section). Plan details keeps Plans, a workout being logged keeps Workouts, workout history keeps Progress, the weekly goal keeps Dashboard, the Strength rankings keep Rankings, the profile edit pages keep the profile row.
+- **Phone menu behaviour:** opening puts the focus on "Close"; Escape, "Close" and a tap outside close it and put the focus back on "Menu"; choosing a page closes it and moves the focus to the new page; it closes by itself when the window becomes wider than 700px.
+- **Keyboard:** "Skip to the page" is the first Tab stop, then the mark, the rows in order, the profile row and "Log out". Focus ring: 3px `brand`.
+- **Room for the page:** `--app-sidebar-width` is the sidebar's width (0 on a phone). The page sits beside it, and anything fixed to the window that must stay beside the page (a docked side panel) starts from it. Because the page is narrower than the window by that much, the signed-in pages' width rules are written for the window: their phone layout starts at 824px (640px of page + the 184px sidebar) and their other rules are 232px later than the page width they are about (900px of page is a 1132px window).
 
 ### Page header (`.dashboard-header`)
 
@@ -226,7 +235,6 @@ Card styling with 16px padding: a 44px `surface-raised` icon tile (10px corners,
 | Kind | Look | Use | Class today |
 |---|---|---|---|
 | Primary | `action` background, `text-on-orange` text, 15px / 600, 12px padding, 8px corners, full width in cards | The one main action on a card or page | `.dashboard-primary-action` |
-| Nav action | `brand` background, `text-on-orange` text, 14px / 600, 8px 16px padding | "Start Workout" only | `.nav-bar__start-workout` |
 | Text action | No background, `action-text`, 13px / 600 | Secondary actions in lists ("Choose goal") | `.dashboard-step__action` |
 | Subtle | No background, `text-subtle` text | "Cancel" in dialogs | `.button-subtle` |
 
@@ -260,13 +268,13 @@ A box above the form: 10px 12px padding, 8px corners, 1px border, 13px text, col
 
 ### Dialog (`src/SwitchPlanModal.jsx`)
 
-`surface`, 12px corners, 24px padding, at most 380px wide, over the `backdrop`, which covers the whole page including the nav bar. Title 22px / 500, body 13px `text-muted`. Closes with Cancel, Escape, or a click on the backdrop. Uses `role="dialog"` and `aria-modal="true"`, and moves focus to its main button when it opens.
+`surface`, 12px corners, 24px padding, at most 380px wide, over the `backdrop`, which covers the whole page including the menu. Title 22px / 500, body 13px `text-muted`. Closes with Cancel, Escape, or a click on the backdrop. Uses `role="dialog"` and `aria-modal="true"`, and moves focus to its main button when it opens.
 
 ### Plan card (plan library, `.plan-list__item`)
 
 - A `surface` card with 12px corners: "N days/wk" in `action-text`, the plan name, a coloured level badge (Beginner `success`, Intermediate `warning`, Advanced `error`) with the length, the equipment it needs as icons with labels, and a green or red dot for whether you have that equipment (Suryamur10, PR #44).
 - The whole card opens the plan's details; its button, name link and dot keep their own actions.
-- The plan library (`#/plans`) lists, in order: "Your current plan" (that plan's card, only when the user follows one), "Recommended plans" (matches the saved setup, without the current plan), then the rest under one "More plans (N)" row. "More plans" is a native `<details>`: closed on every visit, opened and closed by a click, Enter or Space, at least 44px tall, with a chevron that turns. With no current plan and no recommended plan the rest are shown open under "All plans".
+- The plan library (`#/plans`, titled "Plan library", `.plan-lib*` in `src/index.css`) follows the Plans screen of the redesign preview: a wide **Current plan** card (orange label, the plan's name in large type, one line of description, `Level · N days/week · N weeks` and a "View plan →" button), **Recommended for you** (the plans that match the setup, without the current plan) as two columns of link cards (name, orange ↗, description, facts; one column on a phone), then one **More plans, N programs** row (a native `<details>`: closed on every visit, opened and closed by a click, Enter or Space, at least 44px tall, chevron turns) holding the rest. Cards open the plan's details, where "Start this plan" chooses or switches it; there is no select button, equipment icon or setup box on the library. With no current plan and no recommended plan the rest are shown open under "All plans".
 - "Select" is a full-width primary button. Your current plan's card has an `action` border, and its button reads "Current plan" with a tick, greyed out.
 - "Your setup" (`src/YourSetup.jsx`) sits under the heading of the plan library and of "Choose your workout plan": an eyebrow label, the saved goal · experience · equipment, and an "Edit" text action to the goal page.
 
@@ -312,12 +320,35 @@ Follows research task 113's frames D1, D4 and P1b without the tier parts (no sou
 
 Follows page 3 of the Monday visual brief ("A competition that starts fresh each week"). Leaderboard in the navigation opens it at `#/leaderboard/weekly`.
 
-- A two-way "Weekly consistency" / "Strength" switch (`LeaderboardSwitch`, links with `aria-current="page"`) at the top of both leaderboard views: `surface-sunken` track, the open one on `surface-raised` at 600. Full width on a phone.
+- A two-way "Weekly consistency" / "Strength" switch (`LeaderboardSwitch`, links with `aria-current="page"`) at the top of both leaderboard views: `surface-sunken` track, the open one on `surface-raised` at 600. Full width on a phone, where each choice is 44px tall; the "Leave" text button is at least 44 × 44px.
 - Your card (`surface`, 24px padding): an uppercase `brand-text` eyebrow with the group ("The 3-day circle"), "You're #2" at 32/600, "Show up. Move up. Start fresh.", and on the right "2/3 days · 67%" in `action-text` 18/600. An 8px `track` bar fills in `action`. At the goal the days and the bar turn `success` and a "Goal reached" pill (`success` outline on `success-bg`) appears. Then a clock icon and "3d 7h 28m left · Resets Monday, 12:00 AM New York time" in `text-muted`, with a "Leave" text button in `action-text` on the right. Not joined: "Join the weekly competition", a privacy sentence and a "Join the weekly competition" button. In the practice week (the week you join): "Practice week" and the Monday your ranked weeks start. After leaving, a `success` notice says the workouts are kept.
 - The standings card (`surface`): uppercase Rank / Member / Training days / Goal reached headers, then 56px rows with "#1", a 32px initials circle, the name, "3 of 3 days" over a 6px `success` bar, and the percentage (100% in `success-text`). Shared ranks repeat the number (#1, #1, #3). Your row has an `action` outline on `selected-bg`, an `action` initials circle, an `action` bar and a "You" pill. A 12px note: "Shared progress = shared rank. Everyone here has the same 3-day goal."
 - On a phone the header is hidden and each row puts the bar and "3 of 3 days" under the name, with the percentage on the right.
 - Home's weekly card shows the same rank ("Weekly rank": "#2", or "Practice week", "Not joined" or "Test account" when there is none) and links to this view with "View weekly standings ›" and the circle's name.
 - Loading "Loading this week's standings…", the `error` box with "Try again", and "Nobody is ranked with a 3-day goal this week yet." when the group is empty. A group of one shows its single row.
+
+### Exercise tools: guide and alternatives (`src/ExerciseGuide.jsx`, `src/workoutLog/ExerciseAlternatives.jsx`, added by #82)
+
+- **How to perform it** and **See alternatives** sit under the exercise heading on the active workout's exercise page as two equal buttons filling the row (`.exercise-tool`): `surface-raised` with a `border-strong` edge, `radius-inner` (10px) corners, 44px tall, `text` at 14/600 (13px on phones, still one line at 320px), each with a 16px `text-soft` line icon (a play circle and swap arrows); `surface-hover` on hover.
+- Each opens a [side panel](#side-panel-srccomponentssidepaneljsx): **How to perform it** on the left, **See alternatives** on the right ("Alternatives to Bench press"). While a panel is open its button gets an `action` border and `selected-bg`, and pressing it again closes the panel.
+- The alternatives body starts with one `surface-sunken` card: "You're doing" eyebrow, the exercise (16/600), its level and equipment, its muscles, and under a divider "Your setup: …". Then "4 alternatives" as the list heading (15/600, `text`) with the intro sentence under it in `text-muted`.
+- Each alternative in the `<ol>` is its own `surface-raised` card (10px corners, 10px apart): the name (15/600) with an outlined **Switch** button on the right (`action` border and `action-text`, 36px tall, 44px on phones; "Switching…" while it saves; its accessible name is "Switch to Dumbbell press"), then one wrapping row with the level badge (`.level-badge`), the equipment tag (`control-outline` border) and the muscles in `text-muted`, then the reason in `text-soft` after a `success` tick. An alternative already in the workout shows an "Already in this workout" pill instead of the button. Once the exercise has saved sets, no card has a button and a `surface-sunken` note with an info icon above the list says it stays. A failed switch shows the `error` box under the list.
+- No match, not covered, failed and logged out each show the panel's message card with its title, the explanation and its one action.
+- The footer says switching changes today's workout only, and the plan, saved sets and history stay the same.
+- After a switch the panel closes, the page shows the replacement with the set in progress kept, and a `success` box under the buttons says "Switched from Bench press to Dumbbell press for today's workout. Your plan stays the same."
+- Loading "Finding alternatives to Bench press..." after a small spinner (still when reduced motion is on), "No alternative fits your setup" with an **Update training preferences ›** link, "No alternatives listed for … yet", the `error` box with **Try again**, and a logged-out line with **Log in**.
+- **How to perform it** (`src/ExerciseGuide.jsx`), titled "How to perform Bench press": the looping demo clip in a `surface-sunken` frame (at most 260px tall), then "Steps" (15/600) as a numbered list, each number in a 22px circle with an `action` border and `action-text`, then "Form tips" in a `surface-raised` card, each tip after a `success` tick. The footer credits WorkoutX. Loading shows "Loading the guide…" after the spinner; no guide shows a message card, "No guide yet".
+
+### Side panel (`src/components/SidePanel.jsx`)
+
+The panel both exercise tools open; use it for any other panel that should sit beside a page rather than over it.
+
+- **Frame:** `surface` with a `border-strong` edge, 12px corners. A header (title at 20/600, 18 on phones, and a quiet **Close**) and an optional footer (`surface-sunken` strip, info icon, 12px `text-muted`) stay put while the body scrolls between them, with a thin scrollbar in `control-border` on a transparent track.
+- **Shared parts** in `SidePanel.css`: `.side-panel__status` (loading text after a small spinner, still with reduced motion) and `.side-panel__message` (a `surface-raised` card with a 15/600 title, the explanation and one action).
+- **1332px and wider: docked.** 360px wide, fixed on the `side` you give it (`left` or `right`) of the page area, from 16px under the top of the window to 24px above the bottom; a left panel starts after the sidebar. A shadow on its inner side, no dimming, and the page stays usable (a set can be timed and logged while it is open); Tab is not trapped. On the exercise page the column slides away from the panel (0.2s, none with reduced motion) by just enough to stay 16px clear: not at all at 1672px, 170px at 1332px.
+- **Two panels:** one on each side fits at 1672px and wider, with the column untouched. Narrower, opening one closes the other, and shrinking the window below 1672px closes the older one.
+- **Below 1332px: a centred modal**, at most 480px wide (the window width minus 32px on a phone), over the dimmed page, which is `inert`; Tab stays inside and a click on the backdrop closes it.
+- **Keyboard:** focus moves to the title on open. Escape closes the panel holding focus, or the newest one when focus is in the page. On close, focus returns to the button that opened it unless the user has moved into the page beside the panel.
 
 ### Workout buddies page (`src/buddies/`, added by #79)
 
@@ -328,7 +359,7 @@ Buddies in the navigation opens it at `#/buddies`. Shared page column; the cards
 - The group card: uppercase `text-muted` eyebrow "Your group", the name at 22/500 and "3 members". The owner also gets an "Invite code" panel on `surface-sunken` with the code at 26/600 monospace and its expiry; an expired code is struck through with an `error` "Expired …" pill.
 - Member rows (at least 44px): a 32px initials circle (`action` for your own row), the name at 15/500, "Owner" and "You" pills, and a text-style "Encourage" button on every row but yours. It opens the message form under the row on `surface-sunken`: "To Ben C.", "Your message \*", a "32/140" counter (in `action-text` at the limit), "Send" and "Cancel".
 - "Encouragements for you" card: sender at 600, the time in `text-muted` 12px, the text in `text-soft`, newest first; empty: "No encouragements yet. When someone in your group encourages you, it appears here."
-- Limits stop typing: the code at 8 characters, the name at 40, the message at 140 (an emoji counts as one).
+- Limits: the code box stops at 8 characters and the name at 40. The message box does not stop: it keeps whatever is typed or pasted, the counter goes past the limit ("141/140") in `error-text` at 600, and "Send" is refused with "Write a message of 1 to 140 characters." under the box until the text fits (an emoji counts as one). Story #78 checks that a too-long message is refused and kept, so the lifter can shorten it instead of losing its end.
 - Messages: success in the `success` box with a tick and `role="status"`; "already in a group" and a failed load in the `error` box with a button ("Show my group", "Try again"); a wrong code or a failed request as `error-text` under the box or button it belongs to, with the red outline and `aria-invalid` on a refused box. Busy buttons say "Joining…", "Creating…" or "Sending…" and are disabled.
 - Keyboard: Enter submits each form, Escape closes the create and message forms and puts focus back on the button that opened them; after joining or creating, focus moves to the group's name.
 
@@ -345,7 +376,7 @@ A gym photo band for the top of a page, as one component so every page uses the 
 import GymBackdrop from './components/GymBackdrop.jsx'
 
 <GymBackdrop image="backdrops/rack.webp" height={220} phoneHeight={168}>
-  <Link className="nav-bar__brand" to="/dashboard">…</Link>
+  <Link className="ob-brand" to="/dashboard">…</Link>
   <nav aria-label="Setup progress">…</nav>
 </GymBackdrop>
 ```
@@ -370,7 +401,7 @@ Used for training goal and experience level. The experience cards' icon is three
 
 - `SaveBar`: the step's primary button ("Save goal", "Save and continue") with the reason it's greyed out under it ("Pick one goal to continue."). Top right next to the heading on computers; a full-width bar fixed to the bottom of the screen on phones, at least 48px tall.
 - `BackLink`: "Back to …" with a chevron, above the heading, at least 44px tall.
-- "Log out" sits at the top right of the photo band on every onboarding page (onboarding has no NavBar, and an unfinished account can't reach the Dashboard). It works like the NavBar's: the login page opens with "You are logged out.". `text` on a 70% `bg-page` backing, so it stays readable on any photo.
+- "Log out" sits at the top right of the photo band on every onboarding page (onboarding has no menu, and an unfinished account can't reach the Dashboard). It works like the menu's: the login page opens with "You are logged out.". `text` on a 70% `bg-page` backing, so it stays readable on any photo.
 - The step indicator shows Personal details, Training goal, Experience, Equipment and Choose plan as bars with names on the photo band. The current step is `text` and bold; finished steps have an `action` bar.
 - Personal details uses a centered form (720px maximum), a labelled weight input and four exclusive gender buttons. The choices use two columns on desktop and one on phones. Its save button stays in the document flow so it cannot cover fields. Existing accounts enter from the Dashboard with the shared navigation and a Back to Dashboard link instead of an onboarding stepper.
 
@@ -463,7 +494,7 @@ Variables that are the same in both themes (`brand`, `action`, `text-on-orange`,
   - Experience level cards with one-line descriptions: [Strava](https://mobbin.com/screens/9abe1e4c-91ff-46bd-8304-247f8ff09446), [Bevel](https://mobbin.com/screens/ca012035-d801-42fb-bf6b-89954314cfe6).
   - Equipment tiles with icons, plus a separate "no equipment" option: [Peloton](https://mobbin.com/screens/222b1212-1f9e-4ccf-a4c1-351e9dd47144), [Future](https://mobbin.com/screens/4d08977f-bcee-4881-a6b1-6df84287ebb9).
   - Plan cards showing level, length and days per week: [Tempo](https://mobbin.com/screens/3b6166f4-9ea0-46a3-b1c0-5c27047344d4), [Hevy](https://mobbin.com/screens/e9573e72-406e-476d-9218-b7902620154a).
-- Source files: `src/index.css` (colour variables for both themes, nav bar, Dashboard, plans, weekly plan, dialog), `src/theme/theme.js` (switching, remembering and saving the theme), `src/auth/auth.css` (login, sign-up, form fields, feedback), `src/onboarding/onboarding.css` (goal and setup steps).
+- Source files: `src/index.css` (colour variables for both themes, Dashboard, plans, weekly plan, dialog), `src/navigation/navigation.css` (the menu), `src/theme/theme.js` (switching, remembering and saving the theme), `src/auth/auth.css` (login, sign-up, form fields, feedback), `src/onboarding/onboarding.css` (goal and setup steps).
 
 ## Changing this guide
 

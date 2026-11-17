@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { displaySummary, formatDuration } from '../src/workoutLog/workoutSummary.js'
+import { displaySummary, formatCompletedDate, formatDuration } from '../src/workoutLog/workoutSummary.js'
 import { createWorkoutLogApi } from '../src/workoutLog/workoutLogApi.js'
 import { workoutWeeklyMessage } from '../src/workoutLog/workoutWeeklyFeedback.js'
 import { progressText, weekDays } from '../src/weeklyGoal/weeklyGoalFormat.js'
@@ -36,14 +36,15 @@ test('completed session data becomes accurate summary values and top sets', () =
   }
   assert.deepEqual(displaySummary(session), {
     workoutName: 'Push',
+    completedDate: 'Tuesday, October 13, 2026',
     duration: '45 min 10 sec',
     totalVolume: '1,425 lb',
     setsCompleted: 3,
     exerciseCount: 2,
     totalReps: 18,
     highlights: [
-      { exercise: 'Bench press', topSet: '105 lb × 5', setCount: 2 },
-      { exercise: 'Overhead press', topSet: '50 lb × 8', setCount: 1 },
+      { exercise: 'Bench press', topSet: '105 lb × 5', versusLast: '', isPr: false },
+      { exercise: 'Overhead press', topSet: '50 lb × 8', versusLast: '', isPr: false },
     ],
   })
 })
@@ -57,6 +58,34 @@ test('an unfinished session has no summary, and bodyweight sets retain their lab
   })
   assert.equal(completed.highlights[0].topSet, 'Bodyweight × 10')
   assert.equal(formatDuration(3660), '1 hr 1 min 0 sec')
+  assert.equal(formatCompletedDate('2026-11-18T02:00:00Z'), 'Tuesday, November 17, 2026')
+})
+
+test('comparison shows the last top set and awards PRs strictly by weight', () => {
+  const session = {
+    name: 'Push', completed_at: '2026-11-17T20:00:00Z',
+    summary: { duration_seconds: 90, total_volume_lb: 0, set_count: 4, exercise_count: 4, total_reps: 40 },
+    exercises: [
+      { name: 'Bench press', sets: [{ weight_lb: 165, reps: 10 }] },
+      { name: 'Overhead press', sets: [{ weight_lb: 100, reps: 12 }] },
+      { name: 'Cable fly', sets: [{ weight_lb: 50, reps: 8 }] },
+      { name: 'Pull-up', sets: [{ weight_lb: 0, reps: 10 }] },
+    ],
+  }
+  const comparisons = {
+    'Bench press': { last_set: { weight_lb: 185, reps: 9 }, best_weight_lb: 185 },
+    'Overhead press': { last_set: { weight_lb: 100, reps: 6 }, best_weight_lb: 100 },
+    'Cable fly': { last_set: { weight_lb: 45, reps: 12 }, best_weight_lb: 48 },
+    'Pull-up': { last_set: null, best_weight_lb: null },
+  }
+  assert.deepEqual(displaySummary(session, comparisons).highlights, [
+    { exercise: 'Bench press', topSet: '165 lb × 10', versusLast: '185 lb × 9', isPr: false },
+    { exercise: 'Overhead press', topSet: '100 lb × 12', versusLast: '100 lb × 6', isPr: false },
+    { exercise: 'Cable fly', topSet: '50 lb × 8', versusLast: '45 lb × 12', isPr: true },
+    { exercise: 'Pull-up', topSet: 'Bodyweight × 10', versusLast: '', isPr: true },
+  ])
+  const olderBest = { ...comparisons, 'Cable fly': { last_set: { weight_lb: 45, reps: 12 }, best_weight_lb: 60 } }
+  assert.equal(displaySummary(session, olderBest).highlights[2].isPr, false)
 })
 
 test('session, completion and history calls use their backend endpoints', async () => {
@@ -84,6 +113,18 @@ test('session, completion and history calls use their backend endpoints', async 
   ])
   assert.equal(calls[0].options.body, '{}')
   assert.equal(calls[2].options.body, '{"session_id":7}')
+})
+
+test('summary comparison reads the saved session history endpoint', async () => {
+  const api = createWorkoutLogApi({
+    baseUrl: '/base/',
+    fetchImpl: async (url, options) => {
+      assert.equal(url, '/base/api/workout_summary_comparison.php?session_id=7')
+      assert.equal(options.method, 'GET')
+      return { ok: true, status: 200, json: async () => ({ comparisons: { Squat: { last_set: null, best_weight_lb: null } } }) }
+    },
+  })
+  assert.deepEqual(await api.getSummaryComparison(7), { comparisons: { Squat: { last_set: null, best_weight_lb: null } } })
 })
 
 test('reading another user\'s session reports the backend 404', async () => {

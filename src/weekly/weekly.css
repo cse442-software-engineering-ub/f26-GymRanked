@@ -185,6 +185,7 @@
 }
 
 .weekly-text-button {
+  min-width: 44px;
   min-height: 44px;
   padding: 0;
   border: none;
@@ -403,7 +404,7 @@
   font-size: 14px;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .weekly-page__content {
     padding-bottom: 96px;
   }

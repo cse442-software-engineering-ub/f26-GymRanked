@@ -92,7 +92,7 @@ function RecommendedPlans() {
             <li key={plan.id} className="ob-plan">
               <div className="ob-plan-body">
                 <p className="ob-plan-days">{plan.days_per_week} days/wk</p>
-                <Link className="ob-plan-name" to={`/plans/${plan.id}`}>{plan.name}</Link>
+                <Link className="ob-plan-name" to={`/plans/${plan.id}`} state={{ from: '/recommended' }}>{plan.name}</Link>
                 <p className="ob-plan-meta"><PlanMeta plan={plan} /></p>
                 <PlanIcons plan={plan} />
               </div>

@@ -58,12 +58,12 @@ async function as(page, account) {
 // "Select Progress": the top navigation on a computer, the menu (three lines) on a phone.
 async function openProgress(page) {
   const menu = page.getByRole('button', { name: 'Open navigation menu' })
-  const topLink = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Progress' })
+  const topLink = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Progress', exact: true })
   // isVisible() doesn't wait, so wait until the navigation has drawn one of the two before choosing.
   await menu.or(topLink).filter({ visible: true }).waitFor()
   if (await menu.isVisible()) {
     await menu.click()
-    await page.getByRole('navigation', { name: 'Mobile navigation' }).getByRole('link', { name: 'Progress' }).click()
+    await page.getByRole('navigation', { name: 'Mobile navigation' }).getByRole('link', { name: 'Progress', exact: true }).click()
   } else {
     await topLink.click()
   }
@@ -127,7 +127,7 @@ acceptanceTests('8-exercise-progress.md', {
     await step('Setup: log in as Marcus', () => as(page, MARCUS))
     await step('Step 1: Progress opens Your progress with All time selected', async () => {
       await openProgress(page)
-      await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Progress' })).toHaveClass(/nav-bar__link--current/)
+      await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Progress', exact: true })).toHaveAttribute('aria-current', /page|location/)
       await expect(main(page).getByText('Marcus Malone · All time', { exact: true })).toBeVisible()
       await expect(rangeButton(page, 'All time')).toHaveAttribute('aria-pressed', 'true')
       await expect(rangeButton(page, '30 days')).toHaveAttribute('aria-pressed', 'false')
@@ -236,9 +236,8 @@ acceptanceTests('8-exercise-progress.md', {
       await expectTotals(page, MARCUS_TOTALS)
       await expect(picker(page)).toHaveValue('Back squat')
     })
-    await step('Step 2: log out from the account menu', async () => {
-      await page.getByRole('button', { name: 'Open account menu' }).click()
-      await page.getByRole('menuitem', { name: 'Log out' }).click()
+    await step('Step 2: log out from the menu', async () => {
+      await page.getByRole('navigation', { name: 'Primary' }).getByRole('button', { name: 'Log out' }).click()
       await expect(page.getByText('You are logged out.')).toBeVisible()
     })
     await step('Step 3: logging back in shows the same progress', async () => {
@@ -344,13 +343,13 @@ acceptanceTests('8-exercise-progress.md', {
       await openProgress(page)
       await main(page).getByRole('link', { name: /Workout history/ }).click()
       await expect(page).toHaveURL(/#\/progress\/history$/)
-      await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Progress' })).toHaveClass(/nav-bar__link--current/)
+      await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Progress', exact: true })).toHaveAttribute('aria-current', /page|location/)
       await expect(page.getByRole('heading', { level: 1, name: 'Workout history' })).toBeVisible()
       await expect(main(page).getByText('7 completed workouts', { exact: true })).toBeVisible()
       await expect(main(page).locator('.history-item__date').first()).toHaveText('Wednesday, October 14, 2026')
     })
     await step('Step 3: Progress in the path returns to Your progress', async () => {
-      await page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Progress' }).click()
+      await page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Progress', exact: true }).click()
       await expect(page).toHaveURL(/#\/progress$/)
       await expect(page.getByRole('heading', { level: 1, name: 'Your progress' })).toBeVisible()
     })

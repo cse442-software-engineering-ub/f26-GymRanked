@@ -175,6 +175,17 @@
   }
 }
 
+/* Signed-in pages sit beside the sidebar (src/navigation/navigation.css), which takes 184px of a tablet. Their phone
+   rules therefore start at 824px (640px + 184px), and their other width rules are 232px later than the space they
+   need (900px of page is a 1132px window), so a page always gets the layout that fits beside the sidebar. */
+@media (max-width: 824px) {
+  .app-shell {
+    --gr-page-gutter: 20px;
+    --gr-page-top: 24px;
+    --gr-page-bottom: 32px;
+  }
+}
+
 /* The one page column. Each page's own CSS says only what is inside it (columns, gaps), never its width or side
    padding, so Dashboard, Progress and the rest start and end at the same points. */
 .dashboard-content,
@@ -250,203 +261,14 @@ body {
   }
 }
 
-/* Nav bar */
-
-.nav-bar {
-  position: relative;
-  z-index: 20;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 20px 48px;
-  background: var(--gr-bg-nav);
-  border-bottom: 1px solid var(--gr-border-strong);
-}
-
-.nav-bar__brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-}
-
-.nav-bar__logo {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--gr-brand);
-}
-
-.nav-bar__logo svg {
-  display: block;
-  width: 22px;
-  height: 22px;
-  color: var(--gr-on-brand);
-  stroke-width: 2.6;
-}
-
 .dashboard-metric__icon svg,
 .dashboard-mobile-only,
 .dashboard-today__mobile-summary,
 .dashboard-exercise__mobile-icon,
 .dashboard-exercise__chevron,
 .dashboard-checklist__mobile-title,
-.dashboard-header__mobile-copy,
-.nav-bar__mobile-toggle,
-.nav-bar__mobile-backdrop,
-.nav-bar__mobile-drawer {
+.dashboard-header__mobile-copy {
   display: none;
-}
-
-.nav-bar__brand-name {
-  color: var(--gr-text);
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.nav-bar__links {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 32px;
-  font-size: 14px;
-}
-
-.nav-bar__link {
-  color: var(--gr-nav-inactive);
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.nav-bar__link--current {
-  color: var(--gr-text);
-  font-weight: 600;
-}
-
-.nav-bar__link[aria-disabled="true"] {
-  cursor: default;
-}
-
-/* Seven links (Buddies, card #79) need a narrower gap to stay on one row between the phone menu and 900px. */
-@media (min-width: 641px) and (max-width: 900px) {
-  .nav-bar__links {
-    gap: 16px;
-  }
-}
-
-.nav-bar__actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.nav-bar__start-workout {
-  background: var(--gr-brand);
-  color: var(--gr-text-on-orange);
-  font-size: 14px;
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
-  cursor: pointer;
-}
-
-.nav-bar__avatar {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: var(--gr-brand);
-  color: var(--gr-text-on-orange);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 500;
-  font-family: inherit;
-}
-
-button.nav-bar__avatar {
-  cursor: pointer;
-}
-
-.nav-bar__avatar-text--single {
-  font-size: 18px;
-}
-
-.nav-bar__account {
-  position: relative;
-}
-
-.nav-bar__menu-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 20;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: default;
-}
-
-.nav-bar__account-menu {
-  position: absolute;
-  z-index: 21;
-  top: calc(100% + 8px);
-  right: 0;
-  width: 200px;
-  padding: 6px 0;
-  overflow: hidden;
-  border-radius: 8px;
-  background: var(--gr-surface);
-  box-shadow: 0 12px 30px var(--gr-shadow-color);
-}
-
-.nav-bar__account-item,
-.nav-bar__logout {
-  display: block;
-  width: 100%;
-  padding: 9px 14px;
-  border: 0;
-  background: transparent;
-  font: inherit;
-  font-size: 14px;
-  line-height: normal;
-  text-align: left;
-}
-
-.nav-bar__account-item {
-  color: var(--gr-text);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.nav-bar__account-item:hover,
-.nav-bar__account-item:focus-visible {
-  background: var(--gr-surface-raised);
-}
-
-.nav-bar__account-item[aria-disabled="true"] {
-  color: var(--gr-nav-inactive);
-}
-
-.nav-bar__logout {
-  color: var(--gr-danger);
-  cursor: pointer;
-}
-
-.nav-bar__logout:hover:not(:disabled),
-.nav-bar__logout:focus-visible {
-  background: color-mix(in srgb, var(--gr-danger) 12%, transparent);
-}
-
-.nav-bar__logout:disabled {
-  opacity: 0.65;
-  cursor: default;
 }
 
 /* Home dashboard — beginner layout */
@@ -1092,7 +914,7 @@ button.nav-bar__avatar {
   color: var(--gr-text);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1132px) {
   .dashboard-metrics,
   .dashboard-overview {
     grid-template-columns: 1fr;
@@ -1104,7 +926,7 @@ button.nav-bar__avatar {
 }
 
 /* Weekly plan at tablet width: 4 days per row so the day cards aren't cramped */
-@media (max-width: 900px) {
+@media (max-width: 1132px) {
   .weekly-plan__days {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -1171,31 +993,20 @@ button.nav-bar__avatar {
   height: 18px;
 }
 
-/* Plan cards: a responsive grid. Each li is a card (DESIGN.md "Card"): surface, 1px border, 12px corners. */
+/* Plan cards: a responsive grid. Each li is a card (DESIGN.md "Card"): surface, 1px border, 12px corners.
+   Columns are as many as fit at 250px or more, so a card is never squeezed narrower than its text needs, whatever
+   the width of the page column (the five fixed columns made cards 208px wide once the page column was 1200px). */
 .plan-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 16px;
 }
 
-/* Five columns on wide screens, three on medium, two on tablets, one on phones (the recommended row
-   becomes a swipeable carousel there, see the 640px block below). */
-@media (max-width: 1399px) {
-  .plan-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 899px) {
-  .plan-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 640px) {
+/* On phones one column (the recommended row becomes a swipeable carousel there, see the 640px block below). */
+@media (max-width: 824px) {
   .plan-list {
     grid-template-columns: 1fr;
   }
@@ -1494,9 +1305,8 @@ button.nav-bar__avatar {
 }
 
 .plan-card__stats {
-  display: grid;
-  grid-template-columns: repeat(3, auto);
-  justify-content: start;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px 20px;
   margin: 0;
 }
@@ -1539,7 +1349,7 @@ button.nav-bar__avatar {
   display: none;
 }
 
-@media (max-width: 899px) {
+@media (max-width: 1131px) {
   .plan-prefs__list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1549,55 +1359,9 @@ button.nav-bar__avatar {
   }
 }
 
-/* "More plans": a native <details> that starts closed. The summary is a full-width button-sized row. */
-.plan-more > summary {
-  list-style: none;
-}
-
-.plan-more > summary::-webkit-details-marker {
-  display: none;
-}
-
-.plan-more__toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 44px;
-  margin: 0 0 12px;
-  padding: 0 16px;
-  background: var(--gr-surface);
-  border: 1px solid var(--gr-border);
-  border-radius: var(--gr-radius-card);
-  color: var(--gr-text);
-  font-size: 1.125rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.plan-more__toggle:hover {
-  border-color: var(--gr-border-strong);
-  background: var(--gr-surface-raised);
-}
-
-.plan-more__toggle:focus-visible {
-  outline: 2px solid var(--gr-brand);
-  outline-offset: 2px;
-}
-
-.plan-more__chevron {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-}
-
-.plan-more[open] .plan-more__chevron {
-  transform: rotate(180deg);
-}
-
 /* Phones: the recommended plans are a swipeable row that snaps card by card, with the next card peeking
    in; the dots below follow it. the plans under "More plans" are a row too. */
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .plan-prefs__edit {
     width: 100%;
     justify-content: center;
@@ -1662,7 +1426,7 @@ button.nav-bar__avatar {
   }
 }
 
-@media (max-width: 640px) and (prefers-reduced-motion: no-preference) {
+@media (max-width: 824px) and (prefers-reduced-motion: no-preference) {
   .plan-dots__dot::before {
     transition: width 120ms ease, background-color 120ms ease;
   }
@@ -1670,8 +1434,18 @@ button.nav-bar__avatar {
 
 /* Plan details */
 
-.plan-details > * {
+/* A reading column centred in the page column. Popups (.modal-backdrop) are direct children too and must stay full
+   screen, so they are left out; the back link is inline, so it is moved to the column's left edge by hand. */
+.plan-details > :not(.modal-backdrop):not(.back-link) {
+  width: 100%;
   max-width: 796px;
+  margin-inline: auto;
+}
+
+.plan-details > .back-link {
+  display: flex;
+  width: fit-content;
+  margin-left: max(0px, calc((100% - 796px) / 2));
 }
 
 .plan-details {
@@ -2068,15 +1842,7 @@ a.today-workout__details:hover {
   color: var(--gr-action-text);
 }
 
-@media (max-width: 640px) {
-  .nav-bar {
-    padding: 16px 20px;
-  }
-
-  .nav-bar__links {
-    gap: 16px;
-  }
-
+@media (max-width: 824px) {
   /* Phones: the week is a stacked list, one row per day: weekday, workout, status. */
   .weekly-plan__days {
     grid-template-columns: 1fr;
@@ -2103,189 +1869,10 @@ a.today-workout__details:hover {
 }
 
 /* Dashboard and signed-in navigation at phone widths. Desktop rules above stay intact. */
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .dashboard-page {
     background: var(--gr-bg-page);
   }
-
-  .nav-bar {
-    position: sticky;
-    top: 0;
-    z-index: 40;
-    min-height: 57px;
-    flex-wrap: nowrap;
-    padding: 10px 18px;
-    background: var(--gr-bg-nav);
-  }
-
-  .nav-bar__brand { order: 2; }
-
-  .nav-bar__logo {
-    display: grid;
-    place-items: center;
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, var(--gr-brand-light), var(--gr-brand-deep));
-  }
-
-  .nav-bar__logo svg {
-    display: block;
-    width: 24px;
-    height: 24px;
-    color: var(--gr-on-brand);
-    stroke-width: 2.6;
-  }
-
-  .nav-bar__brand-name {
-    color: var(--gr-text-strong);
-    font-size: 22px;
-    font-weight: 700;
-  }
-
-  .nav-bar__links,
-  .nav-bar__actions {
-    display: none;
-  }
-
-  .nav-bar__mobile-toggle {
-    display: flex;
-    order: 1;
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-    width: 34px;
-    height: 34px;
-    padding: 3px;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-  }
-
-  .nav-bar__mobile-toggle span {
-    display: block;
-    width: 100%;
-    height: 2px;
-    border-radius: 2px;
-    background: var(--gr-text-strong);
-    transition: transform .2s ease, opacity .2s ease;
-  }
-
-  .nav-bar__mobile-toggle[aria-expanded="true"] span:first-child { transform: translateY(7px) rotate(45deg); }
-  .nav-bar__mobile-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
-  .nav-bar__mobile-toggle[aria-expanded="true"] span:last-child { transform: translateY(-7px) rotate(-45deg); }
-
-  .nav-bar__mobile-backdrop {
-    display: block;
-    position: fixed;
-    inset: 57px 0 0;
-    z-index: 1;
-    width: 100%;
-    padding: 0;
-    border: 0;
-    background: var(--gr-backdrop-strong);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .25s ease;
-  }
-
-  .nav-bar__mobile-backdrop.is-open { opacity: 1; pointer-events: auto; }
-
-  .nav-bar__mobile-drawer {
-    display: flex;
-    position: fixed;
-    top: 57px;
-    left: 0;
-    bottom: 0;
-    z-index: 2;
-    flex-direction: column;
-    width: min(55vw, 300px);
-    min-width: 185px;
-    padding: 22px 12px;
-    overflow-y: auto;
-    border-right: 1px solid var(--gr-mobile-border);
-    background: var(--gr-bg-nav);
-    box-shadow: 14px 0 30px var(--gr-shadow-drawer);
-    transform: translateX(-100%);
-    visibility: hidden;
-    transition: transform .25s ease, visibility 0s linear .25s;
-  }
-
-  .nav-bar__mobile-drawer.is-open {
-    transform: translateX(0);
-    visibility: visible;
-    transition: transform .25s ease;
-  }
-
-  .nav-bar__mobile-caption {
-    margin: 0 8px 14px;
-    color: var(--gr-mobile-text-soft);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-  }
-
-  .nav-bar__mobile-link,
-  .nav-bar__mobile-logout {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 52px;
-    padding: 0 12px;
-    border: 0;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--gr-text-strong);
-    font: inherit;
-    font-size: 15px;
-    text-decoration: none;
-    text-align: left;
-  }
-
-  .nav-bar__mobile-link svg,
-  .nav-bar__mobile-logout svg {
-    flex: 0 0 22px;
-    width: 22px;
-    height: 22px;
-    color: var(--gr-mobile-text-soft);
-  }
-
-  .nav-bar__mobile-link.is-current {
-    border-left: 3px solid var(--gr-brand);
-    background: color-mix(in srgb, var(--gr-brand) 20%, transparent);
-  }
-
-  .nav-bar__mobile-link.is-current svg { color: var(--gr-brand-icon); }
-  .nav-bar__mobile-link[aria-disabled="true"] { cursor: default; }
-  .nav-bar__mobile-link:not([aria-disabled="true"]):hover,
-  .nav-bar__mobile-link:not([aria-disabled="true"]):focus-visible { background: color-mix(in srgb, var(--gr-brand) 15%, transparent); }
-  .nav-bar__mobile-link[href$="/workouts/today"] { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--gr-mobile-border); border-radius: 0; }
-
-  .nav-bar__mobile-account {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 12px 0 0;
-    padding: 18px 10px;
-    border-top: 1px solid var(--gr-mobile-border);
-    border-bottom: 1px solid var(--gr-mobile-border);
-    color: var(--gr-text-strong);
-    font-size: 14px;
-    overflow-wrap: anywhere;
-  }
-
-  .nav-bar__mobile-avatar {
-    display: grid;
-    flex: 0 0 38px;
-    place-items: center;
-    height: 38px;
-    border-radius: 50%;
-    background: var(--gr-mobile-raised-border);
-  }
-
-  .nav-bar__mobile-logout { margin-top: 14px; color: var(--gr-danger-text); cursor: pointer; }
-  .nav-bar__mobile-logout svg { color: var(--gr-danger-text); }
-  .nav-bar__mobile-error { padding: 10px; color: var(--gr-error-text); font-size: 12px; }
 
   .dashboard-content { gap: 12px; }
   .dashboard-header__eyebrow { color: var(--gr-brand-text); font-size: 12px; font-weight: 700; }
@@ -2364,14 +1951,14 @@ a.today-workout__details:hover {
   .dashboard-metric:not(:first-child) .dashboard-metric__icon svg { width: 25px; height: 25px; }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1132px) {
   .dashboard-weekly__hero { gap: 20px; }
   .dashboard-weekly__ring { flex-basis: 150px; width: 150px; height: 150px; }
   .dashboard-weekly__ring-center { width: 122px; height: 122px; }
   .dashboard-weekly__ring-center strong { font-size: 36px; }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .dashboard-personal-details { flex-direction: column; align-items: stretch; }
   .dashboard-personal-details .dashboard-primary-action { width: 100%; box-sizing: border-box; }
   .dashboard-weekly__hero { flex-direction: column; align-items: stretch; padding: 18px; }
@@ -2630,9 +2217,15 @@ a.today-workout__details:hover {
 
 /* Exercise session (one exercise of the active workout) */
 
-/* The page uses the shared column; the exercise itself stays 640px wide inside it, at the left like every title. */
-.exercise-session > * {
+/* The page uses the shared column; the exercise itself is a 640px column centred inside it. */
+.exercise-session > :not(.modal-backdrop):not(.back-link) {
+  width: 100%;
   max-width: 640px;
+  margin-inline: auto;
+}
+
+.exercise-session > .back-link {
+  margin-left: max(0px, calc((100% - 640px) / 2));
 }
 
 .exercise-session__header {
@@ -2752,68 +2345,151 @@ a.today-workout__details:hover {
   margin: 10px 0 8px;
 }
 
-.exercise-guide__button {
-  align-self: flex-start;
-  color: var(--gr-action-text);
-  border-color: var(--gr-action);
-}
-
-.exercise-guide__button:hover {
-  background: var(--gr-selected-bg);
-}
-
-.exercise-guide-modal {
-  width: 100%;
-  max-width: 520px;
-  max-height: 90vh;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 24px;
-  box-sizing: border-box;
-  background: var(--gr-surface);
-  border-radius: var(--gr-radius-card);
-  box-shadow: var(--gr-shadow-menu);
-}
-
-.exercise-guide-modal__header {
+/* "How to perform it" and "See alternatives": two equal dark buttons with an icon, filling the row under the heading
+   (.exercise-session__tools). */
+.wl-button.exercise-tool {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.exercise-guide-modal__header h2 {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 500;
-  color: var(--gr-text);
-}
-
-.exercise-guide-modal__video {
+  justify-content: center;
+  gap: 8px;
   width: 100%;
-  max-height: 340px;
-  object-fit: contain;
-  background: var(--gr-surface-sunken);
+  font-size: 14px;
+  color: var(--gr-text);
+  background: var(--gr-surface-raised);
+  border-color: var(--gr-border-strong);
   border-radius: var(--gr-radius-inner);
 }
 
-.exercise-guide-modal h3 {
-  margin: 8px 0 0;
-  font-size: 16px;
-  font-weight: 600;
+.wl-button.exercise-tool:hover {
+  background: var(--gr-surface-hover);
 }
 
-.exercise-guide-modal ol,
-.exercise-guide-modal ul {
-  margin: 0;
-  padding-left: 20px;
+.exercise-tool svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--gr-text-soft);
+}
+
+@media (max-width: 824px) {
+  .wl-button.exercise-tool {
+    gap: 6px;
+    padding: 0 8px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
+
+/* While a tool's panel is open its button is highlighted, and pressing it again closes the panel. */
+.wl-button.exercise-tool[aria-expanded='true'] {
+  border-color: var(--gr-action);
+  background: var(--gr-selected-bg);
+}
+
+/* With a docked side panel open (src/components/SidePanel.css, 1332px and wider) the exercise column slides away from
+   it by just enough to keep 16px clear: not at all at 1672px, 170px at 1332px. A panel spans 400px from its edge of
+   the page area (24px margin + 360px + 16px gap) and the column is centred in what the sidebar leaves, so with a
+   sidebar S wide the slide is 720px + S/2 - 50vw (S is --app-sidebar-width, 232px at these widths).
+   A panel on each side only stays open at 1672px and wider, where no slide is needed. Relative offset rather than
+   transform, so a fixed pop-up inside the column still covers the window. */
+@media (min-width: 1332px) {
+  .exercise-session > :not(.modal-backdrop) {
+    position: relative;
+    left: 0;
+  }
+
+  body:has(.side-panel-backdrop--right):not(:has(.side-panel-backdrop--left)) .exercise-session > :not(.modal-backdrop) {
+    left: calc(-1 * max(0px, 720px + var(--app-sidebar-width) / 2 - 50vw));
+  }
+
+  body:has(.side-panel-backdrop--left):not(:has(.side-panel-backdrop--right)) .exercise-session > :not(.modal-backdrop) {
+    left: max(0px, 720px + var(--app-sidebar-width) / 2 - 50vw);
+  }
+}
+
+@media (min-width: 1332px) and (prefers-reduced-motion: no-preference) {
+  .exercise-session > :not(.modal-backdrop) {
+    transition: left 0.2s ease;
+  }
+}
+
+/* The contents of the "How to perform it" panel (src/ExerciseGuide.jsx). */
+.exercise-guide__video {
+  display: block;
+  width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+  background: var(--gr-surface-sunken);
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-inner);
+}
+
+.exercise-guide__section {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
+}
+
+.exercise-guide__section h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gr-text);
+}
+
+.exercise-guide__steps,
+.exercise-guide__tips {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
   font-size: 14px;
-  color: var(--gr-text-subtle);
+  color: var(--gr-text-soft);
+}
+
+.exercise-guide__steps {
+  counter-reset: guide-step;
+}
+
+.exercise-guide__steps li,
+.exercise-guide__tips li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.exercise-guide__steps li::before {
+  counter-increment: guide-step;
+  content: counter(guide-step);
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gr-action);
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gr-action-text);
+}
+
+.exercise-guide__tips {
+  padding: 14px 16px;
+  background: var(--gr-surface-raised);
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-inner);
+}
+
+.exercise-guide__tips svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 4px;
+  color: var(--gr-success);
 }
 
 .exercise-session__set {
@@ -2862,7 +2538,7 @@ a.today-workout__details:hover {
   margin-top: 4px;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .exercise-session {
     gap: 20px;
   }
@@ -2873,7 +2549,7 @@ a.today-workout__details:hover {
 }
 
 .exercise-session__hint {
-  margin: -12px 0 0;
+  margin: -12px auto 0;
   font-size: 13px;
   color: var(--gr-text-muted);
   text-align: right;
@@ -2925,4 +2601,231 @@ a.today-workout__details:hover {
   color: var(--gr-text-muted);
   text-align: center;
   width: 100%;
+}
+
+/* Plan library (#/plans): the plan you follow, the plans that match your setup, then the rest behind a row that
+   starts closed. Cards are links to the plan's details. Colours are the --gr- variables, so light mode needs nothing. */
+.plan-lib {
+  gap: 0;
+}
+
+.plan-lib__title {
+  margin: 0 0 22px;
+  font-size: clamp(34px, 3vw, 47px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  color: var(--gr-text);
+}
+
+.plan-lib h2 {
+  margin: 0 0 13px;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--gr-text);
+}
+
+.plan-lib__current {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 23px 24px;
+  background: var(--gr-surface);
+  border: 1px solid var(--gr-border);
+  border-radius: 10px;
+}
+
+.plan-lib__current h2 {
+  margin: 0 0 5px;
+  font-size: clamp(25px, 3vw, 39px);
+}
+
+.plan-lib__current p,
+.plan-lib__card p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--gr-text-soft);
+}
+
+.plan-lib__current small,
+.plan-lib__card small {
+  display: block;
+  margin-top: 13px;
+  font-size: 12px;
+  color: var(--gr-text-muted);
+}
+
+.plan-lib__current .plan-lib__kicker {
+  margin: 0 0 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--gr-action-text);
+}
+
+.plan-lib__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--gr-control-outline);
+  border-radius: 5px;
+  color: var(--gr-text);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.plan-lib__group {
+  margin-top: 26px;
+}
+
+.plan-lib__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plan-lib__card {
+  display: block;
+  height: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 15px 17px;
+  border: 1px solid var(--gr-border);
+  border-radius: 7px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.plan-lib__card:hover,
+.plan-lib__button:hover {
+  border-color: var(--gr-border-strong);
+  background: var(--gr-surface);
+  text-decoration: none; /* a global a:hover underlines links */
+}
+
+.plan-lib__card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--gr-text);
+}
+
+.plan-lib__card-title span {
+  color: var(--gr-action-text);
+}
+
+.plan-lib__card p {
+  margin-top: 5px;
+  font-size: 13px;
+}
+
+.plan-lib__card small {
+  margin-top: 10px;
+}
+
+.plan-lib__more {
+  margin-top: 22px;
+  border-block: 1px solid var(--gr-border);
+}
+
+.plan-lib__more summary {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 58px;
+  list-style: none;
+  cursor: pointer;
+  color: var(--gr-text);
+}
+
+.plan-lib__more summary::-webkit-details-marker {
+  display: none;
+}
+
+.plan-lib__more summary strong {
+  font-size: 17px;
+}
+
+.plan-lib__more summary span {
+  font-size: 12px;
+  color: var(--gr-text-muted);
+}
+
+.plan-lib__more summary .plan-lib__chevron {
+  margin-left: auto;
+  font-size: 21px;
+  line-height: 1;
+  color: var(--gr-text);
+}
+
+.plan-lib__more[open] .plan-lib__chevron {
+  transform: rotate(180deg);
+}
+
+.plan-lib__more .plan-lib__grid {
+  padding-bottom: 16px;
+}
+
+.plan-lib summary:focus-visible,
+.plan-lib a:focus-visible {
+  outline: 2px solid var(--gr-brand);
+  outline-offset: 3px;
+}
+
+@media (max-width: 884px) {
+  .plan-lib__title {
+    margin-bottom: 15px;
+  }
+
+  .plan-lib__current {
+    display: block;
+    padding: 17px;
+  }
+
+  .plan-lib__current .plan-lib__button {
+    margin-top: 13px;
+  }
+
+  .plan-lib__group {
+    margin-top: 20px;
+  }
+
+  .plan-lib__more {
+    margin-top: 17px;
+  }
+
+  .plan-lib h2 {
+    font-size: 19px;
+  }
+
+  .plan-lib__current h2 {
+    font-size: 26px;
+  }
+
+  .plan-lib__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .plan-lib__card {
+    padding: 12px 14px;
+  }
+
+  .plan-lib__card p {
+    font-size: 12px;
+  }
 }

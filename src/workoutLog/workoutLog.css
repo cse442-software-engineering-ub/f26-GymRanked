@@ -495,7 +495,7 @@
 }
 
 /* Phones: inputs and buttons take the full width so nothing is cramped or needs sideways scrolling. */
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .wl-hero h1 {
     font-size: 26px;
   }

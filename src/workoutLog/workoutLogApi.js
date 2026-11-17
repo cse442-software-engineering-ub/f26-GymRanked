@@ -7,8 +7,10 @@
 //   POST api/workout_sets.php     {session_id, exercise, set_number, weight_lb, reps} -> 201 {set}
 //   POST api/workout_sets.php     {id, weight_lb, reps}                               -> 200 {set}  (correction)
 //   POST api/complete_workout.php {session_id}                                        -> 200 {session_id, completed_at}
+//   POST api/swap_exercise.php    {session_id, exercise, replacement}                 -> 200 {session}
 //   GET  api/workout_history.php                                            -> {sessions}
 //   GET  api/workout_weekly_goal.php?session_id=N                            -> {snapshot, reason?}
+//   GET  api/workout_summary_comparison.php?session_id=N                     -> {comparisons}
 //   GET  api/exercise_progress.php[?from=YYYY-MM-DD&to=YYYY-MM-DD]          -> {summary, exercises, prs, ...} (#109)
 //   set = {id, exercise, set_number, weight_lb, reps}
 //   Errors are JSON {error, errors?}: 400 bad input (errors.weight_lb / errors.reps per field),
@@ -83,6 +85,10 @@ export function createWorkoutLogApi({ baseUrl, fetchImpl = (...args) => fetch(..
       return request(`workout_weekly_goal.php?session_id=${encodeURIComponent(sessionId)}`)
     },
 
+    async getSummaryComparison(sessionId) {
+      return request(`workout_summary_comparison.php?session_id=${encodeURIComponent(sessionId)}`)
+    },
+
     async getHistory() {
       const data = await request('workout_history.php')
       return data.sessions
@@ -115,6 +121,12 @@ export function createWorkoutLogApi({ baseUrl, fetchImpl = (...args) => fetch(..
 
     async completeWorkout(sessionId) {
       return post('complete_workout.php', { session_id: sessionId })
+    },
+
+    // Switches an exercise of an unfinished workout for one of its alternatives; resolves to the updated session.
+    async swapExercise({ sessionId, exercise, replacement }) {
+      const data = await post('swap_exercise.php', { session_id: sessionId, exercise, replacement })
+      return data.session
     },
   }
 }

@@ -1,119 +1,87 @@
-# Task tests: Plans page layout and More plans toggle (upgrade task under story #72)
+# Task tests: Plan library redesign, current plan first and More plans toggle (upgrade task under story #72)
 
-Upgrade task under story #72 (*select a workout plan and change my current workout plan*). Card #129, Sprint 4, owner Mansur. Frontend only: no API, database or seed change.
+Upgrade task #129 under story #72 (*select a workout plan and change my current workout plan*). Sprint 4, owner Mansur. Frontend only: no API, database or seed change. Second round of the card: the first release (current plan first and a closed "More plans" row) is merged; this round gives the page the look of the design preview (`GymRanked-redesign.html`, the Plans screen). Only the Plans page (`#/plans`) changes: the navigation bar and every other page are untouched.
 
-**Status: draft for review. Nothing is implemented.** After review the card gets its own branch from `dev` (`129-Plans-layout-and-more-plans-toggle`), separate from #71 (Buddies backend) and from the page-widths card (#130, `130-page-widths-no-breadcrumbs.md`).
+## What changed
 
-## What this card adds
+The Plans page is now titled **Plan library** and has, from top to bottom:
 
-Today the Plans page (`#/plans`, `src/WorkoutPlanLibrary.jsx`) shows two always-open card rows: "Recommended plans", then "More plans". The current plan is not set apart: it is one card inside whichever row holds it, and with all ten plans on screen the page is long. This card changes the order and lets the user hide the long part.
+1. **Current plan:** one wide card with the orange label "CURRENT PLAN", the plan's name in large type, its one-line description, a line of facts ("Beginner · 3 days/week · 6 weeks") and a **View plan →** button on the right (under the text on a phone).
+2. **Recommended for you:** the plans that match the saved setup (without the current plan), as cards in two columns (one on a phone). Each card is a link to the plan's details: name, an orange ↗ arrow, one line of description and the facts line.
+3. **More plans, N programs:** one row with a chevron that starts closed. It opens when chosen and closes when chosen again (click, Enter or Space), and is closed again after a refresh or after leaving and coming back. Inside it the remaining plans are cards like the ones above.
+4. If there were no current plan and no recommended plan, the remaining plans would show open under "All plans". (A signed-in user with no plan is sent to "Choose your workout plan", so in the app this is only a safety net.)
 
-1. **Your current plan first.** When the user follows a plan, a section headed "Your current plan" comes first, holding that plan's card once (orange border, greyed "Current plan" button, as today). With no current plan the section is not shown.
-2. **Recommendations second.** "Recommended plans" lists the plans that match the saved setup, in the same order as today, without the current plan (a plan never appears twice).
-3. **Everything else under "More plans", closed to start with.** The remaining plans sit behind one button, "More plans (N)", where N is how many plans it holds. The page opens with it closed. Choosing it opens the list, and choosing it again closes it. It is not remembered: a refresh or coming back to the page shows it closed again.
-4. **When nothing sits above it**, that is, no current plan and no recommended plan, the remaining plans are the whole page, so the section reads "All plans" and is open, with no toggle. (Open question 1 below.)
+A plan appears once: the current plan is not repeated in Recommended or More plans.
 
-Implementation notes for the reviewer (not tested): the toggle can be a native `<details>`/`<summary>`, which gives keyboard use, `aria-expanded` and open/close with no new state. It reuses `PlanCard`, `PlanCarousel`, `orderByRecommendation` and `usePlanSelection`; the only new pieces are the current-plan section and the toggle, plus their CSS using `--gr-` variables (no new colours). Files expected to change: `src/WorkoutPlanLibrary.jsx`, `src/index.css`, `DESIGN.md` (Plan card / plan library paragraph).
+**What the page no longer shows (as in the design preview):** the "Choose plan" button on each card, the equipment icons and "Equipment ready" line, the Schedule/Session/Intensity row, the swipe dots and the setup box ("Goal, Experience, Schedule, Equipment" with "Edit preferences"). A plan is chosen or switched on its details page ("Start this plan", which asks before switching); the setup is edited from Profile > Edit Training Preferences.
 
-## What this card does not change
-
-- Plan cards, the "Choose plan" and "Switch plan" flow, plan details, "Your setup" and the equipment dots.
-- Which plans are recommended, and their order (`recommendPlans`).
-- Breadcrumbs and page width: those belong to the page-widths card. Both cards edit `src/WorkoutPlanLibrary.jsx` (this one the body, that one the breadcrumb line and the width class), so whichever merges second merges `dev` first.
-
-## Open questions for review
-
-1. With no current plan and no recommended plan, should "All plans" show open (proposed, so the page isn't empty) or closed like everywhere else?
-2. The headings in the code say "Recommended plans"; the older task and story text (`111-recommended-plans.md`, `stories/TBD-recommended-plans.md`) says "Recommended for you". This card keeps the code's wording. The story owner may want to update the story text.
-3. Should "More plans (N)" show the count? Proposed yes, because a closed list otherwise hides how much is inside.
+Files: `src/WorkoutPlanLibrary.jsx` (rewritten), `src/index.css` (new `.plan-lib*` rules, using only `--gr-` colour variables, so light mode works; the old "More plans" rules removed), `DESIGN.md`. `PlanCard`, `PlanCarousel` and `PlanPreferences` are no longer used by any page and were left in place.
 
 ## Setup (do this once before the Task Tests)
 
 1. Connect to the UB VPN or campus network.
 2. The plan data (migrations 004-008) must be on aptitude: the library lists 10 plans.
-3. Test account: on the Aptitude login page (https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login) click "Create an account" and create `plans-layout@test.com` with the password `ABC12345678@` (Full name: Plans Layout). Log in. Choose "Strength" and "Save goal", then "Intermediate" and "Save and continue", then "Full gym access" and "Save and continue". Do not select a plan yet.
+3. Create `plan-lib@test.com` with the password `ABC12345678@` (Full name: Plan Library) on the login page ("Create an account"), log in, enter body weight 180 and Man, then choose "Strength", "Intermediate" and "Full gym access". On "Choose your workout plan" click "Choose plan" on **Push Pull Legs**.
 4. Plans page: https://aptitude.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/plans
-5. With this setup the recommended plans are, in order: Push Pull Legs, Upper/Lower Hypertrophy, Athletic Performance, Full Body Strength, Beginner Fundamentals. The other five are, in order: 5/3/1 Strength Cycle, Powerlifting Peak, Bodyweight Basics, Glute Focus, Marathon Strength Support.
+5. With this setup the recommended plans are, in order, Push Pull Legs, Upper/Lower Hypertrophy, Athletic Performance, Full Body Strength, Beginner Fundamentals. The others are 5/3/1 Strength Cycle, Powerlifting Peak, Bodyweight Basics, Glute Focus and Marathon Strength Support.
 6. Use a desktop-width browser (1440 x 900) unless a test says phone (375 x 812).
 
-## Task Test 1: With no current plan, recommendations come first and More plans starts closed
+## Task Test 1: Plan library shows the current plan first, then recommendations, then a closed More plans row
 
 Steps:
-1. Signed in as plans-layout@test.com with no plan selected, click "Plans" on the navigation bar. The page should open with "Find your next workout plan" and "Your setup" reading Strength, Intermediate and Full gym access.
-2. There should be no "Your current plan" heading.
-3. The first group should be "Recommended plans", with these 5 cards in order: Push Pull Legs, Upper/Lower Hypertrophy, Athletic Performance, Full Body Strength, Beginner Fundamentals.
-4. Under it there should be one button reading "More plans (5)", with a chevron pointing down.
-5. None of 5/3/1 Strength Cycle, Powerlifting Peak, Bodyweight Basics, Glute Focus or Marathon Strength Support should be visible anywhere on the page, and none should be reachable with the Tab key while the button is closed.
+1. Signed in as plan-lib@test.com, click "Plans" on the navigation bar. The heading should say "Plan library" and nothing else should sit above the first card.
+2. The first card should have the orange label "CURRENT PLAN", the name "Push Pull Legs" in large type, a one-line description, the line "Intermediate · 5 days/week · 6-8 weeks", and a "View plan →" button on its right.
+3. Under the heading "Recommended for you" there should be 4 cards, in this order: Upper/Lower Hypertrophy, Athletic Performance, Full Body Strength, Beginner Fundamentals, two per row. Each shows the name with an orange ↗ arrow, one line of description and the facts line. Push Pull Legs should not be among them.
+4. Under them there should be one row reading "More plans" and "5 programs" with a chevron pointing down. None of 5/3/1 Strength Cycle, Powerlifting Peak, Bodyweight Basics, Glute Focus or Marathon Strength Support should be visible.
+5. The page should have no "Choose plan" buttons, no equipment icons, and no "Goal / Experience / Schedule / Equipment" box. The navigation bar should be the same as on the other pages, with "Plans" highlighted.
 
-## Task Test 2: More plans opens when chosen, closes when chosen again, and is closed again after a refresh
-
-Setup for this test: Task Test 1 steps, with the page on "Plans" and More plans closed.
+## Task Test 2: More plans opens when chosen, closes when chosen again, and is closed after a refresh
 
 Steps:
-1. Click "More plans (5)". The 5 remaining plans should appear under it in this order: 5/3/1 Strength Cycle, Powerlifting Peak, Bodyweight Basics, Glute Focus, Marathon Strength Support. The chevron should point up. "Recommended plans" should still show its 5 cards.
-2. Count the cards on the page. There should be 10, and no plan should appear twice.
-3. Click "More plans (5)" again. The 5 plans should disappear and the chevron should point down again.
-4. Press Tab until "More plans (5)" has a visible focus ring. Press Enter: it should open. Press Space: it should close.
-5. Open it again, then refresh the page. It should be closed.
-6. Open it, click "Dashboard" on the navigation bar, then "Plans". It should be closed.
+1. Click the "More plans" row. The 5 remaining plans should appear as cards in two columns, in this order: 5/3/1 Strength Cycle, Powerlifting Peak, Bodyweight Basics, Glute Focus, Marathon Strength Support. The chevron should point up. The page should show 10 plans in total (1 current, 4 recommended, 5 more) and none twice.
+2. Click the row again. The 5 plans should disappear and the chevron should point down.
+3. Press Tab until the row has a visible orange focus ring. Press Enter: it should open. Press Space: it should close.
+4. Open it again and refresh the page. It should be closed.
+5. Open it, click "Dashboard" on the navigation bar, then "Plans". It should be closed.
 
-## Task Test 3: A current plan is shown first, once
-
-Setup for this test: signed in as plans-layout@test.com, no plan selected, on "Plans".
+## Task Test 3: Cards and "View plan" open the plan's details
 
 Steps:
-1. Click "Choose plan" on "Push Pull Legs" (no warning should appear). The Dashboard should open.
-2. Click "Plans". From top to bottom the page should show: "Your setup", then "Your current plan" with one card, Push Pull Legs, then "Recommended plans", then "More plans (5)" closed.
-3. The Push Pull Legs card should have an orange border and a greyed-out "Current plan" button with a tick. Its card should appear only once on the page.
-4. "Recommended plans" should list 4 cards in this order: Upper/Lower Hypertrophy, Athletic Performance, Full Body Strength, Beginner Fundamentals. Each should have a "Choose plan" button.
-5. Click "More plans (5)". It should still hold the same 5 plans as in Task Test 2. The page should now have 10 cards, with no plan twice.
+1. Click "View plan →" on the current plan. The details of Push Pull Legs should open, with "Back to plan library" above its name. Click "Back to plan library": the Plan library should open.
+2. Click anywhere on the "Beginner Fundamentals" card. Its details page should open. Click "Back to plan library".
+3. Open "More plans" and click the "Glute Focus" card. Its details page should open. Click "Back to plan library". More plans should be closed.
+4. Hover over a card: its border should get slightly lighter and the text should not become underlined.
 
-## Task Test 4: Switching plans moves the current-plan card and More plans stays as the user left it
-
-Setup for this test: Task Test 3 done, so Push Pull Legs is the current plan.
+## Task Test 4: Switching plans moves the cards
 
 Steps:
-1. On "Plans" click "Choose plan" on "Full Body Strength" (in Recommended plans). A dialog should open with "Switch to Full Body Strength?". Click "Switch plan". The Dashboard should say "You're following Full Body Strength".
-2. Click "Plans". "Your current plan" should now hold Full Body Strength. "Recommended plans" should list Push Pull Legs, Upper/Lower Hypertrophy, Athletic Performance, Beginner Fundamentals in that order, and Push Pull Legs should have a clickable "Choose plan" button. More plans should be closed and read "More plans (5)".
-3. Open "More plans (5)" and click "Choose plan" on "Powerlifting Peak". The switch dialog should open. Click "Cancel". The dialog should close, Full Body Strength should still be the current plan, and More plans should still be open.
-4. Click "Choose plan" on "Powerlifting Peak" again, then "Switch plan". The Dashboard should say "You're following Powerlifting Peak". Click "Plans". "Your current plan" should hold Powerlifting Peak. "Recommended plans" should list Push Pull Legs, Upper/Lower Hypertrophy, Athletic Performance, Full Body Strength, Beginner Fundamentals (5 cards, Full Body Strength is back). "More plans" should read "More plans (4)" and be closed, because Powerlifting Peak left that group.
+1. Open the "Full Body Strength" card, then click "Start this plan". A dialog should open with "Switch to Full Body Strength?". Click "Cancel". Open the Plan library: "Push Pull Legs" should still be the current plan.
+2. Open "Full Body Strength" again, click "Start this plan", then "Switch plan". The Dashboard should open. Click "Plans". The current plan card should say "Full Body Strength". "Recommended for you" should list Push Pull Legs, Upper/Lower Hypertrophy, Athletic Performance, Beginner Fundamentals in that order. The row should read "More plans" and "5 programs" and be closed.
+3. Open "More plans", click the "Powerlifting Peak" card, click "Start this plan", then "Switch plan". Click "Plans". The current plan should be "Powerlifting Peak". "Recommended for you" should list Push Pull Legs, Upper/Lower Hypertrophy, Athletic Performance, Full Body Strength, Beginner Fundamentals (5 cards). The row should read "4 programs" and be closed.
 
-## Task Test 5: Plan details still open from every group
-
-Setup for this test: signed in as plans-layout@test.com with any plan selected, on "Plans".
+## Task Test 5: The page works on a phone and in light mode
 
 Steps:
-1. Click the "Your current plan" card anywhere except its button. Its details page should open. Click "Plans" on the navigation bar.
-2. Click a card in "Recommended plans" anywhere except its button. Its details page should open. Click "Plans" on the navigation bar.
-3. Open "More plans" and click a card in it anywhere except its button. Its details page should open. Click "Plans" on the navigation bar. More plans should be closed.
+1. In Chrome DevTools device mode set 375 x 812 and open "Plans". Nothing should need sideways scrolling. The cards should be one per row, and "View plan →" should sit under the current plan's text and be at least 44 px tall.
+2. The "More plans" row should be at least 44 px tall. Tap it: the plans should appear one per row. Tap again: they should disappear.
+3. Open Profile, go to Appearance and choose "Light". Open "Plans" on a computer and on a phone: the heading, plan names, descriptions, the orange label and arrows, and the row should all be readable, with no white-on-white or dark-on-dark text. Choose "Dark" again afterwards.
 
-## Task Test 6: With no current plan and no recommended plan the page is not empty
-
-Setup for this test: log out, then create `plans-layout-2@test.com` with the password `ABC12345678@` (Full name: Plans Layout Two) and log in. Choose "Strength" and "Save goal", then "Beginner" and "Save and continue", then "Bodyweight only" and "Save and continue". Do not select a plan, so the account has no current plan.
+## Task Test 6: Loading and failure states keep working
 
 Steps:
-1. Click "Plans". "Your setup" should read Strength, Beginner and Bodyweight only.
-2. There should be no "Your current plan" and no "Recommended plans" heading.
-3. A group headed "All plans" should be open with all 10 plans in this order: Push Pull Legs, Full Body Strength, Upper/Lower Hypertrophy, 5/3/1 Strength Cycle, Beginner Fundamentals, Powerlifting Peak, Bodyweight Basics, Athletic Performance, Glute Focus, Marathon Strength Support. There should be no "More plans" button.
+1. In Chrome DevTools > Network > Request blocking, block `*plans.php*` and reload "Plans". The heading "Plan library" should show "Error loading plans" and no cards.
+2. Remove the block and reload: the page should return to the order in Task Test 1.
+3. Throttle the network to "Slow 4G" and reload: it should say "Loading plans..." and show no "More plans" row until the plans have loaded.
 
-## Task Test 7: The page works on a phone and in light mode
-
-Setup for this test: signed in as plans-layout@test.com with Push Pull Legs as the current plan (the Strength, Intermediate, Full gym access setup).
+## Task Test 7: Nothing else changed
 
 Steps:
-1. In Chrome DevTools device mode set 375 x 812 and open "Plans". "Your current plan" should show its card, then "Recommended plans" a swipeable row with dots, then "More plans (5)" closed. Nothing should need sideways scrolling.
-2. The "More plans (5)" button should be at least 44 px tall. Tap it: the five plans should appear as a swipeable row with 5 dots. Tap it again: they should disappear.
-3. Open Profile, go to Appearance and choose "Light". Open "Plans" and repeat steps 1 and 2 on a computer and a phone: the button text, chevron and focus ring should be readable, and every colour should come from the theme (nothing white-on-white or dark-on-dark). Choose "Dark" again afterwards.
+1. Click through the navigation bar: Dashboard, Workouts, Plans, Progress, Leaderboard, Today, Buddies. The navigation bar should look the same on each page, and each page should look as it did before.
+2. Open a plan's details page: it should look as before, with "Back to plan library" and a "Start this plan" button (or "This is your current plan").
+3. Log in as a new account with no plan: it should be sent to "Choose your workout plan", which should look as before, with a "Choose plan" button on each card.
 
-## Task Test 8: Loading and failure states keep working
+## Points for review
 
-Steps:
-1. In Chrome DevTools > Network > Request blocking, block `*plans.php*` and reload "Plans". The page should say "Error loading plans" with the heading still visible, and there should be no "More plans" button and no "Your current plan" section.
-2. Remove the block and reload. The page should return to the order in Task Test 3 (or Task Test 1 if there is no current plan).
-3. While the page is loading (throttle the network to "Slow 4G" and reload), it should say "Loading plans..." and show no "More plans" button until the plans have loaded.
-
-## Existing tests and documents this changes
-
-- `tests/e2e/72-select-workout-plan.spec.js` and `stories/72-select-workout-plan.md` check the plan library; whichever steps look for a plan card in the second row must open "More plans" first. The story owner updates the story text; the Playwright task owner updates the code (per AGENTS.md).
-- `task-tests/111-recommended-plans.md`, Task Tests 2 and 3, count "More plans" cards without opening it. They are history for a closed card and are not edited.
-- `DESIGN.md`, "Plan card" section: add the current-plan section and the toggle (done in this card).
+1. The "Choose plan" button, equipment icons and the setup box are gone from the library because the design preview does not have them. Choosing a plan now takes one more click (open the card, then "Start this plan"). Say if you want the equipment fit line or a quick "Choose plan" button back.
+2. The preview uses a different heading font; the page keeps the app's font.
+3. Story and Playwright text for story #72 that clicks a "Choose plan" button on the library needs the new steps (open the card, then "Start this plan"). The story owner updates the story and the Playwright owner the code; they were not edited here.

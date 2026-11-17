@@ -23,7 +23,7 @@ This card gives all of them one shared column:
 
 - **1200 px wide at most, side padding included, centred.** On a 1440 px screen the page title therefore starts 168 px from the left edge (120 px margin + 48 px padding) and the content is 1104 px wide; on a screen 1200 px or narrower it uses the whole width. On a phone (640 px or less) the side padding is 20 px. The values are two variables in `src/index.css` (`--gr-page-width: 1200px`, `--gr-page-gutter: 48px`; 20 px on a phone) that each page wrapper uses, so a future page gets the same width by using them.
 - **Same top spacing.** The page title starts the same distance under the navigation bar on every page (32 px on a computer, 24 px on a phone) and the gap between the sections of a page is the same.
-- **Short forms stay narrow inside the column.** A form, such as Edit personal details, Edit training preferences, the Weekly goal form, the exercise set logger and the onboarding steps, keeps its own narrow `max-width` (720 px for the profile, personal-details and weekly-goal forms, 640 px for the exercise logger, 796 px for the Plan details reading column) but sits at the left of the column, so its title lines up with every other page's title.
+- **Narrow pages are a narrow column, centred in the page column.** Edit personal details, Edit training preferences (720 px), Weekly goal (852 px), Plan details (796 px) and the Individual exercise page (640 px) keep their own narrow width, and that whole column (back link, title and content together) is centred in the page, with a popup always covering the full screen. Pages that are not narrow use the full column and their title starts at the shared left edge.
 - The photo band on Active workout (and on the onboarding pages) stays full width, but its text now sits on the same column as the page below it.
 - Sign-in and Create account are full-screen landing pages with no navigation bar. They keep their own two-sided layout and are only checked for spacing.
 
@@ -110,12 +110,17 @@ Steps:
 2. `firstBlockLeft` should be 20 on both and `contentWidth` 375 (the full width) on both. There should be no sideways scroll on either.
 3. Switch between the two pages. The page titles should stay at the same distance from the left edge, and the cards should reach the same left and right edges (20 px from each side). Take a screenshot of each and attach both to the card.
 
-## Task Test 3: Short forms stay narrow inside the shared column
+## Task Test 3: Narrow pages are centred in the page
 
 Steps:
-1. At 1440 x 900, open Profile (`#/profile`), "Edit personal details", "Edit training preferences", "Weekly goal" and "Individual exercise" (from Workouts, open any exercise). On each, the page title should start at `titleLeft` 168, the same as in Task Test 1.
-2. The form or logger on each should be narrower than the page content (for example the set logger and the profile forms), start at the same left edge as the title, and not be centred in the middle of the screen.
-3. At 375 x 812 each form should use the full width of the 20 px gutters, with no sideways scroll.
+1. At 1440 x 900, open "Edit personal details", "Edit training preferences", "Weekly goal", "Plan details" (click any plan card) and "Individual exercise" (from Workouts, open any exercise).
+2. On each, the whole narrow column (the back link, the title and the form or content) should sit in the middle of the page, with the same amount of empty space on its left and its right. It should not be pushed against the left with empty space on the right. Paste this in the console on each page: it prints the space left of and right of the main content block, and the two numbers should be within 2 px of each other:
+
+   ```js
+   (() => { const m = document.querySelector('main'); const kids = [...m.children].filter((e) => !e.classList.contains('back-link') && e.getBoundingClientRect().width); const l = Math.min(...kids.map((e) => e.getBoundingClientRect().left)), r = Math.max(...kids.map((e) => e.getBoundingClientRect().right)); return { left: Math.round(l), right: Math.round(innerWidth - r) } })()
+   ```
+3. At 1920 x 1080 the same two numbers should still match.
+4. At 375 x 812 each page should use the full width of the 20 px gutters, with no sideways scroll.
 
 ## Task Test 4: Breadcrumb trails are gone from every page
 
@@ -140,14 +145,14 @@ Steps:
 
 Steps (run at 1440 x 900, then at 375 x 812; these pages are always dark):
 1. Open each page: Log in, Create account, Personal details, Training goal, Experience, Equipment, Recommended plans.
-2. On Log in and Create account: the card is fully visible and not cut off, it does not touch the screen edges (at least 20 px on a phone), and nothing scrolls sideways. On the other five pages: `firstBlockLeft` and `titleLeft` are 168 on a computer and 20 on a phone, the logo in the photo band lines up with them, and the cards and buttons are not squeezed against the edges.
+2. On Log in and Create account: the card is fully visible and not cut off, it does not touch the screen edges (at least 20 px on a phone), and nothing scrolls sideways. On the other five pages: `firstBlockLeft` and `titleLeft` are 168 on a computer and 20 on a phone (Personal details is the exception: it is a narrow 720 px column centred in the page like the other narrow pages, so it starts further in on a computer), the logo in the photo band lines up with them, and the cards and buttons are not squeezed against the edges.
 3. On each page the Back link (where there is one, such as "Back to experience") sits above the title in the same place and is at least 44 px tall.
 
 ## Task Test 7: Spacing, Dashboard, Workouts, Plan library, Plan details and Weekly goal
 
 Steps (run at 1440 x 900 and 375 x 812, in Dark and in Light mode):
 1. Open each of the five pages.
-2. On every page `titleLeft` should be 168 on a computer and 20 on a phone, and `sidewaysScroll` false. `topGap` should be 32 on a computer and 24 on a phone on every one of them.
+2. On every page `titleLeft` should be 168 on a computer and 20 on a phone, and `sidewaysScroll` false. Plan details and Weekly goal are narrow pages, so they are centred instead (Task Test 3): check that the space left and right of the content matches. `topGap` should be 32 on a computer and 24 on a phone on every one of them.
 3. Scroll to the bottom of each page. The last card should have space below it (at least 32 px) and not stop at the screen edge.
 4. The gap between sections should look even: no section should sit noticeably closer to its neighbour than the others.
 
@@ -155,7 +160,7 @@ Steps (run at 1440 x 900 and 375 x 812, in Dark and in Light mode):
 
 Steps (run at 1440 x 900 and 375 x 812, in Dark and in Light mode):
 1. Open Active workout, one Individual exercise, Today's logger, the Saved-session logger (`#/workouts/` + the id of the workout finished in Setup) and its Saved summary.
-2. The same measurements as Task Test 7 apply to all five: `firstBlockLeft` 168 on a computer and 20 on a phone, no sideways scroll, `topGap` 32 / 24, space below the last card.
+2. The same measurements as Task Test 7 apply to all five, except that Individual exercise is a narrow page and is centred (Task Test 3): `firstBlockLeft` 168 on a computer and 20 on a phone for the other four, no sideways scroll, `topGap` 32 / 24, space below the last card.
 3. Saved summary at 1440 px should now use the 1200 px column. Its two columns (if shown) should not overlap, and no table should be cut off.
 4. In the set logger, the weight and reps boxes, the buttons and the rest timer should not be pressed against the edge of the screen on a phone.
 
@@ -169,7 +174,7 @@ Steps (run at 1440 x 900 and 375 x 812, in Dark and in Light mode):
 ## Task Test 10: Spacing, Profile, Edit personal details, Edit training preferences and Buddies
 
 Steps (run at 1440 x 900 and 375 x 812, in Dark and in Light mode):
-1. Open Profile, Edit personal details and Edit training preferences. `firstBlockLeft` 168 on a computer and 20 on a phone, no sideways scroll, `topGap` 32 / 24. The cards should fill the column and the forms should stay narrow inside it (Task Test 3).
+1. Open Profile, Edit personal details and Edit training preferences. Profile: `firstBlockLeft` 168 on a computer and 20 on a phone, no sideways scroll, `topGap` 32 / 24, and its cards fill the column. The two edit pages are narrow, so they are centred (Task Test 3); on a phone they use the full width, `firstBlockLeft` 20, and `topGap` is 24.
 2. Buddies: only when Sam's #79 page is on `dev` and deployed. Open it and run the same measurements. If it is not ready, write "Buddies: not run, #79 not on dev yet" in the card comment. This is not a failure of this card.
 
 ## Task Test 11: Nothing else breaks
@@ -178,6 +183,39 @@ Steps:
 1. Click through the navigation bar on a computer and a phone (Dashboard, Workouts, Plans, Progress, Leaderboard, Today, Profile). Each page should open without a console error, and the current page should still be highlighted in the navigation bar.
 2. Log out. The Log in page should open, and opening `#/dashboard` while signed out should return to Log in.
 3. Run `npm run build`. It should finish without errors (a deleted `Breadcrumb.jsx` must not leave a missing import).
+
+## Task Test 12: Plan cards fit their text at every screen width (added after the first release)
+
+Found after #130 was merged: with the 1200 px page column the Plans page still used five fixed card columns, so on a 1440 px screen each card was only 208 px wide and the stats row ("Schedule 3 days/wk", "Session 40 min", "Intensity Moderate") spilled out of the card. The grid is now as many columns as fit at 250 px or more, and the stats row wraps.
+
+Setup for this test: sign in as `layout-86@test.com` (or any account with a plan selected, so "Your current plan" shows one card and "Recommended plans" shows several), and open the Plans page (`#/plans`).
+
+Steps:
+1. In Chrome DevTools device mode set 1440 x 900 and reload. Look at every plan card, including "Your current plan". All the text in each card (the name, the description, "Schedule", "Session", "Intensity" and their values, the equipment names, "Equipment ready" and the button) should be inside the card's rounded border, with nothing touching or crossing its right edge.
+2. Each card should be at least 250 px wide. Paste this in the console. It should print `[]` (no card has anything outside its right edge) and a width of 250 or more:
+
+   ```js
+   [...document.querySelectorAll('article.plan-list__item')].filter((c) => { const r = c.getBoundingClientRect(); return [...c.querySelectorAll('*')].some((e) => e.getBoundingClientRect().width && e.getBoundingClientRect().right > r.right + 0.5) }).length + ' cards overflow, first card ' + Math.round(document.querySelector('article.plan-list__item').getBoundingClientRect().width) + 'px wide'
+   ```
+
+   It should print `0 cards overflow, first card 264px wide` (or another width of 250 or more).
+3. Repeat steps 1 and 2 at 1920 x 1080, 1280 x 800, 1000 x 800, 768 x 1024 and 375 x 812. At every size the result should be `0 cards overflow`. On a computer the cards are in rows of as many as fit (4 across at 1440); on a phone the cards are a swipeable row.
+4. Open "More plans" and repeat step 2. The cards inside it should also print `0 cards overflow`.
+5. Choose "Light" in Profile > Appearance and repeat step 1 at 1440 x 900. The text should still sit inside every card. Choose "Dark" again afterwards.
+
+## Task Test 13: Popups cover the whole screen (added after the first release)
+
+Found after #130 was merged: a popup that is a direct child of a narrow page was squeezed to the narrow width, so on the Individual exercise page the dark backdrop of "How to perform it" covered only the left part of the screen and the popup sat off-centre. The same was true of the "Switch plan" popup on Plan details.
+
+Steps:
+1. At 1440 x 900 (and again at 1920 x 1080), open an Individual exercise and click "How to perform it". The dark backdrop should cover the whole window (the navigation bar and both sides), and the popup should be in the middle of the screen. Paste this in the console: it should print `0 1440` at 1440 wide (left edge 0, width equal to the window width):
+
+   ```js
+   (() => { const r = document.querySelector('.modal-backdrop').getBoundingClientRect(); return Math.round(r.left) + ' ' + Math.round(r.width) })()
+   ```
+2. Click "Close". The popup and backdrop should disappear.
+3. Open Plans, click a plan that is not your current plan, click "Choose plan" on Plan details (or, from the library, "Choose plan" on a plan while you follow another), and when the "Switch to ...?" popup opens, run the same console line. It should again print `0 1440`, with the popup in the middle. Click "Cancel".
+4. At 375 x 812 repeat step 1: the popup should fit the phone screen.
 
 ## Existing tests and documents this changes
 

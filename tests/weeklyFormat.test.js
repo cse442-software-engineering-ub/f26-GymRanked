@@ -41,6 +41,16 @@ test('the countdown follows the server clock, not the device clock', () => {
   assert.equal(timeLeft(msUntilReset(data, fetchedAt, fetchedAt + 30 * MINUTE)), '3d 11h 59m left')
 })
 
+test('the Monday reset example agreed with #126 (Test 14)', () => {
+  // Sunday 2026-11-08 11:59:59 PM EST, one second before the reset.
+  const sunday = { now: '2026-11-09T04:59:59Z', resets_at: '2026-11-09T05:00:00Z' }
+  // Monday 2026-11-09 12:00:00 AM EST, the first moment of the new week.
+  const monday = { now: '2026-11-09T05:00:00Z', resets_at: '2026-11-16T05:00:00Z' }
+  const at = Date.parse('2026-11-09T05:00:00Z')
+  assert.equal(timeLeft(msUntilReset(sunday, at, at)), 'Less than a minute left')
+  assert.equal(timeLeft(msUntilReset(monday, at, at)), '7d 0h 0m left')
+})
+
 test('which top card to show', () => {
   assert.equal(heroKind({ joined: true, rank: 2, reason: null }), 'ranked')
   assert.equal(heroKind({ joined: false, rank: null, reason: 'not_joined' }), 'join')

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import NavBar from '../NavBar.jsx'
 import WeeklyGoalDisplay from './WeeklyGoalDisplay.jsx'
 import { getWeeklyGoal, saveWeeklyGoal } from './weeklyGoalApi.js'
 import {
@@ -29,7 +28,6 @@ export default function WeeklyGoalPage() {
 
   return (
     <div className="weekly-goal-page">
-      <NavBar />
       <main className="weekly-goal-page__content">
         <header className="weekly-goal-page__heading">
           <Link className="weekly-goal-page__back" to="/dashboard">← Back to Dashboard</Link>

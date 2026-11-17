@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import NavBar from '../NavBar.jsx'
 import LeaderboardSwitch from '../leaderboard/LeaderboardSwitch.jsx'
 import StandingsList from './StandingsList.jsx'
 import WeeklyHero from './WeeklyHero.jsx'
@@ -96,7 +95,6 @@ function WeeklyStandingsPage() {
 
   return (
     <div className="weekly-page">
-      <NavBar current="Leaderboard" />
       <main className="weekly-page__content" aria-busy={status === 'loading'}>
         <LeaderboardSwitch />
 
