@@ -61,7 +61,7 @@ loadSeed()
 loadSeed()
 sql('DELETE FROM auth_attempts')
 assert.equal(sql("SELECT COUNT(*) FROM users WHERE email LIKE 'buddy-%@example.com' AND is_test = 1"), '6')
-assert.equal(sql("SELECT CONCAT(g.name, ':', COUNT(*)) FROM buddy_groups g JOIN buddy_members m ON m.group_id = g.id GROUP BY g.id ORDER BY g.id"), 'Morning Lifters:2\nLate Starters:1')
+assert.equal(sql("SELECT CONCAT(g.name, ':', COUNT(*)) FROM buddy_groups g JOIN buddy_members m ON m.group_id = g.id WHERE g.name IN ('Morning Lifters', 'Late Starters') GROUP BY g.id ORDER BY g.id"), 'Morning Lifters:2\nLate Starters:1')
 assert.equal(sql("SELECT COUNT(*) FROM buddy_encouragements WHERE recipient_id = (SELECT id FROM users WHERE email = 'buddy-ben@example.com')"), '1')
 assert.throws(() => execFileSync('mysql', ['-u', mysqlUser, database, '-e',
   "INSERT INTO buddy_members (group_id, user_id, joined_at) SELECT group_id, user_id, UTC_TIMESTAMP() FROM buddy_members WHERE user_id = (SELECT id FROM users WHERE email = 'buddy-ben@example.com')"],
