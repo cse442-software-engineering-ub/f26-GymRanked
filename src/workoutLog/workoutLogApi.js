@@ -10,6 +10,7 @@
 //   POST api/swap_exercise.php    {session_id, exercise, replacement}                 -> 200 {session}
 //   GET  api/workout_history.php                                            -> {sessions}
 //   GET  api/workout_weekly_goal.php?session_id=N                            -> {snapshot, reason?}
+//   GET  api/workout_summary_comparison.php?session_id=N                     -> {comparisons}
 //   GET  api/exercise_progress.php[?from=YYYY-MM-DD&to=YYYY-MM-DD]          -> {summary, exercises, prs, ...} (#109)
 //   set = {id, exercise, set_number, weight_lb, reps}
 //   Errors are JSON {error, errors?}: 400 bad input (errors.weight_lb / errors.reps per field),
@@ -82,6 +83,10 @@ export function createWorkoutLogApi({ baseUrl, fetchImpl = (...args) => fetch(..
 
     async getWorkoutWeeklyGoal(sessionId) {
       return request(`workout_weekly_goal.php?session_id=${encodeURIComponent(sessionId)}`)
+    },
+
+    async getSummaryComparison(sessionId) {
+      return request(`workout_summary_comparison.php?session_id=${encodeURIComponent(sessionId)}`)
     },
 
     async getHistory() {

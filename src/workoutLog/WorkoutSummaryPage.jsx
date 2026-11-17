@@ -9,16 +9,17 @@ import './workoutSummary.css'
 // Sample content for the design preview only. Real sessions never display these example numbers.
 const PREVIEW_SUMMARY = {
   workoutName: 'Push day',
+  completedDate: 'Friday, November 13, 2026',
   duration: '52 min 14 sec',
   totalVolume: '18,420 lb',
   setsCompleted: 21,
   exerciseCount: 5,
   newPrs: 2,
   highlights: [
-    { exercise: 'Bench press', topSet: '185 lb × 5', versusLast: '+5 lb', improved: true },
-    { exercise: 'Incline dumbbell press', topSet: '70 lb × 8', versusLast: 'PR', improved: true },
-    { exercise: 'Cable fly', topSet: '40 lb × 12', versusLast: '—' },
-    { exercise: 'Tricep pushdown', topSet: '55 lb × 12', versusLast: 'PR', improved: true },
+    { exercise: 'Bench press', topSet: '185 lb × 5', versusLast: '180 lb × 6', isPr: true },
+    { exercise: 'Incline dumbbell press', topSet: '70 lb × 8', versusLast: '', isPr: true },
+    { exercise: 'Cable fly', topSet: '40 lb × 12', versusLast: '45 lb × 10', isPr: false },
+    { exercise: 'Tricep pushdown', topSet: '55 lb × 12', versusLast: '55 lb × 10', isPr: false },
   ],
 }
 const PREVIEW_WEEKLY = {
@@ -63,6 +64,8 @@ export default function WorkoutSummaryPage({ preview = false }) {
   const [state, setState] = useState({ status: preview ? 'ready' : 'loading' })
   const [weeklyAttempt, setWeeklyAttempt] = useState(0)
   const [weeklyState, setWeeklyState] = useState({ status: 'loading' })
+  const [comparisonAttempt, setComparisonAttempt] = useState(0)
+  const [comparisonState, setComparisonState] = useState({ status: 'loading' })
 
   useEffect(() => {
     if (preview) return undefined
@@ -95,7 +98,20 @@ export default function WorkoutSummaryPage({ preview = false }) {
     return () => { active = false }
   }, [preview, state.status, state.session?.id, state.session?.completed_at, weeklyAttempt])
 
-  const summary = preview ? PREVIEW_SUMMARY : displaySummary(state.session)
+  useEffect(() => {
+    if (preview || state.status !== 'ready' || !state.session.completed_at) return undefined
+    let active = true
+    setComparisonState({ status: 'loading', sessionId: state.session.id })
+    workoutLogApi.getSummaryComparison(state.session.id).then((data) => {
+      if (active) setComparisonState({ status: 'ready', sessionId: state.session.id, comparisons: data.comparisons ?? {} })
+    }).catch(() => {
+      if (active) setComparisonState({ status: 'error', sessionId: state.session.id })
+    })
+    return () => { active = false }
+  }, [preview, state.status, state.session?.id, state.session?.completed_at, comparisonAttempt])
+
+  const matchingComparison = comparisonState.sessionId === state.session?.id ? comparisonState : { status: 'loading' }
+  const summary = preview ? PREVIEW_SUMMARY : displaySummary(state.session, matchingComparison.status === 'ready' ? matchingComparison.comparisons : null)
   const highlights = Array.isArray(summary?.highlights) ? summary.highlights : []
 
   async function shareSummary() {
@@ -141,8 +157,8 @@ export default function WorkoutSummaryPage({ preview = false }) {
                 <div className="workout-summary__headline">
                   <span className="workout-summary__check"><SummaryIcon name="check" /></span>
                   <div>
-                    <h1 id="workout-summary-title">Workout complete</h1>
-                    <p>{summary.workoutName} <span aria-hidden="true">·</span> {summary.duration}</p>
+                    <h1 id="workout-summary-title">Workout complete - {summary.workoutName}</h1>
+                    <p>{summary.duration} <span aria-hidden="true">·</span> {summary.completedDate}</p>
                   </div>
                 </div>
               </div>
@@ -166,17 +182,19 @@ export default function WorkoutSummaryPage({ preview = false }) {
             <section className="workout-summary__highlights" aria-labelledby="workout-summary-highlights">
               <header className="workout-summary__section-heading">
                 <SummaryIcon name="list" />
-                <div><h2 id="workout-summary-highlights">Session highlights</h2><p>{preview ? 'Your strongest sets and progress from last time.' : 'Your top logged set for each exercise.'}</p></div>
+                <div><h2 id="workout-summary-highlights">Session highlights</h2><p>Your top logged set for each exercise and its most recent prior top set.</p></div>
               </header>
+              {!preview && matchingComparison.status === 'loading' && <p className="workout-summary__comparison-status" role="status">Loading previous sets…</p>}
+              {!preview && matchingComparison.status === 'error' && <p className="workout-summary__comparison-status" role="alert">Previous sets are unavailable. <button type="button" onClick={() => setComparisonAttempt((value) => value + 1)}>Try again</button></p>}
               {highlights.length > 0 ? (
                 <table>
-                  <thead><tr><th scope="col">Exercise</th><th scope="col">Top set</th><th scope="col">{preview ? 'Vs last' : 'Sets logged'}</th></tr></thead>
+                  <thead><tr><th scope="col">Exercise</th><th scope="col">Top set</th><th scope="col">Vs last</th></tr></thead>
                   <tbody>
                     {highlights.map((item) => (
                       <tr key={item.exercise}>
                         <th scope="row"><SummaryIcon name="dumbbell" />{item.exercise}</th>
-                        <td data-label="Top set">{item.topSet}</td>
-                        {preview ? <td data-label="Vs last" className={item.improved ? 'workout-summary__improved' : 'workout-summary__no-change'}>{item.versusLast}</td> : <td data-label="Sets logged">{item.setCount}</td>}
+                        <td data-label="Top set">{item.topSet}{item.isPr && <span className="workout-summary__weight-pr"><SummaryIcon name="trophy" /> Weight PR</span>}</td>
+                        <td data-label={item.versusLast ? 'Vs last' : ''} className={item.versusLast ? '' : 'workout-summary__no-change'}>{item.versusLast}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -186,11 +204,11 @@ export default function WorkoutSummaryPage({ preview = false }) {
 
             <div className="workout-summary__actions">
               <button type="button" className="workout-summary__primary" onClick={() => navigate('/dashboard')}>Return to dashboard <SummaryIcon name="arrow" /></button>
+              <Link className="workout-summary__secondary" to="/progress/history"><SummaryIcon name="list" /> Workout history</Link>
               <button type="button" className="workout-summary__secondary" onClick={shareSummary}><SummaryIcon name="share" /> Share summary</button>
             </div>
             <nav className="workout-summary__mobile-links" aria-label="More workout results">
               <Link to="/progress">View progress →</Link>
-              <Link to="/progress/history">Workout history →</Link>
             </nav>
             {shareStatus && <p className="workout-summary__share-status" role="status">{shareStatus}</p>}
           </>
