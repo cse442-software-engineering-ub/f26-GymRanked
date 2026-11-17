@@ -50,6 +50,7 @@ Fake accounts for testing login on a local or dev database. Each account has its
 | Cal Moss | buddy-cal@example.com | `Buddy-Test-78!` | Workout buddies (#78): no group, creates a group |
 | Omar Reyes | buddy-omar@example.com | `Buddy-Test-78!` | Workout buddies (#78): no group, never joins one (the outside account) |
 | Pete Lowe | buddy-pete@example.com | `Buddy-Test-78!` | Workout buddies (#78): owner of Late Starters, whose invite code `4MXT8H2R` expired yesterday |
+| Pat Record One to Eleven | summary-pr-1@example.com to summary-pr-11@example.com | `Summary-PR-Test-12!` | Workout records (#12, card #137): one completed Bench press (account 9: Push-up) history per comparison case. Loaded by `workout_records.sql` |
 
 These are `example.com` addresses, which can never belong to a real person. Only a bcrypt hash of each password is stored.
 
@@ -185,6 +186,14 @@ mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < datab
 ```
 
 It ends by printing each member's `member_id` and the invite codes, which the task tests use. `tests/buddies-api.mjs` loads it for you.
+
+## Workout records accounts
+
+`workout_records.sql` (story #12, card #137) adds `summary-pr-1` to `summary-pr-11@example.com`, each with the completed workouts and the unfinished workout one record or comparison case needs (the table at the top of the file lists them). It needs every migration up to `018_workout_buddies.sql`. The accounts are marked `is_test`. Loading it again resets only these accounts and their workouts (use it after a test that completes a workout), and it ends by printing every workout id the task tests use. `tests/workout-records-api.mjs` loads it for you:
+
+```bash
+mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < database/seeds/workout_records.sql
+```
 
 ## Remove them
 

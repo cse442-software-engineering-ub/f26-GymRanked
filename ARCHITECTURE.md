@@ -84,6 +84,7 @@ before deploying this frontend; see its local/shared-database instructions.
 | `api/buddy_join.php` | POST `{"code":"7KQ2MXP9"}` to join the group with that invite code. |
 | `api/buddy_encourage.php` | POST `{"member_id":12,"message":"..."}` to send another member of your group an encouragement. |
 | `api/buddy_common.php` | Shared helpers for the three buddy endpoints (the group view, invite codes, name shortening); not an endpoint. |
+| `api/workout_records.php` | GET `?session_id=7`: the story #12 comparisons and personal records of one completed workout of the signed-in user (card #137). See [Workout records API](#workout-records-api-story-12). |
 | `api/workout_common.php` | Shared helpers for the workout endpoints above (login check, set validation, JSON shapes); not an endpoint. |
 | `api/config.example.php` | Template for local database settings — copy to `api/config.php` (gitignored) and edit there. Never commit real credentials; the example file must only ever contain placeholders. |
 
@@ -156,6 +157,14 @@ Saves what a user lifts. Migration `database/migrations/009_workout_sessions.sql
 - **Response:** `{time_zone, week_start, week_end, resets_at, now, target_days, member_count, rows: [{rank, name, progress_days, progress_percent, is_me, gap_before}], me: {joined, ranked, reason, ranked_from, rank, completed_count, progress_days, progress_percent, goal_reached}}`. `rows` is everyone ranked this week with the viewer's `target_days` (no cut-off, so `gap_before` is always false). `me.reason` is `null`, `test_account`, `not_joined` or `practice_week`.
 - **Rules:** progress is capped at 100% and a date counts once; people with the same days share a rank (1, 1, 3), ties listed by full name; people who join mid-week are in a practice week and are ranked from the next Monday (`me.ranked_from`); test accounts (`users.is_test`) are never listed. `resets_at` is next Monday 00:00 New York time in UTC, worked out in `api/weekly_standings_time.php` (checked by `php tests/weekly_standings_time.php`).
 - **Errors:** JSON `{"error": ...}`: 400 for a POST body that is not `{"join": true}`, 401, 405 with `Allow: GET, POST, DELETE`, 415/413/403 as the other POST endpoints, 500 `Database error`.
+
+## Workout records API (story #12)
+
+`GET api/workout_records.php?session_id=7` gives the workout summary (card #128) each exercise's top set, the previous result for that exercise and whether it is a new personal record (card #137). It reads `workout_sessions` and `workout_sets` of the logged-in user (migration 009; no new migration, nothing is stored) and works the answer out on each request, so it cannot disagree with the saved sets. The checks are `tests/workout-records-api.mjs` (run against a local server) and the task tests on card #137; test data is `database/seeds/workout_records.sql` (`summary-pr-1` to `summary-pr-11@example.com`, password `Summary-PR-Test-12!`).
+
+- **Request:** `session_id`, a whole number. The user always comes from the session cookie, another user's session is a 404 and any other parameter is ignored. Errors: 400 `{"error":"Invalid request.","errors":{"session_id":"Use a whole number."}}`, 401 not logged in, 404 `Session not found`, 405 not GET, 409 `Workout not completed`.
+- **Response:** `{session_id, new_pr_count, exercises: [{exercise, metric, top_set: {weight_lb, reps}, previous: {weight_lb, reps, completed_at} | null, change, best_before: {weight_lb, reps} | null, is_baseline, is_pr}]}`. `metric` is `weight`, or `reps` for a bodyweight exercise (heaviest weight 0 lb).
+- **Rules:** only the user's own workouts completed before this one are used (`completed_at` earlier, or the same second with a lower session id), so two workouts on one day have separate results and a summary opened later never changes. The first result is a baseline (`is_baseline`, not a record); matching `best_before` is not a record. `change` is in lb, or in reps for `metric` `reps`. The record rule is the same as `api/exercise_progress.php`.
 
 ## Workout buddies API (story #78)
 
