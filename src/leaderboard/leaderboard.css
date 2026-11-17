@@ -720,7 +720,7 @@ a.leaderboard-step__action {
 
 /* Phones: short tabs on one line, your rank under your name, lift tiles stacked, and your row pinned while it is
    off screen. */
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .leaderboard-page__content {
     padding-bottom: 96px; /* room for your pinned row */
   }
@@ -863,7 +863,7 @@ a.leaderboard-step__action {
   font-weight: 600;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .leaderboard-switch {
     display: flex;
     align-self: stretch;

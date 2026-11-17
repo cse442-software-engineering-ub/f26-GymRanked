@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import NavBar from '../NavBar.jsx'
 import WorkoutLogger from './WorkoutLogger.jsx'
 import workoutLogApi from './workoutLogApi.js'
 import { summaryPath } from './setLog.js'
@@ -38,7 +37,6 @@ export default function ActiveWorkoutPage() {
 
   return (
     <div className="dashboard-page">
-      <NavBar current="Today" />
       <main className="dashboard-content">
         <header className="dashboard-header">
           <div>

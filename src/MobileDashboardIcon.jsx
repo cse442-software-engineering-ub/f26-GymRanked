@@ -9,6 +9,9 @@ export default function MobileDashboardIcon({ name, className = '' }) {
     progress: <><path d="M5 20v-5m7 5V9m7 11V4" /></>,
     today: <><rect x="4" y="5" width="16" height="16" rx="2" /><path d="M8 3v4m8-4v4M4 10h16m5 5h6" /></>,
     buddies: <><circle cx="9" cy="8" r="3" /><path d="M3 20v-1a6 6 0 0 1 12 0v1m1-14.8a3 3 0 0 1 0 5.6M18 14a6 6 0 0 1 3 5v1" /></>,
+    plans: <><path d="M4 5a2 2 0 0 1 2-2h5v17H6a2 2 0 0 0-2 2V5Zm16 0a2 2 0 0 0-2-2h-5v17h5a2 2 0 0 1 2 2V5Z" /></>,
+    menu: <path d="M4 7h16M4 12h16M4 17h16" />,
+    close: <path d="M6 6l12 12M18 6 6 18" />,
     logout: <><path d="M10 4H4v16h6m4-12 4 4-4 4m-8-4h12" /></>,
   }
 

@@ -6,7 +6,6 @@ import ExerciseSession from './ExerciseSession.jsx'
 import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
 import MobileDashboardIcon from './MobileDashboardIcon.jsx'
 import QuickSetLogger from './QuickSetLogger.jsx'
-import NavBar from './NavBar.jsx'
 import { fetchCurrentPlan, fetchPlan } from './plansApi.js'
 import CompleteWorkoutButton from './workoutLog/CompleteWorkoutButton.jsx'
 import { formatSet, summaryPath, upsertSet } from './workoutLog/setLog.js'
@@ -123,7 +122,6 @@ function ActiveWorkout() {
 
   return (
     <div className="dashboard-page">
-      <NavBar current="Workouts" showStartWorkout={!mobile} />
       {status === 'ready' && <div className="active-workout__mobile-heading"><h1>Workouts</h1></div>}
       {status === 'ready' && (
         <GymBackdrop image="backdrops/dumbbells.webp" height={240} phoneHeight={200}>

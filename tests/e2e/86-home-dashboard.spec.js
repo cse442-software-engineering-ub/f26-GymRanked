@@ -69,7 +69,7 @@ acceptanceTests('86-home-dashboard.md', {
     await step('Step 1: the Dashboard shows Marcus, his initials and an empty week', async () => {
       await expect(page).toHaveURL(/#\/dashboard$/)
       await expect(greeting(page, 'Marcus')).toBeVisible()
-      await expect(page.getByRole('button', { name: 'Open account menu' })).toContainText('MD')
+      await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: /View profile/ })).toContainText('MD')
       await expect(page.locator('main')).toContainText('0/3')
       await expect(page.locator('main')).toContainText('training days logged')
       await expect(planSessions(page)).toHaveText('0 of 3')
@@ -99,7 +99,7 @@ acceptanceTests('86-home-dashboard.md', {
   2: async ({ page }) => {
     await step('Setup: Sofia chooses Beginner Fundamentals', () => accountWithPlan(page, 'Sofia Switch', { level: 'Intermediate' }))
     await step('Step 1: Plans opens the workout plan library', async () => {
-      await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Plans' }).click()
+      await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Plans', exact: true }).click()
       await expect(libraryHeading(page)).toBeVisible()
       await expect(page.getByText('Browse all training programs', { exact: false })).toBeVisible()
     })
@@ -152,13 +152,13 @@ acceptanceTests('86-home-dashboard.md', {
     await step('Setup: Alex has a saved Beginner Fundamentals plan', () => accountWithPlan(page, 'Alex Offline'))
     const nav = page.getByRole('navigation', { name: 'Primary' })
     await step('Step 1: Plans opens the library', async () => {
-      await nav.getByRole('link', { name: 'Plans' }).click()
+      await nav.getByRole('link', { name: 'Plans', exact: true }).click()
       await expect(libraryHeading(page)).toBeVisible()
     })
     await step('Step 2: offline, Dashboard shows the setup-check error and Try again', async () => {
       await context.setOffline(true)
       // The setup check replaces the whole layout, navigation included, so don't wait on the link after clicking.
-      await nav.getByRole('link', { name: 'Dashboard' }).click({ noWaitAfter: true })
+      await nav.getByRole('link', { name: 'Dashboard', exact: true }).click({ noWaitAfter: true })
       await expect(page.getByRole('alert').filter({ hasText: 'check your account setup' })).toHaveText(/We couldn’t check your account setup\. Try again\./)
       await expect(page.getByRole('button', { name: 'Try again' })).toBeVisible()
       await expect(greeting(page, 'Alex')).toHaveCount(0)
@@ -180,9 +180,8 @@ acceptanceTests('86-home-dashboard.md', {
       account = await accountWithPlan(page, 'Jordan Guard')
       await expect(greeting(page, 'Jordan')).toBeVisible()
     })
-    await step('Step 1: Log out from the account menu', async () => {
-      await page.getByRole('button', { name: 'Open account menu' }).click()
-      await page.getByRole('menuitem', { name: 'Log out' }).click()
+    await step('Step 1: Log out from the menu', async () => {
+      await page.getByRole('navigation', { name: 'Primary' }).getByRole('button', { name: 'Log out' }).click()
       await expect(page.getByText('You are logged out.')).toBeVisible()
     })
     await step('Step 2: the Dashboard address opens the Login page', async () => {

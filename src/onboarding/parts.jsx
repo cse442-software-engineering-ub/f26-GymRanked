@@ -41,10 +41,9 @@ export function OnboardingShell({ step, backdrop, children }) {
     <div className="ob-page">
       <GymBackdrop image={backdrop}>
         <div className="ob-band-top">
-          {/* Same logo as the shared NavBar (styles live in src/index.css). */}
-          <Link className="nav-bar__brand ob-brand" to="/dashboard" aria-label="GymRank dashboard">
-            <span className="nav-bar__logo" aria-hidden="true" />
-            <span className="nav-bar__brand-name">GymRank</span>
+          <Link className="ob-brand" to="/dashboard" aria-label="GymRank dashboard">
+            <span className="ob-brand__mark" aria-hidden="true" />
+            <span className="ob-brand__name">GymRank</span>
           </Link>
           {user && <LogOutButton />}
         </div>
@@ -80,8 +79,8 @@ export function OnboardingShell({ step, backdrop, children }) {
   );
 }
 
-// Onboarding pages have no NavBar, and unfinished accounts can't reach the Dashboard, so the band has its own
-// "Log out". It works like the NavBar's: end the session, then show the login page with "You are logged out."
+// Onboarding pages have no menu, and unfinished accounts can't reach the Dashboard, so the band has its own
+// "Log out". It works like the menu's: end the session, then show the login page with "You are logged out."
 function LogOutButton() {
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);

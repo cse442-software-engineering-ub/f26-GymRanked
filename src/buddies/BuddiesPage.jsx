@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import NavBar from '../NavBar.jsx'
 import GroupPanel from './GroupPanel.jsx'
 import EncouragementList from './EncouragementList.jsx'
 import NoGroupPanel from './NoGroupPanel.jsx'
@@ -72,7 +71,6 @@ function BuddiesPage() {
 
   return (
     <div className="buddies-screen">
-      <NavBar current="Buddies" />
       <main className="buddies-page buddies-page__content" aria-busy={status === 'loading'}>
         <div className="buddies-heading">
           <h1>Workout buddies</h1>

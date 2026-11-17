@@ -495,7 +495,7 @@
   white-space: pre-wrap;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .buddies-card {
     padding: 16px;
   }

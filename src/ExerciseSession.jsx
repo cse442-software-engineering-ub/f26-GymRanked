@@ -6,8 +6,8 @@ import ExerciseGuide from './ExerciseGuide.jsx'
 import { markFinished } from './finishedExercises.js'
 import { EMPTY_DRAFT, loadDraft, saveDraft } from './setDraft.js'
 import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
-import NavBar from './NavBar.jsx'
 import RestTimer from './RestTimer.jsx'
+import ExerciseAlternatives from './workoutLog/ExerciseAlternatives.jsx'
 import { formatSet, nextSetNumber, saveErrorMessage, upsertSet } from './workoutLog/setLog.js'
 import { validateSet } from './workoutLog/setValidation.js'
 import workoutLogApi from './workoutLog/workoutLogApi.js'
@@ -20,9 +20,9 @@ function formatClock(seconds) {
   return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`
 }
 
-// One exercise of the active workout: inline on phones, or opened by "Begin exercise" on desktop.
-// Each set has its own timer, weight and reps, followed by a rest after saving.
-function ExerciseSession({ embedded = false, exerciseIndexOverride, sessionOverride, onSetSaved, onExerciseFinished }) {
+// One exercise of the active workout (opened by "Begin exercise"): for each set the user starts a timer,
+// can pause and end it, enters the weight and reps, and finishes the set, which saves it and starts a rest.
+function ExerciseSession() {
   const { exerciseIndex } = useParams()
   const navigate = useNavigate()
   const [session, setSession] = useState(null)
@@ -36,12 +36,14 @@ function ExerciseSession({ embedded = false, exerciseIndexOverride, sessionOverr
   const [fieldErrors, setFieldErrors] = useState({})
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
+  const [switchedFrom, setSwitchedFrom] = useState(null) // the exercise this one replaced, for the notice
 
-  const index = embedded ? exerciseIndexOverride : Number(exerciseIndex)
+  const index = Number(exerciseIndex)
   const exercise = session?.exercises[index]
 
   useEffect(() => {
-    (sessionOverride ? Promise.resolve(sessionOverride) : startSession())
+    setSwitchedFrom(null)
+    startSession()
       .then((started) => {
         setSession(started)
         const found = started.exercises[index]
@@ -61,7 +63,7 @@ function ExerciseSession({ embedded = false, exerciseIndexOverride, sessionOverr
           setStatus('error')
         }
       })
-  }, [index, sessionOverride?.id])
+  }, [index])
 
   // Remember the set in progress, once it has been loaded back.
   useEffect(() => {
@@ -126,6 +128,24 @@ function ExerciseSession({ embedded = false, exerciseIndexOverride, sessionOverr
     setDraft((d) => ({ ...d, restEndsAt: null }))
   }
 
+  // Switches this exercise of today's workout for an alternative (from the alternatives dialog). Only allowed before
+  // any set is saved, so there are no saved sets to move; a set in progress carries over to the replacement.
+  // Rejects with the server's message so the dialog can show it.
+  async function switchExercise(replacement) {
+    try {
+      const updated = await workoutLogApi.swapExercise({ sessionId: session.id, exercise: exercise.name, replacement })
+      const name = updated.exercises[index].name
+      saveDraft(session.id, exercise.name, EMPTY_DRAFT)
+      saveDraft(session.id, name, draft)
+      setSwitchedFrom(exercise.name)
+      setSession(updated)
+      setSets(updated.exercises[index].sets.map((set) => ({ ...set, exercise: name })))
+    } catch (err) {
+      if (err.status === 401) setStatus('loggedOut')
+      throw err
+    }
+  }
+
   async function finishSet() {
     if (saving) return
     const checked = validateSet(values)
@@ -144,7 +164,6 @@ function ExerciseSession({ embedded = false, exerciseIndexOverride, sessionOverr
         reps: checked.values.reps,
       })
       setSets((previous) => upsertSet(previous, saved))
-      onSetSaved?.(exercise.name, saved)
       // The next set starts fresh, after a rest of the length the user last chose.
       setDraft({ ...EMPTY_DRAFT, restTotal, restEndsAt: Date.now() + restTotal * 1000 })
     } catch (err) {
@@ -162,10 +181,9 @@ function ExerciseSession({ embedded = false, exerciseIndexOverride, sessionOverr
   const setNumber = nextSetNumber(sets)
 
   return (
-    <div className={embedded ? 'exercise-session-embedded' : 'dashboard-page'}>
-      {!embedded && <NavBar current="Workouts" />}
-      <main className={embedded ? 'exercise-session exercise-session--inline' : 'dashboard-content exercise-session'} aria-busy={status === 'loading'}>
-        {!embedded && <BackLink to="/workout/active">Back to workout</BackLink>}
+    <div className="dashboard-page">
+      <main className="dashboard-content exercise-session" aria-busy={status === 'loading'}>
+        <BackLink to="/workout/active">Back to workout</BackLink>
         {status === 'loading' && <p className="status">Loading your exercise...</p>}
         {status === 'loggedOut' && (
           <p className="status">
@@ -194,10 +212,23 @@ function ExerciseSession({ embedded = false, exerciseIndexOverride, sessionOverr
                   <p className="active-muscles__text">{muscles.map((muscle) => MUSCLE_LABELS[muscle]).join(' · ')}</p>
                 )}
               </div>
-              {!embedded && muscles.length > 0 && <BodyFigure muscles={muscles} />}
+              {muscles.length > 0 && <BodyFigure muscles={muscles} />}
             </header>
 
-            {!embedded && <ExerciseGuide name={exercise.name} />}
+            <div className="exercise-session__tools">
+              <ExerciseGuide name={exercise.name} />
+              <ExerciseAlternatives
+                exercise={exercise.name}
+                workoutExercises={session.exercises.map((other) => other.name)}
+                locked={sets.length > 0}
+                onSwitch={switchExercise}
+              />
+            </div>
+            {switchedFrom && (
+              <p className="wl-message wl-message--success" role="status">
+                Switched from {switchedFrom} to {exercise.name} for today&apos;s workout. Your plan stays the same.
+              </p>
+            )}
 
             {resting ? (
               <RestTimer endsAt={restEndsAt} total={restTotal} onAdjust={adjustRest} onDone={endRest} />
@@ -246,7 +277,6 @@ function ExerciseSession({ embedded = false, exerciseIndexOverride, sessionOverr
                   </p>
                 ) : (
                   <>
-                    <div className="exercise-session__entry">
                     <div className="wl-fields">
                       <div className="wl-field">
                         <label htmlFor="set-weight">Weight (lb)</label>
@@ -290,7 +320,6 @@ function ExerciseSession({ embedded = false, exerciseIndexOverride, sessionOverr
                     >
                       {saving ? 'Saving…' : 'Log set'}
                     </button>
-                    </div>
                   </>
                 )}
               </section>
@@ -310,7 +339,7 @@ function ExerciseSession({ embedded = false, exerciseIndexOverride, sessionOverr
               </section>
             )}
 
-            {!embedded && <div className="exercise-session__footer">
+            <div className="exercise-session__footer">
               <button
                 type="button"
                 className="wl-button wl-button--quiet"
@@ -330,14 +359,8 @@ function ExerciseSession({ embedded = false, exerciseIndexOverride, sessionOverr
               >
                 Finish exercise
               </button>
-            </div>}
-            {embedded && sets.length > 0 && (
-              <button type="button" className="wl-button wl-button--quiet exercise-session__next" onClick={() => {
-                markFinished(session.id, exercise.name)
-                onExerciseFinished?.(index)
-              }}>Finish exercise</button>
-            )}
-            {!embedded && sets.length === 0 && <p className="exercise-session__hint">Save at least one set to finish this exercise.</p>}
+            </div>
+            {sets.length === 0 && <p className="exercise-session__hint">Save at least one set to finish this exercise.</p>}
           </>
         )}
       </main>

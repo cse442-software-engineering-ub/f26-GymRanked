@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import NavBar from '../NavBar.jsx'
 import MobileDashboardIcon from '../MobileDashboardIcon.jsx'
 import workoutLogApi from './workoutLogApi.js'
 import { displaySummary } from './workoutSummary.js'
@@ -117,7 +116,6 @@ export default function WorkoutSummaryPage({ preview = false }) {
 
   return (
     <div className="workout-summary-page">
-      <NavBar current="Workouts" />
       <main className="workout-summary">
         {preview && <p className="workout-summary__preview">Design preview · Example workout data</p>}
         {!preview && state.status === 'loading' ? (

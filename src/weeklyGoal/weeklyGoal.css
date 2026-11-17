@@ -157,7 +157,7 @@
   white-space: nowrap;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .weekly-goal { padding: 16px; }
   .weekly-goal__targets { grid-template-columns: 1fr; }
   /* Seven columns are too narrow for the labels on a phone, so the days become a list: "Mon 26 ✓ Completed". */
@@ -171,12 +171,13 @@
 
 .weekly-goal-page { min-height: 100vh; background: var(--gr-bg-page); color: var(--gr-text); font-family: var(--gr-font); }
 .weekly-goal-page__content { display: flex; flex-direction: column; gap: 20px; }
+/* The page's content is one 852px column centred in the page column (the card, the form and the heading all line up). */
+.weekly-goal-page__content > :not(.modal-backdrop) { width: 100%; max-width: 852px; margin-inline: auto; }
 .weekly-goal-page__heading h1 { margin: 0; font-size: 28px; font-weight: 500; }
 .weekly-goal-page__heading p { margin: 6px 0 0; color: var(--gr-text-muted); font-size: 14px; }
 .weekly-goal-page__back { display: inline-block; margin-bottom: 12px; color: var(--gr-action-text); font-size: 14px; text-decoration: none; }
 
 .weekly-goal-form {
-  max-width: 720px;
   padding: 20px;
   border: 1px solid var(--gr-border);
   border-radius: var(--gr-radius-card);
@@ -251,7 +252,7 @@
 .weekly-goal-message--error { border-color: var(--gr-error); background: var(--gr-error-bg); color: var(--gr-error-text); }
 .weekly-goal-message a { color: inherit; font-weight: 600; }
 
-@media (max-width: 640px) {
+@media (max-width: 824px) {
   .weekly-goal-form { padding: 16px; }
   .weekly-goal-form__days { grid-template-columns: repeat(4, minmax(44px, 1fr)); }
   .weekly-goal-form__actions .weekly-goal-button { flex: 1 1 100%; }

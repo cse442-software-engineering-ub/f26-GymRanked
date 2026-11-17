@@ -26,11 +26,6 @@ export default function LoginPage() {
     setValues(previous => ({ ...previous, [name]: type === 'checkbox' ? checked : value }))
     setErrors(previous => ({ ...previous, [name]: undefined }))
   }
-  const unavailableSignIn = provider => {
-    setErrors({})
-    setMessage('')
-    setFailure(`${provider} sign-in is not available yet. Please use your email and password.`)
-  }
   async function submit(event) {
     event.preventDefault()
     const nextErrors = validate(values)
@@ -70,11 +65,6 @@ export default function LoginPage() {
         <FormField name="password" label="Password" type="password" autoComplete="current-password" placeholder="••••••••" maxLength={72} value={values.password} onChange={change} error={errors.password} invalid={invalidCredentials} required />
         <div className="login-options"><label><input name="remember" type="checkbox" checked={values.remember} onChange={change} />Keep me logged in</label><button type="button" className="text-button" onClick={() => setMessage('Password recovery is not available yet. Please contact the GymRank team.')}>Forgot password?</button></div>
         <button className="primary" disabled={busy}>{busy ? 'Logging in…' : 'Log in'}</button>
-        <div className="divider"><span />OR<span /></div>
-        <div className="social-buttons">
-          <button type="button" aria-label="Google" onClick={() => unavailableSignIn('Google')}><img className="google-icon" src={`${import.meta.env.BASE_URL}brand/google-g.png`} alt="" />Continue with Google</button>
-          <button type="button" aria-label="Apple" onClick={() => unavailableSignIn('Apple')}><img className="apple-icon" src={`${import.meta.env.BASE_URL}brand/apple.svg`} alt="" />Continue with Apple</button>
-        </div>
         <p className="account-link"><span>New to GymRank? </span><Link to="/register">Create an account</Link></p>
       </form>
     </section>

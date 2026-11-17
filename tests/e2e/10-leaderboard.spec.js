@@ -92,11 +92,11 @@ async function newAccount(page, name, weight, gender) {
 // opens the Weekly consistency view; Strength is the second choice at the top of it.
 async function openLeaderboard(page) {
   const menu = page.getByRole('button', { name: 'Open navigation menu' })
-  const topLink = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Leaderboard' })
+  const topLink = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Rankings', exact: true })
   await menu.or(topLink).filter({ visible: true }).waitFor()
   if (await menu.isVisible()) {
     await menu.click()
-    await page.getByRole('navigation', { name: 'Mobile navigation' }).getByRole('link', { name: 'Leaderboard' }).click()
+    await page.getByRole('navigation', { name: 'Mobile navigation' }).getByRole('link', { name: 'Rankings', exact: true }).click()
   } else {
     await topLink.click()
   }
@@ -139,7 +139,7 @@ acceptanceTests('10-leaderboard.md', {
     await step('Setup: create Lead Tester, save 180 lb and Man, finish setup', () => newAccount(page, 'Lead Tester', '180', 'Man'))
     await step('Step 1: Leaderboard opens with Overall selected', async () => {
       await openLeaderboard(page)
-      await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Leaderboard' })).toHaveAttribute('aria-current', 'page')
+      await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Rankings', exact: true })).toHaveAttribute('aria-current', /page|location/)
       await expect(tab(page, 'Overall')).toHaveAttribute('aria-pressed', 'true')
       for (const label of ['Bench press', 'Back squat', 'Deadlift']) await expect(tab(page, label)).toHaveAttribute('aria-pressed', 'false')
     })
