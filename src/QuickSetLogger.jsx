@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { EMPTY_DRAFT, loadDraft, saveDraft } from './setDraft.js'
 import { formatSet, nextSetNumber, saveErrorMessage } from './workoutLog/setLog.js'
 import { validateSet } from './workoutLog/setValidation.js'
@@ -11,9 +12,21 @@ function formatClock(seconds) {
   return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`
 }
 
+function readDraft(sessionId, exercise) {
+  const saved = loadDraft(sessionId, exercise)
+  // A rest that ended while away resets the set clock, but keeps typed values.
+  return saved.timer === 'ended' && saved.restEndsAt === null
+    ? { ...saved, timer: 'idle', accumulatedMs: 0 }
+    : saved
+}
+
+function formatVolume(value) {
+  return `${Number(value.toFixed(2)).toLocaleString()} lb`
+}
+
 // The phone logger follows the short entry flow in the workout mockup.
-export default function QuickSetLogger({ sessionId, exercise, exercisePosition, exerciseTotal, sets, onSetSaved }) {
-  const [draft, setDraft] = useState(() => loadDraft(sessionId, exercise))
+export default function QuickSetLogger({ sessionId, exercise, exercisePosition, exerciseTotal, exerciseIndex, totalVolume, sets, onSetSaved }) {
+  const [draft, setDraft] = useState(() => readDraft(sessionId, exercise))
   const [errors, setErrors] = useState({})
   const [saveError, setSaveError] = useState('')
   const [saving, setSaving] = useState(false)
@@ -23,7 +36,7 @@ export default function QuickSetLogger({ sessionId, exercise, exercisePosition, 
   const restRef = useRef(null)
 
   useEffect(() => {
-    setDraft(loadDraft(sessionId, exercise))
+    setDraft(readDraft(sessionId, exercise))
     setErrors({})
     setSaveError('')
     setNotice('')
@@ -41,6 +54,13 @@ export default function QuickSetLogger({ sessionId, exercise, exercisePosition, 
     const interval = setInterval(() => setNow(Date.now()), draft.timer === 'running' ? 250 : 1000)
     return () => clearInterval(interval)
   }, [draft.timer, draft.restEndsAt])
+  useEffect(() => {
+    if (draft.restEndsAt && now >= draft.restEndsAt) {
+      setDraft((previous) => previous.restEndsAt && Date.now() >= previous.restEndsAt
+        ? { ...previous, timer: 'idle', accumulatedMs: 0, runningSince: null, restEndsAt: null }
+        : previous)
+    }
+  }, [now, draft.restEndsAt])
 
   const elapsedMs = draft.accumulatedMs + (draft.timer === 'running' && draft.runningSince ? now - draft.runningSince : 0)
   const elapsedSeconds = Math.max(0, Math.floor(elapsedMs / 1000))
@@ -68,11 +88,14 @@ export default function QuickSetLogger({ sessionId, exercise, exercisePosition, 
   function finishTimer() {
     const ended = Date.now()
     setNow(ended)
+    setScrollToRest(true)
     setDraft((previous) => ({
       ...previous,
       timer: 'ended',
       accumulatedMs: previous.accumulatedMs + (previous.runningSince ? ended - previous.runningSince : 0),
       runningSince: null,
+      restTotal: previous.restTotal ?? DEFAULT_REST_SECONDS,
+      restEndsAt: ended + (previous.restTotal ?? DEFAULT_REST_SECONDS) * 1000,
     }))
   }
 
@@ -95,6 +118,10 @@ export default function QuickSetLogger({ sessionId, exercise, exercisePosition, 
   async function logSet(event) {
     event.preventDefault()
     if (saving) return
+    if (draft.timer === 'running' || draft.timer === 'paused') {
+      setSaveError('Finish the set timer before logging this set.')
+      return
+    }
     const checked = validateSet({ weight: draft.weight, reps: draft.reps })
     if (!checked.ok) {
       setErrors(checked.errors)
@@ -108,11 +135,14 @@ export default function QuickSetLogger({ sessionId, exercise, exercisePosition, 
         weightLb: checked.values.weight_lb, reps: checked.values.reps,
       })
       onSetSaved(exercise, saved)
-      const restStarted = Date.now()
-      setNow(restStarted)
-      setDraft({ ...EMPTY_DRAFT, restTotal, restEndsAt: restStarted + restTotal * 1000 })
+      setDraft((previous) => ({
+        ...EMPTY_DRAFT,
+        timer: previous.restEndsAt ? 'ended' : 'idle',
+        accumulatedMs: previous.restEndsAt ? previous.accumulatedMs : 0,
+        restTotal: previous.restTotal,
+        restEndsAt: previous.restEndsAt,
+      }))
       setNotice(`Set ${saved.set_number} saved`)
-      setScrollToRest(true)
     } catch (error) {
       if (error.fieldErrors) setErrors(error.fieldErrors)
       setSaveError(saveErrorMessage(error))
@@ -126,14 +156,25 @@ export default function QuickSetLogger({ sessionId, exercise, exercisePosition, 
       <div className="quick-set__heading"><h2>Log a set</h2><span>Set {nextSetNumber(sets)}</span></div>
       <p className="quick-set__context">Exercise {exercisePosition} of {exerciseTotal}</p>
       <h3>{exercise}</h3>
+      <Link className="quick-set__guide" to={`/workout/active/${exerciseIndex}`}>Exercise guide & alternatives →</Link>
+      <div className="quick-set__timers">
       <div className="quick-set__timer" role="group" aria-label="Set timer">
-        <div><span className="quick-set__timer-label">Set timer</span><strong role="timer" aria-live="off">{formatClock(elapsedSeconds)}</strong><span className="quick-set__timer-state">{draft.timer === 'idle' ? 'Ready' : draft.timer === 'running' ? 'In progress' : draft.timer === 'paused' ? 'Paused' : 'Set finished'}</span></div>
+        <div><span className="quick-set__timer-label">Set timer</span><strong role="timer" aria-live="off">{formatClock(elapsedSeconds)}</strong><span className="quick-set__timer-state">{restSeconds !== null ? 'Resting' : draft.timer === 'idle' ? 'Ready' : draft.timer === 'running' ? 'In progress' : draft.timer === 'paused' ? 'Paused' : 'Set finished'}</span></div>
         <div className="quick-set__timer-actions">
           {draft.timer === 'idle' && <button type="button" onClick={startTimer} disabled={saving}>Start timer</button>}
           {draft.timer === 'running' && <><button type="button" onClick={pauseTimer} disabled={saving}>Pause</button><button type="button" onClick={finishTimer} disabled={saving}>Finish set</button></>}
           {draft.timer === 'paused' && <><button type="button" onClick={resumeTimer} disabled={saving}>Resume</button><button type="button" onClick={finishTimer} disabled={saving}>Finish set</button></>}
           {draft.timer === 'ended' && <button type="button" onClick={startTimer} disabled={saving}>Restart timer</button>}
         </div>
+      </div>
+      {restSeconds !== null ? <div ref={restRef} className="quick-set__rest" role="group" aria-label="Rest timer">
+        <div className="quick-set__rest-heading"><span>Rest timer</span><strong role="timer" aria-live="off">{formatClock(restSeconds)}</strong></div>
+        <div className="quick-set__rest-bar" aria-hidden="true"><span style={{ width: `${Math.min(100, (restSeconds / restTotal) * 100)}%` }} /></div>
+        <div className="quick-set__rest-actions">
+          <button type="button" onClick={() => adjustRest(-REST_STEP_SECONDS)}>−15s</button><button type="button" onClick={() => adjustRest(REST_STEP_SECONDS)}>+15s</button>
+          <button type="button" onClick={() => setDraft((previous) => ({ ...previous, timer: 'idle', accumulatedMs: 0, restEndsAt: null }))}>Skip rest</button>
+        </div>
+      </div> : <div className="quick-set__rest-placeholder">Rest timer starts when you finish a set.</div>}
       </div>
       <form onSubmit={logSet}>
         <label>Reps
@@ -148,16 +189,9 @@ export default function QuickSetLogger({ sessionId, exercise, exercisePosition, 
       </form>
       {saveError && <p className="wl-message wl-message--error" role="alert">{saveError}</p>}
       {notice && <p className="wl-message wl-message--success" role="status">{notice}</p>}
-      {restSeconds !== null && <div ref={restRef} className="quick-set__rest" role="group" aria-label="Rest timer">
-        <div className="quick-set__rest-heading"><span>Rest timer</span><strong role="timer" aria-live="off">{restSeconds === 0 ? 'Rest finished' : formatClock(restSeconds)}</strong></div>
-        <div className="quick-set__rest-bar" aria-hidden="true"><span style={{ width: `${Math.min(100, (restSeconds / restTotal) * 100)}%` }} /></div>
-        <div className="quick-set__rest-actions">
-          {restSeconds > 0 && <><button type="button" onClick={() => adjustRest(-REST_STEP_SECONDS)}>−15s</button><button type="button" onClick={() => adjustRest(REST_STEP_SECONDS)}>+15s</button></>}
-          <button type="button" onClick={() => setDraft((previous) => ({ ...previous, restEndsAt: null }))}>{restSeconds === 0 ? 'Dismiss' : 'Skip rest'}</button>
-        </div>
-      </div>}
       <p className="quick-set__count">{sets.length} {sets.length === 1 ? 'set' : 'sets'} saved</p>
       {sets.length > 0 && <ol className="quick-set__saved" aria-label="Saved sets">{sets.map((set) => <li key={set.id}><span>Set {set.set_number}</span><strong>{formatSet(set)}</strong><span aria-hidden="true">✓</span></li>)}</ol>}
+      <div className="quick-set__volume"><span>Exercise volume: {formatVolume(sets.reduce((total, set) => total + set.weight_lb * set.reps, 0))}</span><span>Total volume: {formatVolume(totalVolume)}</span></div>
     </section>
   )
 }
