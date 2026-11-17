@@ -17,11 +17,12 @@
 // The exercises come from the user's current plan (api/current_plan.php), in order, and are copied into the session
 // when it starts. Without day_position the day is today's scheduled training day (same schedule as
 // src/weeklySchedule.js, in America/New_York time, UB's time zone). The user's current session is their most recent
-// one of the plan selected now started today, finished or not: starting returns it instead of making a second one, so
-// reopening an unfinished workout (or the completed one) is the same call. "Today" is the New York calendar date, not
-// the last 24 hours, so the next day's workout can start right after midnight. A workout started before midnight and
-// left unfinished isn't reopened after it. After the user switches plans, the earlier plan's session is left alone
-// and starting makes a new one for the new plan.
+// one of the plan selected now that is unfinished, or was started today, finished or not: starting returns it instead
+// of making a second one, so reopening an unfinished workout (or the completed one) is the same call. "Today" is the
+// New York calendar date, not the last 24 hours, so the next day's workout can start right after midnight. An
+// unfinished workout is kept across midnight: one started yesterday (New York) is still reopened, and wins over a
+// workout completed today. Anything older is treated as abandoned. After the user switches plans, the earlier plan's
+// session is left alone and starting makes a new one for the new plan.
 //
 // 400 day_position isn't a whole number / bad id, 401 not logged in, 404 unknown session (or another user's) or
 // no such plan day, 405 wrong method, 409 no plan selected, rest day, or a day with no exercises.
@@ -38,6 +39,13 @@ const TRAINING_WEEKDAYS = [
 // aren't needed and the days the clocks change (23 or 25 hours long) are right.
 function today_start_utc() {
     $start = (new DateTimeImmutable('now', new DateTimeZone('America/New_York')))->setTime(0, 0);
+    return $start->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+}
+
+// The start of yesterday in New York as a UTC time for SQL: the earliest start of an unfinished workout that is
+// still resumed, so a workout left open at midnight survives into the next day.
+function resume_start_utc() {
+    $start = (new DateTimeImmutable('now', new DateTimeZone('America/New_York')))->setTime(0, 0)->modify('-1 day')->setTime(0, 0);
     return $start->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
 }
 
@@ -65,8 +73,8 @@ if ($method === 'GET') {
                AND s.started_at >= ?
              ORDER BY s.started_at DESC, s.id DESC LIMIT 1'
         );
-        $today_start = today_start_utc();
-        $stmt->bind_param('is', $user_id, $today_start);
+        $resume_start = resume_start_utc();
+        $stmt->bind_param('is', $user_id, $resume_start);
         $stmt->execute();
         $row = $stmt->get_result()->fetch_assoc();
         $session = $row ? find_session($db, (int) $row['id'], $user_id) : null;
@@ -116,11 +124,13 @@ if ($day_position !== null) {
 // the week when it's loaded early in the week), and it must not hide the one started today.
 $plan_id = $plan ? (int) $plan['id'] : 0;
 $stmt = $db->prepare(
-    'SELECT id FROM workout_sessions WHERE user_id = ? AND started_at >= ? AND started_at <= UTC_TIMESTAMP()
-     AND (? = 0 OR plan_id = ?) ORDER BY started_at DESC, id DESC LIMIT 1'
+    'SELECT id FROM workout_sessions WHERE user_id = ? AND started_at <= UTC_TIMESTAMP()
+     AND ((completed_at IS NULL AND started_at >= ?) OR started_at >= ?)
+     AND (? = 0 OR plan_id = ?) ORDER BY (completed_at IS NULL) DESC, started_at DESC, id DESC LIMIT 1'
 );
+$resume_start = resume_start_utc();
 $today_start = today_start_utc();
-$stmt->bind_param('isii', $user_id, $today_start, $plan_id, $plan_id);
+$stmt->bind_param('issii', $user_id, $resume_start, $today_start, $plan_id, $plan_id);
 $stmt->execute();
 $current = $stmt->get_result()->fetch_assoc();
 if ($current) {

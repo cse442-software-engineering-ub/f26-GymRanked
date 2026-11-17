@@ -20,14 +20,13 @@ export async function startSession() {
 }
 
 // Read the signed-in user's current unfinished session without opening or creating one. This also works in
-// a fresh browser where the session was started earlier. Never rejects.
+// a fresh browser where the session was started earlier. Resolves null when there is none (or the user is logged
+// out); rejects when the lookup fails, so callers can offer Retry instead of guessing there is no workout.
 export async function fetchUnfinishedSession() {
-  try {
-    const res = await fetch(`${API_URL}?current=1`, { credentials: 'same-origin' })
-    const body = await res.json().catch(() => null)
-    const session = res.ok ? body?.session : null
-    return session && !session.completed_at ? session : null
-  } catch {
-    return null
-  }
+  const res = await fetch(`${API_URL}?current=1`, { credentials: 'same-origin' })
+  if (res.status === 401) return null
+  const body = await res.json().catch(() => null)
+  if (!res.ok || !body || !('session' in body)) throw new Error(body?.error || `HTTP ${res.status}`)
+  const session = body.session
+  return session && !session.completed_at ? session : null
 }

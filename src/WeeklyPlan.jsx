@@ -54,15 +54,27 @@ function WeeklyPlan() {
       })
   }, [])
 
-  useEffect(() => {
-    fetchUnfinishedSession().then(setUnfinished)
-  }, [])
-
+  const [unfinishedStatus, setUnfinishedStatus] = useState('loading')
   // Completed workouts, so a workout already finished today is shown as done rather than offered again.
   const [history, setHistory] = useState([])
+  const [historyStatus, setHistoryStatus] = useState('loading')
+  const [attempt, setAttempt] = useState(0)
+
   useEffect(() => {
-    workoutLogApi.getHistory().then((sessions) => setHistory(Array.isArray(sessions) ? sessions : [])).catch(() => {})
-  }, [])
+    let active = true
+    setUnfinishedStatus('loading')
+    setHistoryStatus('loading')
+    fetchUnfinishedSession()
+      .then((session) => { if (active) { setUnfinished(session); setUnfinishedStatus('ready') } })
+      .catch(() => { if (active) { setUnfinished(null); setUnfinishedStatus('error') } })
+    workoutLogApi.getHistory()
+      .then((sessions) => { if (active) { setHistory(Array.isArray(sessions) ? sessions : []); setHistoryStatus('ready') } })
+      .catch(() => { if (active) { setHistory([]); setHistoryStatus('error') } })
+    return () => { active = false }
+  }, [attempt])
+
+  // Start, Resume and View summary wait for both lookups: a failed load offers Retry instead of a second workout.
+  const workoutStatus = unfinishedStatus === 'error' || historyStatus === 'error' ? 'error' : unfinishedStatus === 'ready' && historyStatus === 'ready' ? 'ready' : 'loading'
 
   const today = new Date()
   const plan = current?.plan
@@ -140,12 +152,19 @@ function WeeklyPlan() {
                   {scheduledWorkout ? `Scheduled today: ${scheduledWorkout.name}. You're doing ${saved.session.name} instead.` : `Not a scheduled training day. You're doing ${saved.session.name}.`}
                 </p>
               )}
-              {saved?.state === 'completed' && (
+              {workoutStatus === 'error' && (
+                <div className="status status--error" role="alert">
+                  <p>Couldn't load your workout. Check your connection and try again.</p>
+                  <button type="button" onClick={() => setAttempt((value) => value + 1)}>Try again</button>
+                </div>
+              )}
+              {workoutStatus === 'loading' && <p className="status" role="status">Checking your workout…</p>}
+              {workoutStatus === 'ready' && saved?.state === 'completed' && (
                 <Link to={summaryPath(saved.session.id)} className="button-primary today-workout__action today-workout__start">
                   View workout summary ›
                 </Link>
               )}
-              {todayWorkout && saved?.state !== 'completed' && (
+              {workoutStatus === 'ready' && todayWorkout && saved?.state !== 'completed' && (
                 <button type="button" className="button-primary today-workout__action today-workout__start" onClick={() => navigate('/workout/active')}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z" />
@@ -154,7 +173,7 @@ function WeeklyPlan() {
                   <span className="workout-redesign__mobile-label">{resumable ? 'Resume workout' : 'Start workout'}</span>
                 </button>
               )}
-              {todayWorkout && resumable && (
+              {workoutStatus === 'ready' && todayWorkout && resumable && (
                 <p className="today-workout__resume" role="status">
                   {unfinishedSummary(resumable)}
                 </p>
