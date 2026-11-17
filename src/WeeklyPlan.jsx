@@ -159,7 +159,7 @@ function WeeklyPlan() {
                   {unfinishedSummary(resumable)}
                 </p>
               )}
-              <Link to={`/plans/${plan.id}`} className="today-workout__action today-workout__details">
+              <Link to={`/plans/${plan.id}`} state={{ from: '/weekly-plan' }} className="today-workout__action today-workout__details">
                 View plan details ›
               </Link>
             </section>

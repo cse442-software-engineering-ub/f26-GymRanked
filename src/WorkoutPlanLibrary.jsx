@@ -16,7 +16,7 @@ function facts(plan) {
 function PlanLink({ plan }) {
   return (
     <li>
-      <Link className="plan-lib__card" to={`/plans/${plan.id}`}>
+      <Link className="plan-lib__card" to={`/plans/${plan.id}`} state={{ from: '/plans' }}>
         <span className="plan-lib__card-title">
           {plan.name}
           <span aria-hidden="true">↗</span>
@@ -69,7 +69,7 @@ function WorkoutPlanLibrary() {
                   {currentPlan.summary && <p>{currentPlan.summary}</p>}
                   <small>{facts(currentPlan)}</small>
                 </div>
-                <Link className="plan-lib__button" to={`/plans/${currentPlan.id}`}>
+                <Link className="plan-lib__button" to={`/plans/${currentPlan.id}`} state={{ from: '/plans' }}>
                   View plan <span aria-hidden="true">→</span>
                 </Link>
               </article>
