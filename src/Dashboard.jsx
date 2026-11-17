@@ -68,7 +68,7 @@ function WeeklyGoalCard({ state, standings, plan, planReady, planError, schedule
     <div className="dashboard-weekly__next-row">
       <span className="dashboard-weekly__next-icon" aria-hidden="true"><MobileDashboardIcon name="dumbbell" /></span>
       <div><p className="dashboard-weekly__eyebrow">{inProgress ? 'Workout in progress' : 'Your next workout'}</p><strong>{inProgress ? inProgress.name : nextWorkout ? nextWorkout.name : planError ? 'Plan unavailable' : plan ? 'Rest day' : 'Choose a plan to begin'}</strong><span>{plan?.name ?? 'Your workout plan'}{nextWorkout?.duration_minutes ? ` · About ${nextWorkout.duration_minutes} min` : ''}</span></div>
-      {planError ? <button type="button" onClick={onRetry}>Try again</button> : <Link to={plan ? `/plans/${plan.id}` : '/plans'}>View plan ›</Link>}
+      {planError ? <button type="button" onClick={onRetry}>Try again</button> : <Link to={plan ? `/plans/${plan.id}` : '/plans'} state={{ from: '/dashboard' }}>View plan ›</Link>}
     </div>
     <div className="dashboard-weekly__stats" aria-label="Weekly summary">
       <div><span>Plan sessions this week</span><strong>{planSessions}</strong></div>
@@ -106,7 +106,7 @@ function TodayWorkoutCard({ plan, today, scheduledName, inProgress, completedSes
         {today && <span className="dashboard-card__meta">About {today.duration_minutes} min</span>}
       </header>
       <p className="dashboard-today__plan">
-        Current plan: <Link to={`/plans/${plan.id}`}>{plan.name}</Link>
+        Current plan: <Link to={`/plans/${plan.id}`} state={{ from: '/dashboard' }}>{plan.name}</Link>
       </p>
       {inProgress && <p className="dashboard-today__completed">In progress · saved to your account</p>}
       {today && scheduledName && scheduledName !== today.name && <p className="dashboard-card__text">Scheduled today: {scheduledName}. You're doing {today.name} instead.</p>}
@@ -368,7 +368,7 @@ function Dashboard() {
               completedSession={progress?.todaySession}
               weekLabel={weekRangeLabel(currentDate)}
               onBrowse={() => navigate('/plans')}
-              onView={() => navigate(progress?.todaySession ? summaryPath(progress.todaySession.id) : today ? `/plans/${plan.id}` : '/weekly-plan')}
+              onView={() => navigate(progress?.todaySession ? summaryPath(progress.todaySession.id) : today ? `/plans/${plan.id}` : '/weekly-plan', { state: { from: '/dashboard' } })}
             />
           )}
           {checklist.every((item) => item.done)

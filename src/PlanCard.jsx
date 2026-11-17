@@ -20,7 +20,7 @@ function PlanCard({ plan, missing = null, isCurrent, busy, canSelect, onSelect, 
       <header className="plan-card__header">
         {plan.focus && <p className="plan-card__focus">{plan.focus}</p>}
         <h3 id={headingId} className="plan-row__name">
-          <Link to={`/plans/${plan.id}`}>{plan.name}</Link>
+          <Link to={`/plans/${plan.id}`} state={{ from: '/plans' }}>{plan.name}</Link>
         </h3>
       </header>
       {plan.summary && <p className="plan-card__summary">{plan.summary}</p>}
