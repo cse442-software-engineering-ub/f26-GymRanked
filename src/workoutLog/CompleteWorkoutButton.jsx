@@ -29,6 +29,8 @@ export default function CompleteWorkoutButton({
   onLogUnlogged,
   onEndUnlogged,
   completed = false,
+  buttonLabel = 'Complete workout',
+  retryLabel = false,
   api = defaultApi,
   onCompleted,
   onSessionEnded,
@@ -111,11 +113,11 @@ export default function CompleteWorkoutButton({
   return (
     <div className="wl-complete">
       <button ref={openButton} type="button" className="wl-button wl-button--primary wl-button--wide" onClick={openConfirmation} disabled={busy}>
-        Complete workout
+        {buttonLabel}
       </button>
       {!confirming && message && <p className="wl-message wl-message--error" role="alert">{message}</p>}
       {unlogged && <UnloggedSetModal exercise={unlogged} onLog={() => onLogUnlogged?.(unlogged)} onEnd={endWithoutUnlogged} onCancel={() => setUnlogged(null)} />}
-      {confirming && <ConfirmWorkoutModal busy={busy} error={message} onConfirm={complete} onCancel={cancelConfirmation} />}
+      {confirming && <ConfirmWorkoutModal busy={busy} error={message} retryLabel={retryLabel} onConfirm={complete} onCancel={cancelConfirmation} />}
     </div>
   )
 }
