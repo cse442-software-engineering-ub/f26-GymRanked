@@ -264,7 +264,7 @@
   color: var(--gr-text-muted);
 }
 
-.workout-summary__weight-pr {
+.workout-summary__pr-label {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -275,7 +275,8 @@
   white-space: nowrap;
 }
 
-.workout-summary__weight-pr svg { width: 15px; height: 15px; }
+.workout-summary__pr-label svg { width: 15px; height: 15px; }
+.workout-summary__baseline { display: inline-block; margin-left: 10px; color: var(--gr-text-muted); font-size: 12px; font-weight: 600; white-space: nowrap; }
 .workout-summary__comparison-status { color: var(--gr-text-soft); font-size: 13px; }
 .workout-summary__comparison-status button { padding: 0; border: 0; background: none; color: var(--gr-action-text); font: inherit; text-decoration: underline; cursor: pointer; }
 
@@ -476,7 +477,7 @@
 
   .workout-summary__highlights tbody tr {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
     padding: 14px 0;
     border-bottom: 1px solid var(--gr-border-strong);
   }
@@ -505,7 +506,8 @@
     font-weight: 400;
   }
 
-  .workout-summary__highlights tbody td[data-label='']::before { content: none; }
+  .workout-summary__highlights tbody td { margin-top: 4px; }
+  .workout-summary__highlights tbody td[data-label=''] { display: none; }
 
   .workout-summary__actions {
     flex-direction: column;

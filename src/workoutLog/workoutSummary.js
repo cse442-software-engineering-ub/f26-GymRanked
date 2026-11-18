@@ -34,8 +34,10 @@ function formatSet(set) {
   return `${set.weight_lb === 0 ? 'Bodyweight' : formatVolume(set.weight_lb)} × ${set.reps}`
 }
 
-export function displaySummary(session, comparisons = null) {
+export function displaySummary(session, records = null) {
   if (!session?.completed_at || !session.summary) return null
+
+  const recordsByExercise = new Map((Array.isArray(records?.exercises) ? records.exercises : []).map((item) => [item.exercise, item]))
 
   return {
     workoutName: session.name,
@@ -45,15 +47,16 @@ export function displaySummary(session, comparisons = null) {
     setsCompleted: session.summary.set_count,
     exerciseCount: session.summary.exercise_count,
     totalReps: session.summary.total_reps,
+    newPrs: records?.new_pr_count ?? null,
     highlights: (session.exercises || []).flatMap(({ name, sets }) => {
       if (!sets?.length) return []
-      const strongest = topSet(sets)
-      const previous = comparisons?.[name]
+      const record = recordsByExercise.get(name)
       return [{
         exercise: name,
-        topSet: formatSet(strongest),
-        versusLast: formatSet(previous?.last_set),
-        isPr: Boolean(previous && (previous.best_weight_lb === null || strongest.weight_lb > previous.best_weight_lb)),
+        topSet: formatSet(record?.top_set ?? topSet(sets)),
+        versusLast: formatSet(record?.previous),
+        isBaseline: record?.is_baseline === true,
+        prLabel: record?.is_pr && !record?.is_baseline ? record.metric === 'reps' ? 'Rep PR' : 'Weight PR' : '',
       }]
     }),
   }
