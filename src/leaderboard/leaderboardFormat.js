@@ -92,3 +92,10 @@ export function notOnBoardText(me, board) {
   const missing = LIFTS.filter(({ key: liftKey }) => me.lifts?.[liftKey] == null).map((item) => `a ${item.lift}`)
   return `Overall needs all three lifts. Log ${listWithAnd(missing)} to get on it.`
 }
+
+// The api/leaderboard.php path for a board and scope. The Buddies Overall board is exactly "leaderboard.php?scope=buddies"
+// (the server's default board is overall), the same URL Rankings and the Dashboard both request (card 138, Test 9).
+export function leaderboardPath(board, scope = 'everyone') {
+  if (scope === 'buddies') return board === 'overall' ? 'leaderboard.php?scope=buddies' : `leaderboard.php?board=${encodeURIComponent(board)}&scope=buddies`
+  return `leaderboard.php?board=${encodeURIComponent(board)}`
+}

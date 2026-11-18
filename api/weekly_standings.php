@@ -31,8 +31,11 @@
 // - now is the server's time so the page's countdown doesn't depend on the phone's clock; resets_at is next Monday
 //   00:00 New York time in UTC (see weekly_standings_time.php).
 //
-// - scope=buddies (GET only) keeps only the caller's workout buddies group (api/ranking_scope.php): the circle is then
-//   the ranked buddies with the viewer's target, and member_count and rank are among them. The default is everyone.
+// - scope=buddies (GET only, card #138) keeps only the caller's own workout buddies group (api/ranking_scope.php), by the
+//   same rules except that is_test is not applied. rows, member_count and rank are among the ranked buddies with the
+//   viewer's target, and the response adds "group" ({name, member_count} or null), "unranked" ([{"name":"Cal M."}], the
+//   group members who are not ranked this week, names only) and "goals" ([{target_days, rows}], one table per weekly goal
+//   in the group, smallest first). me.reason is no_group for a caller in no group. The default, everyone, has none of them.
 //
 // 400 {"error":"Invalid request.","errors":{"join":"Use true."}} (or {"scope":"Use everyone or buddies."}) for a POST body that isn't {"join": true}, 401 not
 // logged in, 405 with Allow: GET, POST, DELETE, 415/413/403 as the other POST endpoints, 500 {"error":"Database error"}.
@@ -70,6 +73,9 @@ if ($method === 'POST') {
 $scope = $method === 'GET' ? ranking_scope_param() : 'everyone';
 $db = database();
 $user_id = workout_user_id($db);
+$buddies = $scope === 'buddies';
+$group = $buddies ? ranking_group($db, $user_id) : null;
+$group_ids = $group ? $group['ids'] : [];
 $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 [$week_start, $next_start] = standings_week($now);
 
@@ -100,7 +106,7 @@ $people = [];
 $stmt = $db->prepare(
     'SELECT u.id, u.full_name, u.is_test, c.ranked_from
      FROM users u LEFT JOIN user_weekly_competition c ON c.user_id = u.id
-     WHERE u.id = ? OR c.user_id IS NOT NULL'
+     WHERE u.id = ? OR c.user_id IS NOT NULL' . ($group_ids ? ' OR u.id IN (' . implode(',', $group_ids) . ')' : '')
 );
 $stmt->bind_param('i', $user_id);
 $stmt->execute();
@@ -143,22 +149,25 @@ foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
     $people[(int) $row['user_id']]['dates'][$date] = true;
 }
 
-// scope=buddies: only the caller's buddies group (the caller is always kept).
-$scope_ids = ranking_scope_ids($db, $user_id, $scope);
-if ($scope_ids !== null) $people = array_intersect_key($people, $scope_ids);
+// scope=buddies: only the caller's own group (api/ranking_scope.php), whose members are chosen by the group itself, so the
+// test-account rule does not apply. A caller in no group is the only person kept and is never ranked.
+$no_group = $buddies && $group === null;
+if ($buddies) {
+    $people = array_intersect_key($people, array_flip($group_ids) + [$user_id => true]);
+    foreach ($people as &$person) $person['is_test'] = false;
+    unset($person);
+}
 
 foreach ($people as &$person) {
     $person['completed'] = count($person['dates']);
     $person['days'] = min($person['completed'], $person['target']);
     $person['percent'] = (int) round($person['days'] * 100 / $person['target']);
-    $person['ranked'] = !$person['is_test'] && $person['ranked_from'] !== null && $person['ranked_from'] <= $week;
+    $person['ranked'] = !$no_group && !$person['is_test'] && $person['ranked_from'] !== null && $person['ranked_from'] <= $week;
 }
 unset($person);
 
 $me = $people[$user_id];
-$circle = array_values(array_filter($people, fn($p) => $p['ranked'] && $p['target'] === $me['target']));
-usort($circle, fn($a, $b) => $b['days'] <=> $a['days']
-    ?: strcasecmp($a['name'], $b['name']) ?: strcmp($a['name'], $b['name']) ?: $a['id'] <=> $b['id']);
+$ranked_people = array_values(array_filter($people, fn($p) => $p['ranked']));
 
 // "Ana Cole" -> "Ana C.", "Sean O'Brien" -> "Sean O."; a one-word name stays as it is (as in api/leaderboard.php).
 function short_name($full_name) {
@@ -167,23 +176,45 @@ function short_name($full_name) {
     return $parts[0] . ' ' . mb_strtoupper(mb_substr($parts[count($parts) - 1], 0, 1)) . '.';
 }
 
-$rows = [];
-$my_rank = null;
-foreach ($circle as $i => $person) {
-    $rank = ($i > 0 && $circle[$i - 1]['days'] === $person['days']) ? $rows[$i - 1]['rank'] : $i + 1;
-    $is_me = $person['id'] === $user_id;
-    if ($is_me) $my_rank = $rank;
-    $rows[] = [
-        'rank' => $rank,
-        'name' => short_name($person['name']),
-        'progress_days' => $person['days'],
-        'progress_percent' => $person['percent'],
-        'is_me' => $is_me,
-        'gap_before' => false,
-    ];
+// One goal's table: most days first, ties sharing a rank with the next rank skipped, tied people by full name A to Z then id.
+function standings_rows($circle, $user_id) {
+    usort($circle, fn($a, $b) => $b['days'] <=> $a['days']
+        ?: strcasecmp($a['name'], $b['name']) ?: strcmp($a['name'], $b['name']) ?: $a['id'] <=> $b['id']);
+    $rows = [];
+    foreach ($circle as $i => $person) {
+        $rows[] = [
+            'rank' => ($i > 0 && $circle[$i - 1]['days'] === $person['days']) ? $rows[$i - 1]['rank'] : $i + 1,
+            'name' => short_name($person['name']),
+            'progress_days' => $person['days'],
+            'progress_percent' => $person['percent'],
+            'is_me' => $person['id'] === $user_id,
+            'gap_before' => false,
+        ];
+    }
+    return $rows;
 }
 
-$reason = $me['is_test'] ? 'test_account' : ($me['ranked_from'] === null ? 'not_joined' : (!$me['ranked'] ? 'practice_week' : null));
+// The circle is the people with the viewer's target_days who are ranked this week.
+$rows = standings_rows(array_filter($ranked_people, fn($p) => $p['target'] === $me['target']), $user_id);
+$my_rank = null;
+foreach ($rows as $row) if ($row['is_me']) $my_rank = $row['rank'];
+
+$reason = $no_group ? 'no_group' : ($me['is_test'] ? 'test_account' : ($me['ranked_from'] === null ? 'not_joined' : (!$me['ranked'] ? 'practice_week' : null)));
+$buddy_keys = [];
+if ($buddies) {
+    // One table per weekly goal in the group, smallest target first; rows above is the viewer's own goal's table.
+    $targets = array_unique(array_column($ranked_people, 'target'));
+    sort($targets);
+    $goals = [];
+    foreach ($targets as $target) {
+        $goals[] = ['target_days' => $target, 'rows' => standings_rows(array_filter($ranked_people, fn($p) => $p['target'] === $target), $user_id)];
+    }
+    $buddy_keys = [
+        'group' => ranking_group_json($group),
+        'unranked' => $no_group ? [] : ranking_unranked_json(array_filter($people, fn($p) => !$p['ranked'])),
+        'goals' => $goals,
+    ];
+}
 respond(200, [
     'time_zone' => STANDINGS_TIME_ZONE,
     'week_start' => $week,
@@ -204,4 +235,4 @@ respond(200, [
         'progress_percent' => $me['percent'],
         'goal_reached' => $me['completed'] >= $me['target'],
     ],
-]);
+] + $buddy_keys);

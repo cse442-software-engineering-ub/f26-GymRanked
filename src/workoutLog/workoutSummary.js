@@ -21,21 +21,43 @@ export function topSet(sets) {
   }, null)
 }
 
-export function displaySummary(session) {
+export function formatCompletedDate(value) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return new Intl.DateTimeFormat('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/New_York',
+  }).format(date)
+}
+
+function formatSet(set) {
+  if (!set) return ''
+  return `${set.weight_lb === 0 ? 'Bodyweight' : formatVolume(set.weight_lb)} × ${set.reps}`
+}
+
+export function displaySummary(session, records = null) {
   if (!session?.completed_at || !session.summary) return null
+
+  const recordsByExercise = new Map((Array.isArray(records?.exercises) ? records.exercises : []).map((item) => [item.exercise, item]))
 
   return {
     workoutName: session.name,
+    completedDate: formatCompletedDate(session.completed_at),
     duration: formatDuration(session.summary.duration_seconds),
     totalVolume: formatVolume(session.summary.total_volume_lb),
     setsCompleted: session.summary.set_count,
     exerciseCount: session.summary.exercise_count,
     totalReps: session.summary.total_reps,
+    newPrs: records?.new_pr_count ?? null,
     highlights: (session.exercises || []).flatMap(({ name, sets }) => {
       if (!sets?.length) return []
-      const strongest = topSet(sets)
-      const weight = strongest.weight_lb === 0 ? 'Bodyweight' : formatVolume(strongest.weight_lb)
-      return [{ exercise: name, topSet: `${weight} × ${strongest.reps}`, setCount: sets.length }]
+      const record = recordsByExercise.get(name)
+      return [{
+        exercise: name,
+        topSet: formatSet(record?.top_set ?? topSet(sets)),
+        versusLast: formatSet(record?.previous),
+        isBaseline: record?.is_baseline === true,
+        prLabel: record?.is_pr && !record?.is_baseline ? record.metric === 'reps' ? 'Rep PR' : 'Weight PR' : '',
+      }]
     }),
   }
 }

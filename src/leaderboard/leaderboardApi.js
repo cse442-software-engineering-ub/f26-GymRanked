@@ -7,11 +7,12 @@
 // scoring_table, lifts {bench, squat, deadlift} (e1RM lb or null), workouts_done, reason (null when ranked)}.
 // Every function resolves to apiRequest's {ok, status, data}; it never throws.
 import { apiRequest } from '../onboarding/api.js'
+import { leaderboardPath } from './leaderboardFormat.js'
 
-// scope 'buddies' ranks only your workout buddies group (the Dashboard's rankings filter); the default is everyone.
+// scope 'buddies' ranks only your workout buddies group; the default is everyone.
+// The only way the app requests leaderboard.php's GET: the Dashboard and the Rankings page both call this, so they get identical URLs.
 export function getLeaderboard(board, scope = 'everyone') {
-  const query = `board=${encodeURIComponent(board)}${scope === 'buddies' ? '&scope=buddies' : ''}`
-  return apiRequest(`leaderboard.php?${query}`)
+  return apiRequest(leaderboardPath(board, scope))
 }
 
 export function joinLeaderboard(scoringTable) {

@@ -82,6 +82,7 @@ function Dashboard() {
   const [weeklyState, setWeeklyState] = useState({ status: 'loading', data: null })
   const [buddyState, setBuddyState] = useState({ status: 'loading', data: null })
   const [unfinished, setUnfinished] = useState(null)
+  const [unfinishedStatus, setUnfinishedStatus] = useState('loading')
 
   useEffect(() => {
     let active = true
@@ -89,7 +90,10 @@ function Dashboard() {
     setBuddyState({ status: 'loading', data: null })
     apiRequest('weekly_goal.php').then((result) => { if (active) setWeeklyState({ status: result.ok ? 'ready' : 'error', data: result.ok ? result.data : null }) })
     getBuddyGroup().then((result) => { if (active) setBuddyState({ status: result.ok ? 'ready' : 'error', data: result.ok ? result.data : null }) })
-    fetchUnfinishedSession().then((session) => { if (active) setUnfinished(session) })
+    setUnfinishedStatus('loading')
+    fetchUnfinishedSession()
+      .then((session) => { if (active) { setUnfinished(session); setUnfinishedStatus('ready') } })
+      .catch(() => { if (active) { setUnfinished(null); setUnfinishedStatus('error') } })
     return () => { active = false }
   }, [loadAttempt])
 
@@ -146,6 +150,9 @@ function Dashboard() {
   const todayDate = easternDate(currentDate)
   const schedule = plan ? buildWeek(plan, currentDate) : []
   const scheduledToday = schedule.find((day) => day.when === 'today')?.workout ?? null
+  // Start, Resume and View summary are offered only once both the unfinished workout and the history have loaded,
+  // so a failed load can't let the lifter start a second workout.
+  const workoutStatus = historyState.status === 'error' || unfinishedStatus === 'error' ? 'error' : historyState.status === 'ready' && unfinishedStatus === 'ready' ? 'ready' : 'loading'
   // What is actually saved today wins over the weekday schedule, so the hero names the workout Today opens.
   const saved = todaySessionState(historyState.sessions, unfinished, plan, todayDate)
   const savedDay = saved ? plan?.days?.find((day) => day.name === saved.session.name) ?? { name: saved.session.name } : null
@@ -217,6 +224,7 @@ function Dashboard() {
             completedSession={saved?.state === 'completed' ? saved.session : null}
             next={next}
             errorText={planError}
+            workoutStatus={workoutStatus}
             onStart={() => navigate('/workout/active')}
             onRetry={retry}
           />

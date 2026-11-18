@@ -52,6 +52,7 @@ export function saveDraft(sessionId, exercise, draft) {
 // True while a set has been started or has weight or reps typed but isn't logged yet. A draft that only holds a
 // rest countdown (the set was just logged) is not an unlogged set.
 export function hasUnloggedSet(draft) {
+  if (draft.timer === 'ended' && draft.restEndsAt && draft.weight.trim() === '' && draft.reps.trim() === '') return false
   return draft.timer !== 'idle' || draft.weight.trim() !== '' || draft.reps.trim() !== ''
 }
 

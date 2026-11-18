@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import BackLink from './BackLink.jsx'
 import BodyFigure from './BodyFigure.jsx'
 import PlanEquipmentDot from './PlanEquipmentDot.jsx'
@@ -12,6 +12,14 @@ import usePlanSelection from './usePlanSelection.jsx'
 
 function PlanDetails() {
   const { id } = useParams()
+  const location = useLocation()
+  const returnPages = {
+    '/plans': 'plan library',
+    '/weekly-plan': 'workouts',
+    '/dashboard': 'dashboard',
+    '/recommended': 'recommended plans',
+  }
+  const returnPath = Object.hasOwn(returnPages, location.state?.from) ? location.state.from : '/plans'
   const [plan, setPlan] = useState(null)
   const [error, setError] = useState(null)
   const selection = usePlanSelection()
@@ -28,7 +36,7 @@ function PlanDetails() {
   return (
     <div className="plan-library">
       <main className="plan-details">
-        <BackLink to="/plans">Back to plan library</BackLink>
+        <BackLink to={returnPath}>Back to {returnPages[returnPath]}</BackLink>
         <PlanSelectionStatus loggedOut={selection.loggedOut} notice={selection.notice} />
         {error && <p className="status">Error loading plan: {error}</p>}
         {!error && plan === null && <p className="status">Loading plan...</p>}

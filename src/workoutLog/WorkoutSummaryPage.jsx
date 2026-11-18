@@ -9,16 +9,17 @@ import './workoutSummary.css'
 // Sample content for the design preview only. Real sessions never display these example numbers.
 const PREVIEW_SUMMARY = {
   workoutName: 'Push day',
+  completedDate: 'Friday, November 13, 2026',
   duration: '52 min 14 sec',
   totalVolume: '18,420 lb',
   setsCompleted: 21,
   exerciseCount: 5,
   newPrs: 2,
   highlights: [
-    { exercise: 'Bench press', topSet: '185 lb × 5', versusLast: '+5 lb', improved: true },
-    { exercise: 'Incline dumbbell press', topSet: '70 lb × 8', versusLast: 'PR', improved: true },
-    { exercise: 'Cable fly', topSet: '40 lb × 12', versusLast: '—' },
-    { exercise: 'Tricep pushdown', topSet: '55 lb × 12', versusLast: 'PR', improved: true },
+    { exercise: 'Bench press', topSet: '185 lb × 5', versusLast: '180 lb × 6', prLabel: 'Weight PR' },
+    { exercise: 'Incline dumbbell press', topSet: '70 lb × 8', versusLast: '', isBaseline: true },
+    { exercise: 'Cable fly', topSet: '40 lb × 12', versusLast: '45 lb × 10', prLabel: '' },
+    { exercise: 'Tricep pushdown', topSet: '55 lb × 12', versusLast: '50 lb × 10', prLabel: 'Weight PR' },
   ],
 }
 const PREVIEW_WEEKLY = {
@@ -63,6 +64,8 @@ export default function WorkoutSummaryPage({ preview = false }) {
   const [state, setState] = useState({ status: preview ? 'ready' : 'loading' })
   const [weeklyAttempt, setWeeklyAttempt] = useState(0)
   const [weeklyState, setWeeklyState] = useState({ status: 'loading' })
+  const [recordsAttempt, setRecordsAttempt] = useState(0)
+  const [recordsState, setRecordsState] = useState({ status: 'loading' })
 
   useEffect(() => {
     if (preview) return undefined
@@ -95,11 +98,24 @@ export default function WorkoutSummaryPage({ preview = false }) {
     return () => { active = false }
   }, [preview, state.status, state.session?.id, state.session?.completed_at, weeklyAttempt])
 
-  const summary = preview ? PREVIEW_SUMMARY : displaySummary(state.session)
+  useEffect(() => {
+    if (preview || state.status !== 'ready' || !state.session.completed_at) return undefined
+    let active = true
+    setRecordsState({ status: 'loading', sessionId: state.session.id })
+    workoutLogApi.getWorkoutRecords(state.session.id).then((data) => {
+      if (active) setRecordsState({ status: 'ready', sessionId: state.session.id, records: data })
+    }).catch(() => {
+      if (active) setRecordsState({ status: 'error', sessionId: state.session.id })
+    })
+    return () => { active = false }
+  }, [preview, state.status, state.session?.id, state.session?.completed_at, recordsAttempt])
+
+  const matchingRecords = recordsState.sessionId === state.session?.id ? recordsState : { status: 'loading' }
+  const summary = preview ? PREVIEW_SUMMARY : displaySummary(state.session, matchingRecords.status === 'ready' ? matchingRecords.records : null)
   const highlights = Array.isArray(summary?.highlights) ? summary.highlights : []
 
   async function shareSummary() {
-    const text = `${preview ? 'Sample GymRank workout: ' : 'GymRank workout: '}${summary.workoutName} · ${summary.duration} · ${summary.totalVolume} total volume · ${summary.setsCompleted} sets${preview ? ` · ${summary.newPrs} new PRs` : ''}`
+    const text = `${preview ? 'Sample GymRank workout: ' : 'GymRank workout: '}${summary.workoutName} · ${summary.duration} · ${summary.totalVolume} total volume · ${summary.setsCompleted} sets${summary.newPrs === null ? '' : ` · ${summary.newPrs} new PRs`}`
     try {
       if (navigator.share) {
         await navigator.share({ title: 'GymRank workout summary', text })
@@ -141,8 +157,8 @@ export default function WorkoutSummaryPage({ preview = false }) {
                 <div className="workout-summary__headline">
                   <span className="workout-summary__check"><SummaryIcon name="check" /></span>
                   <div>
-                    <h1 id="workout-summary-title">Workout complete</h1>
-                    <p>{summary.workoutName} <span aria-hidden="true">·</span> {summary.duration}</p>
+                    <h1 id="workout-summary-title">Workout complete - {summary.workoutName}</h1>
+                    <p>{summary.duration} <span aria-hidden="true">·</span> {summary.completedDate}</p>
                   </div>
                 </div>
               </div>
@@ -158,7 +174,7 @@ export default function WorkoutSummaryPage({ preview = false }) {
               <Metric label="Total volume" value={summary.totalVolume} icon="volume" />
               <Metric label="Sets completed" value={summary.setsCompleted} icon="sets" />
               <Metric label="Exercises" value={summary.exerciseCount} icon="dumbbell" />
-              {preview ? <Metric label="New PRs" value={summary.newPrs} icon="trophy" accent /> : <Metric label="Total reps" value={summary.totalReps} icon="list" />}
+              <Metric label="New PRs" value={summary.newPrs ?? '—'} icon="trophy" accent />
             </section>
 
             <WorkoutWeeklyFeedback state={preview ? PREVIEW_WEEKLY : weeklyState} completedAt={preview ? '2026-11-13T18:00:00Z' : state.session.completed_at} onRetry={() => setWeeklyAttempt((value) => value + 1)} />
@@ -166,17 +182,19 @@ export default function WorkoutSummaryPage({ preview = false }) {
             <section className="workout-summary__highlights" aria-labelledby="workout-summary-highlights">
               <header className="workout-summary__section-heading">
                 <SummaryIcon name="list" />
-                <div><h2 id="workout-summary-highlights">Session highlights</h2><p>{preview ? 'Your strongest sets and progress from last time.' : 'Your top logged set for each exercise.'}</p></div>
+                <div><h2 id="workout-summary-highlights">Session highlights</h2><p>Your top logged set for each exercise and its most recent prior top set.</p></div>
               </header>
+              {!preview && matchingRecords.status === 'loading' && <p className="workout-summary__comparison-status" role="status">Loading records…</p>}
+              {!preview && matchingRecords.status === 'error' && <p className="workout-summary__comparison-status" role="alert">Records are unavailable. <button type="button" onClick={() => setRecordsAttempt((value) => value + 1)}>Try again</button></p>}
               {highlights.length > 0 ? (
                 <table>
-                  <thead><tr><th scope="col">Exercise</th><th scope="col">Top set</th><th scope="col">{preview ? 'Vs last' : 'Sets logged'}</th></tr></thead>
+                  <thead><tr><th scope="col">Exercise</th><th scope="col">Top set</th><th scope="col">Vs last</th></tr></thead>
                   <tbody>
                     {highlights.map((item) => (
                       <tr key={item.exercise}>
                         <th scope="row"><SummaryIcon name="dumbbell" />{item.exercise}</th>
-                        <td data-label="Top set">{item.topSet}</td>
-                        {preview ? <td data-label="Vs last" className={item.improved ? 'workout-summary__improved' : 'workout-summary__no-change'}>{item.versusLast}</td> : <td data-label="Sets logged">{item.setCount}</td>}
+                        <td data-label="Top set">{item.topSet}{item.prLabel && <span className="workout-summary__pr-label"><SummaryIcon name="trophy" /> {item.prLabel}</span>}{item.isBaseline && <span className="workout-summary__baseline">First result</span>}</td>
+                        <td data-label={item.versusLast ? 'Vs last' : ''} className={item.versusLast ? '' : 'workout-summary__no-change'}>{item.versusLast}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -186,8 +204,12 @@ export default function WorkoutSummaryPage({ preview = false }) {
 
             <div className="workout-summary__actions">
               <button type="button" className="workout-summary__primary" onClick={() => navigate('/dashboard')}>Return to dashboard <SummaryIcon name="arrow" /></button>
+              <Link className="workout-summary__secondary" to="/progress/history"><SummaryIcon name="list" /> Workout history</Link>
               <button type="button" className="workout-summary__secondary" onClick={shareSummary}><SummaryIcon name="share" /> Share summary</button>
             </div>
+            <nav className="workout-summary__mobile-links" aria-label="More workout results">
+              <Link to="/progress">View progress →</Link>
+            </nav>
             {shareStatus && <p className="workout-summary__share-status" role="status">{shareStatus}</p>}
           </>
         )}

@@ -9,7 +9,8 @@
 // Every function resolves to apiRequest's {ok, status, data}; it never throws.
 import { apiRequest } from '../onboarding/api.js'
 
-// scope 'buddies' ranks only your workout buddies group (the Dashboard's rankings filter); the default is everyone.
+// scope 'buddies' ranks only your workout buddies group; the default is everyone.
+// The only way the app requests weekly_standings.php's GET: the Dashboard and the Rankings page both call this, so they get identical URLs.
 export function getWeeklyStandings(scope = 'everyone') {
   return apiRequest(scope === 'buddies' ? 'weekly_standings.php?scope=buddies' : 'weekly_standings.php')
 }

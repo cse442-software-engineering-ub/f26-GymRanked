@@ -74,9 +74,16 @@ const STRENGTH_REASONS = {
   missing_lifts: 'Log all three lifts',
 }
 
+// A Buddies response for someone in no group (api/ranking_scope.php): group is null and me.reason is no_group. The
+// Everyone scope has no group key at all, so only an explicit null counts. Rows are never read, so a Buddies list that
+// leaves the caller out is fine.
+const NO_GROUP = { rank: '—', detail: 'Join a buddies group' }
+const inNoGroup = (data) => data?.group === null || data?.me?.reason === 'no_group'
+
 // The "Overall strength" row: {rank: '#32', detail: '131.97 DOTS'} when ranked, else a dash and the reason.
 export function strengthRow(data) {
   const me = data?.me
+  if (inNoGroup(data)) return NO_GROUP
   if (!me) return { rank: '—', detail: 'Unavailable' }
   if (me.ranked) return { rank: `#${me.rank}`, detail: `${Number(me.score).toFixed(2)} DOTS` }
   if (me.reason === 'too_few_workouts') {
@@ -89,6 +96,7 @@ export function strengthRow(data) {
 const WEEKLY_REASONS = { practice_week: 'Practice week', not_joined: 'Not joined', test_account: 'Test account' }
 export function weeklyRow(data) {
   const me = data?.me
+  if (inNoGroup(data)) return NO_GROUP
   if (!me) return { rank: '—', detail: 'Unavailable' }
   const circle = `The ${data.target_days}-day circle`
   if (me.rank != null) return { rank: `#${me.rank}`, detail: circle }
