@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import MobileDashboardIcon from '../MobileDashboardIcon.jsx'
 import AppMenu, { MenuBrand } from './AppMenu.jsx'
 
@@ -13,6 +14,7 @@ function PhoneMenu({ userName, onChoose, onLogout, logoutBusy, logoutError }) {
   const [open, setOpen] = useState(false)
   const dialog = useRef(null)
   const closeButton = useRef(null)
+  const location = useLocation()
 
   function openMenu() {
     if (!dialog.current || dialog.current.open) return
@@ -34,6 +36,12 @@ function PhoneMenu({ userName, onChoose, onLogout, logoutBusy, logoutError }) {
     element.addEventListener('close', onClose)
     return () => element.removeEventListener('close', onClose)
   }, [])
+
+  // Any change of page closes the menu, including the browser's Back and Forward buttons, which don't go through
+  // choose() (card #133: Back with the menu open used to leave it open over the previous page).
+  useEffect(() => {
+    closeMenu()
+  }, [location.key])
 
   // Turning a tablet or widening the window brings the sidebar back, so the open menu closes by itself.
   useEffect(() => {
