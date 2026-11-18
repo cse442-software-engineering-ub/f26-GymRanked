@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import MobileDashboardIcon from '../MobileDashboardIcon.jsx'
 import { getLeaderboard } from '../leaderboard/leaderboardApi.js'
+import { rankingHref } from '../leaderboard/rankingScope.js'
 import { getWeeklyStandings } from '../weekly/weeklyApi.js'
 import { strengthRow, weeklyRow } from './dashboardFormat.js'
 
@@ -28,9 +29,11 @@ export default function RankingsPanel({ hasGroup, attempt }) {
     return () => { active = false }
   }, [scope, needsGroup, waiting, attempt, retry])
 
+  // Each row opens its board with the same audience, so Buddies here opens the Buddies board (card 139); Strength opens
+  // on Overall, the board this row ranks.
   const rows = [
-    { key: 'weekly', title: 'Weekly consistency', to: '/leaderboard/weekly', ...weeklyRow(state.weekly) },
-    { key: 'strength', title: 'Overall strength', to: '/leaderboard', ...strengthRow(state.strength) },
+    { key: 'weekly', title: 'Weekly consistency', to: rankingHref('/leaderboard/weekly', { scope }), ...weeklyRow(state.weekly) },
+    { key: 'strength', title: 'Overall strength', to: rankingHref('/leaderboard', { scope }), ...strengthRow(state.strength) },
   ]
   return (
     <section className="home-rankings" aria-labelledby="home-rankings-title">

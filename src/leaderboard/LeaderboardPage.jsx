@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { authRequest } from '../auth/api.js'
 import BoardList from './BoardList.jsx'
+import { NoGroup } from './BuddiesParts.jsx'
 import LeaderboardSwitch from './LeaderboardSwitch.jsx'
+import ScopeSwitch from './ScopeSwitch.jsx'
 import YourStanding from './YourStanding.jsx'
 import { getLeaderboard, joinLeaderboard, leaveLeaderboard } from './leaderboardApi.js'
 import { BOARDS, boardByKey } from './leaderboardFormat.js'
+import { rankingParams, scopeFrom } from './rankingScope.js'
 import './leaderboard.css'
 
 const ACTION_ERRORS = {
@@ -16,11 +19,13 @@ const ACTION_ERRORS = {
 
 // Story #10: all-time DOTS boards for Overall and the three lifts, your own place on them, and how to get ranked
 // (research task 113 updated for DOTS, card 120). Every number comes from api/leaderboard.php; the board is in the
-// address (#/leaderboard?board=bench) so a refresh keeps it.
+// address (#/leaderboard?board=bench) so a refresh keeps it. Card 139 adds Everyone | Buddies: &scope=buddies ranks
+// only your own buddies group, and the address keeps that choice too (src/leaderboard/rankingScope.js).
 function LeaderboardPage() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const board = boardByKey(searchParams.get('board')).key
+  const scope = scopeFrom(searchParams.get('scope'))
   const [attempt, setAttempt] = useState(0)
   // The latest answer, for one board and attempt. While another board loads, the last one stays on screen (dimmed),
   // so the page keeps its height and the scroll position instead of jumping to the top.
@@ -38,22 +43,29 @@ function LeaderboardPage() {
     return () => { active = false }
   }, [])
 
-  const key = `${board}:${attempt}`
+  const key = `${board}:${scope}:${attempt}`
 
   useEffect(() => {
     let active = true
-    getLeaderboard(board).then((response) => {
+    getLeaderboard(board, scope).then((response) => {
       if (!active) return
       if (response.status === 401) navigate('/login', { replace: true })
       else setResult({ key, status: response.ok ? 'ready' : 'error', data: response.ok ? response.data : null })
     })
     return () => { active = false }
-  }, [key, board, navigate])
+  }, [key, board, scope, navigate])
 
   function chooseBoard(next) {
     setNotice('')
     setActionError(null)
-    setSearchParams({ board: next })
+    setSearchParams(rankingParams({ board: next, scope }))
+  }
+
+  // Everyone or Buddies, keeping the lift that is open.
+  function chooseScope(next) {
+    setNotice('')
+    setActionError(null)
+    setSearchParams(rankingParams({ board: searchParams.get('board') ?? undefined, scope: next }))
   }
 
   // Join, leave or change the scoring table, then reload this board in place (no loading flash). Resolves to
@@ -73,7 +85,7 @@ function LeaderboardPage() {
       setActionError(action)
       return false
     }
-    const fresh = await getLeaderboard(board)
+    const fresh = await getLeaderboard(board, scope)
     setResult({ key, status: fresh.ok ? 'ready' : 'error', data: fresh.ok ? fresh.data : null })
     if (action === 'leave') setNotice("You've left the leaderboard. Your workouts are kept.")
     setBusy(null)
@@ -84,11 +96,14 @@ function LeaderboardPage() {
   // 'updating': another board is on its way and the last one is still shown.
   const status = current ? result.status : result.status === 'ready' ? 'updating' : 'loading'
   const data = result.status === 'ready' && (current || status === 'updating') ? result.data : null
+  // Only a Buddies answer has "group" (null without a group). Read from the answer, not the address, so a Buddies
+  // board still on screen while Everyone loads keeps its own labels.
+  const buddies = Boolean(data) && 'group' in data
 
   return (
     <div className="leaderboard-page">
       <main className="leaderboard-page__content" aria-busy={status === 'loading' || status === 'updating'}>
-        <LeaderboardSwitch />
+        <LeaderboardSwitch scope={scope} />
         <div className="leaderboard-page__heading">
           <h1>Leaderboard</h1>
           <p>All-time DOTS points from finished workouts. Each lift uses your best estimated 1RM from sets of 1 to 10 reps. Overall adds the three together.</p>
@@ -104,6 +119,7 @@ function LeaderboardPage() {
             board={data.board}
             rankedCount={data.ranked_count}
             fullName={fullName}
+            buddies={buddies}
             busy={busy}
             error={actionError && ACTION_ERRORS[actionError]}
             errorFor={actionError}
@@ -115,10 +131,7 @@ function LeaderboardPage() {
 
         {/* The board card: who to compare with, the lift tabs, then the rows (research frame D1). */}
         <section className={status === 'updating' ? 'leaderboard-board is-updating' : 'leaderboard-board'} aria-label="Rankings">
-          <div className="leaderboard-scope" role="group" aria-label="Compare with">
-            <button type="button" aria-pressed="true">Everyone</button>
-            <button type="button" aria-pressed="false" disabled>Friends <span className="leaderboard-later">Later</span></button>
-          </div>
+          <ScopeSwitch scope={scope} onChange={chooseScope} />
           <div className="leaderboard-tabs" role="group" aria-label="Board">
             {BOARDS.map((item) => (
               <button key={item.key} type="button" aria-label={item.label} aria-pressed={board === item.key}
@@ -138,7 +151,10 @@ function LeaderboardPage() {
             </div>
           )}
 
-          {data && <BoardList rows={data.rows} board={data.board} rankedCount={data.ranked_count} />}
+          {data && (buddies && data.group === null ? <NoGroup /> : (
+            <BoardList rows={data.rows} board={data.board} rankedCount={data.ranked_count}
+              group={buddies ? data.group : null} unranked={buddies ? data.unranked : []} />
+          ))}
         </section>
       </main>
     </div>
