@@ -78,9 +78,11 @@ export function rankSteps(me) {
   ]
 }
 
-// Which card to show: a test account, ranked on this board, every step done but not on this board, or the steps.
+// Which card to show: a test account, no buddies group (Buddies only, card 139), ranked on this board, every step done
+// but not on this board, or the steps.
 export function standingKind(me) {
   if (me.reason === 'test_account') return 'test'
+  if (me.reason === 'no_group') return 'no-group'
   if (me.ranked) return 'ranked'
   return rankSteps(me).every((step) => step.done) ? 'not-on-board' : 'steps'
 }
