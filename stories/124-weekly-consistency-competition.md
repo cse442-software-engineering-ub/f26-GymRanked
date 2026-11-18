@@ -36,7 +36,7 @@ Test accounts: fake accounts loaded by the backend task's seed file. Load the se
 
 ### Steps:
 
-1. Select **Leaderboard** in the top navigation. Confirm that the address ends in `#/leaderboard/weekly`, and that the tabs **Weekly consistency** and **Strength** are shown, with **Weekly consistency** selected.
+1. Select **Rankings** in the menu. Confirm that the address ends in `#/leaderboard/weekly`, and that the tabs **Weekly consistency** and **Strength** are shown, with **Weekly consistency** selected.
 2. Confirm that the top card says `THE 3-DAY CIRCLE` and `Show up. Move up. Start fresh.`, and a countdown that ends with `Resets Monday, 12:00 AM New York time`. Confirm that the countdown shows the days, hours and minutes left until the coming Monday (for example `2d 9h 12m left` on a Friday at 2:48 PM, or `2d 10h 12m left` in a week when the clocks go back on Sunday).
 3. Confirm that the top card says `You're #2` and `2/3 days · 67%`, and that the board has the columns `RANK`, `MEMBER`, `TRAINING DAYS` and `GOAL REACHED`.
 4. Confirm that the board lists, in this order: `#1` `Maya R.` `3 of 3 days` `100%`; `#2` `Casey L.` marked `You` `2 of 3 days` `67%`; `#2` `Jordan K.` `2 of 3 days` `67%`; `#2` `Pat M.` `2 of 3 days` `67%`; `#5` `Alex T.` `1 of 3 days` `33%`; `#5` `Riley S.` `1 of 3 days` `33%`; `#7` `Nia C.` `0 of 3 days` `0%`; `#7` `Sam L.` `0 of 3 days` `0%`. Confirm that the line `Shared progress = shared rank. Everyone here has the same 3-day goal.` appears below it, and that `Dana F.`, `Ivy P.`, `Lee F.` and `Tess T.` are not listed.
@@ -45,12 +45,12 @@ Test accounts: fake accounts loaded by the backend task's seed file. Load the se
 
 ### Setup for this test:
 
-1. Log in on the [Login page](https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login) with `week-casey@example.com` and `Weekly-Test-Compete!`. Confirm that the weekly card on the Dashboard shows `2/3` and `training days logged`. Select **Leaderboard** and confirm that `You're #2` and `2/3 days · 67%` appear.
+1. Log in on the [Login page](https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login) with `week-casey@example.com` and `Weekly-Test-Compete!`. Confirm that the **This week** card on the Dashboard shows `2/3` and `training days logged`. Select **Rankings** in the menu and confirm that `You're #2` and `2/3 days · 67%` appear.
 
 ### Steps:
 
-1. Select **Dashboard**, then **Resume workout**. Select **Complete workout**, then **Complete workout** in the box that opens. Confirm that the summary says `Workout complete`. Select **Return to dashboard** and confirm that the weekly card shows `3/3` and `training days logged`, and that **Weekly rank** says `#1`.
-2. Select **Leaderboard** and confirm that **Weekly consistency** is selected. Confirm that the top card now says `You're #1`, `3/3 days · 100%` and `Goal reached`.
+1. Select **Dashboard**, then **Resume workout**. Select **Complete workout**, then **Complete workout** in the box that opens, then **Save partial workout** in the box that says `Some exercises have no logged sets`. Confirm that the summary's heading starts with `Workout complete`. Select **Return to dashboard** and confirm that the **This week** card shows `3/3` and `training days logged`, and that the **Weekly consistency** row under **Your rankings** shows `#1`.
+2. Select **Rankings** in the menu and confirm that **Weekly consistency** is selected. Confirm that the top card now says `You're #1`, `3/3 days · 100%` and `Goal reached`.
 3. Confirm that the board starts with `#1` `Casey L.` marked `You` and `#1` `Maya R.`, both with `3 of 3 days` and `100%`, followed by `#3` `Jordan K.` and `#3` `Pat M.` with `2 of 3 days` and `67%`, and that `Alex T.` and `Riley S.` both show `#5`.
 4. Refresh the page and confirm that the same ranks, counts and `You're #1` remain. The workout must not be counted a second time.
 
@@ -58,49 +58,49 @@ Test accounts: fake accounts loaded by the backend task's seed file. Load the se
 
 ### Setup for this test:
 
-1. Log in with `week-pat@example.com` and `Weekly-Test-Compete!`. Confirm that the weekly card on the Dashboard shows `2/3` and `training days logged`, although three sessions were finished this week.
+1. Log in with `week-pat@example.com` and `Weekly-Test-Compete!`. Confirm that the **This week** card on the Dashboard shows `2/3` and `training days logged`, although three sessions were finished this week.
 
 ### Steps:
 
-1. Select **Leaderboard**. Confirm that the top card says `2/3 days · 67%` and that your row, marked `You`, says `2 of 3 days` and `67%`.
+1. Select **Rankings** in the menu. Confirm that the top card says `2/3 days · 67%` and that your row, marked `You`, says `2 of 3 days` and `67%`.
 2. Confirm that `Maya R.` shows `3 of 3 days` and `100%`, although she trained on 4 different days this week: no row goes above `100%` or past `3 of 3 days`.
 
 ## Acceptance Test 4: Only people with the same target are compared
 
 ### Setup for this test:
 
-1. Log in with `week-dana@example.com` and `Weekly-Test-Compete!`. Confirm that the weekly card on the Dashboard shows `1/5` and `training days logged`.
+1. Log in with `week-dana@example.com` and `Weekly-Test-Compete!`. Confirm that the **This week** card on the Dashboard shows `1/5` and `training days logged`.
 
 ### Steps:
 
-1. Select **Leaderboard**. Confirm that the top card says `THE 5-DAY CIRCLE`, `You're #1` and `1/5 days · 20%`, and that the board lists only `#1` `Dana F.` marked `You` with `1 of 5 days` and `20%`.
+1. Select **Rankings** in the menu. Confirm that the top card says `THE 5-DAY CIRCLE`, `You're #1` and `1/5 days · 20%`, and that the board lists only `#1` `Dana F.` marked `You` with `1 of 5 days` and `20%`.
 2. Confirm that `Maya R.`, `Casey L.` and the other 3-day people do not appear, and that the line below the board says `Shared progress = shared rank. Everyone here has the same 5-day goal.`
-3. Log out, log in with `week-maya@example.com` and `Weekly-Test-Compete!`, and select **Leaderboard**. Confirm that the top card says `THE 3-DAY CIRCLE` and that `Dana F.` does not appear.
+3. Log out, log in with `week-maya@example.com` and `Weekly-Test-Compete!`, and select **Rankings** in the menu. Confirm that the top card says `THE 3-DAY CIRCLE` and that `Dana F.` does not appear.
 
 ## Acceptance Test 5: Joining starts a practice week, and join and leave are remembered
 
 ### Setup for this test:
 
-1. Log in with `week-ivy@example.com` and `Weekly-Test-Compete!`. Confirm that the weekly card on the Dashboard shows `2/3` and `training days logged`, and that **Weekly rank** says `Not joined`.
+1. Log in with `week-ivy@example.com` and `Weekly-Test-Compete!`. Confirm that the **This week** card on the Dashboard shows `2/3` and `training days logged`, and that the **Weekly consistency** row under **Your rankings** shows `Not joined`.
 
 ### Steps:
 
-1. Select **Leaderboard**. Confirm that **Weekly consistency** is selected, that the top card says `Join the weekly competition` with your progress `2/3 days · 67%` and a **Join the weekly competition** button instead of a rank, and that no row is marked `You`.
+1. Select **Rankings** in the menu. Confirm that **Weekly consistency** is selected, that the top card says `Join the weekly competition` with your progress `2/3 days · 67%` and a **Join the weekly competition** button instead of a rank, and that no row is marked `You`.
 2. Select **Join the weekly competition**. Confirm that the top card now says `Practice week`, `Your ranked weeks start Monday,` followed by the date of the coming Monday, `2/3 days · 67%` and a **Leave** button, and that `Ivy P.` is not listed.
-3. Open the account menu, select **Log out**, log back in, and select **Leaderboard**. Confirm that the top card still says `Practice week`.
-4. Select **Leave**. Confirm that the page says `You've left the weekly competition. Your workouts are kept.` and that the **Join the weekly competition** button is shown again. Select **Dashboard** and confirm that the weekly card still shows `2/3` and that **Weekly rank** says `Not joined` again.
+3. Select **Log out** at the bottom of the menu, log back in, and select **Rankings** in the menu. Confirm that the top card still says `Practice week`.
+4. Select **Leave**. Confirm that the page says `You've left the weekly competition. Your workouts are kept.` and that the **Join the weekly competition** button is shown again. Select **Dashboard** and confirm that the **This week** card still shows `2/3` and that the **Weekly consistency** row under **Your rankings** shows `Not joined` again.
 
 ## Acceptance Test 6: The practice week shows your progress without a rank
 
 ### Setup for this test:
 
-1. Log in with `week-lee@example.com` and `Weekly-Test-Compete!`. This account joined this week. Confirm that the weekly card on the Dashboard shows `1/3` and `training days logged`, and that **Weekly rank** says `Practice week`.
+1. Log in with `week-lee@example.com` and `Weekly-Test-Compete!`. This account joined this week. Confirm that the **This week** card on the Dashboard shows `1/3` and `training days logged`, and that the **Weekly consistency** row under **Your rankings** shows `Practice week`.
 
 ### Steps:
 
-1. Select **Leaderboard**. Confirm that the top card says `Practice week`, `1/3 days · 33%`, and `Your ranked weeks start Monday,` followed by the date of the coming Monday.
+1. Select **Rankings** in the menu. Confirm that the top card says `Practice week`, `1/3 days · 33%`, and `Your ranked weeks start Monday,` followed by the date of the coming Monday.
 2. Confirm that the top card doesn't say `You're #` and that no row on the board is marked `You`.
-3. Select **Dashboard**, then **Resume workout**. Select **Complete workout**, then **Complete workout** in the box that opens. Select **Leaderboard**. Confirm that the top card says `2/3 days · 67%` and still `Practice week`, with no rank.
+3. Select **Dashboard**, then **Resume workout**. Select **Complete workout**, then **Complete workout** in the box that opens, then **Save partial workout** in the box that says `Some exercises have no logged sets`. Select **Rankings** in the menu. Confirm that the top card says `2/3 days · 67%` and still `Practice week`, with no rank.
 
 ## Acceptance Test 7: A new week starts from zero and keeps the history
 
@@ -110,15 +110,15 @@ Test accounts: fake accounts loaded by the backend task's seed file. Load the se
 
 ### Steps:
 
-1. Open the Dashboard. Confirm that the weekly card shows `0/3` and `training days logged`, that no day this week says `Logged`, and that the **Weekly milestone** card says `This week: 3 training days.`
-2. Select **Leaderboard**. Confirm that the top card says `You're #7` and `0/3 days · 0%`, and that last week's days are not counted.
+1. Open the Dashboard. Confirm that the **This week** card shows `0/3` and `training days logged`, and that no day in its week strip has a check mark
+2. Select **Rankings** in the menu. Confirm that the top card says `You're #7` and `0/3 days · 0%`, and that last week's days are not counted.
 3. Select **Progress**, then **Workout history**. Confirm that last week's three finished workouts are still listed.
 
 ## Acceptance Test 8: The Strength tab and its leaderboard are unchanged
 
 ### Setup for this test:
 
-1. Log in with `week-casey@example.com` and `Weekly-Test-Compete!`. Select **Leaderboard**.
+1. Log in with `week-casey@example.com` and `Weekly-Test-Compete!`. Select **Rankings** in the menu.
 
 ### Steps:
 
@@ -129,11 +129,11 @@ Test accounts: fake accounts loaded by the backend task's seed file. Load the se
 
 ### Setup for this test:
 
-1. Log in with `week-casey@example.com` and `Weekly-Test-Compete!`. Confirm that the weekly card on the Dashboard shows `2/3` and `training days logged`, and that **Weekly rank** says `#2`.
+1. Log in with `week-casey@example.com` and `Weekly-Test-Compete!`. Confirm that the **This week** card on the Dashboard shows `2/3` and `training days logged`, and that the **Weekly consistency** row under **Your rankings** shows `#2`.
 
 ### Steps:
 
-1. Select **View weekly standings**. Confirm that the address ends in `#/leaderboard/weekly`, and that the page opens on **Weekly consistency** and shows `You're #2` and `2/3 days · 67%`, the same rank and count as Home.
+1. Select the **Weekly consistency** row under **Your rankings**. Confirm that the address ends in `#/leaderboard/weekly`, and that the page opens on **Weekly consistency** and shows `You're #2` and `2/3 days · 67%`, the same rank and count as Home.
 2. Turn off the computer's internet connection (switch off Wi-Fi or unplug the network cable) and keep this page open. Select **Leave**. Confirm that the page says `Couldn't leave the weekly competition. Try again.`, and that the top card still says `You're #2` and `2/3 days · 67%` with the **Leave** button.
 3. Turn the internet connection back on, and reconnect to the UB VPN if you use it. Refresh the page. Confirm that the top card still says `You're #2` and `2/3 days · 67%` and that `Casey L.` is still listed, so the failed Leave changed nothing.
 
@@ -145,18 +145,22 @@ Test accounts: fake accounts loaded by the backend task's seed file. Load the se
 
 ### Steps:
 
-1. Open the menu button at the top left and select **Leaderboard**. Confirm that **Weekly consistency** and **Strength** are both visible and tappable, and that the page doesn't scroll sideways.
+1. Tap **Menu** at the top left and select **Rankings**. Confirm that **Weekly consistency** and **Strength** are both visible and tappable, and that the page doesn't scroll sideways.
 2. Confirm that the top card with `You're #2`, `2/3 days · 67%` and the countdown is visible without scrolling down, and that each board row shows the rank, name, `of 3 days` count and percentage.
-3. Open the menu, select **Profile**, find **Appearance** and select **Light**. Return to **Leaderboard** and confirm that the top card, the board and the countdown are still readable, then switch back to **Dark**.
+3. Tap **Menu**, select your name at the bottom of the menu, find **Appearance** and select **Light**. Return to **Rankings** and confirm that the top card, the board and the countdown are still readable, then switch back to **Dark**.
 
 ## Acceptance Test 11: A test account sees its own progress but is never ranked or listed
 
 ### Setup for this test:
 
-1. On a computer, log in with `week-tess@example.com` and `Weekly-Test-Compete!`. Confirm that the weekly card on the Dashboard shows `3/3` and `training days logged`, and that **Weekly rank** says `Test account`.
+1. On a computer, log in with `week-tess@example.com` and `Weekly-Test-Compete!`. Confirm that the **This week** card on the Dashboard shows `3/3` and `training days logged`, and that the **Weekly consistency** row under **Your rankings** shows `Test account`.
 
 ### Steps:
 
-1. Select **Leaderboard**. Confirm that the top card says `Weekly consistency`, `Test accounts aren't shown in the weekly competition.` and `3/3 days · 100%`, and that it has no rank, no **Join the weekly competition** button and no **Leave** button.
+1. Select **Rankings** in the menu. Confirm that the top card says `Weekly consistency`, `Test accounts aren't shown in the weekly competition.` and `3/3 days · 100%`, and that it has no rank, no **Join the weekly competition** button and no **Leave** button.
 2. Confirm that the board lists the same eight people as in Acceptance Test 1, step 4, that `Tess T.` is not listed, and that no row is marked `You`.
-3. On a phone held upright (or a browser window 390 pixels wide), log in the same way and open **Dashboard**. Confirm that **Weekly rank** says `Test account` and that the page doesn't scroll sideways.
+3. On a phone held upright (or a browser window 390 pixels wide), log in the same way and open **Dashboard**. Confirm that the **Weekly consistency** row under **Your rankings** shows `Test account` and that the page doesn't scroll sideways.
+
+## Notes
+
+Updated on 2026-11-18 (card #133): Home was redesigned (#136). The weekly count is now on the "This week" card, the rank is the "Weekly consistency" row under "Your rankings" (which also replaces "View weekly standings"), and the Weekly milestone card is no longer on Home. "Leaderboard" is now "Rankings" in the menu, and completing the seed's partly logged workout asks "Some exercises have no logged sets", answered with "Save partial workout".

@@ -7,7 +7,7 @@
 
 **Setup for this test:**
 1. Connect to the UB VPN, or use the campus network.
-2. If you're logged in, log out from the account menu.
+2. If you're logged in, log out with "Log out" at the bottom of the menu.
 
 **Steps:**
 1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login. The page should show:
@@ -33,14 +33,15 @@
 1. Complete Acceptance Test 1 first. You should be on "Log in to GymRank" with "Account created. Log in to continue."
 
 **Steps:**
-1. Check that "Email" says "jamie-a-1001@example.com" (type it if the box is empty). Type "Lift!ng2Gether99" in "Password", then click "Log in". No "Invalid email or password." message should appear, and the first onboarding step should open: "Choose your training goal", with a progress bar showing "Training goal" (the current step), "Experience", "Equipment" and "Choose plan".
-2. Look at the "Profile preview" on the same page. It should show "JL", "Jamie Lee" and "No goal yet".
-3. Click "Log out" in the top-right corner. The "Log in to GymRank" card should show with "You are logged out."
+1. Check that "Email" says "jamie-a-1001@example.com" (type it if the box is empty). Type "Lift!ng2Gether99" in "Password", then click "Log in". No "Invalid email or password." message should appear, and the first setup step should open: "Personal details", with a progress bar showing "Personal details" (the current step), "Training goal", "Experience", "Equipment" and "Choose plan".
+2. Type "180" in "Body weight (lb)", click "Man", then click "Save and continue". "Choose your training goal" should open, with "Training goal" now the current step.
+3. Look at the "Profile preview" on the same page. It should show "JL", "Jamie Lee" and "No goal yet".
+4. Click "Log out" in the top-right corner. The "Log in to GymRank" card should show with "You are logged out."
 
 ## Acceptance Test 3: Empty and incomplete boxes are refused
 
 **Setup for this test:**
-1. Connect to the UB VPN, or use the campus network. If you're logged in, log out from the account menu.
+1. Connect to the UB VPN, or use the campus network. If you're logged in, log out with "Log out" at the bottom of the menu.
 
 **Steps:**
 1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and click "Create an account". "Create your account" should show.
@@ -73,7 +74,7 @@
 ## Acceptance Test 5: Leaving the sign-up page without an account
 
 **Setup for this test:**
-1. Connect to the UB VPN, or use the campus network. If you're logged in, log out from the account menu.
+1. Connect to the UB VPN, or use the campus network. If you're logged in, log out with "Log out" at the bottom of the menu.
 
 **Steps:**
 1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and click "Create an account". "Create your account" should show.
@@ -81,6 +82,8 @@
 3. On a phone, or in a browser window 850 pixels wide or narrower: repeat step 1, then tap the small "×" in the top-right corner instead. The "Log in to GymRank" card should show again, and no account should have been created.
 
 ## Notes
+
+Updated on 2026-11-18 (card #133): logging in with a new account now opens "Personal details" first (required since 2026-10-27), so Test 2 saves 180 lb and "Man" before "Choose your training goal". Logging out is at the bottom of the menu.
 
 Tests 1, 2 and 4 were changed on 2026-10-12 (Test 1 was "Create an account and start onboarding") to follow the
 sign-up flow from PR #45 (card #99): "Create account" now opens the login page with "Account created. Log in to

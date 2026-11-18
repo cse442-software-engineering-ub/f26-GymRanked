@@ -7,7 +7,7 @@
 
 **Setup for this test:** (this account does not exist yet; you create it here)
 1. Connect to the UB VPN, or use the campus network.
-2. If you're logged in, log out. On an onboarding page, click "Log out" in the top-right corner. On the Dashboard, click the round orange circle with your initials in the top-right corner, then the red "Log out" in the little menu that opens under it.
+2. If you're logged in, log out. On an onboarding page, click "Log out" in the top-right corner. On any other page, click "Log out" at the bottom of the menu on the left (on a phone, tap "Menu" first).
 3. Open a web browser (Chrome is fine). Click the address bar at the very top of the browser window, type or paste https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and press Enter. You should see a dark screen split into two halves, with "Every rep gets a rank." on the left and a card titled "Log in to GymRank" on the right.
 4. Create the test account. At the bottom of the "Log in to GymRank" card, click the orange words "Create an account" (next to "New to GymRank?"). The card should change to "Create your account" with four boxes. Fill them in like this:
    - Click inside the "Full name" box (the first box) and type: Sam Setup
@@ -16,13 +16,13 @@
    - Click inside the "Confirm password" box (the fourth box) and type: AcceptSetup12!
    - Click the wide "Create account" button under the boxes.
 5. The "Log in to GymRank" card should open again, with a green box that says "Account created. Log in to continue." and the "Email" box already filled in with setup-a-1009@example.com. Click inside the "Password" box, type AcceptSetup12! and click the wide "Log in" button.
-6. The page should now say "Choose your training goal" in large white letters at the top-left, with "Log out" in the top-right corner and a bar of four steps ("Training goal", "Experience", "Equipment", "Choose plan") above the heading, "Training goal" lit up. Under "Profile preview" you should see an orange circle with "SS", the name "Sam Setup" and "No goal yet".
+6. The page should now say "Personal details", with a bar of five steps ("Personal details", "Training goal", "Experience", "Equipment", "Choose plan") above the heading. Type 180 in the "Body weight (lb)" box, click "Man", then click "Save and continue". The page should now say "Choose your training goal" in large white letters at the top-left, with "Log out" in the top-right corner and "Training goal" lit up in the bar of steps. Under "Profile preview" you should see an orange circle with "SS", the name "Sam Setup" and "No goal yet".
 7. Click the first box in the row of three boxes, the one called "Strength". It should say "Selected". Then click the orange "Save goal" button in the top-right corner of the page, level with the big title. The page should change to "How experienced are you?".
 
 **Steps:**
 1. Look at the "How experienced are you?" page. You should see:
    - at the very top-left, the orange square and the word "GymRank", and at the top-right a "Log out" button
-   - the bar of four steps, with "Experience" lit up because it is the current step
+   - the bar of five steps, with "Experience" lit up because it is the current step
    - a "Back to training goal" link above the big white heading "How experienced are you?", and under the heading the grey sentence "We use this to set your starting weights and weekly volume."
    - in the top-right corner, level with the heading, an orange button "Save and continue" that looks faded and can't be clicked, with "Pick your experience level to continue." under it
    - three boxes: "Beginner" ("New to structured training, or under 6 months in."), "Intermediate" ("Consistent training for 6 months to 3 years.") and "Advanced" ("3+ years training, comfortable pushing intensity."). Each one has a small picture of bars, an empty circle and a small grey "Select" button.
@@ -40,7 +40,7 @@
 
 **Setup for this test:** (this account does not exist yet; you create it here, and it is separate from the account in the other tests)
 1. Connect to the UB VPN, or use the campus network.
-2. If you're logged in, log out. On an onboarding page, click "Log out" in the top-right corner. On the Dashboard, click the round orange circle with your initials in the top-right corner, then the red "Log out" in the little menu that opens under it.
+2. If you're logged in, log out. On an onboarding page, click "Log out" in the top-right corner. On any other page, click "Log out" at the bottom of the menu on the left (on a phone, tap "Menu" first).
 3. Open a web browser (Chrome is fine). Click the address bar at the very top of the browser window, type or paste https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and press Enter. You should see a dark screen split into two halves, with "Every rep gets a rank." on the left and a card titled "Log in to GymRank" on the right.
 4. Create the test account. At the bottom of the "Log in to GymRank" card, click the orange words "Create an account" (next to "New to GymRank?"). The card should change to "Create your account" with four boxes. Fill them in like this:
    - Click inside the "Full name" box (the first box) and type: Sam Bodyweight
@@ -49,7 +49,7 @@
    - Click inside the "Confirm password" box (the fourth box) and type: AcceptSetup12!
    - Click the wide "Create account" button under the boxes.
 5. The "Log in to GymRank" card should open again, with a green box that says "Account created. Log in to continue." and the "Email" box already filled in with setup-b-1009@example.com. Click inside the "Password" box, type AcceptSetup12! and click the wide "Log in" button.
-6. The page should now say "Choose your training goal" in large white letters at the top-left, with "Log out" in the top-right corner and a bar of four steps ("Training goal", "Experience", "Equipment", "Choose plan") above the heading, "Training goal" lit up. Under "Profile preview" you should see an orange circle with "SB", the name "Sam Bodyweight" and "No goal yet".
+6. The page should now say "Personal details", with a bar of five steps ("Personal details", "Training goal", "Experience", "Equipment", "Choose plan") above the heading. Type 180 in the "Body weight (lb)" box, click "Man", then click "Save and continue". The page should now say "Choose your training goal" in large white letters at the top-left, with "Log out" in the top-right corner and "Training goal" lit up in the bar of steps. Under "Profile preview" you should see an orange circle with "SB", the name "Sam Bodyweight" and "No goal yet".
 7. Click the first box in the row of three boxes, the one called "Strength". It should say "Selected". Then click the orange "Save goal" button in the top-right corner of the page, level with the big title. The page should change to "How experienced are you?".
 8. Click anywhere inside the "Beginner" box so it says "Selected", then click the orange "Save and continue" button in the top-right corner. The page should change to "What equipment can you use?".
 
@@ -64,7 +64,7 @@
 
 **Setup for this test:** (this account does not exist yet; you create it here, and it is separate from the account in the other tests)
 1. Connect to the UB VPN, or use the campus network.
-2. If you're logged in, log out. On an onboarding page, click "Log out" in the top-right corner. On the Dashboard, click the round orange circle with your initials in the top-right corner, then the red "Log out" in the little menu that opens under it.
+2. If you're logged in, log out. On an onboarding page, click "Log out" in the top-right corner. On any other page, click "Log out" at the bottom of the menu on the left (on a phone, tap "Menu" first).
 3. Open a web browser (Chrome is fine). Click the address bar at the very top of the browser window, type or paste https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and press Enter. You should see a dark screen split into two halves, with "Every rep gets a rank." on the left and a card titled "Log in to GymRank" on the right.
 4. Create the test account. At the bottom of the "Log in to GymRank" card, click the orange words "Create an account" (next to "New to GymRank?"). The card should change to "Create your account" with four boxes. Fill them in like this:
    - Click inside the "Full name" box (the first box) and type: Sam Saved
@@ -73,16 +73,16 @@
    - Click inside the "Confirm password" box (the fourth box) and type: AcceptSetup12!
    - Click the wide "Create account" button under the boxes.
 5. The "Log in to GymRank" card should open again, with a green box that says "Account created. Log in to continue." and the "Email" box already filled in with setup-c-1009@example.com. Click inside the "Password" box, type AcceptSetup12! and click the wide "Log in" button.
-6. The page should now say "Choose your training goal" in large white letters at the top-left, with "Log out" in the top-right corner and a bar of four steps ("Training goal", "Experience", "Equipment", "Choose plan") above the heading, "Training goal" lit up. Under "Profile preview" you should see an orange circle with "SS", the name "Sam Saved" and "No goal yet".
+6. The page should now say "Personal details", with a bar of five steps ("Personal details", "Training goal", "Experience", "Equipment", "Choose plan") above the heading. Type 180 in the "Body weight (lb)" box, click "Man", then click "Save and continue". The page should now say "Choose your training goal" in large white letters at the top-left, with "Log out" in the top-right corner and "Training goal" lit up in the bar of steps. Under "Profile preview" you should see an orange circle with "SS", the name "Sam Saved" and "No goal yet".
 7. Click the first box in the row of three boxes, the one called "Strength". It should say "Selected". Then click the orange "Save goal" button in the top-right corner of the page, level with the big title. The page should change to "How experienced are you?".
 8. Click anywhere inside the "Advanced" box so it says "Selected", then click the orange "Save and continue" button in the top-right corner. The page should change to "What equipment can you use?".
 
 **Steps:**
 1. Click the "Pull-up bar" button and the "Full gym access" button so both are outlined in orange. The "Plan impact" box should say "Advanced programming using pull-up bar and full gym access." Click the bright orange "Save and continue" button. The page should change to "Choose your workout plan".
-2. Click the address bar at the very top of the browser window, type or paste https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/experience and press Enter. Wait about a second. "Advanced" should say "Selected". Click "Equipment" in the bar of steps. Only "Pull-up bar" and "Full gym access" should be outlined in orange, and the "Plan impact" box should say "Advanced programming using pull-up bar and full gym access."
-3. Click "Log out" in the top-right corner. The login page should open and say "You are logged out."
-4. Click inside the "Email" box and type setup-c-1009@example.com. Click inside the "Password" box and type AcceptSetup12!. Click the wide "Log in" button. The Dashboard should open, because the setup is finished. Click the address bar, type or paste https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/equipment and press Enter. Wait about a second. The same choices should still be there: only "Pull-up bar" and "Full gym access" outlined in orange. Click "Back to experience": "Advanced" should still say "Selected".
-5. Click "Log out" in the top-right corner. The login page should open.
+2. Click "Browse all plans". The "Plan library" opens, with a menu down the left side. Click "Sam Saved" (with "View profile") at the bottom of the menu. The Profile page opens. Under "Training Preferences", "Experience level" should say "Advanced" and "Equipment selection" should list only "Pull-up bar" and "Full gym access".
+3. Click "Log out" at the bottom of the menu. The login page should open and say "You are logged out."
+4. Click inside the "Email" box and type setup-c-1009@example.com. Click inside the "Password" box and type AcceptSetup12!. Click the wide "Log in" button. The Dashboard should open, because the setup is finished. Click "Sam Saved" at the bottom of the menu. The same choices should still be there: "Experience level" says "Advanced" and "Equipment selection" lists only "Pull-up bar" and "Full gym access".
+5. Click "Log out" at the bottom of the menu. The login page should open.
 6. At the bottom of the "Log in to GymRank" card, click the orange "Create an account" link. Fill in the boxes:
    - Click inside "Full name" and type: Sam Second
    - Click inside "Email" and type: setup-d-1009@example.com
@@ -96,7 +96,7 @@
 
 **Setup for this test:** (no account is needed for this test)
 1. Connect to the UB VPN, or use the campus network.
-2. If you're logged in, log out. On an onboarding page, click "Log out" in the top-right corner. On the Dashboard, click the round orange circle with your initials in the top-right corner, then the red "Log out" in the little menu that opens under it. The login page should open. If you were not logged in, open a web browser, click the address bar at the very top of the browser window, type or paste https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and press Enter; the login page should show.
+2. If you're logged in, log out. On an onboarding page, click "Log out" in the top-right corner. On any other page, click "Log out" at the bottom of the menu on the left (on a phone, tap "Menu" first). The login page should open. If you were not logged in, open a web browser, click the address bar at the very top of the browser window, type or paste https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and press Enter; the login page should show.
 
 **Steps:**
 1. Click the address bar at the very top of the browser window, type or paste https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/experience and press Enter.
@@ -107,7 +107,7 @@
 
 **Setup for this test:** (this account does not exist yet; you create it here, and it is separate from the account in the other tests)
 1. Connect to the UB VPN, or use the campus network.
-2. If you're logged in, log out. On an onboarding page, click "Log out" in the top-right corner. On the Dashboard, click the round orange circle with your initials in the top-right corner, then the red "Log out" in the little menu that opens under it.
+2. If you're logged in, log out. On an onboarding page, click "Log out" in the top-right corner. On any other page, click "Log out" at the bottom of the menu on the left (on a phone, tap "Menu" first).
 3. Open a web browser (Chrome is fine). Click the address bar at the very top of the browser window, type or paste https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and press Enter. You should see a dark screen split into two halves, with "Every rep gets a rank." on the left and a card titled "Log in to GymRank" on the right.
 4. Create the test account. At the bottom of the "Log in to GymRank" card, click the orange words "Create an account" (next to "New to GymRank?"). The card should change to "Create your account" with four boxes. Fill them in like this:
    - Click inside the "Full name" box (the first box) and type: Sam Change
@@ -116,17 +116,19 @@
    - Click inside the "Confirm password" box (the fourth box) and type: AcceptSetup12!
    - Click the wide "Create account" button under the boxes.
 5. The "Log in to GymRank" card should open again, with a green box that says "Account created. Log in to continue." and the "Email" box already filled in with setup-e-1009@example.com. Click inside the "Password" box, type AcceptSetup12! and click the wide "Log in" button.
-6. The page should now say "Choose your training goal" in large white letters at the top-left, with "Log out" in the top-right corner and a bar of four steps ("Training goal", "Experience", "Equipment", "Choose plan") above the heading, "Training goal" lit up. Under "Profile preview" you should see an orange circle with "SC", the name "Sam Change" and "No goal yet".
+6. The page should now say "Personal details", with a bar of five steps ("Personal details", "Training goal", "Experience", "Equipment", "Choose plan") above the heading. Type 180 in the "Body weight (lb)" box, click "Man", then click "Save and continue". The page should now say "Choose your training goal" in large white letters at the top-left, with "Log out" in the top-right corner and "Training goal" lit up in the bar of steps. Under "Profile preview" you should see an orange circle with "SC", the name "Sam Change" and "No goal yet".
 7. Click the first box in the row of three boxes, the one called "Strength". It should say "Selected". Then click the orange "Save goal" button in the top-right corner of the page, level with the big title. The page should change to "How experienced are you?".
 8. Click anywhere inside the "Beginner" box so it says "Selected", then click the orange "Save and continue" button in the top-right corner. The page should change to "What equipment can you use?".
 
 **Steps:**
 1. Click the "Dumbbells" button and the "Kettlebells" button so both are outlined in orange. The "Plan impact" box should say "Beginner programming using dumbbells and kettlebells." Click the bright orange "Save and continue" button. The page should change to "Choose your workout plan".
-2. Click the address bar at the very top of the browser window, type or paste https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/experience and press Enter. Wait about a second. "Beginner" should say "Selected". Click anywhere inside the "Advanced" box so it says "Selected", and click "Save and continue". On "What equipment can you use?", "Dumbbells" and "Kettlebells" should still be the only buttons outlined in orange, and the "Plan impact" box should say "Advanced programming using dumbbells and kettlebells."
-3. Click the "Dumbbells" button once to turn its outline off, then click the "Barbell" button once to turn its outline on. The "Plan impact" box should say "Advanced programming using barbell and kettlebells." Click "Save and continue". The page should change to "Choose your workout plan".
-4. Click the address bar, type or paste https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/experience and press Enter. Wait about a second. "Advanced" should still say "Selected". Click "Equipment" in the bar of steps. Only "Barbell" and "Kettlebells" should be outlined in orange.
-5. Click "Barbell" and "Kettlebells" once each to turn both outlines off. No button should be outlined and the "Save and continue" button should look faded. Do not click "Save and continue". Press the reload button of your browser (the circular arrow at the top-left of the browser window) and wait about a second. The page should show your saved choices from step 3 again: only "Barbell" and "Kettlebells" are outlined in orange, because the changes you made in this step were never saved.
+2. Click "Browse all plans", then click "Sam Change" (with "View profile") at the bottom of the menu on the left. Under "Training Preferences", "Experience level" should say "Beginner" and "Equipment selection" should list only "Dumbbells" and "Kettlebells". Click "Edit Training Preferences". In the "Experience level" box choose "Advanced", then click "Save changes". The Profile page opens again and says "Settings saved.": "Experience level" now says "Advanced", and "Equipment selection" still lists only "Dumbbells" and "Kettlebells".
+3. Click "Edit Training Preferences". Under "Equipment selection", click "Dumbbells" once to turn it off, then click "Barbell" once to turn it on. Click "Save changes". On the Profile page, "Experience level" should still say "Advanced" and "Equipment selection" should list only "Barbell" and "Kettlebells".
+4. Click "Edit Training Preferences". "Experience level" should say "Advanced", and only "Barbell" and "Kettlebells" should be highlighted under "Equipment selection".
+5. Click "Barbell" and "Kettlebells" once each to turn both off. No equipment should be highlighted and the "Save changes" button should look faded. Do not click "Save changes". Press the reload button of your browser (the circular arrow at the top-left of the browser window) and wait about a second. The page should show your saved choices from step 3 again: "Advanced", with only "Barbell" and "Kettlebells" highlighted, because the changes you made in this step were never saved.
 
 ## Notes
+
+Updated on 2026-11-18 (card #133): setups add the "Personal details" step and the five-step bar, and logging out outside onboarding is at the bottom of the menu. A finished account that opens the experience or equipment page is now sent to the Dashboard, so Tests 3 and 5 check and change the saved choices on Profile ("Training Preferences", then "Edit Training Preferences") instead.
 
 Rewritten on 2026-10-09 for card #94, which splits the single "Tell us about your training setup" page into "How experienced are you?" (#/experience) and "What equipment can you use?" (#/equipment). Each page saves only its own choice (card #96), "Save and continue" on the equipment page opens "Choose your workout plan" (Surya's recommended plans, PR #44), and #/setup now opens #/experience. The five tests, their accounts and their step-by-step wording follow Mansur's version from the same day (commit 6458eed), including his Test 5; the emails end in 1009 so the accounts are new on cattle. Since PR #45, "Create account" opens the login page first, so each setup logs in before the goal page.

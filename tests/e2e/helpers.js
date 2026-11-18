@@ -1,6 +1,26 @@
+import { mkdirSync, rmSync, statSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { expect } from '@playwright/test'
 
 export const TEST_PASSWORD = 'E2eTestPass12!'
+
+// Stories 124 and 131 both reload the weekly seed before each test and use the same accounts (Casey). In a quick
+// parallel run their tests would reset each other's accounts, so a test that uses those accounts holds this lock from
+// before its seed load until it ends. (The watch run uses one worker, so there it never waits.) A lock older than two
+// minutes is from a run that was stopped and is taken over.
+export async function acquireLock(name) {
+  const dir = join(tmpdir(), `gymrank-e2e-${name}.lock`)
+  for (;;) {
+    try {
+      mkdirSync(dir)
+      return () => rmSync(dir, { recursive: true, force: true })
+    } catch {
+      try { if (Date.now() - statSync(dir).mtimeMs > 120000) rmSync(dir, { recursive: true, force: true }) } catch { /* gone */ }
+      await new Promise((resolve) => setTimeout(resolve, 200))
+    }
+  }
+}
 
 const RATE_LIMITED =
   'The API allows 50 logins and 50 sign-ups per IP address every 15 minutes, and this run went over. ' +
@@ -42,7 +62,19 @@ export async function logIn(page, account) {
   // A finished account opens the Dashboard; one that hasn't finished onboarding opens its next step.
   await page.locator('.app-shell, .ob-page').or(page.getByRole('alert')).first().waitFor()
   if (await page.getByText('Too many attempts.').isVisible()) throw new Error(RATE_LIMITED)
-  await expect(page).toHaveURL(/#\/(dashboard|goal|experience|equipment|recommended)$/)
+  await expect(page).toHaveURL(/#\/(dashboard|personal-details|goal|experience|equipment|recommended)$/)
+}
+
+// The first onboarding step for a new account (since 2026-10-27, "Require personal details before training setup"): body weight and gender, then
+// "Save and continue" opens "Choose your training goal". The stories' setups use 180 lb and "Man".
+export const ONBOARDING_STEPS = ['Personal details', 'Training goal', 'Experience', 'Equipment', 'Choose plan']
+
+export async function addPersonalDetails(page, { weight = '180', gender = 'Man' } = {}) {
+  await expect(page).toHaveURL(/#\/personal-details$/)
+  await type(page.getByLabel('Body weight (lb)'), weight)
+  await page.getByRole('button', { name: gender, exact: true }).click()
+  await page.getByRole('button', { name: 'Save and continue' }).click()
+  await expect(page).toHaveURL(/#\/goal$/)
 }
 
 // "Log out" at the bottom of the menu: in the sidebar on a computer, behind "Menu" on a phone.
@@ -70,8 +102,10 @@ export async function logOut(page) {
   await expect(page.getByText('You are logged out.')).toBeVisible()
 }
 
+// A new account, logged in, with Personal details saved, so it opens "Choose your training goal".
 export async function createAccountAndLogIn(page, fullName) {
   const account = await createAccount(page, fullName)
   await logIn(page, account)
+  await addPersonalDetails(page)
   return account
 }
