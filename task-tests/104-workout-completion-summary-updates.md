@@ -18,16 +18,22 @@ Use a signed-in test account and a local database with the workout session and w
 
 1. For the same test account, complete an earlier Push workout with Bench press `185 lb × 9` and Cable fly `40 lb × 12`. Complete a later Push workout with Bench press `165 lb × 10` and Cable fly `45 lb × 8`. Open the later workout's summary from `#/workouts/<id>/summary`.
 2. In Session highlights, confirm the third column is `Vs last`, with `185 lb × 9` beside Bench press and `40 lb × 12` beside Cable fly. Confirm the top sets are `165 lb × 10` and `45 lb × 8` respectively.
-3. Confirm Cable fly has a small `Weight PR` badge beside its top set and Bench press does not. More reps at a lower weight must not count as a weight PR.
+3. Confirm Cable fly has a small `Weight PR` badge beside its top set and Bench press does not. Confirm `New PRs` is `1`. More reps at a lower weight must not count as a weight PR.
 
 ## Test 4: First exercise, equal weight, and older best
 
 1. For a test account, complete a workout with a new exercise, an exercise whose earlier best is `100 lb`, and an exercise whose last workout was `90 lb` but whose older best was `110 lb`. Open its summary from `#/workouts/<id>/summary`.
-2. Confirm the new exercise's `Vs last` cell is blank and its top set has a `Weight PR` badge.
+2. Confirm the new exercise's `Vs last` cell is blank, its top set says `First result`, and `New PRs` is `0` if no other exercise set a record. A first result is a baseline, not a PR.
 3. Confirm a `100 lb` top set has no PR badge even if it has more reps than before. Confirm a `100 lb` top set following the `90 lb` last workout also has no PR badge because the older `110 lb` best is higher.
 
-## Test 5: Comparison failure leaves the saved summary available
+## Test 5: Bodyweight record uses reps
 
-1. Open a completed workout at the app link with `#/workouts/<id>/summary` appended and block only `api/workout_summary_comparison.php` in browser Network tools.
-2. Reload. Confirm the saved workout title, date, totals, and top sets still appear, with a message that previous sets are unavailable and no unverified PR badges.
-3. Unblock the request and select `Try again`. Confirm `Vs last` values and weight PR badges appear without completing the workout again.
+1. For a test account, complete an earlier workout with one bodyweight Pull-up set of `10` reps. Complete a later workout with a bodyweight Pull-up set of `12` reps and open its summary at `#/workouts/<id>/summary`.
+2. Confirm Pull-up shows `Bodyweight × 12` as its top set, `Bodyweight × 10` under `Vs last`, and a small `Rep PR` badge. Confirm `New PRs` is `1`.
+3. Repeat with `10` reps in the later workout. Confirm no PR badge and `New PRs` is `0`.
+
+## Test 6: Records failure leaves the saved summary available
+
+1. Open a completed workout at the app link with `#/workouts/<id>/summary` appended and block only `api/workout_records.php` in browser Network tools.
+2. Reload. Confirm the saved workout title, date, totals, and top sets still appear, with `New PRs` shown as unavailable, a message that records are unavailable, and no unverified PR badges.
+3. Unblock the request and select `Try again`. Confirm `Vs last` values, baseline or PR labels, and the `New PRs` count appear without completing the workout again.
