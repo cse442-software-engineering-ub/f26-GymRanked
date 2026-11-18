@@ -1,5 +1,5 @@
 /* The contents of the exercise alternatives panel (task #82, src/workoutLog/ExerciseAlternatives.jsx). The panel
-   itself (frame, header, body, footer, docking, loading and message cards) is src/components/SidePanel.css. */
+   itself (frame, header, body, footer, loading and message cards) is src/components/SidePanel.css. */
 
 .exercise-session__tools {
   display: grid;
@@ -191,13 +191,6 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--gr-text-muted);
-}
-
-/* In the 360px docked panel the muscles go on their own line under the tags. */
-@media (min-width: 1332px) {
-  .side-panel-backdrop .alternatives-item__muscles {
-    flex-basis: 100%;
-  }
 }
 
 @media (max-width: 824px) {
