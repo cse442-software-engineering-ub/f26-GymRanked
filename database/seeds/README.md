@@ -51,6 +51,7 @@ Fake accounts for testing login on a local or dev database. Each account has its
 | Omar Reyes | buddy-omar@example.com | `Buddy-Test-78!` | Workout buddies (#78): no group, never joins one (the outside account) |
 | Pete Lowe | buddy-pete@example.com | `Buddy-Test-78!` | Workout buddies (#78): owner of Late Starters, whose invite code `4MXT8H2R` expired yesterday |
 | Nora Vale and 17 more | `crew-nora@example.com`, `crew-eli`, `crew-ola`, `crew-zed` and the other `crew-<name>@example.com` accounts | `Crew-Test-78!` | Buddies rankings (#78, card #138): Northside Crew (13 members), Eastside Lifters (4) and one account in no group. Loaded by `buddy_rankings.sql` |
+| Avery Stone and 5 more | `dash-avery@example.com`, `dash-blake`, `dash-cam`, `dash-drew`, `dash-emery`, `dash-finn` | `Dash-Demo-136!` | Dashboard demo (card #136): a fully filled Dashboard. Loaded by `dashboard_demo.sql` |
 | Pat Record One to Eleven | summary-pr-1@example.com to summary-pr-11@example.com | `Summary-PR-Test-12!` | Workout records (#12, card #137): one completed Bench press (account 9: Push-up) history per comparison case. Loaded by `workout_records.sql` |
 
 These are `example.com` addresses, which can never belong to a real person. Only a bcrypt hash of each password is stored.
@@ -194,6 +195,23 @@ It ends by printing each member's `member_id` and the invite codes, which the ta
 
 ```bash
 mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < database/seeds/buddy_rankings.sql
+```
+
+## Dashboard demo accounts
+
+`dashboard_demo.sql` (card #136) adds six `dash-<name>@example.com` accounts (password `Dash-Demo-136!`) that fill every part of the redesigned Dashboard for a demo. All six follow Push Pull Legs (Monday to Friday) with three weeks of finished workouts, body weight and gender, a weekly goal of 3, and have joined both leaderboards. Five are in the buddies group Iron Circle (invite code `DASH136G`).
+
+| Account | What its Dashboard shows (on a weekday) |
+| --- | --- |
+| `dash-avery` | The main demo: today's workout with **Start workout**, this week's days logged, a message from Cam, and ranks among Everyone and Buddies |
+| `dash-blake` | Today's workout already finished: **Done** and **View workout summary** |
+| `dash-finn` | In no group: the Buddies rankings ask to join a group |
+| `dash-cam`, `dash-drew`, `dash-emery` | The rest of Iron Circle |
+
+Unlike the other ranking seeds, these accounts are **not** test accounts, so they rank on the Everyone boards too. For Everyone ranks that differ from Buddies, also load `leaderboard.sql` and `weekly_competition.sql`. It needs every migration up to `018_workout_buddies.sql`. Dates are relative to the day it's loaded, so load it again on the day of the demo. Loading it again resets only these six accounts and their group:
+
+```bash
+mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < database/seeds/dashboard_demo.sql
 ```
 
 ## Workout records accounts
