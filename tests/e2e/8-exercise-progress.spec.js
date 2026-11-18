@@ -348,8 +348,8 @@ acceptanceTests('8-exercise-progress.md', {
       await expect(main(page).getByText('7 completed workouts', { exact: true })).toBeVisible()
       await expect(main(page).locator('.history-item__date').first()).toHaveText('Wednesday, October 14, 2026')
     })
-    await step('Step 3: Progress in the path returns to Your progress', async () => {
-      await page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Progress', exact: true }).click()
+    await step('Step 3: "Back to progress" returns to Your progress', async () => {
+      await main(page).getByRole('link', { name: 'Back to progress' }).click()
       await expect(page).toHaveURL(/#\/progress$/)
       await expect(page.getByRole('heading', { level: 1, name: 'Your progress' })).toBeVisible()
     })

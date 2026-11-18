@@ -1,12 +1,30 @@
 import { expect } from '@playwright/test'
-import { createAccount, createAccountAndLogIn, logIn, logOut } from './helpers.js'
+import { addPersonalDetails, createAccount, createAccountAndLogIn, logIn, logOut } from './helpers.js'
 import { followContext, step } from './banner.js'
 import { acceptanceTests } from './stories.js'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
 
-function planRow(page, name) {
-  return page.locator('.plan-list__item').filter({ has: page.getByText(name, { exact: true }) })
+// The plan library since #129: a "Current plan" card, the "Recommended for you" cards, and the rest under "More plans"
+// (a row that starts closed). Every card opens the plan's details, where "Start this plan" chooses it.
+const escapeRe = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+function planCard(page, name) {
+  return page.locator('.plan-lib__card').filter({ has: page.locator('.plan-lib__card-title', { hasText: new RegExp(`^${escapeRe(name)}`) }) })
+}
+const currentPlanCard = (page) => page.locator('.plan-lib__current')
+const morePlans = (page) => page.locator('.plan-lib__more')
+
+// Opens a plan's details from the library, opening "More plans" first when the plan is in there.
+async function openPlan(page, name) {
+  await expect(page.getByRole('heading', { level: 1, name: 'Plan library' })).toBeVisible()
+  await expect(planCard(page, name)).toBeAttached() // the plans have loaded
+  // Open "More plans" only if it's closed (clicking an open one would close it again).
+  if (!(await planCard(page, name).isVisible()) && (await morePlans(page).count())
+      && !(await morePlans(page).evaluate((details) => details.open))) {
+    await morePlans(page).locator('summary').click()
+  }
+  await planCard(page, name).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(name)
 }
 
 function topNav(page) {
@@ -90,7 +108,7 @@ function weekOfLabel(date) {
 
 async function expectWeeklyPlan(page, planName) {
   await expect(page).toHaveURL(/#\/weekly-plan$/)
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(`${planName} — Week 1`)
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(`${planName} — Week 1`)
 }
 
 // Selecting or switching a plan opens the Dashboard, whose "Getting started" checklist names the plan.
@@ -101,7 +119,8 @@ async function expectDashboardFollowing(page, planName) {
 
 async function selectFirstPlan(page, planName) {
   await page.goto('#/plans')
-  await planRow(page, planName).getByRole('button', { name: 'Choose plan' }).click()
+  await openPlan(page, planName)
+  await page.getByRole('button', { name: 'Start this plan' }).click()
   await expectDashboardFollowing(page, planName)
 }
 
@@ -122,34 +141,27 @@ acceptanceTests(
         await expect(page.locator('.your-setup').getByRole('link', { name: 'Edit' })).toBeVisible()
         await page.getByRole('link', { name: 'Browse all plans' }).click()
         await expect(page).toHaveURL(/#\/plans$/)
-        await expect(page.locator('.plan-prefs')).toContainText('Strength')
-        await expect(page.locator('.plan-prefs')).toContainText('Intermediate')
-        await expect(page.locator('.plan-prefs')).toContainText('Full gym access')
-        await expect(page.locator('.plan-prefs').getByRole('link', { name: 'Edit preferences' })).toBeVisible()
-        await expect(planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Choose plan' })).toBeEnabled()
-        await expect(page.getByText('to choose a plan')).toHaveCount(0)
+        await expect(page.getByRole('heading', { level: 1, name: 'Plan library' })).toBeVisible()
       })
 
-      await step('Step 1: the library lists 10 plans with their details and a Choose plan button', async () => {
-        await expect(page.getByRole('heading', { name: 'Find your next workout plan' })).toBeVisible()
-        await expect(page.getByText('Browse all training programs')).toBeVisible()
-        const rows = page.locator('.plan-list__item')
-        await expect(rows).toHaveCount(10)
-        for (const row of await rows.all()) {
-          await expect(row.locator('.plan-row__name')).not.toBeEmpty()
-          await expect(row.locator('.plan-row__meta')).toHaveText(/^(Beginner|Intermediate|Advanced) · \S+ weeks$/)
-          await expect(row.locator('.plan-row__frequency')).toHaveText(/^\d days\/wk$/)
-          await expect(row.getByRole('button', { name: 'Choose plan' })).toBeVisible()
+      await step('Step 1: 5 plans under "Recommended for you", 5 more under "More plans", each with its details', async () => {
+        await expect(page.getByRole('heading', { name: 'Recommended for you' })).toBeVisible()
+        await expect(page.locator('.plan-lib__group .plan-lib__card')).toHaveCount(5)
+        await expect(morePlans(page).locator('summary')).toHaveText(/^More plans\s*5 programs/)
+        await expect(morePlans(page).locator('.plan-lib__card').first()).toBeHidden()
+        await morePlans(page).locator('summary').click()
+        await expect(morePlans(page).locator('.plan-lib__card')).toHaveCount(5)
+        const cards = page.locator('.plan-lib__card')
+        await expect(cards).toHaveCount(10)
+        for (const card of await cards.all()) {
+          await expect(card.locator('.plan-lib__card-title')).not.toBeEmpty()
+          await expect(card.locator('small')).toHaveText(/^(Beginner|Intermediate|Advanced) · \d days\/week · \S+ weeks$/)
         }
-        await expect(planRow(page, 'Push Pull Legs')).toContainText('Intermediate · 6-8 weeks')
-        await expect(planRow(page, 'Push Pull Legs')).toContainText('5 days/wk')
+        await expect(planCard(page, 'Push Pull Legs')).toContainText('Intermediate · 5 days/week · 6-8 weeks')
       })
 
       await step('Step 2: clicking the "Push Pull Legs" card opens its details', async () => {
-        // An empty spot on the card, right of its middle, away from the name, the dot and the button.
-        const card = planRow(page, 'Push Pull Legs')
-        const { width, height } = await card.boundingBox()
-        await card.click({ position: { x: width - 24, y: height / 2 } })
+        await planCard(page, 'Push Pull Legs').click()
         await expect(page).toHaveURL(/#\/plans\/\d+$/)
         await expect(page.getByRole('heading', { level: 1 })).toHaveText('Push Pull Legs')
         await expect(page.getByText('5 days/wk')).toBeVisible()
@@ -169,15 +181,14 @@ acceptanceTests(
         await expect(page.getByRole('button', { name: 'Start this plan' })).toBeVisible()
       })
 
-      await step('Step 4: "Plans" in the breadcrumb returns to the library', async () => {
-        await page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Plans' }).click()
+      await step('Step 4: "Back to plan library" returns to the library', async () => {
+        await page.getByRole('link', { name: 'Back to plan library' }).click()
         await expect(page).toHaveURL(/#\/plans$/)
-        await expect(page.getByRole('heading', { name: 'Find your next workout plan' })).toBeVisible()
+        await expect(page.getByRole('heading', { level: 1, name: 'Plan library' })).toBeVisible()
       })
 
-      await step('Step 5: "Bodyweight Basics" shows its own details', async () => {
-        await planRow(page, 'Bodyweight Basics').getByRole('link').click()
-        await expect(page.getByRole('heading', { level: 1 })).toHaveText('Bodyweight Basics')
+      await step('Step 5: "Bodyweight Basics", under "More plans", shows its own details', async () => {
+        await openPlan(page, 'Bodyweight Basics')
         await expect(page.getByText('Beginner · 4 weeks')).toBeVisible()
         await expect(page.getByText('3 days/wk')).toBeVisible()
         await expect(split).toHaveText([/^Push.*~30 min$/, /^Pull.*~30 min$/, /^Legs.*~30 min$/])
@@ -192,15 +203,16 @@ acceptanceTests(
         await newOnboardedAccount(page, 'Plans Tester A')
       })
 
-      await step('Step 1: "Browse all plans" opens the library, with working Choose plan buttons', async () => {
+      await step('Step 1: "Browse all plans" opens the library, and "Push Pull Legs" opens its details', async () => {
         await page.getByRole('link', { name: 'Browse all plans' }).click()
         await expect(page).toHaveURL(/#\/plans$/)
-        await expect(planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Choose plan' })).toBeEnabled()
-        await expect(page.getByText('to choose a plan')).toHaveCount(0)
+        await expect(currentPlanCard(page)).toHaveCount(0)
+        await openPlan(page, 'Push Pull Legs')
+        await expect(page.getByRole('button', { name: 'Start this plan' })).toBeEnabled()
       })
 
-      await step('Step 2: selecting "Push Pull Legs" opens the Dashboard, then "Workouts" shows it as your weekly plan', async () => {
-        await planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Choose plan' }).click()
+      await step('Step 2: "Start this plan" opens the Dashboard, then "Workouts" shows it as your weekly plan', async () => {
+        await page.getByRole('button', { name: 'Start this plan' }).click()
         await expect(switchDialog(page)).toHaveCount(0)
         await expectDashboardFollowing(page, 'Push Pull Legs')
         await goTo(page, 'Workouts')
@@ -209,7 +221,8 @@ acceptanceTests(
         await expectCurrentNavLink(page, 'Workouts')
 
         const cards = dayCards(page)
-        await expect(cards.locator('.day-card__weekday')).toHaveText(['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'])
+        // "MON 16" … "WED 18 · Today": the weekday, the date and, on today's card, "· Today".
+        await expect(cards.locator('.day-card__weekday')).toHaveText(['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map((day) => new RegExp(`^${day} \\d+`)))
         for (const name of await cards.locator('.day-card__name').allTextContents()) {
           expect(['Push', 'Pull', 'Legs', 'Rest day']).toContain(name)
         }
@@ -222,17 +235,15 @@ acceptanceTests(
         await expect(page.locator('#today-workout-name')).toHaveText(todaysWorkout)
       })
 
-      await step('Step 3: the library now shows "Current plan", greyed out, on an orange-bordered card', async () => {
+      await step('Step 3: the library now starts with a "Current plan" card for "Push Pull Legs"', async () => {
         await goTo(page, 'Plans')
-        const current = planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Current plan' })
-        await expect(current).toBeVisible()
-        await expect(current).toBeDisabled()
-        await expect(current.locator('svg')).toBeVisible()
-        await expect(planRow(page, 'Push Pull Legs')).toHaveCSS('border-top-color', 'rgb(224, 112, 63)')
+        await expect(currentPlanCard(page).locator('.plan-lib__kicker')).toHaveText(/^current plan$/i)
+        await expect(currentPlanCard(page).getByRole('heading')).toHaveText('Push Pull Legs')
+        await expect(planCard(page, 'Push Pull Legs')).toHaveCount(0)
       })
 
-      await step('Step 4: its details page shows "This is your current plan", greyed out', async () => {
-        await planRow(page, 'Push Pull Legs').getByRole('link').click()
+      await step('Step 4: "View plan" shows "This is your current plan", greyed out', async () => {
+        await currentPlanCard(page).getByRole('link', { name: /View plan/ }).click()
         const detailsButton = page.getByRole('button', { name: 'This is your current plan' })
         await expect(detailsButton).toBeVisible()
         await expect(detailsButton).toBeDisabled()
@@ -246,15 +257,23 @@ acceptanceTests(
 
     3: async ({ page }) => {
       const dialog = switchDialog(page)
-      const selectFullBody = planRow(page, 'Full Body Strength').getByRole('button', { name: 'Choose plan' })
+      // From the library: open "Full Body Strength" and select "Start this plan".
+      const selectFullBody = { click: async () => {
+        await goTo(page, 'Plans')
+        await openPlan(page, 'Full Body Strength')
+        await page.getByRole('button', { name: 'Start this plan' }).click()
+      } }
+      const stillPushPullLegs = async () => {
+        await goTo(page, 'Plans')
+        await expect(currentPlanCard(page).getByRole('heading')).toHaveText('Push Pull Legs')
+      }
 
       await step('Setup: log in with "Push Pull Legs" as your plan (where Acceptance Test 2 ends)', async () => {
         await newOnboardedAccount(page, 'Plans Tester A')
         await selectFirstPlan(page, 'Push Pull Legs')
       })
 
-      await step('Step 1: selecting "Full Body Strength" shows the switch warning', async () => {
-        await goTo(page, 'Plans')
+      await step('Step 1: "Start this plan" on "Full Body Strength" shows the switch warning', async () => {
         await selectFullBody.click()
         await expect(dialog.getByRole('heading')).toHaveText('Switch to Full Body Strength?')
         await expect(dialog).toContainText(
@@ -268,7 +287,7 @@ acceptanceTests(
       await step('Step 2: Cancel closes it and keeps "Push Pull Legs"', async () => {
         await dialog.getByRole('button', { name: 'Cancel' }).click()
         await expect(dialog).toHaveCount(0)
-        await expect(planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Current plan' })).toBeVisible()
+        await stillPushPullLegs()
       })
 
       await step('Step 3: Escape closes it without changing the plan', async () => {
@@ -286,12 +305,11 @@ acceptanceTests(
         const { height } = await backdrop.boundingBox()
         await backdrop.click({ position: { x: 20, y: height - 20 } })
         await expect(dialog).toHaveCount(0)
-        await expect(planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Current plan' })).toBeVisible()
+        await stillPushPullLegs()
       })
 
-      await step('Step 5: "Start this plan" on the details page shows the same warning', async () => {
-        await planRow(page, 'Full Body Strength').getByRole('link').click()
-        await page.getByRole('button', { name: 'Start this plan' }).click()
+      await step('Step 5: "Start this plan" again shows the same warning', async () => {
+        await selectFullBody.click()
         await expect(dialog.getByRole('heading')).toHaveText('Switch to Full Body Strength?')
       })
 
@@ -304,10 +322,11 @@ acceptanceTests(
         expect(names).toEqual(expect.arrayContaining(['Full body A', 'Full body B', 'Full body C']))
       })
 
-      await step('Step 7: the library shows the new current plan, and the old one can be selected', async () => {
+      await step('Step 7: the library shows the new current plan, and the old one can be chosen again', async () => {
         await goTo(page, 'Plans')
-        await expect(planRow(page, 'Full Body Strength').getByRole('button', { name: 'Current plan' })).toBeDisabled()
-        await expect(planRow(page, 'Push Pull Legs').getByRole('button', { name: 'Choose plan' })).toBeEnabled()
+        await expect(currentPlanCard(page).getByRole('heading')).toHaveText('Full Body Strength')
+        await openPlan(page, 'Push Pull Legs')
+        await expect(page.getByRole('button', { name: 'Start this plan' })).toBeEnabled()
       })
     },
 
@@ -357,6 +376,7 @@ acceptanceTests(
         await logOut(page)
         const accountB = await createAccount(page, 'Plans Tester B')
         await logIn(page, accountB)
+        await addPersonalDetails(page)
         await finishOnboarding(page)
         await page.goto('#/weekly-plan')
         await expect(page.getByRole('heading', { name: 'No workout plan selected yet' })).toBeVisible()
@@ -366,7 +386,8 @@ acceptanceTests(
 
       await step('Step 6: the second account picks "Glute Focus"', async () => {
         await page.getByRole('link', { name: 'Browse workout plans' }).click()
-        await planRow(page, 'Glute Focus').getByRole('button', { name: 'Choose plan' }).click()
+        await openPlan(page, 'Glute Focus')
+        await page.getByRole('button', { name: 'Start this plan' }).click()
         await expectDashboardFollowing(page, 'Glute Focus')
         await page.goto('#/weekly-plan')
         await expectWeeklyPlan(page, 'Glute Focus')

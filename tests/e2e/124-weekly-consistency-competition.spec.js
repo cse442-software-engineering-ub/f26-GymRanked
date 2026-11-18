@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { expect, test } from '@playwright/test'
 import { step } from './banner.js'
-import { logIn, logOut } from './helpers.js'
+import { acquireLock, logIn, logOut } from './helpers.js'
 import { acceptanceTests } from './stories.js'
 
 // Story 124 uses the accounts in database/seeds/weekly_competition.sql (#126). The seed dates workouts in the current
@@ -40,7 +40,11 @@ foreach (['casey', 'maya', 'pat', 'dana', 'ivy', 'lee', 'nia', 'tess'] as $name)
 $db->query('DELETE FROM auth_attempts WHERE attempt_key IN (' . implode(',', $keys) . ')');
 `
 
-test.beforeEach(() => {
+// The weekly accounts are shared with story 131's menu tests: see acquireLock in helpers.js.
+let releaseWeekly = null
+test.afterEach(() => { releaseWeekly?.(); releaseWeekly = null })
+test.beforeEach(async () => {
+  releaseWeekly = await acquireLock('weekly-seed')
   if (!process.env.E2E_BASE_URL) execFileSync('php', ['-r', LOAD_SEED], { cwd: REPO_ROOT })
 })
 
@@ -48,8 +52,10 @@ const main = (page) => page.locator('main')
 const hero = (page) => main(page).locator('.weekly-hero')
 const days = (page) => hero(page).locator('.weekly-hero__days')
 const rows = (page) => main(page).locator('.weekly-row')
-const weeklyRing = (page) => page.locator('.dashboard-weekly__ring-center')
-const homeRank = (page) => page.locator('.dashboard-weekly__stats > div').filter({ hasText: 'Weekly rank' }).locator('strong')
+// Home since the Dashboard redesign (#136): the "This week" card's count, and the Weekly consistency row in
+// "Your rankings" (its rank, or why there is none, such as "Not joined · The 3-day circle").
+const weeklyRing = (page) => page.locator('.home-week__count')
+const homeRank = (page) => page.locator('.home-rankings__row').filter({ hasText: 'Weekly consistency' })
 const switchLink = (page, label) => page.getByRole('navigation', { name: 'Leaderboards' }).getByRole('link', { name: label })
 const fitsWidth = (page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
 
@@ -83,14 +89,18 @@ async function expectHomeRing(page, text) {
   await expect(weeklyRing(page)).toContainText('training days logged')
 }
 
-// Dashboard, Resume workout, Complete workout, then Complete workout in the box.
+// Dashboard, Resume workout, Complete workout, Complete workout in the box, then "Save partial workout" in the box
+// that says "Some exercises have no logged sets" (the seed's workout has one set on its first exercise only).
 async function finishWorkout(page) {
   await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Dashboard', exact: true }).click()
   await page.getByRole('button', { name: /Resume workout/ }).click()
   await expect(page).toHaveURL(/#\/workout\/active$/)
   await main(page).getByRole('button', { name: 'Complete workout' }).click()
   await page.getByRole('dialog').getByRole('button', { name: 'Complete workout' }).click()
-  await expect(page.getByRole('heading', { level: 1, name: 'Workout complete' })).toBeVisible()
+  const partial = page.getByRole('alertdialog', { name: 'Some exercises have no logged sets' })
+  await expect(partial).toBeVisible()
+  await partial.getByRole('button', { name: 'Save partial workout' }).click()
+  await expect(page.getByRole('heading', { level: 1, name: /^Workout complete/ })).toBeVisible()
 }
 
 acceptanceTests('124-weekly-consistency-competition.md', {
@@ -136,7 +146,7 @@ acceptanceTests('124-weekly-consistency-competition.md', {
       await finishWorkout(page)
       await main(page).getByRole('button', { name: 'Return to dashboard' }).click()
       await expectHomeRing(page, '3/3')
-      await expect(homeRank(page)).toHaveText('#1')
+      await expect(homeRank(page)).toContainText('#1')
     })
     const expectFinished = async () => {
       await expect(hero(page).getByRole('heading', { level: 1 })).toHaveText("You're #1")
@@ -215,7 +225,7 @@ acceptanceTests('124-weekly-consistency-competition.md', {
     await step('Setup: Ivy is at 2/3 and not joined', async () => {
       await logIn(page, IVY)
       await expectHomeRing(page, '2/3')
-      await expect(homeRank(page)).toHaveText('Not joined')
+      await expect(homeRank(page)).toContainText('Not joined')
     })
     await step('Step 1: a Join button instead of a rank', async () => {
       await openWeekly(page)
@@ -247,7 +257,7 @@ acceptanceTests('124-weekly-consistency-competition.md', {
       await expect(joinButton()).toBeVisible()
       await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Dashboard', exact: true }).click()
       await expectHomeRing(page, '2/3')
-      await expect(homeRank(page)).toHaveText('Not joined')
+      await expect(homeRank(page)).toContainText('Not joined')
     })
   },
 
@@ -259,7 +269,7 @@ acceptanceTests('124-weekly-consistency-competition.md', {
     await step('Setup: Lee is at 1/3', async () => {
       await logIn(page, account('lee'))
       await expectHomeRing(page, '1/3')
-      await expect(homeRank(page)).toHaveText('Practice week')
+      await expect(homeRank(page)).toContainText('Practice week')
     })
     await step('Steps 1 and 2: a practice week with no rank', async () => {
       await openWeekly(page)
@@ -281,8 +291,7 @@ acceptanceTests('124-weekly-consistency-competition.md', {
     await step('Setup: log in as Nia', () => logIn(page, account('nia')))
     await step('Step 1: Home starts this week at 0/3', async () => {
       await expectHomeRing(page, '0/3')
-      await expect(page.locator('.dashboard-weekly__day-status').filter({ hasText: 'Logged' })).toHaveCount(0)
-      await expect(page.locator('.dashboard-milestone, .dashboard-card').filter({ hasText: 'Weekly milestone' })).toContainText('This week: 3 training days.')
+      await expect(page.locator('.home-week__day--done')).toHaveCount(0)
     })
     await step('Step 2: last week’s days don’t count on the standings', async () => {
       await openWeekly(page)
@@ -322,10 +331,10 @@ acceptanceTests('124-weekly-consistency-competition.md', {
     await step('Setup: Home shows 2/3 and #2', async () => {
       await logIn(page, CASEY)
       await expectHomeRing(page, '2/3')
-      await expect(homeRank(page)).toHaveText('#2')
+      await expect(homeRank(page)).toContainText('#2')
     })
     await step('Step 1: View weekly standings shows the same rank and count', async () => {
-      await page.getByRole('link', { name: /View weekly standings/ }).click()
+      await homeRank(page).click()
       await expect(page).toHaveURL(/#\/leaderboard\/weekly$/)
       await expect(switchLink(page, 'Weekly consistency')).toHaveAttribute('aria-current', 'page')
       await expect(hero(page)).toContainText("You're #2")
@@ -387,7 +396,7 @@ acceptanceTests('124-weekly-consistency-competition.md', {
     await step('Setup: Tess is at 3/3 and Home says Test account', async () => {
       await logIn(page, TESS)
       await expectHomeRing(page, '3/3')
-      await expect(homeRank(page)).toHaveText('Test account')
+      await expect(homeRank(page)).toContainText('Test account')
     })
     await step('Step 1: the top card explains test accounts, with no rank and no buttons', async () => {
       await openWeekly(page)
@@ -405,7 +414,7 @@ acceptanceTests('124-weekly-consistency-competition.md', {
     await step('Step 3: on a phone, Home still says Test account with no sideways scrolling', async () => {
       await page.setViewportSize({ width: 390, height: 844 })
       await page.goto('#/dashboard')
-      await expect(homeRank(page)).toHaveText('Test account')
+      await expect(homeRank(page)).toContainText('Test account')
       expect(await fitsWidth(page)).toBe(true)
     })
   },

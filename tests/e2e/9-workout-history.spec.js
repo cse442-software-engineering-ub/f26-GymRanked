@@ -148,7 +148,7 @@ acceptanceTests('9-workout-history.md', {
     await step('Step 1: Progress opens Workout history with 6 completed workouts', async () => {
       await openHistory(page)
       await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Progress', exact: true })).toHaveAttribute('aria-current', /page|location/)
-      await expect(page.locator('.breadcrumb__crumb')).toHaveText(['Progress', 'Workout history'])
+      await expect(main(page).getByRole('link', { name: 'Back to progress' })).toBeVisible()
       await expect(main(page).getByText('6 completed workouts', { exact: true })).toBeVisible()
     })
     await step('Step 2: the four newest workouts are listed, each closed', async () => {
