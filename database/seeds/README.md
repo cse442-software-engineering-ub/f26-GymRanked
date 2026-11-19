@@ -53,6 +53,7 @@ Fake accounts for testing login on a local or dev database. Each account has its
 | Nora Vale and 17 more | `crew-nora@example.com`, `crew-eli`, `crew-ola`, `crew-zed` and the other `crew-<name>@example.com` accounts | `Crew-Test-78!` | Buddies rankings (#78, card #138): Northside Crew (13 members), Eastside Lifters (4) and one account in no group. Loaded by `buddy_rankings.sql` |
 | Avery Stone and 5 more | `dash-avery@example.com`, `dash-blake`, `dash-cam`, `dash-drew`, `dash-emery`, `dash-finn` | `Dash-Demo-136!` | Dashboard demo (card #136): a fully filled Dashboard. Loaded by `dashboard_demo.sql` |
 | Pat Record One to Eleven | summary-pr-1@example.com to summary-pr-11@example.com | `Summary-PR-Test-12!` | Workout records (#12, card #137): one completed Bench press (account 9: Push-up) history per comparison case. Loaded by `workout_records.sql` |
+| Set Entry 1 to 15, Return To 1 to 16 | `setentry-1@example.com` to `setentry-15@example.com`, `returnto-1@example.com` to `returnto-16@example.com` | `SetEntry-Test-4!` | Set entry and return navigation (stories #7, #4, #12; Repeat last set card #141): one account per acceptance test, each with Push Pull Legs and no workout started. Loaded by `set_entry.sql`; rerunning resets only these accounts |
 
 These are `example.com` addresses, which can never belong to a real person. Only a bcrypt hash of each password is stored.
 
