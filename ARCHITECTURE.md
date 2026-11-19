@@ -175,6 +175,18 @@ Private workout buddies groups (card #71): a user creates a group, shares its in
 - **Errors:** JSON `{"error": ...}`: 400 `Invalid request.` with `errors.code`, `errors.name`, `errors.member_id` or `errors.message`, or `Send a valid JSON object.`; 401; 404 `That invite code isn't valid or has expired.` (the same words for an unknown and an expired code), `Group not found.` or `Member not found.`; 405 with `Allow`; 409 `You are already in a workout buddies group.`; 415/413/403 as the other POST endpoints; 500 `Database error`.
 - **Not built yet:** leaving or deleting a group, removing a member, a new code, a member limit and a message rate limit.
 
+## Where "Go back" and "Save and return later" lead (card #143)
+
+The page a workout was started or opened from travels in the address, after the page's path, so a refresh or a new tab keeps it. `src/returnTarget.js` is the only code that reads or writes it:
+
+| Came from | Value | Go back / Save and return later opens |
+| --- | --- | --- |
+| Dashboard | `from=dashboard` | `#/dashboard` |
+| Workouts | `from=workouts&day=thu` (`mon` to `sun`) | `#/weekly-plan?day=thu`, with that day card highlighted and brought into view |
+| Workout history | `from=history&page=2&open=17` (page number, id of the open workout) | `#/progress/history?page=2&open=17` |
+
+Example: `#/workouts/42/summary?from=history&page=2&open=17`. Dashboard (Start and Resume workout), Workouts (Start, Resume and View summary) and Workout history (View saved summary) add the value; the active workout keeps it on the summary after Complete workout. Only these three places are ever followed: a missing, unknown or malformed value (`//example.org`, `https://example.org`, `javascript:`, a page of `0` or `abc`, an open id that is not a number, a value over 20 characters) means the Dashboard, and nothing from the address is used as a link target. Workout history writes its own `page` and `open` to its address (replacing the entry, not adding one) when the person changes page or opens a workout, and reads them when it loads. No API or database change.
+
 ## Data flow
 
 Walking a single request end-to-end, using the one flow that currently exists:
