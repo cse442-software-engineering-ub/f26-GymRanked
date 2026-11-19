@@ -8,7 +8,7 @@ import workoutLogApi from './workoutLog/workoutLogApi.js'
 import { summaryPath } from './workoutLog/setLog.js'
 import { easternDate, todaySessionState } from './weeklyTimeline.js'
 
-const STATUS_LABELS = { past: 'Earlier this week', today: 'Today', upcoming: 'Upcoming' }
+const STATUS_LABELS = { past: 'Scheduled', today: 'Today', upcoming: 'Upcoming' }
 const calendarDate = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 
 function DayCard({ day, date, savedSession, highlighted }) {
@@ -21,7 +21,7 @@ function DayCard({ day, date, savedSession, highlighted }) {
   if (!day.workout) classes.push('day-card--rest')
   return (
     <li ref={ref} className={classes.join(' ')} aria-current={day.when === 'today' ? 'date' : undefined}>
-      <span className="day-card__weekday">{day.label}<span className="day-card__date"> {date.getDate()}{day.when === 'today' ? ' · Today' : ''}</span></span>
+      <span className="day-card__weekday">{day.label}<span className="day-card__date"> {date.getDate()}</span></span>
       <span className="day-card__name">{savedSession?.name || day.workout?.name || 'Rest day'}</span>
       <span className="day-card__status">
         {/* Today always says "Today", so it isn't marked by colour alone, even on a rest day. */}
@@ -129,26 +129,21 @@ function WeeklyPlan() {
               <h1><span className="weekly-plan__desktop-title">{plan.name} — Week {current.week}</span><span className="weekly-plan__mobile-title">Workouts</span></h1>
               <p>{weekRangeLabel(today)}</p>
             </div>
-            <ol className="weekly-plan__days" aria-label="Your week">
-              {days.map((day, index) => (
-                <DayCard key={day.label} day={day} date={dayDates[index]} highlighted={day.label.toLowerCase() === highlightedDay} savedSession={history.find((session) => easternDate(session.completed_at) === calendarDate(dayDates[index]))} />
-              ))}
-            </ol>
-            <section className="today-workout" aria-labelledby="today-workout-name" style={{ '--workout-hero-image': `url("${import.meta.env.BASE_URL}backdrops/dumbbells.webp")` }}>
-              <p className="today-workout__label">
-                {saved?.state === 'in_progress' ? "Today's workout · In progress" : saved ? "Today's workout · Completed" : "Today's workout"}
-              </p>
+            <section className="today-workout" aria-labelledby="today-workout-name" style={{ '--workout-hero-image': `url("${import.meta.env.BASE_URL}backdrops/rack.webp")` }}>
+              <div className="today-workout__heading-row">
+                <p className="today-workout__label">Today's workout</p>
+                <span className="today-workout__badge">{saved?.state === 'in_progress' ? 'In progress' : saved ? 'Completed' : todayWorkout ? 'Scheduled' : 'Recovery'}</span>
+              </div>
               <h2 id="today-workout-name" className="today-workout__name">
                 {todayWorkout ? todayWorkout.name : 'Rest day'}
               </h2>
               <p className="today-workout__meta">
                 {todayWorkout
-                  ? `${plan.name} · ${todayWorkout.focus} · About ${todayWorkout.duration_minutes} min · ${todayWorkout.exercises?.length ?? 0} exercises`
+                  ? `◷ About ${todayWorkout.duration_minutes} min  ·  ${plan.name}`
                   : 'Recovery'}
               </p>
               {todayWorkout?.exercises?.length > 0 && (
                 <div className="today-workout__mobile-exercises">
-                  <h3>Exercises</h3>
                   <ol aria-label={`${todayWorkout.name} exercises`}>
                     {todayWorkout.exercises.map((exercise, index) => (
                       <li key={`${exercise}-${index}`}><span aria-hidden="true">{index + 1}</span><strong>{exercise}</strong></li>
@@ -187,10 +182,15 @@ function WeeklyPlan() {
                   {unfinishedSummary(resumable)}
                 </p>
               )}
-              <Link to={`/plans/${plan.id}`} state={{ from: '/weekly-plan' }} className="today-workout__action today-workout__details">
-                View plan details ›
-              </Link>
             </section>
+            <ol className="weekly-plan__days" aria-label="Your week">
+              {days.map((day, index) => (
+                <DayCard key={day.label} day={day} date={dayDates[index]} highlighted={day.label.toLowerCase() === highlightedDay} savedSession={history.find((session) => easternDate(session.completed_at) === calendarDate(dayDates[index]))} />
+              ))}
+            </ol>
+            <Link to={`/plans/${plan.id}`} state={{ from: '/weekly-plan' }} className="weekly-plan__details">
+              View plan details ›
+            </Link>
           </>
         )}
       </main>
