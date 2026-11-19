@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { addReturn, readReturnTarget, returnPath } from './returnTarget.js'
 import GymBackdrop from './components/GymBackdrop.jsx'
 import MobileDashboardIcon from './MobileDashboardIcon.jsx'
 import QuickSetLogger from './QuickSetLogger.jsx'
@@ -13,6 +14,10 @@ import workoutLogApi from './workoutLog/workoutLogApi.js'
 // Active workout screen: the user selects an exercise and logs sets inline.
 function ActiveWorkout() {
   const navigate = useNavigate()
+  // The page this workout was opened from (see returnTarget.js): Save and return later goes back there, and the
+  // summary after Complete workout keeps it.
+  const [searchParams] = useSearchParams()
+  const cameFrom = readReturnTarget(searchParams)
   const [mobile, setMobile] = useState(() => window.matchMedia('(max-width: 640px)').matches)
   const [session, setSession] = useState(null)
   const [status, setStatus] = useState('loading') // loading | ready | none | loggedOut | error
@@ -51,7 +56,7 @@ function ActiveWorkout() {
     startSession()
       .then((started) => {
         if (started.completed_at) {
-          navigate(summaryPath(started.id), { replace: true })
+          navigate(addReturn(summaryPath(started.id), cameFrom), { replace: true })
           return
         }
         setSession(started)
@@ -265,10 +270,10 @@ function ActiveWorkout() {
                   setCurrent(index)
                 }}
                 onEndUnlogged={() => clearUnloggedSets(session.id, exercises.map(({ name }) => name))}
-                onCompleted={() => navigate(summaryPath(session.id))}
+                onCompleted={() => navigate(addReturn(summaryPath(session.id), cameFrom))}
                 onSessionEnded={() => setStatus('loggedOut')}
               />
-              {!completed && <Link className="active-workout__leave" to="/dashboard">Leave and return later</Link>}
+              {!completed && <Link className="active-workout__leave" to={returnPath(cameFrom)}>Save and return later</Link>}
             </section>
             {completed && <Link to="/weekly-plan" className="active-workout__back">Back to weekly plan</Link>}
           </>

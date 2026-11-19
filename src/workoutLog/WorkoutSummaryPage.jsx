@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { readReturnTarget, returnPath } from '../returnTarget.js'
 import MobileDashboardIcon from '../MobileDashboardIcon.jsx'
 import workoutLogApi from './workoutLogApi.js'
 import { displaySummary } from './workoutSummary.js'
@@ -59,6 +60,9 @@ function Metric({ label, value, icon, accent = false }) {
 export default function WorkoutSummaryPage({ preview = false }) {
   const { sessionId } = useParams()
   const navigate = useNavigate()
+  // Go back leads to the page the workout was started or opened from; no value means the Dashboard.
+  const [searchParams] = useSearchParams()
+  const backTo = returnPath(readReturnTarget(searchParams))
   const [shareStatus, setShareStatus] = useState('')
   const [attempt, setAttempt] = useState(0)
   const [state, setState] = useState({ status: preview ? 'ready' : 'loading' })
@@ -141,7 +145,7 @@ export default function WorkoutSummaryPage({ preview = false }) {
             <h1>Workout summary unavailable</h1>
             <p>{state.message}</p>
             <button type="button" className="workout-summary__primary" onClick={() => setAttempt((value) => value + 1)}>Try again</button>
-            <Link to="/dashboard">Return to dashboard</Link>
+            <Link to={backTo}>Go back</Link>
           </section>
         ) : !summary ? (
           <section className="workout-summary__empty">
@@ -203,7 +207,7 @@ export default function WorkoutSummaryPage({ preview = false }) {
             </section>
 
             <div className="workout-summary__actions">
-              <button type="button" className="workout-summary__primary" onClick={() => navigate('/dashboard')}>Return to dashboard <SummaryIcon name="arrow" /></button>
+              <button type="button" className="workout-summary__primary" onClick={() => navigate(backTo)}>Go back <SummaryIcon name="arrow" /></button>
               <Link className="workout-summary__secondary" to="/progress/history"><SummaryIcon name="list" /> Workout history</Link>
               <button type="button" className="workout-summary__secondary" onClick={shareSummary}><SummaryIcon name="share" /> Share summary</button>
             </div>

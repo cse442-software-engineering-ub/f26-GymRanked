@@ -1668,6 +1668,12 @@ body {
   color: var(--gr-action-text);
 }
 
+/* The day a workout was started from (Workouts?day=thu), so coming back shows where you were. */
+.day-card--from {
+  outline: 2px solid var(--gr-action);
+  outline-offset: 2px;
+}
+
 .today-workout {
   display: flex;
   flex-direction: column;
