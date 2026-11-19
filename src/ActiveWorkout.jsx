@@ -4,6 +4,7 @@ import { addReturn, readReturnTarget, returnPath } from './returnTarget.js'
 import GymBackdrop from './components/GymBackdrop.jsx'
 import MobileDashboardIcon from './MobileDashboardIcon.jsx'
 import QuickSetLogger from './QuickSetLogger.jsx'
+import SavedSetsCard from './SavedSetsCard.jsx'
 import { fetchCurrentPlan, fetchPlan } from './plansApi.js'
 import CompleteWorkoutButton from './workoutLog/CompleteWorkoutButton.jsx'
 import { summaryPath, upsertSet } from './workoutLog/setLog.js'
@@ -191,26 +192,29 @@ function ActiveWorkout() {
               </article>
             </section>
 
-            <ol className="active-steps" aria-label="Exercises">
-              {exercises.map(({ name }, index) => {
-                const classes = ['active-step']
-                if (index === current) classes.push('active-step--current')
-                return (
-                  <li key={name}>
-                    <button
-                      type="button"
-                      className={classes.join(' ')}
-                      aria-current={index === current ? 'step' : undefined}
-                      onClick={() => goTo(index)}
-                    >
-                      <span className="active-step__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-                      <span className="active-step__name">{name}</span>
-                      <span className="active-step__count">{countFor(name)} {countFor(name) === 1 ? 'set' : 'sets'}</span>
-                    </button>
-                  </li>
-                )
-              })}
-            </ol>
+            <div className="active-workout__sidebar">
+              <ol className="active-steps" aria-label="Exercises">
+                {exercises.map(({ name }, index) => {
+                  const classes = ['active-step']
+                  if (index === current) classes.push('active-step--current')
+                  return (
+                    <li key={name}>
+                      <button
+                        type="button"
+                        className={classes.join(' ')}
+                        aria-current={index === current ? 'step' : undefined}
+                        onClick={() => goTo(index)}
+                      >
+                        <span className="active-step__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                        <span className="active-step__name">{name}</span>
+                        <span className="active-step__count">{countFor(name)} {countFor(name) === 1 ? 'set' : 'sets'}</span>
+                      </button>
+                    </li>
+                  )
+                })}
+              </ol>
+              {!completed && <SavedSetsCard exercises={exercises} savedSets={savedSets} totalVolume={volume} />}
+            </div>
 
             <p className="active-workout__position">
               Current exercise: {exercises[current].name} ({current + 1} of {exercises.length})
