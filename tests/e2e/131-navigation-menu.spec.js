@@ -118,7 +118,7 @@ acceptanceTests('131-navigation-menu.md', {
       // "Resume …" with the seed's unfinished workout; "Start …" if story 124, running at the same time in a quick
       // parallel run, has just finished it (the watch run uses one worker, so this only matters there).
       await page.getByRole('button', { name: /^(Resume|Start)/ }).first().click()
-      await expect(page).toHaveURL(/#\/workout\/active$/)
+      await expect(page).toHaveURL(/#\/workout\/active(\?.*)?$/)
       await expect(highlighted(sidebar(page))).toHaveText('Workouts')
     })
   },
@@ -203,7 +203,7 @@ acceptanceTests('131-navigation-menu.md', {
     })
     await step('Step 2: the workout opens on Exercise 2 of 3 with 1 set on the first exercise', async () => {
       await page.getByRole('button', { name: 'Resume workout' }).click()
-      await expect(page).toHaveURL(/#\/workout\/active$/)
+      await expect(page).toHaveURL(/#\/workout\/active(\?.*)?$/)
       await expect(page.locator('main').getByRole('button', { name: /1 set$/ }).first()).toBeVisible()
       exercise = (await page.locator('main').innerText()).match(/Exercise 2 of 3\s+([^\n]+)/)?.[1]
       expect(exercise).toBeTruthy()

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
+import { DASHBOARD, addReturn } from './returnTarget.js'
 import { authRequest } from './auth/api.js'
 import { apiRequest } from './onboarding/api.js'
 import { fetchCurrentPlan, fetchPlan } from './plansApi.js'
@@ -225,7 +226,7 @@ function Dashboard() {
             next={next}
             errorText={planError}
             workoutStatus={workoutStatus}
-            onStart={() => navigate('/workout/active')}
+            onStart={() => navigate(addReturn('/workout/active', DASHBOARD))}
             onRetry={retry}
           />
           <ThisWeekPanel

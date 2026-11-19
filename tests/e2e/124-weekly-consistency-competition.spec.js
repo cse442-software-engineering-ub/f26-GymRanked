@@ -94,7 +94,7 @@ async function expectHomeRing(page, text) {
 async function finishWorkout(page) {
   await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Dashboard', exact: true }).click()
   await page.getByRole('button', { name: /Resume workout/ }).click()
-  await expect(page).toHaveURL(/#\/workout\/active$/)
+  await expect(page).toHaveURL(/#\/workout\/active(\?.*)?$/)
   await main(page).getByRole('button', { name: 'Complete workout' }).click()
   await page.getByRole('dialog').getByRole('button', { name: 'Complete workout' }).click()
   const partial = page.getByRole('alertdialog', { name: 'Some exercises have no logged sets' })
@@ -144,7 +144,7 @@ acceptanceTests('124-weekly-consistency-competition.md', {
     })
     await step('Step 1: finish the workout; Home shows 3/3', async () => {
       await finishWorkout(page)
-      await main(page).getByRole('button', { name: 'Return to dashboard' }).click()
+      await main(page).getByRole('button', { name: 'Go back' }).click()
       await expectHomeRing(page, '3/3')
       await expect(homeRank(page)).toContainText('#1')
     })

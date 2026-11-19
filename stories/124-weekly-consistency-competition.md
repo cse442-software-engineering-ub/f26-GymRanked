@@ -49,7 +49,7 @@ Test accounts: fake accounts loaded by the backend task's seed file. Load the se
 
 ### Steps:
 
-1. Select **Dashboard**, then **Resume workout**. Select **Complete workout**, then **Complete workout** in the box that opens, then **Save partial workout** in the box that says `Some exercises have no logged sets`. Confirm that the summary's heading starts with `Workout complete`. Select **Return to dashboard** and confirm that the **This week** card shows `3/3` and `training days logged`, and that the **Weekly consistency** row under **Your rankings** shows `#1`.
+1. Select **Dashboard**, then **Resume workout**. Select **Complete workout**, then **Complete workout** in the box that opens, then **Save partial workout** in the box that says `Some exercises have no logged sets`. Confirm that the summary's heading starts with `Workout complete`. Select **Go back** and confirm that the **This week** card shows `3/3` and `training days logged`, and that the **Weekly consistency** row under **Your rankings** shows `#1`.
 2. Select **Rankings** in the menu and confirm that **Weekly consistency** is selected. Confirm that the top card now says `You're #1`, `3/3 days · 100%` and `Goal reached`.
 3. Confirm that the board starts with `#1` `Casey L.` marked `You` and `#1` `Maya R.`, both with `3 of 3 days` and `100%`, followed by `#3` `Jordan K.` and `#3` `Pat M.` with `2 of 3 days` and `67%`, and that `Alex T.` and `Riley S.` both show `#5`.
 4. Refresh the page and confirm that the same ranks, counts and `You're #1` remain. The workout must not be counted a second time.
