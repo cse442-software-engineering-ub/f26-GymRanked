@@ -18,6 +18,19 @@ export function nextSetNumber(sets) {
   return sets.reduce((highest, set) => Math.max(highest, set.set_number), 0) + 1
 }
 
+// The saved set that "Repeat last set" copies: the one with the highest set number (not the last in the list) of
+// this exercise, or null when the exercise has no saved set yet. Sets that name another exercise are ignored.
+export function lastSavedSet(sets, exercise) {
+  return sets
+    .filter((set) => set.exercise === undefined || set.exercise === exercise)
+    .reduce((last, set) => (last === null || set.set_number > last.set_number ? set : last), null)
+}
+
+// The text typed into the Weight and Reps boxes for a saved set (a bodyweight set fills 0).
+export function repeatValues(set) {
+  return { weight: String(set.weight_lb), reps: String(set.reps) }
+}
+
 // Adds a saved set, or replaces the one with the same id after a correction. Keeps sets in order.
 export function upsertSet(sets, saved) {
   const others = sets.filter((set) => set.id !== saved.id)
