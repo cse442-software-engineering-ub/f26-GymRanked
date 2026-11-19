@@ -3,7 +3,7 @@
 ## Test 1: Scheduled workout
 1. Sign in with an account that has a selected workout plan and no workout completed today.
 2. Open Workouts.
-3. Confirm the plan name, week number, and date range appear above a featured card with a gym photo, today's workout name, duration, plan name, exercises, and Start workout button.
+3. Confirm the plan name, week number, and date range appear above a featured card with a gym photo distinct from the Dashboard and active workout photos, today's workout name, duration, plan name, exercises, and Start workout button.
 4. Confirm seven dated day tiles appear below the card, followed by View plan details. Open that link and confirm it shows the selected plan.
 
 ## Test 2: Completed workout summary remains accessible
@@ -21,3 +21,8 @@
 1. Sign in with an account that has started but not finished today's workout.
 2. Open Workouts. Confirm the featured card says In progress and shows Resume workout.
 3. Select Resume workout and confirm the saved session and sets reopen.
+
+## Test 5: Desktop active workout cards align
+1. Sign in with an account with a scheduled workout and open it on a desktop screen at least 1000px wide.
+2. Confirm the Exercises card extends to the same bottom edge as the Log a set card, with no page-background gap above Ready to wrap up.
+3. Select another exercise and log a set. Confirm the cards remain aligned and all exercise buttons work.

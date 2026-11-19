@@ -348,6 +348,6 @@
 @media (min-width: 1000px) {
   .active-workout-page .dashboard-content:has(.active-workout__mobile-log) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 32%); align-items: start; }
   .active-workout-page .active-workout__mobile-log { grid-column: 1; grid-row: 1; }
-  .active-workout-page .active-steps { grid-column: 2; grid-row: 1; }
+  .active-workout-page .active-steps { grid-column: 2; grid-row: 1; align-self: stretch; align-content: start; grid-auto-rows: max-content; }
   .active-workout-page .active-workout__finish { grid-column: 1 / -1; grid-row: 2; }
 }

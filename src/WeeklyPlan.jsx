@@ -129,7 +129,7 @@ function WeeklyPlan() {
               <h1><span className="weekly-plan__desktop-title">{plan.name} — Week {current.week}</span><span className="weekly-plan__mobile-title">Workouts</span></h1>
               <p>{weekRangeLabel(today)}</p>
             </div>
-            <section className="today-workout" aria-labelledby="today-workout-name" style={{ '--workout-hero-image': `url("${import.meta.env.BASE_URL}backdrops/rack.webp")` }}>
+            <section className="today-workout" aria-labelledby="today-workout-name" style={{ '--workout-hero-image': `url("${import.meta.env.BASE_URL}backdrops/gym-floor.webp")` }}>
               <div className="today-workout__heading-row">
                 <p className="today-workout__label">Today's workout</p>
                 <span className="today-workout__badge">{saved?.state === 'in_progress' ? 'In progress' : saved ? 'Completed' : todayWorkout ? 'Scheduled' : 'Recovery'}</span>
