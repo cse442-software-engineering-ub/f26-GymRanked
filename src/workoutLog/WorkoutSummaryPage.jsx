@@ -39,7 +39,7 @@ function SummaryIcon({ name, className = '' }) {
     volume: <><path d="M5 19v-5m7 5V9m7 10V4" /></>,
     sets: <><path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5" /></>,
     list: <><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 8h8M8 12h8M8 16h5" /></>,
-    arrow: <><path d="M4 12h16m-6-6 6 6-6 6" /></>,
+    arrow: <><path d="M20 12H4m6-6-6 6 6 6" /></>,
     share: <><path d="M12 15V3m-4 4 4-4 4 4" /><path d="M5 13v7h14v-7" /></>,
   }
   return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>
@@ -207,7 +207,7 @@ export default function WorkoutSummaryPage({ preview = false }) {
             </section>
 
             <div className="workout-summary__actions">
-              <button type="button" className="workout-summary__primary" onClick={() => navigate(backTo)}>Go back <SummaryIcon name="arrow" /></button>
+              <button type="button" className="workout-summary__primary" onClick={() => navigate(backTo)}><SummaryIcon name="arrow" /> Go back</button>
               <Link className="workout-summary__secondary" to="/progress/history"><SummaryIcon name="list" /> Workout history</Link>
               <button type="button" className="workout-summary__secondary" onClick={shareSummary}><SummaryIcon name="share" /> Share summary</button>
             </div>
