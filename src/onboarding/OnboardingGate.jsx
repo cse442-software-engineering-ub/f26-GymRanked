@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { authRequest } from '../auth/api.js'
 import EntryHandoff from '../auth/EntryHandoff.jsx'
-import { endHandoff, peekHandoff } from '../auth/entryHandoff.js'
+import { endHandoff, handoffTarget, peekHandoff } from '../auth/entryHandoff.js'
 import AppShell from '../navigation/AppShell.jsx'
 import { hasMenu } from '../navigation/menuMap.js'
 import { setAlwaysDark, syncAccountTheme } from '../theme/theme.js'
@@ -81,18 +81,21 @@ export default function OnboardingGate() {
   // never rebuilds the page.
   const handoff = peekHandoff()
   const finish = () => { endHandoff(); setHandoffDone((value) => value + 1) }
+  // While the next page is checked the panel waits where the slide left it: the brand panel's width after Log out,
+  // the sidebar's after log in, nothing after a sign-up.
+  const hold = handoff === 'leave' ? 'hold' : handoff === 'arrive' && handoffTarget() === 'sidebar' ? 'hold-sidebar' : null
   const withHandoff = (content, phase) => <>{content}{phase ? <EntryHandoff key={phase} phase={phase} onDone={finish} /> : null}</>
 
   if (check.path !== path || check.status === 'loading') {
     if (settled.current?.status === 'signed-out' && isAuthPath(settled.current.path) && isAuthPath(path)) {
       return withHandoff(<Outlet />, null)
     }
-    return withHandoff(framed(menuAccount.current, <main className="status" role="status">Checking your account setup…</main>), handoff && 'hold')
+    return withHandoff(framed(menuAccount.current, <main className="status" role="status">Checking your account setup…</main>), hold)
   }
   settled.current = check
   if (check.status === 'signed-out') {
     menuAccount.current = null
-    if (!isAuthPath(path)) return withHandoff(<Navigate to="/login" replace />, handoff && 'hold')
+    if (!isAuthPath(path)) return withHandoff(<Navigate to="/login" replace />, hold)
     return withHandoff(<Outlet />, handoff === 'leave' && 'settle')
   }
   if (check.status === 'error') {
@@ -105,7 +108,7 @@ export default function OnboardingGate() {
 
   menuAccount.current = check.required === null ? { userName: check.userName, trainingComplete: check.trainingComplete } : null
   const redirect = signedInRedirect(path, check.required, check.equipmentJustSaved)
-  if (redirect) return withHandoff(<Navigate to={redirect} replace />, handoff && 'hold')
-  const arrive = handoff === 'arrive' && (menuPage(menuAccount.current) ? 'to-sidebar' : 'to-none')
+  if (redirect) return withHandoff(<Navigate to={redirect} replace />, hold)
+  const arrive = handoff === 'arrive' && (menuPage(menuAccount.current) ? 'arrive-sidebar' : 'arrive-none')
   return withHandoff(framed(menuAccount.current, <Outlet context={{ personalDetails: check.personalDetails, trainingComplete: check.trainingComplete }} />), arrive)
 }

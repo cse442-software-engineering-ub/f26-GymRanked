@@ -63,6 +63,8 @@ meter::-moz-meter-bar { background: var(--accent); }
   --entry-brand-width: clamp(380px, 42vw, 620px);
   --entry-ease: cubic-bezier(0.22, 0.8, 0.24, 1);
   --entry-slide-ms: 480ms;
+  /* The menu sidebar's width on a window 901px or wider (src/navigation/navigation.css), where the panel is drawn. */
+  --entry-sidebar-width: 232px;
 }
 
 .entry {
@@ -211,8 +213,10 @@ meter::-moz-meter-bar { background: var(--accent); }
 .entry--intro-return .entry-brand__top, .entry--intro-return .entry-brand__body { animation: entry-fade 280ms ease 80ms both; }
 
 /* Into the app: the form and the panel's content fade, leaving the plain panel the handoff carries on from. */
-.entry--entering .entry-stage { animation: entry-exit 220ms ease forwards; }
+.entry--entering .entry-stage { animation: entry-exit 380ms var(--entry-ease) forwards; }
 .entry--entering .entry-brand__top, .entry--entering .entry-brand__body, .entry--entering .entry-brand__glow { opacity: 0; }
+/* The handoff panel (drawn over it at the same width) does the narrowing, so the real panel steps aside. */
+.entry--entering .entry-brand { border-right-color: transparent; background: var(--gr-bg-page); }
 
 @keyframes entry-in-right { from { transform: translateX(55%); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes entry-in-left { from { transform: translateX(-55%); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -220,7 +224,7 @@ meter::-moz-meter-bar { background: var(--accent); }
 @keyframes entry-out-right { 60% { opacity: 0; } to { transform: translateX(55%); opacity: 0; } }
 @keyframes entry-rise { from { transform: translateY(10px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes entry-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes entry-exit { to { transform: translateX(-24px); opacity: 0; } }
+@keyframes entry-exit { to { transform: translateX(-80px); opacity: 0; } }
 @keyframes entry-bar { from { transform: scaleY(0.08); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes entry-line { to { stroke-dashoffset: 0; } }
 @keyframes entry-row { from { transform: translateX(-10px); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -239,14 +243,18 @@ meter::-moz-meter-bar { background: var(--accent); }
     background: var(--gr-bg-nav);
     pointer-events: none;
   }
-  .entry-handoff--to-sidebar { animation: entry-to-sidebar 620ms var(--entry-ease) both; }
-  .entry-handoff--to-none { animation: entry-to-none 620ms var(--entry-ease) both; }
+  .entry-handoff--exit-sidebar { animation: entry-brand-to-sidebar 440ms var(--entry-ease) both; }
+  .entry-handoff--exit-none { animation: entry-brand-to-none 440ms var(--entry-ease) both; }
+  .entry-handoff--hold-sidebar { width: var(--entry-sidebar-width); }
+  .entry-handoff--arrive-sidebar { width: var(--entry-sidebar-width); animation: entry-settle 220ms ease 160ms both; }
+  .entry-handoff--arrive-none { animation: entry-sidebar-to-none 320ms var(--entry-ease) both; }
   .entry-handoff--to-brand { animation: entry-to-brand 440ms var(--entry-ease) both; }
   .entry-handoff--settle { animation: entry-settle 200ms ease both; }
 }
 
-@keyframes entry-to-sidebar { 0% { width: var(--entry-brand-width); } 72% { width: var(--app-sidebar-width); opacity: 1; } 100% { width: var(--app-sidebar-width); opacity: 0; } }
-@keyframes entry-to-none { from { width: var(--entry-brand-width); } to { width: 0; } }
+@keyframes entry-brand-to-sidebar { from { width: var(--entry-brand-width); } to { width: var(--entry-sidebar-width); } }
+@keyframes entry-brand-to-none { from { width: var(--entry-brand-width); } to { width: 0; } }
+@keyframes entry-sidebar-to-none { from { width: var(--entry-sidebar-width); } to { width: 0; } }
 @keyframes entry-to-brand { from { width: var(--app-sidebar-width); } to { width: var(--entry-brand-width); } }
 @keyframes entry-settle { from { opacity: 1; } to { opacity: 0; } }
 
@@ -256,8 +264,8 @@ meter::-moz-meter-bar { background: var(--accent); }
   overflow-x: clip;
 }
 
-:root[data-entry="to-sidebar"] .app-shell__page,
-:root[data-entry="to-none"] #root > :first-child { animation: entry-arrive 560ms var(--entry-ease) both; }
+:root[data-entry="arrive-sidebar"] .app-shell__page,
+:root[data-entry="arrive-none"] #root > :first-child { animation: entry-arrive 420ms var(--entry-ease) both; }
 .app-shell--leaving .app-shell__page { animation: entry-leave 380ms var(--entry-ease) forwards; }
 .app-shell--leaving :is(.app-sidebar, .app-topstrip) > * { opacity: 0; transition: opacity 160ms ease; }
 
