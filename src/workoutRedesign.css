@@ -23,35 +23,32 @@
   .active-workout__mobile-heading h1 { margin: 0; font-size: 28px; font-weight: 500; }
   .dashboard-page:has(.active-workout__mobile-heading) > .gym-backdrop {
     height: auto;
-    min-height: 210px;
     margin: 0 20px;
     border: 1px solid var(--gr-border);
     border-radius: var(--gr-radius-card);
     background-color: var(--gr-surface);
-    background-position: center 40%;
+    background-image: linear-gradient(to bottom,
+      color-mix(in srgb, var(--gr-surface) 80%, transparent),
+      color-mix(in srgb, var(--gr-surface) 94%, transparent)), var(--backdrop-image);
+    background-position: center, center 40%;
+    background-size: cover;
     box-shadow: 0 8px 24px var(--gr-shadow-soft);
   }
   .dashboard-page:has(.active-workout__mobile-heading) > .gym-backdrop::before {
-    display: block;
-    inset: -1px;
-    background: linear-gradient(to bottom,
-      color-mix(in srgb, var(--gr-surface) 72%, transparent) 0%,
-      color-mix(in srgb, var(--gr-surface) 82%, transparent) 55%,
-      var(--gr-surface) 100%);
+    display: none;
   }
   .dashboard-page:has(.active-workout__mobile-heading) > .gym-backdrop .gym-backdrop__content {
     box-sizing: border-box;
     height: auto;
-    min-height: 210px;
     justify-content: flex-start;
-    padding: 20px;
+    padding: 14px 16px;
   }
   .dashboard-page:has(.active-workout__mobile-heading) > .gym-backdrop .gym-backdrop__content > span { display: none; }
-  .dashboard-page:has(.active-workout__mobile-heading) .dashboard-header h1 { margin: 5px 0; font-size: 28px; line-height: 1.1; }
-  .dashboard-page:has(.active-workout__mobile-heading) .dashboard-header p { margin: 3px 0; font-size: 14px; }
+  .dashboard-page:has(.active-workout__mobile-heading) .dashboard-header h1 { margin: 3px 0; font-size: 25px; line-height: 1.1; }
+  .dashboard-page:has(.active-workout__mobile-heading) .dashboard-header p { margin: 2px 0; font-size: 13px; }
   .dashboard-page:has(.active-workout__mobile-heading) .dashboard-header__eyebrow { color: var(--gr-action-text); }
-  .active-workout__hero-stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-  .active-workout__hero-stats span { padding: 7px 10px; border: 1px solid var(--gr-border-strong); border-radius: var(--gr-radius-button); background: var(--gr-surface-raised); color: var(--gr-text-soft); font-size: 12px; }
+  .active-workout__hero-stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .active-workout__hero-stats span { padding: 5px 8px; border: 1px solid var(--gr-border-strong); border-radius: var(--gr-radius-button); background: var(--gr-surface-raised); color: var(--gr-text-soft); font-size: 12px; }
   .active-workout__hero-stats strong { color: var(--gr-text); font-size: 14px; }
   .dashboard-page:has(.active-workout__mobile-heading) .active-metrics,
   .dashboard-page:has(.active-workout__mobile-heading) .active-workout__position { display: none; }
