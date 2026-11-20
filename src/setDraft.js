@@ -3,8 +3,34 @@
 // the page or reloading doesn't lose it. The timer is stored as timestamps, so it keeps counting while away.
 // Storage can be blocked or empty; then the page just starts from a fresh set.
 //
+// Drafts are keyed by the logged-in account as well (task #82, "Refresh after settings or account changes"):
+// OnboardingGate calls setDraftOwner with the account's id after each account check, and when that is a different
+// account from the drafts in this browser, the other accounts' drafts are removed, so a second account never sees
+// the first one's typed numbers. Logging out and back in as the same account keeps them.
+//
 // draft = { timer: 'idle'|'running'|'paused'|'ended', accumulatedMs, runningSince, weight, reps, restEndsAt, restTotal }
-const key = (sessionId, exercise) => `gymrank.setDraft.${sessionId}.${exercise}`
+const PREFIX = 'gymrank.setDraft.'
+let owner = null
+const ownerPrefix = () => `${PREFIX}u${owner ?? 'none'}.`
+const key = (sessionId, exercise) => `${ownerPrefix()}${sessionId}.${exercise}`
+
+// Sets whose drafts are read and written from now on, and removes every draft in this browser that belongs to
+// another account (including drafts from before drafts were keyed by account, whose owner can't be told).
+export function setDraftOwner(userId) {
+  if (userId === undefined || userId === null || String(userId) === String(owner)) return
+  owner = userId
+  try {
+    const mine = ownerPrefix()
+    const stale = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const name = localStorage.key(i)
+      if (name?.startsWith(PREFIX) && !name.startsWith(mine)) stale.push(name)
+    }
+    stale.forEach((name) => localStorage.removeItem(name))
+  } catch {
+    // Storage is unavailable: there is nothing stored to remove.
+  }
+}
 
 export const EMPTY_DRAFT = {
   timer: 'idle',
