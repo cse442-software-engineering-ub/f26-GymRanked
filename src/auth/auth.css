@@ -239,6 +239,7 @@ meter::-moz-meter-bar { background: var(--accent); }
 .entry.entry--entering .entry-brand__top,
 .entry.entry--entering .entry-brand__body,
 .entry.entry--entering .entry-brand__glow,
+.entry.entry--entering .entry-backdrop,
 /* On a phone the panel's body is display: contents (so its parts can sit above and below the form), which ignores
    opacity, so its parts fade one by one. */
 .entry.entry--entering :is(.entry-hero, .entry-hero__text, .entry-showcase) { animation: entry-fade-out 180ms ease forwards; }
@@ -253,12 +254,16 @@ meter::-moz-meter-bar { background: var(--accent); }
 @keyframes entry-rise { from { transform: translateY(10px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes entry-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes entry-exit { to { transform: translateX(-80px); opacity: 0; } }
+@keyframes entry-ring { 0%, 100% { transform: scale(0.96); } 50% { transform: scale(1.04); } }
+@keyframes entry-plate-left { from { transform: translateX(-50px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes entry-plate-right { from { transform: translateX(50px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes entry-bar { from { transform: scaleY(0.08); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes entry-line { to { stroke-dashoffset: 0; } }
 @keyframes entry-row { from { transform: translateX(-10px); opacity: 0; } to { transform: none; opacity: 1; } }
 
 /* The handoff panel (src/auth/EntryHandoff.jsx) and the page sliding beside it */
 .entry-handoff { display: none; }
+.entry-backdrop, .entry-barbell { display: none; }
 
 /* "Checking your account setup…" while the handoff panel holds: read out, not shown. */
 .entry-hold-status {
@@ -318,24 +323,110 @@ meter::-moz-meter-bar { background: var(--accent); }
 @keyframes entry-arrive { from { transform: translateX(min(40vw, 480px)); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes entry-leave { to { transform: translateX(min(40vw, 480px)); opacity: 0; } }
 
-/* Tablets and phones: one column. */
+/* Tablets and phones: one column, like an ordinary mobile log in: the brand row, a short headline, then the form
+   centred on the screen. The example cards are left out; a faint copy of the bars and trend line, an orange glow
+   behind the centred brand and a dot grid sit behind the form instead (EntryBackdrop). */
 @media (max-width: 900px) {
-  .entry { display: flex; flex-direction: column; }
+  .entry { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; overflow: hidden; }
   .entry-brand, .entry-brand__body { display: contents; }
-  .entry-brand__glow { display: none; }
-  .entry-brand__top { order: 0; padding: 14px 18px; min-height: 60px; display: flex; align-items: center; }
-  .entry-hero { order: 1; padding: 12px 18px 0; font-size: 28px; line-height: 34px; }
+  .entry-brand__glow, .entry-showcase { display: none; }
+  .entry-brand__top, .entry-hero, .entry-hero__text { position: relative; z-index: 1; }
+  /* The brand sits centred over the glow, larger than on wider screens. */
+  .entry-brand__top { order: 0; padding: 36px 18px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .entry-brand__top .brand { flex-direction: column; gap: 12px; font-size: 24px; font-weight: 600; }
+  .entry-brand__top .brand__mark { width: 56px; height: 56px; border-radius: 16px; }
+  .entry-brand__top .brand__mark svg { width: 30px; height: 30px; }
+  .entry-hero { order: 1; padding: 22px 18px 0; font-size: 30px; line-height: 36px; text-align: center; }
+  .entry-hero__text { order: 1; padding: 8px 18px 0; font-size: 14px; line-height: 21px; text-align: center; max-width: none; }
   .entry-hero .accent { display: inline; }
-  .entry-hero__text { order: 1; padding: 8px 18px 0; font-size: 13px; line-height: 20px; max-width: none; }
-  .entry-stage { order: 2; position: static; place-items: start center; padding: 24px 18px; background: var(--gr-bg-page); }
-  .entry-showcase { order: 3; margin: 0; padding: 0 18px 32px; }
+  /* The form is a sheet that pops up from the bottom over the designed background: rounded top corners, a grab bar,
+     and a soft orange light along its top edge. */
+  .entry-stage {
+    order: 2;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+    place-items: start center;
+    margin-top: 28px;
+    padding: 34px 18px 40px;
+    border: 1px solid var(--gr-border-strong);
+    border-bottom: 0;
+    border-radius: 28px 28px 0 0;
+    background: var(--gr-surface);
+    box-shadow: 0 -14px 44px color-mix(in srgb, var(--gr-brand) 22%, transparent);
+  }
+  .entry-stage::before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    width: 40px;
+    height: 4px;
+    margin-left: -20px;
+    border-radius: 999px;
+    background: var(--gr-border-strong);
+  }
   /* Top-aligned, so the shorter form doesn't sit lower while the taller one slides away and then jump up. */
-  .entry-track { width: min(480px, 100%); overflow: visible clip; }
+  .entry-track { width: min(440px, 100%); overflow: visible clip; }
   .entry-slide { align-self: start; }
   .entry-slide .auth-stack h1 { font-size: 22px; }
   .entry-theme { top: 8px; right: 18px; }
   .login-panel .account-link span { display: none; }
   .login-panel .account-link a { display: grid; place-items: center; min-height: 44px; border: 1px solid var(--gr-brand); border-radius: var(--gr-radius-button); }
+
+  .entry-backdrop {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 90% 320px at 50% 0%, color-mix(in srgb, var(--gr-brand) 42%, transparent), transparent 100%),
+      radial-gradient(color-mix(in srgb, var(--gr-text) 6%, transparent) 1px, transparent 1px) 0 0 / 22px 22px;
+  }
+  /* Rings around the brand, drawn outward from the mark like rank tiers, pulsing one after another. */
+  .entry-backdrop__rings {
+    position: absolute;
+    inset: 0 0 auto 0;
+    width: 100%;
+    height: 330px;
+    -webkit-mask-image: linear-gradient(to bottom, var(--gr-text) 40%, transparent 100%);
+    mask-image: linear-gradient(to bottom, var(--gr-text) 40%, transparent 100%);
+  }
+  .entry-backdrop__ring {
+    fill: none;
+    stroke: var(--gr-brand);
+    stroke-width: 1;
+    opacity: calc(0.5 - var(--i) * 0.08);
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: entry-ring 3600ms ease-in-out infinite;
+    animation-delay: calc(var(--i) * 260ms);
+  }
+
+  /* The barbell rests on the sheet's top edge; the sheet's own overflow is visible so the plates can stand above it. */
+  .entry-stage { overflow: visible; }
+  .entry-barbell {
+    display: block;
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    width: min(100%, 440px);
+    height: 60px;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+  .entry-barbell__bar { stroke: var(--gr-text-muted); stroke-width: 4; stroke-linecap: round; opacity: 0.8; }
+  .entry-barbell__plate {
+    fill: color-mix(in srgb, var(--gr-action) 70%, var(--gr-surface));
+    stroke: var(--gr-bg-page);
+    stroke-width: 1.5;
+    animation: entry-plate-left 520ms var(--entry-ease) both;
+    animation-delay: calc(200ms + var(--i) * 140ms);
+  }
+  .entry-barbell__plate--right { animation-name: entry-plate-right; }
+  .entry-barbell__plate:is(:nth-of-type(1), :nth-of-type(5)) { fill: var(--gr-action); }
 }
 
 @media (max-width: 360px) {
