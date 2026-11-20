@@ -3,7 +3,9 @@ import { Link, useNavigate } from 'react-router-dom'
 import FormField from './FormField.jsx'
 import { authRequest, validate } from './api.js'
 
-// The create account form (story #17) on the right of the entry screen (EntryScreen.jsx).
+// The create account form (story #17) on the right of the entry screen (EntryScreen.jsx). A new account is signed in
+// straight away and slides into the app (onEnter), where the setup steps start. If that automatic log in fails the
+// form falls back to the log in screen with "Account created. Log in to continue." and the email filled in.
 // outgoing: this form is sliding away, so its ids get a prefix.
 export default function RegistrationForm({ onEnter, outgoing = false, headingRef }) {
   const navigate = useNavigate()
@@ -30,7 +32,12 @@ export default function RegistrationForm({ onEnter, outgoing = false, headingRef
       setFailure(error.message); setErrors(error.fields || {}); setBusy(false)
       return
     }
-    navigate('/login', { replace: true, state: { email: values.email.trim(), message: 'Account created. Log in to continue.' } })
+    try {
+      const data = await authRequest('login', { email: values.email.trim(), password: values.password, remember: false })
+      onEnter('/dashboard', { fullName: data.user.full_name }, 'none')
+    } catch {
+      navigate('/login', { replace: true, state: { email: values.email.trim(), message: 'Account created. Log in to continue.' } })
+    }
   }
   return <section className="register-panel" aria-labelledby={`${idPrefix}register-title`}>
     <form className="register-card auth-stack" noValidate onSubmit={submit}>

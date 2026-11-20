@@ -25,7 +25,12 @@ const onRegistration = async (page) => {
 }
 
 const goalHeading = (page) => page.getByRole('heading', { name: 'Choose your training goal' })
-const accountCreated = (page) => page.locator('.login-panel').getByRole('status')
+async function expectSetupStep(page, current) {
+  await expect(page.getByRole('heading', { name: 'Personal details' })).toBeVisible()
+  const progress = page.getByRole('navigation', { name: 'Setup progress' })
+  await expect(progress.getByRole('listitem')).toHaveText(ONBOARDING_STEPS)
+  await expect(progress.locator('[aria-current="step"]')).toHaveText(current)
+}
 const profilePreview = (page) =>
   page.locator('.ob-panel').filter({ has: page.getByRole('heading', { name: 'Profile preview' }) })
 
@@ -91,56 +96,53 @@ acceptanceTests(
         await expect(strength(page)).toHaveText('Password strength: Strong')
       })
 
-      await step('Step 5: confirm the password and press "Create account"; the login card says "Account created. Log in to continue."', async () => {
+      await step('Step 5: confirm the password and press "Create account"; "Personal details" opens with no login screen in between', async () => {
         await typeText(field(page, 'Confirm password'), PASSWORD)
+        const urls = []
+        page.on('framenavigated', (frame) => { if (frame === page.mainFrame()) urls.push(frame.url()) })
         await createButton(page).click()
-        await expect(page).toHaveURL(/#\/login$/)
-        await expect(loginCard(page)).toBeVisible()
-        await expect(accountCreated(page)).toHaveText('Account created. Log in to continue.')
-        await expect(accountCreated(page)).toHaveClass(/login-feedback-success/)
-        await expect(field(page, 'Email')).toHaveValue(email)
-        await expect(field(page, 'Password')).toHaveValue('')
+        await expect(createButton(page)).toHaveCount(0)
+        await expect(page).toHaveURL(/#\/personal-details$/)
+        await expectSetupStep(page, 'Personal details')
+        expect(urls.some((url) => /#\/login$/.test(url)), 'the login screen opened in between').toBe(false)
       })
     },
 
     2: async ({ page }) => {
       const email = newEmail()
 
-      await step('Setup: do Test 1, so the login card says "Account created. Log in to continue."', async () => {
+      await step('Setup: do Test 1, so "Personal details" is open', async () => {
         await registerThroughForm(page, email)
-        await expect(accountCreated(page)).toHaveText('Account created. Log in to continue.')
+        await expect(page).toHaveURL(/#\/personal-details$/)
       })
 
-      await step('Step 1: the email is filled in; log in and "Personal details" opens as the first setup step', async () => {
-        await expect(field(page, 'Email')).toHaveValue(email)
+      await step('Step 1: "Log out" in the top-right corner shows "Log in to GymRank" with "You are logged out."', async () => {
+        await page.locator('.ob-page').getByRole('button', { name: 'Log out' }).click()
+        await expect(page).toHaveURL(/#\/login$/)
+        await expect(loginCard(page)).toBeVisible()
+        await expect(page.locator('.login-panel').getByText('You are logged out.')).toBeVisible()
+      })
+
+      await step('Step 2: log in again; no error, and "Personal details" opens as the current step', async () => {
+        await typeText(field(page, 'Email'), email)
         await typeText(field(page, 'Password'), PASSWORD)
         await page.getByRole('button', { name: 'Log in', exact: true }).click()
         await expect(page).toHaveURL(/#\/personal-details$/)
-        await expect(page.getByRole('heading', { name: 'Personal details' })).toBeVisible()
         await expect(page.getByText('Invalid email or password.')).toHaveCount(0)
-        const progress = page.getByRole('navigation', { name: 'Setup progress' })
-        await expect(progress.getByRole('listitem')).toHaveText(ONBOARDING_STEPS)
-        await expect(progress.locator('[aria-current="step"]')).toHaveText('Personal details')
+        await expectSetupStep(page, 'Personal details')
       })
 
-      await step('Step 2: 180 lb and "Man", then "Save and continue", opens "Choose your training goal"', async () => {
+      await step('Step 3: 180 lb and "Man", then "Save and continue", opens "Choose your training goal"', async () => {
         await addPersonalDetails(page)
         await expect(goalHeading(page)).toBeVisible()
         const progress = page.getByRole('navigation', { name: 'Setup progress' })
         await expect(progress.locator('[aria-current="step"]')).toHaveText('Training goal')
       })
 
-      await step('Step 3: the Profile preview shows "JL", "Jamie Lee" and "No goal yet"', async () => {
+      await step('Step 4: the Profile preview shows "JL", "Jamie Lee" and "No goal yet"', async () => {
         await expect(profilePreview(page).locator('.ob-avatar')).toHaveText('JL')
         await expect(profilePreview(page).locator('.ob-profile-name')).toHaveText(NAME)
         await expect(profilePreview(page).locator('.ob-tag')).toHaveText('No goal yet')
-      })
-
-      await step('Step 4: "Log out" in the top-right corner shows "Log in to GymRank" with "You are logged out."', async () => {
-        await page.locator('.ob-page').getByRole('button', { name: 'Log out' }).click()
-        await expect(page).toHaveURL(/#\/login$/)
-        await expect(loginCard(page)).toBeVisible()
-        await expect(page.locator('.login-panel').getByText('You are logged out.')).toBeVisible()
       })
     },
 
