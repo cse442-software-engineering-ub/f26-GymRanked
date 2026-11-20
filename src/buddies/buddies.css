@@ -309,6 +309,7 @@
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .buddies-button--primary {
