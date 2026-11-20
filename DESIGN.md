@@ -168,7 +168,7 @@ Layout patterns:
 |---|---|---|
 | 1132px or less | Dashboard grids become one column (the page is 900px or less beside the 232px sidebar) | index.css |
 | 900px or less | The sidebar is 184px wide instead of 232px | navigation.css |
-| 850px or less | Login and sign-up switch to the phone layout; the sign-up "×" appears | auth.css |
+| 900px or less | Login and sign-up switch to one column (brand row, headline, form, example board); the sign-up "×" appears | auth.css |
 | 824px or less | Signed-in pages use their phone layout (the page is 640px or less beside the 184px sidebar): side padding 20px, plan rows wrap, weekly plan shows 2 days per row | index.css and the page stylesheets |
 | 700px or less | No sidebar: the "Menu" strip and the phone menu | navigation.css |
 | 640px or less | Onboarding goes to one column; page side padding becomes 20px there too | index.css, onboarding.css |
@@ -253,6 +253,17 @@ Rows with a 32px circle marker, a title (15px / 500) and a hint (13px), divided 
 ### Tip box and inner list (`.dashboard-tip`, `.dashboard-exercises`)
 
 `surface-sunken`, 10px corners, 12px padding. A bold lead-in ("**Beginner tip:**") in `text`, the rest in `text-soft`.
+
+### Entry screens: log in and create account (`src/auth/EntryScreen.jsx`, entry screens redesign, Sprint 4)
+
+Modelled on the To the Moon team's sign-in pages, in GymRank's own colours.
+
+- **Layout (901px and wider):** one split screen for both `#/login` and `#/register`. On the left, the brand panel: `bg-nav` with the menu sidebar's `border-strong` edge (it becomes the sidebar, below), an orange `brand` glow, the 32px dumbbell mark, "Every rep gets a **rank.**" (34–46px / 600, "rank." in `brand`), one line of `text-soft`, then a moving example: a "Bench press · this week" card whose 14 bars rise in turn and whose trend line draws across them, and a three-row board. Both say "Preview": sample data, nothing fetched. On the right, the form on `bg-page` with a faint dot grid, at most 400px wide: a 30px / 600 title, labelled white inputs, and a full-width `action` button (46px tall, 15px / 600).
+- **900px and narrower:** one column: brand row, headline, form, example board. Create account hides the headline and board and shows the "×" (back to log in) in the top-right corner. "Create an account" becomes a 44px outlined button.
+- **Log in ⇄ create account:** the form slides: create account comes in from the right while log in leaves to the left, and back the other way (480ms). The brand panel's glow moves with it. Focus moves to the new title. The form sliding away is swapped for a look-alike copy (`formGhost.js`) with no labels or ids, so the page only ever has one real form.
+- **Into the app:** after a successful log in, or a new account (which is logged in straight away), the form fades (220ms). Then the page slides in from the right while a panel in the brand panel's colour narrows into the 232px sidebar and fades to show it (620ms). For a page without the menu (the setup steps), the panel narrows to nothing. `OnboardingGate` keeps the panel up while it checks the account, so nothing flashes.
+- **Log out:** the same in reverse. The page slides away to the right while the sidebar widens back into the brand panel, then the log in form slides in from the left.
+- **Reduced motion:** with "reduce motion" on, every page opens straight away with no slide, and the bars and line are drawn still.
 
 ### Feedback message (`.login-feedback`)
 
@@ -459,7 +470,6 @@ As of task #95 (2026-10-09). These pages predate the Dashboard redesign and shou
 
 | Area | What it uses now | Should use | File | Task |
 |---|---|---|---|---|
-| Login and sign-up | Grey "Log in" / "Create account" button (`neutral-button`) on desktop; white input fields; brand square 24px; sign-up card 16px corners | `action` primary; 32px brand square; 12px corners | `src/auth/auth.css` | #97, #99 |
 | Font setup | `:root` in auth.css still names Inter. `body` in index.css sets system-ui, so Inter shows nowhere (onboarding moved to `--gr-font` in #93), but the rule is misleading | Drop Inter from `:root` | `src/auth/auth.css` | #99 |
 | Breakpoints | 960, 900, 850, 640 and 480px | 900px and 640px | all three stylesheets | as each page is upgraded |
 
