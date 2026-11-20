@@ -9,8 +9,10 @@
 // - OnboardingGate calls syncAccountTheme() after it confirms the session, so the account's saved theme
 //   wins over whatever this browser remembered (a new browser, or another user on the same one).
 // - A theme control calls saveTheme(); it switches at once and switches back if the save fails.
-// - Sign-in, create account and the onboarding steps are always dark: OnboardingGate calls setAlwaysDark() on
-//   each page change, which shows dark there without changing the theme the account or browser has saved.
+// - The onboarding steps are always dark: OnboardingGate calls setAlwaysDark() on each page change, which shows
+//   dark there without changing the theme the account or browser has saved.
+// - Log in and create account follow the theme. Nobody is signed in there, so their switch (src/auth/ThemeSwitch.jsx)
+//   uses chooseThemeSignedOut(): this browser remembers it, and the account's saved theme still wins after log in.
 
 export const THEMES = ['dark', 'light']
 export const DEFAULT_THEME = 'dark'
@@ -87,6 +89,12 @@ export function syncAccountTheme(userId, fetchImpl = fetch) {
   if (userId == null || userId === syncedUserId) return Promise.resolve(currentTheme())
   syncedUserId = userId
   return loadTheme(fetchImpl)
+}
+
+// For the log in and create account screens, where there is no account to save to: switches and remembers it in
+// this browser only (saveTheme would be refused there).
+export function chooseThemeSignedOut(value) {
+  return applyTheme(value)
 }
 
 // Switches at once, then saves. If the save fails the previous theme comes back and this rejects with an
