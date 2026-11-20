@@ -48,3 +48,9 @@
 2. Confirm the four statistic cards are compact, the Weekly goal card is taller, and its larger Weekly goal title stays on one line above the smaller training-days-completed text.
 3. Confirm the New PRs card is gray. Repeat at desktop width and confirm it is still gray.
 4. Open a completed workout summary with at least one new PR. Confirm the New PRs card has an orange accent at phone and desktop widths.
+
+## Test 9: Phone weekly goal detail and day strip
+1. Open a completed workout summary with saved weekly goal progress on a phone-sized screen.
+2. Confirm the explanation beneath the goal message uses smaller text than the goal message.
+3. Swipe the training-day tiles left and right. Confirm all seven days can be reached without scrolling the whole page sideways.
+4. Focus the day strip with a keyboard and use the arrow keys to scroll it.

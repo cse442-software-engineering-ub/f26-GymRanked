@@ -18,7 +18,7 @@ export default function WorkoutWeeklyFeedback({ state, completedAt, onRetry }) {
     <div className="workout-summary__weekly-bar" role="progressbar" aria-label="Weekly goal progress at completion" aria-valuemin={0} aria-valuemax={snapshot.target_days} aria-valuenow={snapshot.progress_days} aria-valuetext={progressText(snapshot)}><span style={{ width: `${snapshot.progress_percent}%` }} /></div>
     <p className={snapshot.goal_reached ? 'workout-summary__weekly-note workout-summary__weekly-note--complete' : 'workout-summary__weekly-note'}>{workoutWeeklyMessage(snapshot)}</p>
     <p className="workout-summary__weekly-detail">{snapshot.credited_day ? 'This workout was saved at completion and added one training day toward your weekly goal.' : 'This workout was saved at completion on a day already counted toward your goal.'}</p>
-    <ol className="workout-summary__weekly-days" aria-label="Training days at workout completion">
+    <ol className="workout-summary__weekly-days" aria-label="Training days at workout completion" tabIndex={0}>
       {days.map((day) => <li key={day.date} className={day.state === 'completed' ? 'workout-summary__weekly-day workout-summary__weekly-day--completed' : 'workout-summary__weekly-day'}>
         <span>{day.weekday} {day.dayOfMonth}</span><strong>{day.state === 'completed' ? '✓ Completed' : day.label}</strong>
       </li>)}
