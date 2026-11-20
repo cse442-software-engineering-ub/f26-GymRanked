@@ -4,7 +4,8 @@ import Brand from './Brand.jsx'
 import EntryShowcase from './EntryShowcase.jsx'
 import LoginForm from './LoginPage.jsx'
 import RegistrationForm from './RegistrationPage.jsx'
-import { EXIT_MS, peekHandoff, reducedMotion, startHandoff } from './entryHandoff.js'
+import EntryHandoff from './EntryHandoff.jsx'
+import { peekHandoff, reducedMotion, startHandoff } from './entryHandoff.js'
 import { ghostOf } from './formGhost.js'
 
 const MODES = ['login', 'register']
@@ -13,14 +14,15 @@ const MODES = ['login', 'register']
 // panel on the left and the form on the right (stacked on a phone). Both routes render this component and
 // OnboardingGate keeps it mounted between them, so switching only slides the form: create account comes in from the
 // right, log in from the left, while the brand panel stays still. After either form succeeds the form
-// fades and the app slides in (entryHandoff.js); after Log out the log in form slides in from the left.
+// slides away while the panel narrows to the sidebar, then the app slides in (entryHandoff.js); after Log out the log in form slides in from the left.
 export default function EntryScreen() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const mode = pathname === '/register' ? 'register' : 'login'
   // from: the form that is sliding away, or null when one form is shown.
   const [shown, setShown] = useState({ mode, from: null })
-  const [entering, setEntering] = useState(false)
+  // Set once a form succeeds: { path, state, target } for the slide into the app.
+  const [entering, setEntering] = useState(null)
   const [intro, setIntro] = useState(() => (peekHandoff() === 'leave' ? 'return' : 'first'))
   // The form sliding away is swapped for a look-alike copy before the page is drawn (formGhost.js).
   const [ghost, setGhost] = useState('')
@@ -53,16 +55,18 @@ export default function EntryScreen() {
     return () => window.clearTimeout(timer)
   }, [shown])
 
-  function onEnter(path, state) {
+  // target: 'sidebar' after log in (the Dashboard has the menu), 'none' after a sign-up (the setup steps have none).
+  function onEnter(path, state, target = 'sidebar') {
     if (reducedMotion()) {
       navigate(path, { replace: true, state })
       return
     }
-    setEntering(true)
-    window.setTimeout(() => {
-      startHandoff('arrive')
-      navigate(path, { replace: true, state })
-    }, EXIT_MS)
+    setEntering({ path, state, target })
+  }
+
+  function exitDone() {
+    startHandoff('arrive', entering.target)
+    navigate(entering.path, { replace: true, state: entering.state })
   }
 
   function slideDone(event) {
@@ -99,6 +103,7 @@ export default function EntryScreen() {
           )
         })}
       </main>
+      {entering && <EntryHandoff phase={`exit-${entering.target}`} onDone={exitDone} />}
     </div>
   )
 }
