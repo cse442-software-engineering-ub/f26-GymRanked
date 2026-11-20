@@ -473,6 +473,18 @@
   color: var(--gr-text);
   font-size: 16px;
   font-weight: 600;
+  white-space: nowrap;
+}
+
+.buddies-encourage {
+  flex: none;
+}
+
+/* While a member's message form is open, their button reads as "open" (outlined) rather than as a second call to act. */
+.buddies-encourage.buddies-button--primary[aria-expanded="true"] {
+  border-color: var(--gr-action);
+  background: transparent;
+  color: var(--gr-action-text);
 }
 
 .buddies-compose {
@@ -574,6 +586,10 @@
     margin-left: 0;
   }
 
+  .buddies-open-create {
+    justify-self: stretch;
+  }
+
   .buddies-join-row {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: "box" "hint" "error" "button";
@@ -591,6 +607,17 @@
     flex: 1;
   }
 
+}
+
+/* The smallest phones (320px): a narrower Encourage button, so a name stays on one line beside it. */
+@media (max-width: 360px) {
+  .buddies-member__line {
+    gap: 10px;
+  }
+
+  .buddies-button--small {
+    padding-inline: 12px;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
