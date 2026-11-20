@@ -113,7 +113,7 @@ meter::-moz-meter-bar { background: var(--accent); }
 }
 
 .entry-hero { font-size: clamp(34px, 3.3vw, 46px); line-height: 1.12; font-weight: 600; letter-spacing: -0.02em; color: var(--gr-text-strong); }
-.entry-hero .accent { display: block; color: var(--gr-brand); }
+.entry-hero .accent { display: block; color: var(--gr-link); }
 .entry-hero__text { color: var(--gr-text-soft); font-size: 15px; line-height: 1.55; max-width: 400px; }
 
 .entry-brand__top, .entry-brand__body { transition: opacity 200ms ease; }
@@ -200,6 +200,26 @@ meter::-moz-meter-bar { background: var(--accent); }
 .entry .primary:hover { background: var(--gr-brand-light); }
 .entry .account-link a { font-weight: 600; }
 .close { display: none; }
+
+/* Light/dark switch, top right of the screen (src/auth/ThemeSwitch.jsx). */
+.entry-theme {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: 50%;
+  background: var(--gr-surface);
+  color: var(--gr-text);
+}
+.entry-theme:hover { background: var(--gr-surface-hover); }
+.entry-theme svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.entry--entering .entry-theme { opacity: 0; transition: opacity 180ms ease; }
 
 .entry-stage[data-direction="next"] .entry-slide--in { animation: entry-in-right var(--entry-slide-ms) var(--entry-ease) both; }
 .entry-stage[data-direction="next"] .entry-slide--out { animation: entry-out-left var(--entry-slide-ms) var(--entry-ease) both; }
@@ -311,6 +331,8 @@ meter::-moz-meter-bar { background: var(--accent); }
     font-size: 20px;
   }
   .entry-slide--out .close { display: none; }
+  .entry-theme { top: 8px; right: 18px; }
+  .entry--register .entry-theme { right: 60px; }
   .login-panel .account-link span { display: none; }
   .login-panel .account-link a { display: grid; place-items: center; min-height: 44px; border: 1px solid var(--gr-brand); border-radius: var(--gr-radius-button); }
 }

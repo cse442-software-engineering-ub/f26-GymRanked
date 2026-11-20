@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Brand from './Brand.jsx'
 import EntryShowcase from './EntryShowcase.jsx'
+import ThemeSwitch from './ThemeSwitch.jsx'
 import LoginForm from './LoginPage.jsx'
 import RegistrationForm from './RegistrationPage.jsx'
 import EntryHandoff from './EntryHandoff.jsx'
@@ -103,6 +104,7 @@ export default function EntryScreen() {
           )
         })}
       </main>
+      <ThemeSwitch />
       {entering && <EntryHandoff phase={`exit-${entering.target}`} onDone={exitDone} />}
     </div>
   )
