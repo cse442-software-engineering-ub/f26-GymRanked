@@ -6,7 +6,8 @@ Use a signed-in test account and a local database with the workout session and w
 
 1. Start from the app link with `#/workouts/<id>/summary` appended, using a completed workout named `Pull` with a known completion time of Tuesday, November 17, 2026 in New York.
 2. Confirm the heading says `Workout complete - Pull`. Beneath it, confirm the workout duration and `Tuesday, November 17, 2026` appear, without repeating `Pull`.
-3. Confirm `Return to dashboard`, `Workout history`, and `Share summary` are all available. Select `Workout history` and confirm it opens `#/progress/history`.
+3. Confirm `Go back`, `Workout history`, and `Share summary` are all available. Select `Workout history` and confirm it opens `#/progress/history`.
+4. At 375 px width, confirm there is no separate `View progress` button below the summary actions.
 
 ## Test 1a: Reps completed metric
 

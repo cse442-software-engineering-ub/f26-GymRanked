@@ -212,9 +212,6 @@ export default function WorkoutSummaryPage({ preview = false }) {
               <Link className="workout-summary__secondary" to="/progress/history"><SummaryIcon name="list" /> Workout history</Link>
               <button type="button" className="workout-summary__secondary" onClick={shareSummary}><SummaryIcon name="share" /> Share summary</button>
             </div>
-            <nav className="workout-summary__mobile-links" aria-label="More workout results">
-              <Link to="/progress">View progress →</Link>
-            </nav>
             {shareStatus && <p className="workout-summary__share-status" role="status">{shareStatus}</p>}
           </>
         )}
