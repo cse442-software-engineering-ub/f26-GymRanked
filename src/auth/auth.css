@@ -245,7 +245,8 @@ meter::-moz-meter-bar { background: var(--accent); }
   }
   .entry-handoff--exit-sidebar { animation: entry-brand-to-sidebar 440ms var(--entry-ease) both; }
   .entry-handoff--exit-none { animation: entry-brand-to-none 440ms var(--entry-ease) both; }
-  .entry-handoff--hold-sidebar { width: var(--entry-sidebar-width); }
+  .entry-handoff--hold-sidebar,
+  .entry-handoff--arrive-wait { width: var(--entry-sidebar-width); }
   .entry-handoff--arrive-sidebar { width: var(--entry-sidebar-width); animation: entry-settle 220ms ease 160ms both; }
   .entry-handoff--arrive-none { animation: entry-sidebar-to-none 320ms var(--entry-ease) both; }
   .entry-handoff--to-brand { animation: entry-to-brand 440ms var(--entry-ease) both; }
@@ -263,6 +264,9 @@ meter::-moz-meter-bar { background: var(--accent); }
 .app-shell--leaving {
   overflow-x: clip;
 }
+
+/* The arriving page stays out of sight while it finishes loading, then slides in complete. */
+:root[data-entry="arrive-wait"] .app-shell__page { opacity: 0; }
 
 :root[data-entry="arrive-sidebar"] .app-shell__page,
 :root[data-entry="arrive-none"] #root > :first-child { animation: entry-arrive 420ms var(--entry-ease) both; }
