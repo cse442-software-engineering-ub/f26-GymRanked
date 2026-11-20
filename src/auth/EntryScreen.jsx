@@ -12,7 +12,7 @@ const MODES = ['login', 'register']
 // Log in (#/login, story #18) and create account (#/register, story #17) share this one screen: the dark brand
 // panel on the left and the form on the right (stacked on a phone). Both routes render this component and
 // OnboardingGate keeps it mounted between them, so switching only slides the form: create account comes in from the
-// right, log in from the left, while the brand panel's glow moves with it. After either form succeeds the form
+// right, log in from the left, while the brand panel stays still. After either form succeeds the form
 // fades and the app slides in (entryHandoff.js); after Log out the log in form slides in from the left.
 export default function EntryScreen() {
   const { pathname } = useLocation()
