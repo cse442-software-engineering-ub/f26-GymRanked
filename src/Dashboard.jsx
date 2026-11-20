@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
 import { DASHBOARD, addReturn } from './returnTarget.js'
 import { authRequest } from './auth/api.js'
+import { holdArrival } from './auth/entryHandoff.js'
 import { apiRequest } from './onboarding/api.js'
 import { fetchCurrentPlan, fetchPlan } from './plansApi.js'
 import { buildWeek } from './weeklySchedule.js'
@@ -138,6 +139,18 @@ function Dashboard() {
     })
     return () => { active = false }
   }, [loadAttempt, navigate])
+
+  // Right after logging in, the slide into the app waits until the Dashboard's first data is in (at most 1.5s), so the
+  // page slides in complete instead of jumping when its plan, week and history arrive (src/auth/entryHandoff.js).
+  const releaseArrival = useRef(null)
+  useLayoutEffect(() => {
+    releaseArrival.current = holdArrival()
+    return () => releaseArrival.current?.()
+  }, [])
+  const firstLoadDone = setup !== null && weeklyState.status !== 'loading' && historyState.status !== 'loading' && unfinishedStatus !== 'loading'
+  useEffect(() => {
+    if (firstLoadDone) releaseArrival.current?.()
+  }, [firstLoadDone])
 
   function retry() {
     setSetup(null)

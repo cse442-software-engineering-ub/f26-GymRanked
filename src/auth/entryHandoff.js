@@ -29,6 +29,34 @@ export function endHandoff() {
   pending = null
 }
 
+// A page that loads its content after opening (the Dashboard) can ask the slide into the app to wait until it is
+// ready, so it slides in complete instead of jumping when its data arrives. holdArrival() returns the release
+// function; it does nothing unless a log in slide is under way. EntryHandoff waits at most ARRIVAL_WAIT_MS.
+export const ARRIVAL_WAIT_MS = 1500
+let holds = 0
+const readyListeners = new Set()
+
+export function holdArrival() {
+  if (peekHandoff() !== 'arrive') return () => {}
+  holds += 1
+  let released = false
+  return () => {
+    if (released) return
+    released = true
+    holds = Math.max(0, holds - 1)
+    if (holds === 0) readyListeners.forEach((listener) => listener())
+  }
+}
+
+export function arrivalHeld() {
+  return holds > 0
+}
+
+export function onArrivalReady(listener) {
+  readyListeners.add(listener)
+  return () => readyListeners.delete(listener)
+}
+
 // People who ask their system for less motion get the same pages with no slide.
 export function reducedMotion() {
   return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true
