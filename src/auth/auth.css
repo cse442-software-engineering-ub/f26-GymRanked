@@ -260,6 +260,17 @@ meter::-moz-meter-bar { background: var(--accent); }
 /* The handoff panel (src/auth/EntryHandoff.jsx) and the page sliding beside it */
 .entry-handoff { display: none; }
 
+/* "Checking your account setup…" while the handoff panel holds: read out, not shown. */
+.entry-hold-status {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0 !important;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 @media (min-width: 901px) {
   .entry-handoff {
     display: block;
