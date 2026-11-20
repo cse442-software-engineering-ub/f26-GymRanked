@@ -183,8 +183,10 @@ meter::-moz-meter-bar { background: var(--accent); }
     var(--gr-bg-page);
 }
 
-/* Both forms share one grid cell, so the one sliding in and the one sliding away overlap. */
-.entry-slide { grid-area: 1 / 1; width: min(400px, 100%); align-self: center; }
+/* Both forms share one grid cell, so the one sliding in and the one sliding away overlap. While they slide, the
+   track's height eases from the old form's to the new one's (EntryScreen.jsx). */
+.entry-track { display: grid; width: min(400px, 100%); transition: height var(--entry-slide-ms) var(--entry-ease); }
+.entry-slide { grid-area: 1 / 1; width: 100%; align-self: center; }
 .entry-slide .auth-stack h1 { font-size: 30px; font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; color: var(--gr-text-strong); }
 .entry-slide .auth-stack h1:focus { outline: none; }
 .entry-slide .subtitle { font-size: 14px; margin-top: -10px; }
@@ -311,7 +313,8 @@ meter::-moz-meter-bar { background: var(--accent); }
   .entry-stage { order: 2; position: static; place-items: start center; padding: 24px 18px; background: var(--gr-bg-page); }
   .entry-showcase { order: 3; margin: 0; padding: 0 18px 32px; }
   /* Top-aligned, so the shorter form doesn't sit lower while the taller one slides away and then jump up. */
-  .entry-slide { width: min(480px, 100%); align-self: start; }
+  .entry-track { width: min(480px, 100%); overflow: visible clip; }
+  .entry-slide { align-self: start; }
   .entry-slide .auth-stack h1 { font-size: 22px; }
   .entry-theme { top: 8px; right: 18px; }
   .login-panel .account-link span { display: none; }

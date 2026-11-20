@@ -28,6 +28,10 @@ export default function EntryScreen() {
   // The form sliding away is swapped for a look-alike copy before the page is drawn (formGhost.js).
   const [ghost, setGhost] = useState('')
   const outgoingBox = useRef(null)
+  // The two forms differ in height. While they slide, the space they share eases from one height to the other, so
+  // whatever sits under it (the example cards on a phone) glides instead of jumping when the old form goes.
+  const track = useRef(null)
+  const slideBoxes = useRef({})
   const heading = useRef(null)
   const switched = useRef(false)
 
@@ -51,6 +55,21 @@ export default function EntryScreen() {
     if (heading.current && heading.current.getBoundingClientRect().top < 0) window.scrollTo(0, 0)
     heading.current?.focus({ preventScroll: true })
   }, [shown.mode])
+
+  useLayoutEffect(() => {
+    const element = track.current
+    if (!element) return
+    if (shown.from === null) {
+      element.style.height = ''
+      return
+    }
+    const from = slideBoxes.current[shown.from]
+    const to = slideBoxes.current[shown.mode]
+    if (!from || !to) return
+    element.style.height = `${from.offsetHeight}px`
+    element.getBoundingClientRect()
+    element.style.height = `${to.offsetHeight}px`
+  }, [shown.from, shown.mode])
 
   // If the slide never reports its end (animations off, tab in the background), drop the old form anyway.
   useEffect(() => {
@@ -93,12 +112,14 @@ export default function EntryScreen() {
       </aside>
 
       <main className="entry-stage" data-direction={direction}>
+        <div className="entry-track" ref={track}>
         {MODES.filter((name) => name === shown.mode || name === shown.from).map((name) => {
           const outgoing = name !== shown.mode
           const sliding = shown.from !== null
           const Form = name === 'login' ? LoginForm : RegistrationForm
           return (
-            <div key={name} className={`entry-slide${sliding ? (outgoing ? ' entry-slide--out' : ' entry-slide--in') : ''}`}
+            <div key={name} ref={(element) => { slideBoxes.current[name] = element }}
+              className={`entry-slide${sliding ? (outgoing ? ' entry-slide--out' : ' entry-slide--in') : ''}`}
               inert={outgoing ? '' : undefined} aria-hidden={outgoing || undefined} onAnimationEnd={outgoing ? slideDone : undefined}>
               {outgoing && ghost
                 ? <div className="entry-ghost" dangerouslySetInnerHTML={{ __html: ghost }} />
@@ -106,6 +127,7 @@ export default function EntryScreen() {
             </div>
           )
         })}
+        </div>
       </main>
       <ThemeSwitch />
       {entering && <EntryHandoff phase={`exit-${entering.target}`} onDone={exitDone} />}
