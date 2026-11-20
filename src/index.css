@@ -2403,25 +2403,38 @@ a.today-workout__details:hover {
   border-radius: var(--gr-radius-inner);
 }
 
-/* The clip with its Play/Pause button directly under it (src/GuideVideo.jsx). */
+/* The clip and its Play/Pause bar as one block (src/GuideVideo.jsx): the bar spans the bottom of the video and the
+   pair shares one border and rounded corners. */
 .exercise-guide__player {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
+  overflow: hidden;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-inner);
+}
+
+.exercise-guide__player .exercise-guide__video {
+  border: 0;
+  border-radius: 0;
 }
 
 .wl-button.exercise-guide__toggle {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-width: 112px;
+  width: 100%;
   font-size: 14px;
   color: var(--gr-text);
   background: var(--gr-surface-raised);
-  border-color: var(--gr-border-strong);
-  border-radius: var(--gr-radius-inner);
+  border: 0;
+  border-top: 1px solid var(--gr-border-strong);
+  border-radius: 0;
+}
+
+/* The ring is drawn inside the bar, since the block's overflow: hidden would clip one outside it. */
+.side-panel .exercise-guide__toggle:focus-visible {
+  outline-offset: -3px;
 }
 
 .wl-button.exercise-guide__toggle:hover {
