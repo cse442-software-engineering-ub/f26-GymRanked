@@ -18,6 +18,10 @@ export function nextSetNumber(sets) {
   return sets.reduce((highest, set) => Math.max(highest, set.set_number), 0) + 1
 }
 
+export function newSetRequestId() {
+  return globalThis.crypto.randomUUID()
+}
+
 // The saved set that "Repeat last set" copies: the one with the highest set number (not the last in the list) of
 // this exercise, or null when the exercise has no saved set yet. Sets that name another exercise are ignored.
 export function lastSavedSet(sets, exercise) {
@@ -43,6 +47,8 @@ export const SESSION_ENDED = 'Your session ended. Log in to keep logging.'
 // { status, message, fieldErrors }, with status 0 when the server couldn't be reached.
 export function saveErrorMessage(err) {
   if (err.status === 401) return SESSION_ENDED
+  if (err.status === 409 && err.message === 'Request ID already used for a different set') return 'This save request has changed. Press Log set to start a new save.'
+  if (err.status === 409 && err.message === 'Set already logged') return 'This set was already logged. Reload the workout to see the saved set.'
   if (err.status === 409) return 'This workout is already completed, so its sets can no longer change.'
   if (err.status === 404) return "This set or workout couldn't be found. Reload the page and try again."
   if (err.status === 400 && err.fieldErrors && Object.keys(err.fieldErrors).length > 0) {
