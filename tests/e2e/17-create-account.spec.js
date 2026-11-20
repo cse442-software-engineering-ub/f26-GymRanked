@@ -62,8 +62,8 @@ acceptanceTests(
       })
 
       await step('Step 1: the login screen shows "Every rep gets a rank." and "Log in to GymRank"', async () => {
-        await expect(page.locator('.hero h1')).toHaveText('Every rep gets a rank.')
-        await expect(page.locator('.hero .accent')).toHaveText('rank.')
+        await expect(page.locator('.entry-hero')).toHaveText('Every rep gets a rank.')
+        await expect(page.locator('.entry-hero .accent')).toHaveText('rank.')
         await expect(loginCard(page)).toBeVisible()
       })
 
@@ -242,31 +242,33 @@ acceptanceTests(
         await page.goto('#/login')
       })
 
+      const titleTop = async () => Math.round((await loginCard(page).boundingBox()).y)
+      let before = 0
+
       await step('Step 1: open the login screen and press "Create an account"', async () => {
+        await expect(loginCard(page)).toBeVisible()
+        await page.waitForTimeout(700) // the form rises 10px into place when the page first opens
+        before = await titleTop()
         await page.getByRole('link', { name: 'Create an account' }).click()
         await onRegistration(page)
       })
 
-      // Step 2 is for computers and step 3 for phones, so each screen size runs one of them.
-      if (testInfo.project.name === 'desktop') {
-        await step('Step 2: on a computer, "Log in" at the bottom of the card returns to "Log in to GymRank"', async () => {
-          await expect(close).toBeHidden()
-          await page.locator('.account-link').getByRole('link', { name: 'Log in' }).click()
-          await expect(page).toHaveURL(/#\/login$/)
-          await expect(loginCard(page)).toBeVisible()
-          expect(signUps, 'a sign-up request was sent').toHaveLength(0)
-        })
-      } else {
-        await step('Step 3: on a phone, the "×" in the top-right corner returns to "Log in to GymRank"', async () => {
-          await expect(close).toHaveText('×')
-          await close.click()
-          await expect(page).toHaveURL(/#\/login$/)
-          await expect(loginCard(page)).toBeVisible()
-          expect(signUps, 'a sign-up request was sent').toHaveLength(0)
-        })
-      }
+      // Step 2 runs on the computer and step 3 on the phone: the same way back, and no "×" anywhere.
+      const phone = testInfo.project.name !== 'desktop'
+      await step(phone ? 'Step 3: on a phone, "Log in" returns to "Log in to GymRank" in the same place, with no "×"'
+        : 'Step 2: "Log in" under the button returns to "Log in to GymRank"', async () => {
+        await expect(close).toHaveCount(0)
+        await page.locator('.account-link').getByRole('link', { name: 'Log in' }).click()
+        await expect(page).toHaveURL(/#\/login$/)
+        await expect(loginCard(page)).toBeVisible()
+        expect(signUps, 'a sign-up request was sent').toHaveLength(0)
+        // Mid-slide and after it, the title is where it was before step 1: the screen didn't jump.
+        expect(await titleTop(), 'the log in title moved').toBe(before)
+        await page.waitForTimeout(700)
+        expect(await titleTop(), 'the log in title moved after the slide').toBe(before)
+      })
     },
   },
-  // Test 5's "×" exists only at 850px wide or narrower, so Test 5 also runs on mobile (its step 3).
+  // Test 5 also runs on mobile (its step 3).
   { mobile: [1, 5] },
 )

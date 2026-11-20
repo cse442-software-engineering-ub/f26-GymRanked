@@ -78,10 +78,12 @@
 
 **Steps:**
 1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and click "Create an account". "Create your account" should show.
-2. On a computer: click the orange "Log in" link at the bottom of the card ("Already have an account? Log in"). The "Log in to GymRank" card should show again, and no account should have been created. (There is no "×" on this page on a computer screen.)
-3. On a phone, or in a browser window 850 pixels wide or narrower: repeat step 1, then tap the small "×" in the top-right corner instead. The "Log in to GymRank" card should show again, and no account should have been created.
+2. Click the orange "Log in" link under the "Create account" button ("Already have an account? Log in"). "Log in to GymRank" should show again, and no account should have been created.
+3. On a phone, or in a browser window 900 pixels wide or narrower: repeat steps 1 and 2. The result should be the same, and the "Log in to GymRank" title should be in the same place as before step 1 (the screen doesn't jump up or down). There is no "×" on the page.
 
 ## Notes
+
+Updated on 2026-11-19 (entry screens redesign, card #145): log in and create account now share one split screen, and the form slides between them. The "×" in the phone layout is gone, so Test 5 leaves through "Log in" on every screen size and checks that the title doesn't move.
 
 Updated on 2026-11-18 (card #133): logging in with a new account now opens "Personal details" first (required since 2026-10-27), so Test 2 saves 180 lb and "Man" before "Choose your training goal". Logging out is at the bottom of the menu.
 
