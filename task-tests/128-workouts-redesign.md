@@ -53,5 +53,6 @@
 1. Open a completed workout summary with saved weekly goal progress on a phone-sized screen.
 2. Confirm the explanation beneath the goal message uses smaller text than the goal message.
 3. Confirm the Weekly goal card fits its content without a large blank area below the day strip. Confirm the day strip has a darker recessed background in both Dark and Light appearance.
-4. Swipe the training-day tiles left and right. Confirm all seven days can be reached without scrolling the whole page sideways.
-5. Focus the day strip with a keyboard and use the arrow keys to scroll it.
+4. Confirm two full day tiles and half of a third are visible, with a fade at the right edge.
+5. Swipe through the days. Confirm both edges fade while there are days in both directions, then only the left edge fades at the end. Confirm all seven days can be reached without scrolling the whole page sideways.
+6. Focus the day strip with a keyboard and use the arrow keys to scroll it. Confirm the fades update with keyboard scrolling too.

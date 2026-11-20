@@ -322,19 +322,40 @@
 
 @media (max-width: 640px) {
   .workout-summary__weekly-detail { font-size: 13px; line-height: 1.45; }
+  .workout-summary__weekly-days-frame {
+    position: relative;
+    overflow: hidden;
+    margin-top: 14px;
+    border: 1px solid var(--gr-border-strong);
+    border-radius: var(--gr-radius-inner);
+    background: var(--gr-surface-sunken);
+  }
+  .workout-summary__weekly-days-frame::before,
+  .workout-summary__weekly-days-frame::after {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    bottom: 0;
+    width: 32px;
+    pointer-events: none;
+    opacity: 0;
+  }
+  .workout-summary__weekly-days-frame::before { left: 0; background: linear-gradient(to right, var(--gr-surface-sunken), transparent); }
+  .workout-summary__weekly-days-frame::after { right: 0; background: linear-gradient(to left, var(--gr-surface-sunken), transparent); }
+  .workout-summary__weekly-days-frame--left::before,
+  .workout-summary__weekly-days-frame--right::after { opacity: 1; }
   .workout-summary__weekly-days {
     grid-template-columns: none;
     grid-auto-flow: column;
-    grid-auto-columns: 96px;
+    /* Two full tiles and half of a third, including the two visible gaps. */
+    grid-auto-columns: calc(40% - 6.4px);
     overflow-x: auto;
     overscroll-behavior-inline: contain;
     scroll-snap-type: x proximity;
     scrollbar-width: thin;
-    margin-top: 14px;
+    margin: 0;
     padding: 10px;
-    border: 1px solid var(--gr-border-strong);
-    border-radius: var(--gr-radius-inner);
-    background: var(--gr-surface-sunken);
   }
   .workout-summary__weekly-day { scroll-snap-align: start; }
 }
