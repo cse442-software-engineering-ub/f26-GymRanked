@@ -207,8 +207,8 @@ meter::-moz-meter-bar { background: var(--accent); }
 
 /* First visit: the form rises in. Back from Log out: it slides in from the side the sidebar went to. */
 .entry--intro-first .entry-slide { animation: entry-rise 500ms var(--entry-ease) 80ms both; }
-.entry--intro-return .entry-stage { animation: entry-in-left 520ms var(--entry-ease) both; }
-.entry--intro-return .entry-brand__top, .entry--intro-return .entry-brand__body { animation: entry-fade 360ms ease 120ms both; }
+.entry--intro-return .entry-stage { animation: entry-in-left 400ms var(--entry-ease) both; }
+.entry--intro-return .entry-brand__top, .entry--intro-return .entry-brand__body { animation: entry-fade 280ms ease 80ms both; }
 
 /* Into the app: the form and the panel's content fade, leaving the plain panel the handoff carries on from. */
 .entry--entering .entry-stage { animation: entry-exit 220ms ease forwards; }
@@ -241,8 +241,8 @@ meter::-moz-meter-bar { background: var(--accent); }
   }
   .entry-handoff--to-sidebar { animation: entry-to-sidebar 620ms var(--entry-ease) both; }
   .entry-handoff--to-none { animation: entry-to-none 620ms var(--entry-ease) both; }
-  .entry-handoff--to-brand { animation: entry-to-brand 620ms var(--entry-ease) both; }
-  .entry-handoff--settle { animation: entry-settle 260ms ease both; }
+  .entry-handoff--to-brand { animation: entry-to-brand 440ms var(--entry-ease) both; }
+  .entry-handoff--settle { animation: entry-settle 200ms ease both; }
 }
 
 @keyframes entry-to-sidebar { 0% { width: var(--entry-brand-width); } 72% { width: var(--app-sidebar-width); opacity: 1; } 100% { width: var(--app-sidebar-width); opacity: 0; } }
@@ -258,7 +258,7 @@ meter::-moz-meter-bar { background: var(--accent); }
 
 :root[data-entry="to-sidebar"] .app-shell__page,
 :root[data-entry="to-none"] #root > :first-child { animation: entry-arrive 560ms var(--entry-ease) both; }
-.app-shell--leaving .app-shell__page { animation: entry-leave 520ms var(--entry-ease) forwards; }
+.app-shell--leaving .app-shell__page { animation: entry-leave 380ms var(--entry-ease) forwards; }
 .app-shell--leaving :is(.app-sidebar, .app-topstrip) > * { opacity: 0; transition: opacity 160ms ease; }
 
 @keyframes entry-arrive { from { transform: translateX(min(40vw, 480px)); opacity: 0; } to { transform: none; opacity: 1; } }

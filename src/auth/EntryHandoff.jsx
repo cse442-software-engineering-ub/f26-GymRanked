@@ -18,7 +18,7 @@ export default function EntryHandoff({ phase, onDone }) {
     root.dataset.entry = phase
     if (phase === 'hold') return () => { if (root.dataset.entry === phase) delete root.dataset.entry }
     // Finish even when no animation runs (narrow window, animations off): the next frame after the planned length.
-    const length = phase === 'settle' ? 260 : 620
+    const length = { settle: 200, 'to-brand': 440 }[phase] ?? 620
     const timer = window.setTimeout(() => done.current?.(), length + 80)
     return () => {
       window.clearTimeout(timer)
