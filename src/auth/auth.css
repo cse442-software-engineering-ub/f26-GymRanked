@@ -214,7 +214,12 @@ meter::-moz-meter-bar { background: var(--accent); }
 
 /* Into the app: the form and the panel's content fade, leaving the plain panel the handoff carries on from. */
 .entry--entering .entry-stage { animation: entry-exit 380ms var(--entry-ease) forwards; }
-.entry--entering .entry-brand__top, .entry--entering .entry-brand__body, .entry--entering .entry-brand__glow { opacity: 0; }
+/* An animation, not just opacity: 0, so it also wins over the "back from Log out" fade-in, whose fill would otherwise
+   keep the headline and example on screen beside the narrowing panel. */
+.entry.entry--entering .entry-brand__top,
+.entry.entry--entering .entry-brand__body,
+.entry.entry--entering .entry-brand__glow { animation: entry-fade-out 180ms ease forwards; }
+@keyframes entry-fade-out { from { opacity: 1; } to { opacity: 0; } }
 /* The handoff panel (drawn over it at the same width) does the narrowing, so the real panel steps aside. */
 .entry--entering .entry-brand { border-right-color: transparent; background: var(--gr-bg-page); }
 
