@@ -11,6 +11,42 @@ const BAR = STEP * 0.56
 const top = (value) => HEIGHT - (value / 90) * HEIGHT
 const TREND = VOLUME.map((value, index) => `${index ? 'L' : 'M'}${(index * STEP + STEP / 2).toFixed(1)} ${(top(value) - 10).toFixed(1)}`).join(' ')
 
+// Decorative scenery for a phone, where the example cards are left out (auth.css). Drawn behind the brand: rings that
+// pulse outward like rank tiers. Hidden from screen readers; wider screens don't draw it.
+export function EntryBackdrop() {
+  return (
+    <div className="entry-backdrop" aria-hidden="true">
+      <svg className="entry-backdrop__rings" viewBox="0 0 400 330" preserveAspectRatio="xMidYMin slice" focusable="false">
+        {[60, 105, 155, 210, 270].map((radius, index) => (
+          <circle key={radius} className="entry-backdrop__ring" style={{ '--i': index }} cx="200" cy="70" r={radius} />
+        ))}
+      </svg>
+    </div>
+  )
+}
+
+// A loaded barbell resting on the top edge of the phone's form sheet: the plates slide on one after another, the
+// biggest first, the way you load a bar. Plate heights step down toward the end of the bar.
+const PLATES = [56, 46, 36, 26]
+export function EntryBarbell() {
+  const side = (name, direction) => PLATES.map((height, index) => {
+    // index 0 is the biggest plate and goes on first, closest to the middle of the bar.
+    const slot = PLATES.length - 1 - index
+    const x = direction === 'left' ? 18 + slot * 13 : 400 - 18 - (slot + 1) * 13 + 3
+    return (
+      <rect key={`${name}${index}`} className={`entry-barbell__plate entry-barbell__plate--${name}`} style={{ '--i': index }}
+        x={x} y={30 - height / 2} width="10" height={height} rx="3" />
+    )
+  })
+  return (
+    <svg className="entry-barbell" viewBox="0 0 400 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+      <line className="entry-barbell__bar" x1="0" x2="400" y1="30" y2="30" />
+      {side('left', 'left')}
+      {side('right', 'right')}
+    </svg>
+  )
+}
+
 export default function EntryShowcase() {
   return (
     <div className="entry-showcase">

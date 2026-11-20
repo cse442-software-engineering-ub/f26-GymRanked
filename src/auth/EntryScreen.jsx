@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Brand from './Brand.jsx'
-import EntryShowcase from './EntryShowcase.jsx'
+import EntryShowcase, { EntryBackdrop, EntryBarbell } from './EntryShowcase.jsx'
 import ThemeSwitch from './ThemeSwitch.jsx'
 import LoginForm from './LoginPage.jsx'
 import RegistrationForm from './RegistrationPage.jsx'
@@ -104,6 +104,7 @@ export default function EntryScreen() {
 
   return (
     <div className={classes}>
+      <EntryBackdrop />
       <aside className="entry-brand" aria-label="GymRank">
         <div className="entry-brand__glow" aria-hidden="true" />
         <header className="entry-brand__top"><Brand /></header>
@@ -115,6 +116,7 @@ export default function EntryScreen() {
       </aside>
 
       <main className="entry-stage" data-direction={direction}>
+        <EntryBarbell />
         <div className="entry-track" ref={track}>
         {MODES.filter((name) => name === shown.mode || name === shown.from).map((name) => {
           const outgoing = name !== shown.mode
