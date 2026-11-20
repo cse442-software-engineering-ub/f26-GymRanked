@@ -481,12 +481,6 @@
   flex: none;
 }
 
-/* While a member's message form is open, their button reads as "open" (outlined) rather than as a second call to act. */
-.buddies-encourage.buddies-button--primary[aria-expanded="true"] {
-  border-color: var(--gr-action);
-  background: transparent;
-  color: var(--gr-action-text);
-}
 
 .buddies-compose {
   display: grid;

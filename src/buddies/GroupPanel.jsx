@@ -56,7 +56,8 @@ function GroupPanel({ group, me, titleRef, onNotice, onUnauthorized, onMembersCh
                   {member.is_owner && <span className="buddies-pill">Owner</span>}
                   {member.is_me && <span className="buddies-pill buddies-pill--me">You</span>}
                 </span>
-                {!member.is_me && (
+                {/* While the message form is open its Cancel closes it, so the button steps aside. */}
+                {!member.is_me && !open && (
                   <button type="button" className="buddies-button buddies-button--primary buddies-button--small buddies-encourage" aria-expanded={open}
                     aria-label={`Encourage ${member.name}`}
                     ref={(element) => {
