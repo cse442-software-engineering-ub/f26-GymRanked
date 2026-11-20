@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import SidePanel from '../components/SidePanel.jsx'
-import { cachedAlternatives, fetchAlternatives } from './exerciseAlternatives.js'
+import { fetchAlternatives } from './exerciseAlternatives.js'
 import {
   NO_MATCH_TITLE, countText, equipmentTag, exerciseLine, introText, levelTag, muscleText, noMatchText, notCoveredText,
   notCoveredTitle, reasonText, setupLine,
@@ -33,11 +33,11 @@ function ExerciseAlternatives({ exercise, workoutExercises = [], locked = false,
   // Bumped by every request and every close, so an answer that arrives late is ignored.
   const request = useRef(0)
 
+  // Every open and every Try again sends a new request and shows Loading until it answers: never an earlier list,
+  // since the user's equipment or experience (or the account) may have changed since.
   function load() {
     const id = ++request.current
-    const cached = cachedAlternatives(exercise)
-    setAnswer(cached)
-    if (cached) return
+    setAnswer(null)
     fetchAlternatives(exercise).then((result) => {
       if (request.current === id) setAnswer(result)
     })

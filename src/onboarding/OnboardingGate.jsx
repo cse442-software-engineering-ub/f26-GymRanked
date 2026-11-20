@@ -5,6 +5,7 @@ import EntryHandoff from '../auth/EntryHandoff.jsx'
 import { endHandoff, handoffTarget, peekHandoff } from '../auth/entryHandoff.js'
 import AppShell from '../navigation/AppShell.jsx'
 import { hasMenu } from '../navigation/menuMap.js'
+import { setDraftOwner } from '../setDraft.js'
 import { setAlwaysDark, syncAccountTheme } from '../theme/theme.js'
 import { apiRequest } from './api.js'
 import { isAlwaysDarkPath, isAuthPath, requiredOnboardingRoute, signedInRedirect } from './onboardingRoute.js'
@@ -39,6 +40,8 @@ export default function OnboardingGate() {
         const { user } = await authRequest('session')
         // The account's saved theme beats the one this browser remembered (once per signed-in user).
         syncAccountTheme(user?.id)
+        // Unlogged sets are kept per account; another account's are removed here (src/setDraft.js).
+        setDraftOwner(user?.id)
         const [goalResult, setupResult, detailsResult] = await Promise.all([
           apiRequest('preferences.php'),
           apiRequest('setup.php'),

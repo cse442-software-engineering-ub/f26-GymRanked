@@ -28,8 +28,10 @@ export default function EntryScreen() {
   // The form sliding away is swapped for a look-alike copy before the page is drawn (formGhost.js).
   const [ghost, setGhost] = useState('')
   const outgoingBox = useRef(null)
-  // The two forms differ in height. While they slide, the space they share eases from one height to the other, so
-  // whatever sits under it (the example cards on a phone) glides instead of jumping when the old form goes.
+  // The two forms differ in height. On a phone (900px or narrower, one column) the space they share eases from one
+  // height to the other while they slide, so the example cards under it glide instead of jumping when the old form
+  // goes. On a computer the forms are centred beside the brand panel and nothing sits under them, so the space keeps
+  // its size and the slide stays purely sideways (easing it there made the forms drift up and down).
   const track = useRef(null)
   const slideBoxes = useRef({})
   const heading = useRef(null)
@@ -63,6 +65,7 @@ export default function EntryScreen() {
       element.style.height = ''
       return
     }
+    if (!window.matchMedia('(max-width: 900px)').matches) return
     const from = slideBoxes.current[shown.from]
     const to = slideBoxes.current[shown.mode]
     if (!from || !to) return

@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { alternativesState, cachedAlternatives, fetchAlternatives } from '../src/workoutLog/exerciseAlternatives.js'
+import { alternativesState, fetchAlternatives } from '../src/workoutLog/exerciseAlternatives.js'
 import {
   countText, equipmentTag, exerciseLine, introText, levelTag, noMatchText, notCoveredText, notCoveredTitle, reasonText,
   setupLine,
@@ -109,16 +109,15 @@ function fakeFetch(routes) {
   return { fetchImpl, calls }
 }
 
-test('network errors and non-JSON answers fail without being kept', async () => {
+test('network errors and non-JSON answers fail', async () => {
   const offline = fakeFetch({ exercise_alternatives: 'offline' })
   assert.deepEqual(await fetchAlternatives('Offline press', offline), { state: 'failed' })
   const html = fakeFetch({ exercise_alternatives: { status: 200, body: '<html>Not JSON</html>' } })
   assert.deepEqual(await fetchAlternatives('Offline press', html), { state: 'failed' })
-  assert.equal(cachedAlternatives('Offline press'), null)
   assert.equal(offline.calls.length + html.calls.length, 2)
 })
 
-test('a list is fetched once with the setup, sent as GET with the session cookie, and kept', async () => {
+test('a list is fetched with the setup, as an uncached GET with the session cookie, and asked for again every time', async () => {
   const { fetchImpl, calls } = fakeFetch({
     exercise_alternatives: {
       status: 200,
@@ -133,10 +132,10 @@ test('a list is fetched once with the setup, sent as GET with the session cookie
   assert.match(calls[0].url, /api\/exercise_alternatives\.php\?exercise=Bench%20press$/)
   assert.match(calls[1].url, /api\/setup\.php$/)
   assert.ok(calls.every((call) => call.options.credentials === 'same-origin' && call.options.method === undefined))
+  assert.ok(calls.every((call) => call.options.cache === 'no-store'))
 
-  assert.equal(await fetchAlternatives('Bench press', { fetchImpl }), answer)
-  assert.equal(cachedAlternatives('Bench press'), answer)
-  assert.equal(calls.length, 2)
+  await fetchAlternatives('Bench press', { fetchImpl })
+  assert.equal(calls.length, 4)
 })
 
 test('setup.php is skipped once #81 sends "you", and a 401 from it means logged out', async () => {
@@ -156,5 +155,4 @@ test('setup.php is skipped once #81 sends "you", and a 401 from it means logged 
     'setup.php': { status: 401, body: { error: 'Not logged in' } },
   })
   assert.deepEqual(await fetchAlternatives('Push-up', expired), { state: 'loggedOut' })
-  assert.equal(cachedAlternatives('Push-up'), null)
 })
