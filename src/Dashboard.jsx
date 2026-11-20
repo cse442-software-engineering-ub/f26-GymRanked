@@ -9,7 +9,7 @@ import { buildWeek } from './weeklySchedule.js'
 import workoutLogApi from './workoutLog/workoutLogApi.js'
 import { dashboardHistory } from './dashboardHistory.js'
 import { fetchUnfinishedSession } from './workoutSessionApi.js'
-import { getBuddyGroup } from './buddies/buddiesApi.js'
+import { useBuddyGroupPoll } from './buddies/useBuddyGroupPoll.js'
 import { easternDate, todaySessionState } from './weeklyTimeline.js'
 import TodayHero from './dashboard/TodayHero.jsx'
 import ThisWeekPanel from './dashboard/ThisWeekPanel.jsx'
@@ -82,16 +82,16 @@ function Dashboard() {
   const [loadAttempt, setLoadAttempt] = useState(0)
   const [historyState, setHistoryState] = useState({ status: 'loading', sessions: [] })
   const [weeklyState, setWeeklyState] = useState({ status: 'loading', data: null })
-  const [buddyState, setBuddyState] = useState({ status: 'loading', data: null })
   const [unfinished, setUnfinished] = useState(null)
   const [unfinishedStatus, setUnfinishedStatus] = useState('loading')
+  // "From your buddies" stays up to date while the Dashboard is open (src/buddies/useBuddyGroupPoll.js).
+  const buddies = useBuddyGroupPoll({ onUnauthorized: () => navigate('/login', { replace: true }) })
+  const buddyState = buddies.state
 
   useEffect(() => {
     let active = true
     setWeeklyState({ status: 'loading', data: null })
-    setBuddyState({ status: 'loading', data: null })
     apiRequest('weekly_goal.php').then((result) => { if (active) setWeeklyState({ status: result.ok ? 'ready' : 'error', data: result.ok ? result.data : null }) })
-    getBuddyGroup().then((result) => { if (active) setBuddyState({ status: result.ok ? 'ready' : 'error', data: result.ok ? result.data : null }) })
     setUnfinishedStatus('loading')
     fetchUnfinishedSession()
       .then((session) => { if (active) { setUnfinished(session); setUnfinishedStatus('ready') } })
@@ -153,6 +153,7 @@ function Dashboard() {
   }, [firstLoadDone])
 
   function retry() {
+    buddies.reload()
     setSetup(null)
     setPlanError('')
     setLoadAttempt((attempt) => attempt + 1)
@@ -254,7 +255,7 @@ function Dashboard() {
         </div>
 
         <div className="home-bottom">
-          <BuddiesFeed state={buddyState} onRetry={retry} />
+          <BuddiesFeed state={buddyState} fresh={buddies.fresh} announcement={buddies.announcement} onRetry={retry} />
           <RankingsPanel hasGroup={hasGroup} attempt={loadAttempt} />
         </div>
       </main>

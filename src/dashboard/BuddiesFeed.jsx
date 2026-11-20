@@ -2,8 +2,10 @@ import { Link } from 'react-router-dom'
 import { formatSentAt, initialsOf } from '../buddies/buddiesFormat.js'
 
 // "From your buddies": the newest encouragement sent to you (api/buddy_group.php, newest first).
-// state is {status: 'loading'|'ready'|'error', data} with data the buddies group view.
-export default function BuddiesFeed({ state, onRetry }) {
+// state is {status: 'loading'|'ready'|'error', data} with data the buddies group view, kept up to date while the
+// Dashboard is open by useBuddyGroupPoll; fresh lists the ids that arrived meanwhile ("New"), and announcement is read
+// out to screen readers.
+export default function BuddiesFeed({ state, fresh = [], announcement = '', onRetry }) {
   const { status, data } = state
   const latest = data?.encouragements?.[0]
   return (
@@ -25,15 +27,17 @@ export default function BuddiesFeed({ state, onRetry }) {
         <p className="home-muted">No encouragement yet. Send one to someone in {data.group.name} from the Buddies page.</p>
       )}
       {status === 'ready' && data.group && latest && (
-        <figure className="home-buddies__message">
+        <figure key={latest.id} className={fresh.includes(latest.id) ? 'home-buddies__message is-new' : 'home-buddies__message'}>
           <figcaption>
             <span className="home-buddies__avatar" aria-hidden="true">{initialsOf(latest.from)}</span>
             <strong>{latest.from}</strong>
             <span className="home-buddies__where">{data.group.name} · <time dateTime={latest.sent_at}>{formatSentAt(latest.sent_at)}</time></span>
+            {fresh.includes(latest.id) && <span className="home-buddies__new">New</span>}
           </figcaption>
           <blockquote>“{latest.message}”</blockquote>
         </figure>
       )}
+      <p className="home-sr-only" role="status" aria-live="polite">{announcement}</p>
     </section>
   )
 }
