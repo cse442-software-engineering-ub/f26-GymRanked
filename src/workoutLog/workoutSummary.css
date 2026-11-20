@@ -131,6 +131,11 @@
   background: var(--gr-surface);
 }
 
+.workout-summary__metric--accent {
+  border-color: var(--gr-action);
+  background: var(--gr-selected-bg);
+}
+
 .workout-summary__metric-icon {
   display: grid;
   flex: none;
@@ -307,11 +312,52 @@
 .workout-summary__weekly-day { display: grid; gap: 4px; padding: 10px 6px; border: 1px solid var(--gr-border-strong); border-radius: var(--gr-radius-button); text-align: center; font-size: 12px; color: var(--gr-text-soft); }
 .workout-summary__weekly-day strong { font-size: 12px; font-weight: 600; }
 .workout-summary__weekly-day--completed { color: var(--gr-success-text); border-color: var(--gr-success-text); }
+.workout-summary__weekly-days:focus-visible { outline: 2px solid var(--gr-action-text); outline-offset: 2px; }
 .workout-summary__weekly button { min-height: 44px; padding: 8px 16px; border: 1px solid var(--gr-control-outline); border-radius: var(--gr-radius-button); background: var(--gr-surface-raised); color: var(--gr-text); font: inherit; cursor: pointer; }
 .workout-summary__weekly button:focus-visible { outline: 4px solid var(--gr-action-text); }
 
 @media (max-width: 884px) {
   .workout-summary__weekly-days { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .workout-summary__weekly-detail { font-size: 13px; line-height: 1.45; }
+  .workout-summary__weekly-days-frame {
+    position: relative;
+    overflow: hidden;
+    margin-top: 14px;
+    border: 1px solid var(--gr-border-strong);
+    border-radius: var(--gr-radius-inner);
+    background: var(--gr-surface-sunken);
+  }
+  .workout-summary__weekly-days-frame::before,
+  .workout-summary__weekly-days-frame::after {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    bottom: 0;
+    width: 32px;
+    pointer-events: none;
+    opacity: 0;
+  }
+  .workout-summary__weekly-days-frame::before { left: 0; background: linear-gradient(to right, var(--gr-surface-sunken), transparent); }
+  .workout-summary__weekly-days-frame::after { right: 0; background: linear-gradient(to left, var(--gr-surface-sunken), transparent); }
+  .workout-summary__weekly-days-frame--left::before,
+  .workout-summary__weekly-days-frame--right::after { opacity: 1; }
+  .workout-summary__weekly-days {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    /* Two full tiles and half of a third, including the two visible gaps. */
+    grid-auto-columns: calc(40% - 6.4px);
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    margin: 0;
+    padding: 10px;
+  }
+  .workout-summary__weekly-day { scroll-snap-align: start; }
 }
 
 .workout-summary__actions {
@@ -458,14 +504,23 @@
   .workout-summary__metric {
     align-items: flex-start;
     flex-direction: column;
-    gap: 12px;
-    min-height: 132px;
-    padding: 16px;
+    gap: 8px;
+    min-height: 94px;
+    padding: 12px;
   }
 
+  .workout-summary__metric-icon { width: 36px; height: 36px; }
+  .workout-summary__metric-icon svg { width: 19px; height: 19px; }
+  .workout-summary__metric-label { margin-bottom: 3px; font-size: 13px; }
+
   .workout-summary__metric-value {
-    font-size: 24px;
+    font-size: 22px;
   }
+
+  .workout-summary__weekly { padding: 20px; }
+  .workout-summary__weekly header { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .workout-summary__weekly h2 { flex: none; font-size: 27px; white-space: nowrap; }
+  .workout-summary__weekly-count { font-size: 14px; font-weight: 500; }
 
   .workout-summary__highlights {
     padding: 21px 17px 7px;
