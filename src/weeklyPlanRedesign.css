@@ -70,6 +70,7 @@
   .weekly-plan .today-workout__mobile-exercises ol { display: flex; }
   .weekly-plan .today-workout__mobile-exercises li + li::before { margin-right: 8px; }
   .weekly-plan a.today-workout__action, .weekly-plan button.today-workout__action { width: 100%; }
+  .weekly-plan button.today-workout__start { font-size: 16px; font-weight: 700; }
   .weekly-plan__details--mobile { display: grid; order: 2; }
   .weekly-plan__details--desktop { display: none; }
   .weekly-plan__days { display: grid; order: 3; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; grid-auto-rows: auto; gap: 8px; border: 0; }
