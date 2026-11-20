@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test'
 import { step } from './banner.js'
-import { createAccountAndLogIn, logIn, logOut } from './helpers.js'
+import { ONBOARDING_STEPS, createAccountAndLogIn, logIn, logOut } from './helpers.js'
 import { acceptanceTests } from './stories.js'
 
 const GOALS = {
@@ -48,7 +48,7 @@ acceptanceTests(
       await step('Step 1: the goal page shows three goals, an empty preview and a greyed-out "Save goal"', async () => {
         await openGoalPage(page)
         const progress = page.getByRole('navigation', { name: 'Setup progress' })
-        await expect(progress.getByRole('listitem')).toHaveText(['Training goal', 'Experience', 'Equipment', 'Choose plan'])
+        await expect(progress.getByRole('listitem')).toHaveText(ONBOARDING_STEPS)
         await expect(currentStep(page)).toHaveText('Training goal')
         await expect(page.getByText('This appears on your profile and shapes your training plan.')).toBeVisible()
         for (const [label, description] of Object.entries(GOALS)) {

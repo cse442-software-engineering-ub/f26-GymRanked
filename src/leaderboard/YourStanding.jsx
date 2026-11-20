@@ -18,8 +18,9 @@ import {
 const PRIVACY = 'Others see your first name, last initial and scores. Never your body weight, gender, scoring table or lifts in lb.'
 
 // Above the board (research frames D1 and D4): your card with your rank and lifts, plus the "How to get ranked"
-// steps while you aren't ranked yet. A test account only gets a note.
-export default function YourStanding({ me, board, rankedCount, fullName, busy, error, errorFor, onJoin, onLeave, onSaveTable }) {
+// steps while you aren't ranked yet. A test account only gets a note. buddies (card 139): the rank is among your own
+// buddies group ("Buddies rank · Overall", "#3 of 4 on Overall"); without a group the card says so.
+export default function YourStanding({ me, board, rankedCount, fullName, buddies = false, busy, error, errorFor, onJoin, onLeave, onSaveTable }) {
   const [table, setTable] = useState(me.scoring_table ?? '')
   const [changing, setChanging] = useState(false)
   const kind = standingKind(me)
@@ -64,20 +65,25 @@ export default function YourStanding({ me, board, rankedCount, fullName, busy, e
 
   const onBoards = kind === 'ranked' || kind === 'not-on-board'
   const { label } = boardByKey(board)
+  const rankWord = buddies ? 'Buddies rank' : 'Rank'
   const header = (
     <div className="leaderboard-me__head">
       <span className="leaderboard-me__avatar" aria-hidden="true">{initials(fullName)}</span>
       <div className="leaderboard-me__who">
         <h2>{fullName || 'You'}</h2>
-        <p className="leaderboard-me__detail">
-          {kind !== 'ranked' && <span className="leaderboard-pill">{onBoards ? 'Not on this board' : 'Unranked'}</span>}
-          {onBoards
-            ? <>Body weight {formatPounds(me.bodyweight_lb)} · {leaveButton('Leave the leaderboard')}</>
-            : 'Not on any board yet'}
-        </p>
+        {kind === 'no-group' ? (
+          <p className="leaderboard-me__detail"><span className="leaderboard-pill">No buddy group</span></p>
+        ) : (
+          <p className="leaderboard-me__detail">
+            {kind !== 'ranked' && <span className="leaderboard-pill">{onBoards ? 'Not on this board' : 'Unranked'}</span>}
+            {onBoards
+              ? <>Body weight {formatPounds(me.bodyweight_lb)} · {leaveButton('Leave the leaderboard')}</>
+              : 'Not on any board yet'}
+          </p>
+        )}
       </div>
       <div className="leaderboard-me__place">
-        <span className="leaderboard-me__label">{kind === 'ranked' ? `Rank · ${label}` : 'Rank'}</span>
+        <span className="leaderboard-me__label">{kind === 'ranked' ? `${rankWord} · ${label}` : rankWord}</span>
         {kind === 'ranked' ? (
           <>
             <p className="leaderboard-me__rank">{rankLine(me.rank, rankedCount, board)}</p>
@@ -87,6 +93,17 @@ export default function YourStanding({ me, board, rankedCount, fullName, busy, e
       </div>
     </div>
   )
+
+  if (kind === 'no-group') {
+    return (
+      <section className="leaderboard-me" aria-label="Your standing">
+        <div className="leaderboard-me__card">
+          {header}
+          <p className="leaderboard-me__text">Join a buddy group to get a Buddies rank. Everyone still shows your public rank.</p>
+        </div>
+      </section>
+    )
+  }
 
   if (onBoards) {
     return (

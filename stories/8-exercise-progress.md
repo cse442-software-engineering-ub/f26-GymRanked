@@ -18,7 +18,7 @@ Test accounts: these are fake accounts loaded on the site. The Marcus and Dana n
 
 ### Steps:
 
-1. Select **Progress** in the top navigation. Confirm that the address ends in `#/progress`, that **Progress** is highlighted in the navigation, that the heading says `Your progress`, that the line under it says `Marcus Malone · All time`, and that **All time** is the selected one of the three buttons **30 days**, **90 days** and **All time**.
+1. Select **Progress** in the menu. Confirm that the address ends in `#/progress`, that **Progress** is highlighted in the navigation, that the heading says `Your progress`, that the line under it says `Marcus Malone · All time`, and that **All time** is the selected one of the three buttons **30 days**, **90 days** and **All time**.
 2. Confirm that four boxes show `Volume` `21,420 lb`, `Strength gain` `+16.7%`, `New PRs` `9`, and `Workouts logged` `7`.
 3. Open the **Exercise** list. Confirm that it offers exactly `Back squat`, `Bench press` and `Pull-up`, in that order, and that `Back squat` is selected.
 4. Confirm that the `Back squat` section shows `Heaviest weight` `260 lb`, `Latest estimated 1RM` `300 lb`, `Strength change` `+36 lb (+13.6%)`, `Workouts` `7`, `Volume` `9,240 lb`, and `New PRs` `4`, and a line chart of estimated 1RM with seven points.
@@ -61,7 +61,7 @@ Test accounts: these are fake accounts loaded on the site. The Marcus and Dana n
 ### Steps:
 
 1. Refresh the page. Confirm that `Your progress`, `Marcus Malone · All time`, and the four boxes from Acceptance Test 1, step 2 appear again, with `Back squat` selected.
-2. Open the account menu (the round `MM` button, top right) and select **Log out**. Confirm that the Login page says `You are logged out.`
+2. Select **Log out** at the bottom of the menu. Confirm that the Login page says `You are logged out.`
 3. Log in again with `marcus.malone@example.com` and `Marcus-Bench225!` and select **Progress**. Confirm that the boxes still show `21,420 lb`, `+16.7%`, `9` and `7`, and that choosing `Pull-up` still shows `Most reps` `10 reps`.
 
 ## Acceptance Test 5: Each account sees only its own progress, and a new account sees an empty page
@@ -113,4 +113,8 @@ Test accounts: these are fake accounts loaded on the site. The Marcus and Dana n
 
 1. Visit the [Progress page](https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/progress) directly. Confirm that the Login page opens (the address ends in `#/login`) and that no numbers are shown.
 2. Log in with `marcus.malone@example.com` and `Marcus-Bench225!` and select **Progress**. Select **Workout history**. Confirm that the address ends in `#/progress/history`, that **Progress** is still highlighted in the navigation, and that the page says `Workout history` and `7 completed workouts`, with `Wednesday, October 14, 2026` first.
-3. In the path above the heading, select **Progress**. Confirm that `Your progress` opens again.
+3. Select **Back to progress** above the heading. Confirm that `Your progress` opens again.
+
+## Notes
+
+Updated on 2026-11-18 (card #133): the menu replaced the top navigation and the breadcrumb (#130), so Test 8 returns with "Back to progress" and logging out is at the bottom of the menu.

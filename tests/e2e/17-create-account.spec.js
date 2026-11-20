@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test'
 import { step } from './banner.js'
-import { createAccount } from './helpers.js'
+import { ONBOARDING_STEPS, addPersonalDetails, createAccount } from './helpers.js'
 import { acceptanceTests } from './stories.js'
 
 // The card uses Jamie Lee / jamie-a-1001@example.com. Each run uses a new address so it can be repeated.
@@ -111,25 +111,32 @@ acceptanceTests(
         await expect(accountCreated(page)).toHaveText('Account created. Log in to continue.')
       })
 
-      await step('Step 1: the email is filled in; log in and "Choose your training goal" opens', async () => {
+      await step('Step 1: the email is filled in; log in and "Personal details" opens as the first setup step', async () => {
         await expect(field(page, 'Email')).toHaveValue(email)
         await typeText(field(page, 'Password'), PASSWORD)
         await page.getByRole('button', { name: 'Log in', exact: true }).click()
-        await expect(page).toHaveURL(/#\/goal$/)
-        await expect(goalHeading(page)).toBeVisible()
+        await expect(page).toHaveURL(/#\/personal-details$/)
+        await expect(page.getByRole('heading', { name: 'Personal details' })).toBeVisible()
         await expect(page.getByText('Invalid email or password.')).toHaveCount(0)
         const progress = page.getByRole('navigation', { name: 'Setup progress' })
-        await expect(progress.getByRole('listitem')).toHaveText(['Training goal', 'Experience', 'Equipment', 'Choose plan'])
+        await expect(progress.getByRole('listitem')).toHaveText(ONBOARDING_STEPS)
+        await expect(progress.locator('[aria-current="step"]')).toHaveText('Personal details')
+      })
+
+      await step('Step 2: 180 lb and "Man", then "Save and continue", opens "Choose your training goal"', async () => {
+        await addPersonalDetails(page)
+        await expect(goalHeading(page)).toBeVisible()
+        const progress = page.getByRole('navigation', { name: 'Setup progress' })
         await expect(progress.locator('[aria-current="step"]')).toHaveText('Training goal')
       })
 
-      await step('Step 2: the Profile preview shows "JL", "Jamie Lee" and "No goal yet"', async () => {
+      await step('Step 3: the Profile preview shows "JL", "Jamie Lee" and "No goal yet"', async () => {
         await expect(profilePreview(page).locator('.ob-avatar')).toHaveText('JL')
         await expect(profilePreview(page).locator('.ob-profile-name')).toHaveText(NAME)
         await expect(profilePreview(page).locator('.ob-tag')).toHaveText('No goal yet')
       })
 
-      await step('Step 3: "Log out" in the top-right corner shows "Log in to GymRank" with "You are logged out."', async () => {
+      await step('Step 4: "Log out" in the top-right corner shows "Log in to GymRank" with "You are logged out."', async () => {
         await page.locator('.ob-page').getByRole('button', { name: 'Log out' }).click()
         await expect(page).toHaveURL(/#\/login$/)
         await expect(loginCard(page)).toBeVisible()

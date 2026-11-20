@@ -1668,6 +1668,12 @@ body {
   color: var(--gr-action-text);
 }
 
+/* The day a workout was started from (Workouts?day=thu), so coming back shows where you were. */
+.day-card--from {
+  outline: 2px solid var(--gr-action);
+  outline-offset: 2px;
+}
+
 .today-workout {
   display: flex;
   flex-direction: column;
@@ -2384,33 +2390,6 @@ a.today-workout__details:hover {
 .wl-button.exercise-tool[aria-expanded='true'] {
   border-color: var(--gr-action);
   background: var(--gr-selected-bg);
-}
-
-/* With a docked side panel open (src/components/SidePanel.css, 1332px and wider) the exercise column slides away from
-   it by just enough to keep 16px clear: not at all at 1672px, 170px at 1332px. A panel spans 400px from its edge of
-   the page area (24px margin + 360px + 16px gap) and the column is centred in what the sidebar leaves, so with a
-   sidebar S wide the slide is 720px + S/2 - 50vw (S is --app-sidebar-width, 232px at these widths).
-   A panel on each side only stays open at 1672px and wider, where no slide is needed. Relative offset rather than
-   transform, so a fixed pop-up inside the column still covers the window. */
-@media (min-width: 1332px) {
-  .exercise-session > :not(.modal-backdrop) {
-    position: relative;
-    left: 0;
-  }
-
-  body:has(.side-panel-backdrop--right):not(:has(.side-panel-backdrop--left)) .exercise-session > :not(.modal-backdrop) {
-    left: calc(-1 * max(0px, 720px + var(--app-sidebar-width) / 2 - 50vw));
-  }
-
-  body:has(.side-panel-backdrop--left):not(:has(.side-panel-backdrop--right)) .exercise-session > :not(.modal-backdrop) {
-    left: max(0px, 720px + var(--app-sidebar-width) / 2 - 50vw);
-  }
-}
-
-@media (min-width: 1332px) and (prefers-reduced-motion: no-preference) {
-  .exercise-session > :not(.modal-backdrop) {
-    transition: left 0.2s ease;
-  }
 }
 
 /* The contents of the "How to perform it" panel (src/ExerciseGuide.jsx). */

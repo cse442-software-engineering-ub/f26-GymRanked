@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test'
 import { step } from './banner.js'
-import { createAccountAndLogIn, logIn } from './helpers.js'
+import { ONBOARDING_STEPS, createAccountAndLogIn, logIn } from './helpers.js'
 import { acceptanceTests } from './stories.js'
 
 const LEVELS = ['Beginner', 'Intermediate', 'Advanced']
@@ -33,6 +33,39 @@ async function expectStep(page, path, heading) {
 }
 
 const expectExperiencePage = (page) => expectStep(page, 'experience', 'How experienced are you?')
+
+// After setup, the experience and equipment pages send a finished account to the Dashboard, so the saved choices are
+// read and changed on Profile (the account's name at the bottom of the menu): "Training Preferences", then
+// "Edit Training Preferences". On a phone the name is behind "Menu".
+async function openProfile(page) {
+  const sidebarName = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: /View profile/ })
+  await expect(sidebarName.or(page.getByRole('button', { name: 'Open navigation menu' })).first()).toBeVisible()
+  if (await sidebarName.isVisible()) await sidebarName.click()
+  else {
+    await page.getByRole('button', { name: 'Open navigation menu' }).click()
+    await page.getByRole('navigation', { name: 'Mobile navigation' }).getByRole('link', { name: /View profile/ }).click()
+  }
+  await expect(page).toHaveURL(/#\/profile$/)
+}
+const savedSetting = (page, label) =>
+  page.locator('.profile-details > div').filter({ has: page.locator('dt', { hasText: new RegExp(`^${label}$`) }) }).locator('dd')
+async function expectSavedSetup(page, level, equipmentList) {
+  await expect(savedSetting(page, 'Experience level')).toHaveText(level)
+  const shown = (await savedSetting(page, 'Equipment selection').textContent()).split(', ')
+  expect([...shown].sort()).toEqual([...equipmentList].sort())
+}
+const preferencesForm = (page) => page.locator('main')
+const preferenceButton = (page, label) => preferencesForm(page).getByRole('button', { name: label, exact: true })
+async function openEditPreferences(page) {
+  await page.getByRole('link', { name: 'Edit Training Preferences' }).click()
+  await expect(page.getByRole('heading', { level: 1, name: 'Edit Training Preferences' })).toBeVisible()
+  await expect(page.getByLabel('Experience level')).not.toHaveValue('')
+}
+async function expectPressed(page, equipmentList) {
+  for (const label of EQUIPMENT) {
+    await expect(preferenceButton(page, label)).toHaveAttribute('aria-pressed', String(equipmentList.includes(label)))
+  }
+}
 const expectEquipmentPage = (page) => expectStep(page, 'equipment', 'What equipment can you use?')
 const expectPlansPage = (page) => expectStep(page, 'recommended', 'Choose your workout plan')
 
@@ -73,7 +106,7 @@ acceptanceTests(
       })
 
       await step('Step 1: the experience page shows three levels and a greyed-out "Save and continue"', async () => {
-        await expect(progress(page).getByRole('listitem')).toHaveText(['Training goal', 'Experience', 'Equipment', 'Choose plan'])
+        await expect(progress(page).getByRole('listitem')).toHaveText(ONBOARDING_STEPS)
         await expect(currentStep(page)).toHaveText('Experience')
         await expect(page.locator('.ob-page').getByRole('button', { name: 'Log out' })).toBeVisible()
         await expect(page.getByRole('link', { name: 'Back to training goal' })).toBeVisible()
@@ -91,7 +124,7 @@ acceptanceTests(
         await expectLevel(page, 'Intermediate')
         await expect(levelCard(page, 'Intermediate').locator('.ob-card-state')).toHaveText('Selected')
         await expect(saveAndContinue(page)).toBeEnabled()
-        await expect(page.getByText('Pick your experience level to continue.')).toHaveCount(0)
+        await expect(page.getByText('Pick your experience level to continue.')).toBeHidden()
       })
 
       await step('Step 3: "Save and continue" opens the equipment page with nothing chosen', async () => {
@@ -172,18 +205,15 @@ acceptanceTests(
         await expectPlansPage(page)
       })
 
-      await step('Step 2: the experience and equipment pages show the saved choices', async () => {
-        await page.goto('#/experience')
-        await expectExperiencePage(page)
-        await expectLevel(page, 'Advanced')
-        await progress(page).getByRole('link', { name: 'Equipment' }).click()
-        await expectEquipmentPage(page)
-        await expectEquipment(page, ['Pull-up bar', 'Full gym access'])
-        await expect(planImpact(page)).toHaveText('Advanced programming using pull-up bar and full gym access.')
+      await step('Step 2: Profile shows the saved choices', async () => {
+        await page.getByRole('link', { name: 'Browse all plans' }).first().click()
+        await expect(page).toHaveURL(/#\/plans$/)
+        await openProfile(page)
+        await expectSavedSetup(page, 'Advanced', ['Pull-up bar', 'Full gym access'])
       })
 
       await step('Step 3: "Log out" shows "You are logged out."', async () => {
-        await page.locator('.ob-page').getByRole('button', { name: 'Log out' }).click()
+        await page.getByRole('navigation', { name: 'Primary' }).getByRole('button', { name: 'Log out' }).click()
         await expect(page).toHaveURL(/#\/login$/)
         await expect(page.locator('.login-panel').getByText('You are logged out.')).toBeVisible()
       })
@@ -191,16 +221,12 @@ acceptanceTests(
       await step('Step 4: after logging back in, the choices are still there', async () => {
         await logIn(page, account)
         await expect(page).toHaveURL(/#\/dashboard$/)
-        await page.goto('#/equipment')
-        await expectEquipmentPage(page)
-        await expectEquipment(page, ['Pull-up bar', 'Full gym access'])
-        await page.getByRole('link', { name: 'Back to experience' }).click()
-        await expectExperiencePage(page)
-        await expectLevel(page, 'Advanced')
+        await openProfile(page)
+        await expectSavedSetup(page, 'Advanced', ['Pull-up bar', 'Full gym access'])
       })
 
       await step('Steps 5-7: a second account starts with nothing selected', async () => {
-        await page.locator('.ob-page').getByRole('button', { name: 'Log out' }).click()
+        await page.getByRole('navigation', { name: 'Primary' }).getByRole('button', { name: 'Log out' }).click()
         await expect(page.locator('.login-panel').getByText('You are logged out.')).toBeVisible()
         await setUpAccount(page, 'Sam Second')
         await expectLevel(page, null)
@@ -238,42 +264,42 @@ acceptanceTests(
         await expectPlansPage(page)
       })
 
-      await step('Step 2: changing only the experience to "Advanced" keeps the equipment', async () => {
-        await page.goto('#/experience')
-        await expectExperiencePage(page)
-        await expectLevel(page, 'Beginner')
-        await levelCard(page, 'Advanced').click()
-        await saveAndContinue(page).click()
-        await expectEquipmentPage(page)
-        await expectEquipment(page, ['Dumbbells', 'Kettlebells'])
-        await expect(planImpact(page)).toHaveText('Advanced programming using dumbbells and kettlebells.')
+      await step('Step 2: on Profile, changing only the experience to "Advanced" keeps the equipment', async () => {
+        await page.getByRole('link', { name: 'Browse all plans' }).first().click()
+        await expect(page).toHaveURL(/#\/plans$/)
+        await openProfile(page)
+        await expectSavedSetup(page, 'Beginner', ['Dumbbells', 'Kettlebells'])
+        await openEditPreferences(page)
+        await page.getByLabel('Experience level').selectOption({ label: 'Advanced' })
+        await page.getByRole('button', { name: 'Save changes' }).click()
+        await expect(page).toHaveURL(/#\/profile$/)
+        await expect(page.getByRole('status').filter({ hasText: 'Settings saved.' })).toBeVisible()
+        await expectSavedSetup(page, 'Advanced', ['Dumbbells', 'Kettlebells'])
       })
 
       await step('Step 3: changing only the equipment saves barbell and kettlebells', async () => {
-        await equipment(page, 'Dumbbells').click()
-        await equipment(page, 'Barbell').click()
-        await expect(planImpact(page)).toHaveText('Advanced programming using barbell and kettlebells.')
-        await saveAndContinue(page).click()
-        await expectPlansPage(page)
+        await openEditPreferences(page)
+        await preferenceButton(page, 'Dumbbells').click()
+        await preferenceButton(page, 'Barbell').click()
+        await page.getByRole('button', { name: 'Save changes' }).click()
+        await expect(page).toHaveURL(/#\/profile$/)
+        await expectSavedSetup(page, 'Advanced', ['Barbell', 'Kettlebells'])
       })
 
-      await step('Step 4: "Advanced" is still saved, with barbell and kettlebells', async () => {
-        await page.goto('#/experience')
-        await expectExperiencePage(page)
-        await expectLevel(page, 'Advanced')
-        await progress(page).getByRole('link', { name: 'Equipment' }).click()
-        await expectEquipmentPage(page)
-        await expectEquipment(page, ['Barbell', 'Kettlebells'])
+      await step('Step 4: the edit page shows "Advanced" with barbell and kettlebells', async () => {
+        await openEditPreferences(page)
+        await expect(page.getByLabel('Experience level')).toHaveValue('advanced')
+        await expectPressed(page, ['Barbell', 'Kettlebells'])
       })
 
       await step('Step 5: an unsaved change disappears when the page is reloaded', async () => {
-        await equipment(page, 'Barbell').click()
-        await equipment(page, 'Kettlebells').click()
-        await expectEquipment(page, [])
-        await expect(saveAndContinue(page)).toBeDisabled()
+        await preferenceButton(page, 'Barbell').click()
+        await preferenceButton(page, 'Kettlebells').click()
+        await expectPressed(page, [])
+        await expect(page.getByRole('button', { name: 'Save changes' })).toBeDisabled()
         await page.reload()
-        await expectEquipmentPage(page)
-        await expectEquipment(page, ['Barbell', 'Kettlebells'])
+        await expect(page.getByLabel('Experience level')).toHaveValue('advanced')
+        await expectPressed(page, ['Barbell', 'Kettlebells'])
       })
     },
   },

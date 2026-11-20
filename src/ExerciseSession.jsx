@@ -7,7 +7,7 @@ import { EMPTY_DRAFT, loadDraft, saveDraft } from './setDraft.js'
 import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
 import RestTimer from './RestTimer.jsx'
 import ExerciseAlternatives from './workoutLog/ExerciseAlternatives.jsx'
-import { formatSet, nextSetNumber, saveErrorMessage, upsertSet } from './workoutLog/setLog.js'
+import { formatSet, lastSavedSet, nextSetNumber, repeatValues, saveErrorMessage, upsertSet } from './workoutLog/setLog.js'
 import { validateSet } from './workoutLog/setValidation.js'
 import workoutLogApi from './workoutLog/workoutLogApi.js'
 import { startSession } from './workoutSessionApi.js'
@@ -36,6 +36,7 @@ function ExerciseSession() {
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
   const [switchedFrom, setSwitchedFrom] = useState(null) // the exercise this one replaced, for the notice
+  const [repeatNotice, setRepeatNotice] = useState('') // announced to screen readers after Repeat last set
 
   const index = Number(exerciseIndex)
   const exercise = session?.exercises[index]
@@ -111,6 +112,7 @@ function ExerciseSession() {
   function updateValue(field, value) {
     setDraft((d) => ({ ...d, [field]: value }))
     setFieldErrors((previous) => ({ ...previous, [field]: undefined }))
+    setRepeatNotice('')
   }
 
   const restTotal = draft.restTotal ?? DEFAULT_REST_SECONDS
@@ -145,6 +147,16 @@ function ExerciseSession() {
     }
   }
 
+  // Fills the boxes from the exercise's latest saved set. Saves nothing: the user still presses Log set.
+  function repeatLastSet() {
+    if (!lastSet || saving) return
+    setDraft((d) => ({ ...d, ...repeatValues(lastSet) }))
+    setFieldErrors((previous) => ({ ...previous, weight: undefined, reps: undefined }))
+    setSaveError('')
+    setRepeatNotice(`Weight and reps filled from Set ${lastSet.set_number}`)
+    document.getElementById('set-weight')?.focus()
+  }
+
   async function finishSet() {
     if (saving) return
     const checked = validateSet(values)
@@ -163,6 +175,7 @@ function ExerciseSession() {
         reps: checked.values.reps,
       })
       setSets((previous) => upsertSet(previous, saved))
+      setRepeatNotice('')
       // The next set starts fresh, after a rest of the length the user last chose.
       setDraft({ ...EMPTY_DRAFT, restTotal, restEndsAt: Date.now() + restTotal * 1000 })
     } catch (err) {
@@ -178,6 +191,7 @@ function ExerciseSession() {
 
   const muscles = exercise ? musclesFor(exercise.name) : []
   const setNumber = nextSetNumber(sets)
+  const lastSet = exercise ? lastSavedSet(sets, exercise.name) : null
 
   return (
     <div className="dashboard-page">
@@ -311,6 +325,15 @@ function ExerciseSession() {
                       </div>
                     </div>
                     {saveError && <p className="wl-message wl-message--error" role="alert">{saveError}</p>}
+                    <button
+                      type="button"
+                      className="wl-button wl-button--quiet wl-button--wide"
+                      onClick={repeatLastSet}
+                      disabled={saving || !lastSet}
+                    >
+                      Repeat last set
+                    </button>
+                    {repeatNotice && <p className="wl-message wl-message--success" role="status">{repeatNotice}</p>}
                     <button
                       type="button"
                       className="wl-button wl-button--primary wl-button--wide"

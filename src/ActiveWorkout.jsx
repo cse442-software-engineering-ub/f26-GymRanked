@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { addReturn, readReturnTarget, returnPath } from './returnTarget.js'
 import GymBackdrop from './components/GymBackdrop.jsx'
 import MobileDashboardIcon from './MobileDashboardIcon.jsx'
 import QuickSetLogger from './QuickSetLogger.jsx'
+import SavedSetsCard from './SavedSetsCard.jsx'
 import { fetchCurrentPlan, fetchPlan } from './plansApi.js'
 import CompleteWorkoutButton from './workoutLog/CompleteWorkoutButton.jsx'
 import { summaryPath, upsertSet } from './workoutLog/setLog.js'
@@ -13,6 +15,10 @@ import workoutLogApi from './workoutLog/workoutLogApi.js'
 // Active workout screen: the user selects an exercise and logs sets inline.
 function ActiveWorkout() {
   const navigate = useNavigate()
+  // The page this workout was opened from (see returnTarget.js): Save and return later goes back there, and the
+  // summary after Complete workout keeps it.
+  const [searchParams] = useSearchParams()
+  const cameFrom = readReturnTarget(searchParams)
   const [mobile, setMobile] = useState(() => window.matchMedia('(max-width: 640px)').matches)
   const [session, setSession] = useState(null)
   const [status, setStatus] = useState('loading') // loading | ready | none | loggedOut | error
@@ -51,7 +57,7 @@ function ActiveWorkout() {
     startSession()
       .then((started) => {
         if (started.completed_at) {
-          navigate(summaryPath(started.id), { replace: true })
+          navigate(addReturn(summaryPath(started.id), cameFrom), { replace: true })
           return
         }
         setSession(started)
@@ -186,26 +192,29 @@ function ActiveWorkout() {
               </article>
             </section>
 
-            <ol className="active-steps" aria-label="Exercises">
-              {exercises.map(({ name }, index) => {
-                const classes = ['active-step']
-                if (index === current) classes.push('active-step--current')
-                return (
-                  <li key={name}>
-                    <button
-                      type="button"
-                      className={classes.join(' ')}
-                      aria-current={index === current ? 'step' : undefined}
-                      onClick={() => goTo(index)}
-                    >
-                      <span className="active-step__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-                      <span className="active-step__name">{name}</span>
-                      <span className="active-step__count">{countFor(name)} {countFor(name) === 1 ? 'set' : 'sets'}</span>
-                    </button>
-                  </li>
-                )
-              })}
-            </ol>
+            <div className="active-workout__sidebar">
+              <ol className="active-steps" aria-label="Exercises">
+                {exercises.map(({ name }, index) => {
+                  const classes = ['active-step']
+                  if (index === current) classes.push('active-step--current')
+                  return (
+                    <li key={name}>
+                      <button
+                        type="button"
+                        className={classes.join(' ')}
+                        aria-current={index === current ? 'step' : undefined}
+                        onClick={() => goTo(index)}
+                      >
+                        <span className="active-step__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                        <span className="active-step__name">{name}</span>
+                        <span className="active-step__count">{countFor(name)} {countFor(name) === 1 ? 'set' : 'sets'}</span>
+                      </button>
+                    </li>
+                  )
+                })}
+              </ol>
+              {!completed && <SavedSetsCard exercise={exercises[current].name} sets={savedSets[exercises[current].name] ?? []} totalVolume={volume} />}
+            </div>
 
             <p className="active-workout__position">
               Current exercise: {exercises[current].name} ({current + 1} of {exercises.length})
@@ -265,10 +274,10 @@ function ActiveWorkout() {
                   setCurrent(index)
                 }}
                 onEndUnlogged={() => clearUnloggedSets(session.id, exercises.map(({ name }) => name))}
-                onCompleted={() => navigate(summaryPath(session.id))}
+                onCompleted={() => navigate(addReturn(summaryPath(session.id), cameFrom))}
                 onSessionEnded={() => setStatus('loggedOut')}
               />
-              {!completed && <Link className="active-workout__leave" to="/dashboard">Leave and return later</Link>}
+              {!completed && <Link className="active-workout__leave" to={returnPath(cameFrom)}>Save and return later</Link>}
             </section>
             {completed && <Link to="/weekly-plan" className="active-workout__back">Back to weekly plan</Link>}
           </>

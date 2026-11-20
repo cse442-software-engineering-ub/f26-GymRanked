@@ -8,14 +8,16 @@
 **Setup for this test:**
 1. Connect to the UB VPN, or use the campus network.
 2. Create an account at https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register with these details,
-   then log in with them on the login page that opens ("Account created. Log in to continue."):
+   then log in with them on the login page that opens ("Account created. Log in to continue."). On the
+   "Personal details" page that opens, type 180 in "Body weight (lb)", click "Man" and click "Save and continue":
    - Full name: Goldie Tester
    - Email: goal-a-0930@example.com
    - Password and Confirm password: AcceptGoal12!
 
 **Steps:**
 1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/goal. The page should show:
-   - a progress bar with "Training goal" (the current step), "Experience", "Equipment" and "Choose plan"
+   - a progress bar with "Personal details", "Training goal" (the current step), "Experience", "Equipment" and
+     "Choose plan"
    - the heading "Choose your training goal" and "This appears on your profile and shapes your training plan."
    - three cards: "Strength", "Fat loss" and "Aerobic fitness", each with a short description and "Select"
    - a "Profile preview" showing "GT", "Goldie Tester" and "No goal yet"
@@ -41,20 +43,22 @@
 3. Click "Log out" in the top-right corner, log back in as goal-a-0930@example.com, and open the #/goal link
    again. "Aerobic fitness" should be selected.
 4. Click "Log out" in the top-right corner. Create a second account (Full name: Goldie Second, Email:
-   goal-b-0930@example.com, password AcceptGoal12!), log in with it, and open the #/goal link. No card should be selected, the preview should show
+   goal-b-0930@example.com, password AcceptGoal12!), log in with it, save "180" and "Man" on "Personal details", and open the #/goal link. No card should be selected, the preview should show
    "No goal yet", and "Save goal" should be greyed out.
 
 ## Acceptance Test 3: You must be logged in to choose a goal
 
 **Setup for this test:**
 1. Connect to the UB VPN, or use the campus network. If you're logged in, log out ("Log out" in the top-right
-   corner of an onboarding page, or the account menu on the Dashboard).
+   corner of an onboarding page, or at the bottom of the menu on any other page).
 
 **Steps:**
 1. Open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/goal. The login page should open instead,
    showing "Log in to GymRank".
 
 ## Notes
+
+Updated on 2026-11-18 (card #133): new accounts now start setup on "Personal details" (body weight and gender, required since 2026-10-27), so the setups add that step and the progress bar has five steps. Logging out outside onboarding is now at the bottom of the menu.
 
 Changed on 2026-10-09 for cards #93 and #94 and the onboarding check from PR #45: "Create account" now opens the
 login page first, the progress bar has four steps (the experience and equipment pages are separate), "Save goal"
