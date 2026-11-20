@@ -253,6 +253,12 @@ meter::-moz-meter-bar { background: var(--accent); }
 @keyframes entry-to-brand { from { width: var(--app-sidebar-width); } to { width: var(--entry-brand-width); } }
 @keyframes entry-settle { from { opacity: 1; } to { opacity: 0; } }
 
+/* While a page slides in or out it never makes the window scroll sideways. */
+:root[data-entry] #root,
+.app-shell--leaving {
+  overflow-x: clip;
+}
+
 :root[data-entry="to-sidebar"] .app-shell__page,
 :root[data-entry="to-none"] #root > :first-child { animation: entry-arrive 560ms var(--entry-ease) both; }
 .app-shell--leaving .app-shell__page { animation: entry-leave 520ms var(--entry-ease) forwards; }
