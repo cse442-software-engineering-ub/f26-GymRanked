@@ -9,17 +9,16 @@ Test account used below (from the seeded test users): name "Marcus Malone", emai
 
 Before you start: Connect to the UB VPN, or use the campus network. If you are logged in, log out. Open the GymRank login screen by clicking this link: https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login. The first thing you should see is the dark login screen with "Every rep gets a rank." on the left.
 
-1. Look at the screen. You should see, on the right, a card with:
+1. Look at the screen. You should see, on the right:
    - the title "Log in to GymRank", with "Welcome back. Your division is waiting." under it;
    - a box labelled "Email" and a box labelled "Password";
    - a tick box "Keep me logged in" and the words "Forgot password?" on the same line;
-   - a wide dark-grey button that says "Log in";
-   - under it, "OR", then two buttons "Continue with Google" and "Continue with Apple";
-   - at the bottom, "New to GymRank? Create an account".
+   - a wide orange button that says "Log in";
+   - under it, "New to GymRank? Create an account".
 2. Click inside the "Email" box and type marcus.malone@example.com.
 3. Click inside the "Password" box and type Marcus-Bench225!. The letters should show as dots.
-4. Press the wide dark-grey Log in button.
-5. Look at the screen. You should see the Dashboard, with "Welcome, Marcus" near the top-left, and across the very top the words "Dashboard", "Workouts", "Plans", "Progress", "Leaderboard" and "Today". On a phone, tap the menu button (three lines) in the top-left corner to see these words.
+4. Press the wide orange Log in button. The button should change to "Logging in…" and the form should fade.
+5. Look at the screen. The Dashboard should slide in from the right while the dark left half narrows into the menu, and you should see "Welcome, Marcus" near the top-left and, in the menu on the left, "Dashboard", "Workouts", "Plans", "Progress", "Rankings" and "Buddies". On a phone, tap "Menu" in the top-left corner to see these words.
 
 Test passes if: Every box and button above appears as written, and Log in takes you to the Dashboard greeting you by your first name.
 
@@ -34,7 +33,7 @@ Test fails if: Any of these happen:
 
 Before you start: Open the GymRank login screen and click the link: https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login. Leave both boxes empty.
 
-1. Press the wide dark-grey Log in button.
+1. Press the wide orange Log in button.
 2. Look at the screen. You should still be on the login screen. You should see:
    - "Enter a valid email address." in red under the Email box;
    - "Enter your password." in red under the Password box;
@@ -51,7 +50,7 @@ Test fails if: You reach the Dashboard, or a message is missing or worded differ
 Before you start: Open the GymRank login screen and click the link: https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login.
 
 1. Type marcus.malone@example.com in the "Email" box and wrongpassword123 in the "Password" box.
-2. Press the wide dark-grey Log in button once.
+2. Press the wide orange Log in button once.
 3. Watch whether the whole screen flashes white and reloads like a new website. It should not.
 4. Look at the screen. You should still be on the login screen, with red writing above the "Email" box that says exactly "Invalid email or password."
 5. Check that the Dashboard did not appear.
@@ -65,7 +64,7 @@ Test fails if: You reach the Dashboard, or no message appears.
 Before you start: Open the GymRank login screen and click the link: https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login.
 
 1. Type nobody.here@example.com in the "Email" box and Marcus-Bench225! in the "Password" box.
-2. Press the wide dark-grey Log in button once.
+2. Press the wide orange Log in button once.
 3. Look at the screen. You should see the same red writing above the "Email" box: "Invalid email or password." (the app does not reveal whether the email exists), and you should still be on the login screen.
 
 Test passes if: The exact red message appears and you stay on the login screen.
@@ -76,13 +75,13 @@ Test fails if: You reach the Dashboard, or the message says something different 
 
 Before you start: Use a computer for this test. Open the GymRank login screen by clicking the link: https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login and log in as in Test 1, so you are on the Dashboard.
 
-1. Open the profile menu in the top-right corner (the orange circle showing "MM") and press "Log out" in the drop-down menu.
-2. Look at the screen. You should see the "Log in to GymRank" card again, with a red box above the "Email" box that says "You are logged out."
+1. Press "Log out" at the bottom of the menu on the left.
+2. Look at the screen. The Dashboard should slide away to the right while the menu widens back into the dark left half, then the log in form should slide in from the left: "Log in to GymRank" again, with a red box above the "Email" box that says "You are logged out."
 3. Click your browser's Back button once.
 4. Look at the screen. You should not see the Dashboard: the browser goes back to the page you were on before you opened the login link (for example the scrum board).
 5. Click your browser's Forward button once. You should see the "Log in to GymRank" card again, not the Dashboard.
 6. Type marcus.malone@example.com in the "Email" box and Marcus-Bench225! in the "Password" box, then tick the box "Keep me logged in".
-7. Press the wide dark-grey Log in button.
+7. Press the wide orange Log in button.
 8. Look at the screen. You should see the Dashboard.
 9. Close the browser tab, then open https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login again in a new tab.
 10. Look at the screen. You should see the Dashboard, not the login screen, because you asked to stay logged in.
@@ -113,6 +112,8 @@ Test fails if: A button logs you in, shows a blank page, or shows no message.
 Login allows 10 attempts per email every 15 minutes. If you re-run Story #18 several times in a row on marcus.malone@example.com, you may see "Too many attempts". The seeds README shows how to clear it.
 
 ## Notes
+
+Updated on 2026-11-19 (entry screens redesign, upgrade task under story #18): the log in screen is one split screen with no card, the Log in button is orange, logging in slides into the Dashboard while the dark half narrows into the menu, and Log out (now at the bottom of the menu) plays the slide backwards. The "Continue with Google" and "Continue with Apple" buttons are no longer on the screen (Test 6 is left for its owner).
 
 Updated on 2026-10-12 from card #18 as Eric edited it on 2026-10-09 (cattle links, "Continue with Google" and
 "Continue with Apple", the profile menu's "MM" circle), plus these fixes:
