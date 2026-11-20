@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import SidePanel from './components/SidePanel.jsx'
+import GuideVideo from './GuideVideo.jsx'
+import { mockGuide } from './devGuideMock.js'
 
 const API_URL = `${import.meta.env.BASE_URL}api/exercise_guide.php`
 
@@ -25,6 +27,13 @@ function ExerciseGuide({ name }) {
     let cancelled = false
     setOpen(false)
     setWarm(false)
+    // Local `npm run dev` only (see devGuideMock.js); always null in a production build.
+    const mock = mockGuide(name)
+    if (mock) {
+      setGuide(mock)
+      setLoading(false)
+      return undefined
+    }
     if (guides.has(name)) {
       setGuide(guides.get(name))
       setLoading(false)
@@ -94,17 +103,7 @@ function ExerciseGuide({ name }) {
         )}
         {guide && (
           <>
-            <video
-              className="exercise-guide__video"
-              src={guide.video}
-              poster={guide.poster ?? undefined}
-              preload="auto"
-              autoPlay
-              loop
-              muted
-              playsInline
-              aria-label={`${guide.name} demonstration`}
-            />
+            <GuideVideo src={guide.video} poster={guide.poster} name={guide.name} />
             {guide.instructions.length > 0 && (
               <section className="exercise-guide__section" aria-labelledby="exercise-guide-steps">
                 <h3 id="exercise-guide-steps">Steps</h3>
