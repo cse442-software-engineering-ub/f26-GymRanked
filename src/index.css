@@ -2432,6 +2432,115 @@ a.today-workout__details:hover {
   border-radius: 0;
 }
 
+/* The pictures and steps shown when the clip can't play (src/GuideFallback.jsx). */
+.guide-fallback {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.guide-fallback__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  color: var(--gr-warning-text);
+  background: var(--gr-warning-bg);
+  border: 1px solid color-mix(in srgb, var(--gr-warning) 35%, transparent);
+  border-radius: var(--gr-radius-button);
+  font-size: 14px;
+}
+
+.guide-fallback__notice svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+}
+
+.guide-fallback__step {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+
+.guide-fallback__image {
+  display: block;
+  width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+  box-sizing: border-box;
+  background: var(--gr-surface-sunken);
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-inner);
+}
+
+.guide-fallback__image--none {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 140px;
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+
+.guide-fallback__image--none svg {
+  width: 36px;
+  height: 36px;
+}
+
+.guide-fallback__instruction {
+  font-size: 15px;
+  color: var(--gr-text);
+  overflow-wrap: anywhere;
+}
+
+.guide-fallback__step figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.guide-fallback__credit {
+  font-size: 12px;
+  color: var(--gr-text-muted);
+}
+
+.guide-fallback__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wl-button.guide-fallback__button {
+  min-width: 96px;
+  font-size: 14px;
+  color: var(--gr-text);
+  background: var(--gr-surface-raised);
+  border-color: var(--gr-border-strong);
+  border-radius: var(--gr-radius-inner);
+}
+
+.wl-button.guide-fallback__button:not(:disabled):hover {
+  background: var(--gr-surface-hover);
+}
+
+.wl-button.guide-fallback__button:disabled {
+  color: var(--gr-nav-inactive);
+  border-color: transparent;
+}
+
+.guide-fallback__count {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gr-text-soft);
+  white-space: nowrap;
+}
+
 /* The ring is drawn inside the bar, since the block's overflow: hidden would clip one outside it. */
 .side-panel .exercise-guide__toggle:focus-visible {
   outline-offset: -3px;

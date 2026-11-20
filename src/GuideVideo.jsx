@@ -1,12 +1,40 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+
+// How long the clip may sit without loading (at first, or after it starts buffering) before the guide gives up on it.
+const STALL_MS = 10000
 
 // The exercise guide's demo clip (src/ExerciseGuide.jsx) with one Play/Pause button under it. The clip still
 // autoplays, loops and is muted. The button's label follows the video's own play and pause events, so it always
 // says what pressing it will do, even if the browser blocks autoplay. Pausing keeps the current frame and Play
 // continues from it. The guide pop-up unmounts this when it closes, so reopening starts the clip playing again.
-function GuideVideo({ src, poster, name }) {
+// onFail is called once if the clip errors (bad link, offline) or loads nothing for STALL_MS, so the guide can show
+// the picture fallback instead of a frozen or spinning player.
+function GuideVideo({ src, poster, name, onFail }) {
   const videoRef = useRef(null)
+  const timerRef = useRef(null)
+  const failedRef = useRef(false)
   const [playing, setPlaying] = useState(false)
+
+  function fail() {
+    if (failedRef.current) return
+    failedRef.current = true
+    clearTimeout(timerRef.current)
+    onFail()
+  }
+
+  function watch() {
+    if (!timerRef.current) timerRef.current = setTimeout(fail, STALL_MS)
+  }
+
+  function settle() {
+    clearTimeout(timerRef.current)
+    timerRef.current = null
+  }
+
+  useEffect(() => {
+    watch()
+    return settle
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   function toggle() {
     const video = videoRef.current
@@ -30,6 +58,11 @@ function GuideVideo({ src, poster, name }) {
         aria-label={`${name} demonstration`}
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
+        onCanPlay={settle}
+        onPlaying={settle}
+        onWaiting={watch}
+        onStalled={watch}
+        onError={fail}
       />
       <button
         type="button"

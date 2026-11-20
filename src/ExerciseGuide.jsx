@@ -1,7 +1,9 @@
 import { useEffect, useState, useRef } from 'react'
 import SidePanel from './components/SidePanel.jsx'
 import GuideVideo from './GuideVideo.jsx'
+import GuideFallback from './GuideFallback.jsx'
 import { mockGuide } from './devGuideMock.js'
+import { loadPlaceholderSteps, placeholderSteps } from './guideFallbackPlaceholder.js'
 
 const API_URL = `${import.meta.env.BASE_URL}api/exercise_guide.php`
 
@@ -12,8 +14,9 @@ const guides = new Map()
 // A "How to perform it" button that opens a panel with a looping demo clip, the steps and the form tips, from
 // WorkoutX through api/exercise_guide.php. The panel is a SidePanel: a pop-up centred over the page on every screen.
 // The page behind stays mounted, so the set timer keeps running while it is open. The button always
-// shows, beside See alternatives. The guide is fetched up front; while it loads, or when the exercise has none (404)
-// or it can't load, the panel says so instead, so the timer and set logging are never blocked by it. To make the
+// shows, beside See alternatives. The guide is fetched up front; while it loads the panel says so, and when the
+// exercise has none (404), it can't load, or its clip errors or stalls, the panel shows the pictures and steps
+// (GuideFallback) instead, so the timer and set logging are never blocked by it. To make the
 // panel feel instant, the poster is fetched as soon as the guide arrives and the clip as soon as the pointer or
 // keyboard reaches the button (not for every exercise up front: WorkoutX counts media views against its quota).
 function ExerciseGuide({ name }) {
@@ -21,16 +24,23 @@ function ExerciseGuide({ name }) {
   const [loading, setLoading] = useState(() => !guides.has(name))
   const [open, setOpen] = useState(false)
   const [warm, setWarm] = useState(false)
+  const [videoFailed, setVideoFailed] = useState(false)
+  // Bumped when the panel opens with no guide, so a guide that failed to load (offline, 503) is asked for again.
+  const [attempt, setAttempt] = useState(0)
   const buttonRef = useRef(null)
 
   useEffect(() => {
-    let cancelled = false
     setOpen(false)
     setWarm(false)
+    loadPlaceholderSteps(name) // TEMPORARY until #92's backup steps exist (see guideFallbackPlaceholder.js).
+  }, [name])
+
+  useEffect(() => {
+    let cancelled = false
     // Local `npm run dev` only (see devGuideMock.js); always null in a production build.
     const mock = mockGuide(name)
     if (mock) {
-      setGuide(mock)
+      setGuide(mock.video ? mock : null)
       setLoading(false)
       return undefined
     }
@@ -55,7 +65,15 @@ function ExerciseGuide({ name }) {
     return () => {
       cancelled = true
     }
-  }, [name])
+  }, [name, attempt])
+
+  function toggle() {
+    if (!open) {
+      setVideoFailed(false)
+      if (!guide && !loading) setAttempt((n) => n + 1)
+    }
+    setOpen(!open)
+  }
 
   useEffect(() => {
     if (guide?.poster) new Image().src = guide.poster
@@ -72,7 +90,7 @@ function ExerciseGuide({ name }) {
         onPointerEnter={() => setWarm(true)}
         onFocus={() => setWarm(true)}
         onTouchStart={() => setWarm(true)}
-        onClick={() => setOpen((wasOpen) => !wasOpen)}
+        onClick={toggle}
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="9" />
@@ -87,7 +105,7 @@ function ExerciseGuide({ name }) {
         title={`How to perform ${name}`}
         returnFocusRef={buttonRef}
         busy={!guide && loading}
-        footer={guide ? 'Demo clip, steps and tips from WorkoutX.' : null}
+        footer={guide ? (videoFailed ? 'Steps and tips from WorkoutX.' : 'Demo clip, steps and tips from WorkoutX.') : null}
       >
         {!guide && loading && (
           <p className="side-panel__status">
@@ -95,15 +113,14 @@ function ExerciseGuide({ name }) {
             Loading the guide…
           </p>
         )}
-        {!guide && !loading && (
-          <div className="side-panel__message">
-            <h3>No guide yet</h3>
-            <p>No guide is available for this exercise right now.</p>
-          </div>
-        )}
+        {/* No guide (none listed, offline, or the server can't reach WorkoutX) or the clip failed: pictures and steps.
+            TEMPORARY: placeholderSteps is the stand-in for #92's backup steps. */}
+        {((!guide && !loading) || (guide && videoFailed)) && <GuideFallback key={name} steps={placeholderSteps(name)} />}
         {guide && (
           <>
-            <GuideVideo src={guide.video} poster={guide.poster} name={guide.name} />
+            {!videoFailed && (
+              <GuideVideo src={guide.video} poster={guide.poster} name={guide.name} onFail={() => setVideoFailed(true)} />
+            )}
             {guide.instructions.length > 0 && (
               <section className="exercise-guide__section" aria-labelledby="exercise-guide-steps">
                 <h3 id="exercise-guide-steps">Steps</h3>
