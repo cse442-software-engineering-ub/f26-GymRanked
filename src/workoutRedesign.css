@@ -22,7 +22,8 @@
   .active-workout__mobile-heading { display: block; padding: 18px 20px 10px; }
   .active-workout__mobile-heading h1 { margin: 0; font-size: 28px; font-weight: 500; }
   .dashboard-page:has(.active-workout__mobile-heading) > .gym-backdrop {
-    height: 248px;
+    height: auto;
+    min-height: 210px;
     margin: 0 20px;
     border: 1px solid var(--gr-border);
     border-radius: var(--gr-radius-card);
@@ -32,15 +33,18 @@
   }
   .dashboard-page:has(.active-workout__mobile-heading) > .gym-backdrop::before {
     display: block;
+    inset: -1px;
     background: linear-gradient(to bottom,
-      color-mix(in srgb, var(--gr-surface) 8%, transparent) 0%,
-      color-mix(in srgb, var(--gr-surface) 35%, transparent) 28%,
-      color-mix(in srgb, var(--gr-surface) 93%, transparent) 64%,
+      color-mix(in srgb, var(--gr-surface) 72%, transparent) 0%,
+      color-mix(in srgb, var(--gr-surface) 82%, transparent) 55%,
       var(--gr-surface) 100%);
   }
   .dashboard-page:has(.active-workout__mobile-heading) > .gym-backdrop .gym-backdrop__content {
-    justify-content: flex-end;
-    padding: 18px 20px;
+    box-sizing: border-box;
+    height: auto;
+    min-height: 210px;
+    justify-content: flex-start;
+    padding: 20px;
   }
   .dashboard-page:has(.active-workout__mobile-heading) > .gym-backdrop .gym-backdrop__content > span { display: none; }
   .dashboard-page:has(.active-workout__mobile-heading) .dashboard-header h1 { margin: 5px 0; font-size: 28px; line-height: 1.1; }

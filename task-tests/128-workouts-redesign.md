@@ -30,3 +30,9 @@
 5. Log a set for the second exercise. Confirm only that exercise's set appears, its exercise volume increases, and total volume includes both exercises.
 6. Select the first exercise again. Confirm its saved set and exercise volume return without losing the second exercise's contribution to total volume.
 7. Log enough sets to fill the Saved sets card. Confirm the list scrolls inside the card while both volume fields and Ready to wrap up stay visible.
+
+## Test 6: Phone active workout header
+1. Sign in with a scheduled workout and open the active workout on a phone-sized screen.
+2. Confirm the photo has a consistent dark overlay through its rounded edges, including the top and bottom borders.
+3. Confirm the card is compact, the workout title sits near the top, and the plan, duration, and progress chips remain visible without clipping.
+4. Switch to the light theme and repeat steps 2 and 3.
