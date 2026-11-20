@@ -26,5 +26,7 @@
 1. Sign in with an account with a scheduled workout and open it on a desktop screen at least 1000px wide.
 2. Confirm the Exercises card sits above a separate Saved sets card. Together they fill the space beside Log a set, with no page-background gap above Ready to wrap up.
 3. Log a set with 25 lb and 10 reps. Confirm the Saved sets card shows the exercise, Set 1, 25 lb × 10, exercise volume 250 lb, and total volume 250 lb.
-4. Select another exercise and log a set. Confirm both exercises appear in the Saved sets card and total volume increases.
-5. Log enough sets to fill the Saved sets card. Confirm the list scrolls inside the card while its total volume footer and Ready to wrap up stay visible.
+4. Select another exercise. Confirm the Saved sets card switches to that exercise and shows no saved sets and exercise volume 0 lb, while total volume remains 250 lb.
+5. Log a set for the second exercise. Confirm only that exercise's set appears, its exercise volume increases, and total volume includes both exercises.
+6. Select the first exercise again. Confirm its saved set and exercise volume return without losing the second exercise's contribution to total volume.
+7. Log enough sets to fill the Saved sets card. Confirm the list scrolls inside the card while both volume fields and Ready to wrap up stay visible.

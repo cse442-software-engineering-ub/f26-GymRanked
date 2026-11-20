@@ -352,23 +352,20 @@
   .active-workout-page .active-workout__mobile-log { grid-column: 1; grid-row: 1; }
   .active-workout-page .active-workout__sidebar { grid-column: 2; grid-row: 1; align-self: stretch; display: flex; flex-direction: column; gap: 16px; min-height: 0; }
   .active-workout-page .active-saved-card { display: flex; flex: 1 1 0; flex-direction: column; min-height: 260px; min-width: 0; overflow: hidden; border: 1px solid var(--gr-border); border-radius: var(--gr-radius-card); background: var(--gr-surface); }
-  .active-workout-page .active-saved-card__heading, .active-workout-page .active-saved-card__total { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 16px 20px; }
+  .active-workout-page .active-saved-card__heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 16px 20px; }
   .active-workout-page .active-saved-card__heading { border-bottom: 1px solid var(--gr-border); }
   .active-workout-page .active-saved-card__heading h2 { margin: 0; font-size: 18px; font-weight: 600; }
-  .active-workout-page .active-saved-card__heading span, .active-workout-page .active-saved-card__exercise-heading span { color: var(--gr-text-muted); font-size: 12px; }
+  .active-workout-page .active-saved-card__heading span { color: var(--gr-text-muted); font-size: 12px; }
   .active-workout-page .active-saved-card__list { flex: 1 1 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 20px; scrollbar-width: thin; }
   .active-workout-page .active-saved-card__list:focus-visible { outline: 2px solid var(--gr-action-text); outline-offset: -2px; }
-  .active-workout-page .active-saved-card__exercise { padding: 14px 0; }
-  .active-workout-page .active-saved-card__exercise + .active-saved-card__exercise { border-top: 1px solid var(--gr-border); }
-  .active-workout-page .active-saved-card__exercise-heading { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
-  .active-workout-page .active-saved-card__exercise h3 { margin: 0; font-size: 14px; font-weight: 600; }
-  .active-workout-page .active-saved-card__exercise ol { list-style: none; margin: 8px 0 0; padding: 0; }
-  .active-workout-page .active-saved-card__exercise li { display: flex; justify-content: space-between; gap: 8px; padding: 5px 0; color: var(--gr-text-soft); font-size: 13px; }
-  .active-workout-page .active-saved-card__exercise li strong { color: var(--gr-text); font-weight: 600; }
-  .active-workout-page .active-saved-card__exercise p { margin: 8px 0 0; color: var(--gr-text-muted); font-size: 12px; }
-  .active-workout-page .active-saved-card__exercise-volume { text-align: right; }
-  .active-workout-page .active-saved-card__total { border-top: 1px solid var(--gr-border); color: var(--gr-text-soft); font-size: 13px; }
-  .active-workout-page .active-saved-card__total strong { color: var(--gr-text); font-size: 15px; }
+  .active-workout-page .active-saved-card__list h3 { margin: 14px 0 8px; font-size: 14px; font-weight: 600; }
+  .active-workout-page .active-saved-card__list ol { list-style: none; margin: 0; padding: 0; }
+  .active-workout-page .active-saved-card__list li { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-top: 1px solid var(--gr-border); color: var(--gr-text-soft); font-size: 13px; }
+  .active-workout-page .active-saved-card__list li strong { color: var(--gr-text); font-weight: 600; }
+  .active-workout-page .active-saved-card__list p { margin: 8px 0; color: var(--gr-text-muted); font-size: 12px; }
+  .active-workout-page .active-saved-card__totals { display: grid; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--gr-border); color: var(--gr-text-soft); font-size: 13px; }
+  .active-workout-page .active-saved-card__totals span { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .active-workout-page .active-saved-card__totals strong { color: var(--gr-text); font-size: 14px; }
   .active-workout-page .quick-set__count, .active-workout-page .quick-set__saved, .active-workout-page .quick-set__volume { display: none; }
   .active-workout-page .active-workout__finish { grid-column: 1 / -1; grid-row: 2; }
 }

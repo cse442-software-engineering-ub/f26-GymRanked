@@ -213,7 +213,7 @@ function ActiveWorkout() {
                   )
                 })}
               </ol>
-              {!completed && <SavedSetsCard exercises={exercises} savedSets={savedSets} totalVolume={volume} />}
+              {!completed && <SavedSetsCard exercise={exercises[current].name} sets={savedSets[exercises[current].name] ?? []} totalVolume={volume} />}
             </div>
 
             <p className="active-workout__position">
