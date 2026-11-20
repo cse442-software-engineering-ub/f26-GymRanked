@@ -42,3 +42,9 @@
 2. Open Workouts on a phone-sized screen.
 3. Confirm all seven day tiles have the same height, including Monday with View summary and Tuesday with Recovery.
 4. Confirm View summary remains fully visible and opens Monday's saved summary.
+
+## Test 8: Workout summary card proportions and PR color
+1. Open a completed workout summary with zero new PRs on a phone-sized screen.
+2. Confirm the four statistic cards are compact, the Weekly goal card is taller, and its larger Weekly goal title stays on one line above the smaller training-days-completed text.
+3. Confirm the New PRs card is gray. Repeat at desktop width and confirm it is still gray.
+4. Open a completed workout summary with at least one new PR. Confirm the New PRs card has an orange accent at phone and desktop widths.

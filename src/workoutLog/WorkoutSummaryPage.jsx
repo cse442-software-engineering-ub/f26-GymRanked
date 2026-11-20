@@ -47,7 +47,7 @@ function SummaryIcon({ name, className = '' }) {
 
 function Metric({ label, value, icon, accent = false }) {
   return (
-    <article className="workout-summary__metric">
+    <article className={accent ? 'workout-summary__metric workout-summary__metric--accent' : 'workout-summary__metric'}>
       <span className={accent ? 'workout-summary__metric-icon workout-summary__metric-icon--accent' : 'workout-summary__metric-icon'}><SummaryIcon name={icon} /></span>
       <div>
         <span className="workout-summary__metric-label">{label}</span>
@@ -178,7 +178,7 @@ export default function WorkoutSummaryPage({ preview = false }) {
               <Metric label="Total volume" value={summary.totalVolume} icon="volume" />
               <Metric label="Sets completed" value={summary.setsCompleted} icon="sets" />
               <Metric label="Exercises" value={summary.exerciseCount} icon="dumbbell" />
-              <Metric label="New PRs" value={summary.newPrs ?? '—'} icon="trophy" accent />
+              <Metric label="New PRs" value={summary.newPrs ?? '—'} icon="trophy" accent={summary.newPrs > 0} />
             </section>
 
             <WorkoutWeeklyFeedback state={preview ? PREVIEW_WEEKLY : weeklyState} completedAt={preview ? '2026-11-13T18:00:00Z' : state.session.completed_at} onRetry={() => setWeeklyAttempt((value) => value + 1)} />

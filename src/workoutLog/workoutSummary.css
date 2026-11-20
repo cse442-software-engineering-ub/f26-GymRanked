@@ -131,6 +131,11 @@
   background: var(--gr-surface);
 }
 
+.workout-summary__metric--accent {
+  border-color: var(--gr-action);
+  background: var(--gr-selected-bg);
+}
+
 .workout-summary__metric-icon {
   display: grid;
   flex: none;
@@ -458,14 +463,23 @@
   .workout-summary__metric {
     align-items: flex-start;
     flex-direction: column;
-    gap: 12px;
-    min-height: 132px;
-    padding: 16px;
+    gap: 8px;
+    min-height: 94px;
+    padding: 12px;
   }
 
+  .workout-summary__metric-icon { width: 36px; height: 36px; }
+  .workout-summary__metric-icon svg { width: 19px; height: 19px; }
+  .workout-summary__metric-label { margin-bottom: 3px; font-size: 13px; }
+
   .workout-summary__metric-value {
-    font-size: 24px;
+    font-size: 22px;
   }
+
+  .workout-summary__weekly { min-height: 340px; padding: 20px; }
+  .workout-summary__weekly header { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .workout-summary__weekly h2 { flex: none; font-size: 27px; white-space: nowrap; }
+  .workout-summary__weekly-count { font-size: 14px; font-weight: 500; }
 
   .workout-summary__highlights {
     padding: 21px 17px 7px;
