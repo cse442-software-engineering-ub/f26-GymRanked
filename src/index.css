@@ -2416,6 +2416,9 @@ a.today-workout__details:hover {
 .exercise-guide__player {
   display: flex;
   flex-direction: column;
+  /* The panel body is a flex column with a fixed height; without this the player shrinks to a sliver and its
+     overflow: hidden crops the clip and hides the Play/Pause button. */
+  flex: none;
   overflow: hidden;
   border: 1px solid var(--gr-border-strong);
   border-radius: var(--gr-radius-inner);
