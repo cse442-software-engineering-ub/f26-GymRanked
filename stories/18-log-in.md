@@ -93,27 +93,23 @@ Test fails if: Any of these happen:
 - the Back or Forward button shows the Dashboard after logging out;
 - you are asked to log in again after reopening the site with "Keep me logged in" ticked.
 
-## Acceptance Test 6: The "not available yet" buttons
+## Acceptance Test 6: "Forgot password?" is not available yet
 
 Before you start: Open the GymRank login screen by clicking the link: https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login.
 
 1. Press the words "Forgot password?".
-2. Look at the screen. You should see a message near the top of the card saying "Password recovery is not available yet. Please contact the GymRank team."
-3. Press the "Continue with Google" button.
-4. Look at the screen. You should see "Google sign-in is not available yet. Please use your email and password."
-5. Press the "Continue with Apple" button.
-6. Look at the screen. You should see "Apple sign-in is not available yet. Please use your email and password."
-7. Check that you are still on the login screen each time.
+2. Look at the screen. You should see a message above the boxes saying "Password recovery is not available yet. Please contact the GymRank team."
+3. Check that you are still on the login screen, and that there are no "Continue with Google" or "Continue with Apple" buttons anywhere on it.
 
-Test passes if: Each button shows its message and none of them logs you in or leaves the page.
+Test passes if: "Forgot password?" shows its message without logging you in or leaving the page, and the screen has no Google or Apple buttons.
 
-Test fails if: A button logs you in, shows a blank page, or shows no message.
+Test fails if: "Forgot password?" logs you in, shows a blank page or shows no message, or a Google or Apple button is on the screen.
 
 Login allows 10 attempts per email every 15 minutes. If you re-run Story #18 several times in a row on marcus.malone@example.com, you may see "Too many attempts". The seeds README shows how to clear it.
 
 ## Notes
 
-Updated on 2026-11-19 (entry screens redesign, upgrade task under story #18): the log in screen is one split screen with no card, the Log in button is orange, logging in slides into the Dashboard while the dark half narrows into the menu, and Log out (now at the bottom of the menu) plays the slide backwards. The "Continue with Google" and "Continue with Apple" buttons are no longer on the screen (Test 6 is left for its owner).
+Updated on 2026-11-19 (entry screens redesign, upgrade task under story #18): the log in screen is one split screen with no card, the Log in button is orange, logging in slides into the Dashboard while the dark half narrows into the menu, and Log out (now at the bottom of the menu) plays the slide backwards. The "Continue with Google" and "Continue with Apple" buttons were removed by Nicholas (commit 0f8d0d7), so Test 6 now checks only "Forgot password?" and that those buttons are gone; its Playwright code already did.
 
 Updated on 2026-10-12 from card #18 as Eric edited it on 2026-10-09 (cattle links, "Continue with Google" and
 "Continue with Apple", the profile menu's "MM" circle), plus these fixes:
