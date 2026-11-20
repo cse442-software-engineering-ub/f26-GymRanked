@@ -13,7 +13,7 @@ const PREVIEW_SUMMARY = {
   duration: '52 min 14 sec',
   totalVolume: '18,420 lb',
   setsCompleted: 21,
-  exerciseCount: 5,
+  totalReps: 208,
   newPrs: 2,
   highlights: [
     { exercise: 'Bench press', topSet: '185 lb × 5', versusLast: '180 lb × 6', prLabel: 'Weight PR' },
@@ -173,7 +173,7 @@ export default function WorkoutSummaryPage({ preview = false }) {
             <section className="workout-summary__metrics" aria-label="Session statistics">
               <Metric label="Total volume" value={summary.totalVolume} icon="volume" />
               <Metric label="Sets completed" value={summary.setsCompleted} icon="sets" />
-              <Metric label="Exercises" value={summary.exerciseCount} icon="dumbbell" />
+              <Metric label="Reps completed" value={summary.totalReps} icon="dumbbell" />
               <Metric label="New PRs" value={summary.newPrs ?? '—'} icon="trophy" accent />
             </section>
 

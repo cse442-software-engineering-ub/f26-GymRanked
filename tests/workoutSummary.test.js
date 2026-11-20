@@ -50,6 +50,18 @@ test('completed session data becomes accurate summary values and top sets', () =
   })
 })
 
+test('summary counts reps across every saved set', () => {
+  const session = {
+    name: 'Full body', completed_at: '2026-11-17T20:00:00Z',
+    summary: { duration_seconds: 1200, total_volume_lb: 900, set_count: 3, exercise_count: 2, total_reps: 28 },
+    exercises: [
+      { name: 'Bench press', sets: [{ weight_lb: 25, reps: 10 }, { weight_lb: 25, reps: 10 }] },
+      { name: 'Squat', sets: [{ weight_lb: 50, reps: 8 }] },
+    ],
+  }
+  assert.equal(displaySummary(session).totalReps, 28)
+})
+
 test('an unfinished session has no summary, and bodyweight sets retain their label', () => {
   assert.equal(displaySummary({ completed_at: null, summary: null }), null)
   const completed = displaySummary({

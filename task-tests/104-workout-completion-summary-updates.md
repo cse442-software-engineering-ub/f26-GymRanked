@@ -8,6 +8,12 @@ Use a signed-in test account and a local database with the workout session and w
 2. Confirm the heading says `Workout complete - Pull`. Beneath it, confirm the workout duration and `Tuesday, November 17, 2026` appear, without repeating `Pull`.
 3. Confirm `Return to dashboard`, `Workout history`, and `Share summary` are all available. Select `Workout history` and confirm it opens `#/progress/history`.
 
+## Test 1a: Reps completed metric
+
+1. Start from the app link with `#/workouts/<id>/summary` appended, using a completed workout with two Bench press sets of `25 lb × 10` and one Squat set of `50 lb × 8`.
+2. At 1440 px width, confirm the third statistic card says `Reps completed` and shows `28`, rather than the number of exercises.
+3. At 375 px width, confirm the same card still says `Reps completed` and shows `28` without clipping.
+
 ## Test 2: Weekly goal card
 
 1. Start from the app link with `#/workouts/<id>/summary` appended, using a completed workout that received one new training day of weekly-goal credit.
