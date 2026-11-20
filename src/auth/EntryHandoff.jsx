@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 
 // The brand panel's colour as a panel fixed to the left of the window, used to carry it between the entry screens
 // and the app (see entryHandoff.js). phase:
@@ -13,7 +13,9 @@ export default function EntryHandoff({ phase, onDone }) {
   const done = useRef(onDone)
   done.current = onDone
 
-  useEffect(() => {
+  // A layout effect, so the page beside the panel is set up for its slide before the browser draws it (with a plain
+  // effect the new page could show for one frame in its final place, then jump back and slide in).
+  useLayoutEffect(() => {
     const root = document.documentElement
     root.dataset.entry = phase
     if (phase.startsWith('hold')) return () => { if (root.dataset.entry === phase) delete root.dataset.entry }
