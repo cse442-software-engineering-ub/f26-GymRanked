@@ -238,7 +238,10 @@ meter::-moz-meter-bar { background: var(--accent); }
    keep the headline and example on screen beside the narrowing panel. */
 .entry.entry--entering .entry-brand__top,
 .entry.entry--entering .entry-brand__body,
-.entry.entry--entering .entry-brand__glow { animation: entry-fade-out 180ms ease forwards; }
+.entry.entry--entering .entry-brand__glow,
+/* On a phone the panel's body is display: contents (so its parts can sit above and below the form), which ignores
+   opacity, so its parts fade one by one. */
+.entry.entry--entering :is(.entry-hero, .entry-hero__text, .entry-showcase) { animation: entry-fade-out 180ms ease forwards; }
 @keyframes entry-fade-out { from { opacity: 1; } to { opacity: 0; } }
 /* The handoff panel (drawn over it at the same width) does the narrowing, so the real panel steps aside. */
 .entry--entering .entry-brand { border-right-color: transparent; background: var(--gr-bg-page); }
@@ -297,6 +300,9 @@ meter::-moz-meter-bar { background: var(--accent); }
 :root[data-entry="arrive-none"] #root > :first-child { animation: entry-arrive 420ms var(--entry-ease) both; }
 .app-shell--leaving .app-shell__page { animation: entry-leave 380ms var(--entry-ease) forwards; }
 .app-shell--leaving :is(.app-sidebar, .app-topstrip) > * { opacity: 0; transition: opacity 160ms ease; }
+/* Logging out from the phone menu: the open menu fades away with the page instead of staying on top of the slide. */
+.app-shell--leaving dialog.app-drawer,
+.app-shell--leaving dialog.app-drawer::backdrop { opacity: 0; transition: opacity 160ms ease; }
 
 @keyframes entry-arrive { from { transform: translateX(min(40vw, 480px)); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes entry-leave { to { transform: translateX(min(40vw, 480px)); opacity: 0; } }
