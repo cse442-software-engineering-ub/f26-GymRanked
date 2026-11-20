@@ -432,10 +432,6 @@
   background: var(--gr-selected-bg);
 }
 
-.buddies-member.is-composing {
-  grid-column: 1 / -1;
-}
-
 .buddies-member__line {
   display: flex;
   align-items: center;
@@ -484,11 +480,66 @@
 
 .buddies-compose {
   display: grid;
-  gap: 10px;
-  padding: 14px;
-  border-radius: var(--gr-radius-inner);
+  gap: 12px;
+}
+
+/* The Encourage modal (EncourageDialog.jsx): DESIGN.md's dialog, a little wider for the message box. */
+.buddies-dialog {
+  box-sizing: border-box;
+  width: min(440px, calc(100% - 32px));
+  max-width: none;
+  padding: 0;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
   background: var(--gr-surface);
-  scroll-margin: 16px 0 24px;
+  color: var(--gr-text);
+  font-family: var(--gr-font);
+  box-shadow: var(--gr-shadow-menu);
+}
+
+.buddies-dialog::backdrop {
+  background: var(--gr-backdrop);
+}
+
+.buddies-dialog *,
+.buddies-dialog *::before,
+.buddies-dialog *::after {
+  box-sizing: border-box;
+}
+
+.buddies-dialog :focus-visible {
+  outline: 3px solid var(--gr-brand);
+  outline-offset: 3px;
+}
+
+.buddies-dialog__body {
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+}
+
+.buddies-dialog__title {
+  margin: 0;
+  color: var(--gr-text);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.buddies-dialog p {
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .buddies-dialog[open] {
+    animation: buddies-dialog-in 180ms ease-out;
+  }
+}
+
+@keyframes buddies-dialog-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
 }
 
 .buddies-solo {
@@ -596,6 +647,11 @@
 
   .buddies-input--code {
     max-width: none;
+  }
+
+  /* Near the top on a phone, so the on-screen keyboard doesn't cover the box or Send. */
+  .buddies-dialog {
+    margin: 16px auto auto;
   }
 
   .buddies-compose .buddies-actions .buddies-button {

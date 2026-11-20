@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import EncourageForm from './EncourageForm.jsx'
+import EncourageDialog from './EncourageDialog.jsx'
 import { formatExpiry, initialsOf, isExpired, memberCountLabel } from './buddiesFormat.js'
 
 // The group card: its name and size and the members (owner first, then by join time,
-// exactly as #71 returns them). Every member but you has an "Encourage" button, which opens one message form at a time
-// under that row.
+// exactly as #71 returns them). Every member but you has an "Encourage" button, which opens the message form for that
+// member in a modal (EncourageDialog.jsx).
 function GroupPanel({ group, me, titleRef, onNotice, onUnauthorized, onMembersChanged }) {
   const [composeFor, setComposeFor] = useState(null)
   const [goneError, setGoneError] = useState('')
@@ -32,6 +32,7 @@ function GroupPanel({ group, me, titleRef, onNotice, onUnauthorized, onMembersCh
   }
 
   const alone = group.member_count === 1 && me.is_owner
+  const composing = group.members.find((member) => member.member_id === composeFor) ?? null
 
   return (
     <section className="buddies-card" aria-labelledby="buddies-group-name">
@@ -46,7 +47,7 @@ function GroupPanel({ group, me, titleRef, onNotice, onUnauthorized, onMembersCh
       <ul className="buddies-members" aria-label="Members">
         {group.members.map((member) => {
           const open = composeFor === member.member_id
-          const rowClass = ['buddies-member', member.is_owner && 'is-owner', member.is_me && 'is-me', open && 'is-composing'].filter(Boolean).join(' ')
+          const rowClass = ['buddies-member', member.is_owner && 'is-owner', member.is_me && 'is-me'].filter(Boolean).join(' ')
           return (
             <li key={member.member_id} className={rowClass}>
               <div className="buddies-member__line">
@@ -56,8 +57,7 @@ function GroupPanel({ group, me, titleRef, onNotice, onUnauthorized, onMembersCh
                   {member.is_owner && <span className="buddies-pill">Owner</span>}
                   {member.is_me && <span className="buddies-pill buddies-pill--me">You</span>}
                 </span>
-                {/* While the message form is open its Cancel closes it, so the button steps aside. */}
-                {!member.is_me && !open && (
+                {!member.is_me && (
                   <button type="button" className="buddies-button buddies-button--primary buddies-button--small buddies-encourage" aria-expanded={open}
                     aria-label={`Encourage ${member.name}`}
                     ref={(element) => {
@@ -67,19 +67,20 @@ function GroupPanel({ group, me, titleRef, onNotice, onUnauthorized, onMembersCh
                     onClick={() => toggleCompose(member.member_id)}>Encourage</button>
                 )}
               </div>
-              {open && (
-                <EncourageForm member={member} onCancel={closeCompose} onUnauthorized={onUnauthorized}
-                  onSent={(to) => { onNotice(`Encouragement sent to ${to}`); closeCompose() }}
-                  onMemberGone={() => {
-                    setGoneError(`${member.name} isn't in your group any more.`)
-                    setComposeFor(null)
-                    onMembersChanged()
-                  }} />
-              )}
             </li>
           )
         })}
       </ul>
+
+      {composing && (
+        <EncourageDialog key={composing.member_id} member={composing} onCancel={closeCompose} onUnauthorized={onUnauthorized}
+          onSent={(to) => { onNotice(`Encouragement sent to ${to}`); closeCompose() }}
+          onMemberGone={() => {
+            setGoneError(`${composing.name} isn't in your group any more.`)
+            setComposeFor(null)
+            onMembersChanged()
+          }} />
+      )}
 
       {alone && <p className="buddies-solo">You&apos;re the only member. Share your invite code so friends can join.</p>}
     </section>

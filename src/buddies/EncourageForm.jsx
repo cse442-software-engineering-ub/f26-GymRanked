@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { sendEncouragement } from './buddiesApi.js'
 import { MESSAGES, MESSAGE_MAX, countChars, fitsLimit } from './buddiesFormat.js'
 
-// The message form under a member's row. The box takes whatever is typed or pasted and the counter shows how much
+// The message form in the Encourage modal (EncourageDialog.jsx). The box takes whatever is typed or pasted and the counter shows how much
 // of the 140 characters is used (an emoji counts as one, like #71's count); past the limit the counter turns to the
 // error colour. Sending an empty, blank or too long message is refused next to the box and the text stays, as story
 // #78 expects. A failed send keeps the text too; Escape or Cancel closes the form.
@@ -24,13 +24,7 @@ function EncourageForm({ member, onSent, onCancel, onMemberGone, onUnauthorized 
     if (fieldError && fitsLimit(event.target.value, MESSAGE_MAX)) setFieldError('')
   }
 
-  // Focus the box and bring the whole form (box, counter, Send) into view, so on a phone it is not left under the
-  // fold or behind the keyboard.
-  const form = useRef(null)
-  useEffect(() => {
-    box.current?.focus({ preventScroll: true })
-    form.current?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' })
-  }, [])
+  useEffect(() => { box.current?.focus() }, [])
 
   async function onSubmit(event) {
     event.preventDefault()
@@ -58,9 +52,8 @@ function EncourageForm({ member, onSent, onCancel, onMemberGone, onUnauthorized 
   }
 
   return (
-    <form ref={form} className="buddies-compose" onSubmit={onSubmit} noValidate
+    <form className="buddies-compose" onSubmit={onSubmit} noValidate aria-busy={busy}
       onKeyDown={(event) => { if (event.key === 'Escape' && !busy) onCancel() }}>
-      <p className="buddies-compose__to">To <strong>{member.name}</strong></p>
       <div className="buddies-field">
         <div className="buddies-label-row">
           <label htmlFor={id}>Your message <span className="buddies-required" aria-hidden="true">*</span></label>
