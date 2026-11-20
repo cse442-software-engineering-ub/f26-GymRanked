@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import GroupPanel from './GroupPanel.jsx'
+import GroupPanel, { InviteCard } from './GroupPanel.jsx'
 import EncouragementList from './EncouragementList.jsx'
 import NoGroupPanel from './NoGroupPanel.jsx'
 import { getBuddyGroup } from './buddiesApi.js'
@@ -72,10 +72,11 @@ function BuddiesPage() {
   return (
     <div className="buddies-screen">
       <main className="buddies-page buddies-page__content" aria-busy={status === 'loading'}>
-        <div className="buddies-heading">
+        <header className="buddies-heading">
+          <p className="buddies-heading__eyebrow">Community</p>
           <h1>Workout buddies</h1>
           <p>A private group for encouraging each other. Only members can see it.</p>
-        </div>
+        </header>
 
         {notice && (
           <p className="buddies-notice buddies-notice--ok" role="status">
@@ -97,11 +98,14 @@ function BuddiesPage() {
         )}
 
         {status === 'ready' && data.group && (
-          <>
+          <div className="buddies-layout">
             <GroupPanel group={data.group} me={data.me} titleRef={groupTitle} onNotice={setNotice}
               onUnauthorized={toLogin} onMembersChanged={() => load(true)} />
-            <EncouragementList encouragements={data.encouragements} />
-          </>
+            <div className="buddies-side">
+              {data.group.invite_code && <InviteCard group={data.group} />}
+              <EncouragementList encouragements={data.encouragements} />
+            </div>
+          </div>
         )}
       </main>
     </div>
