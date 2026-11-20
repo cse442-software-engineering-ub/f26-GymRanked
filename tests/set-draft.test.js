@@ -34,9 +34,9 @@ test('an untouched draft is not stored, and a finished rest is dropped', () => {
 })
 
 test('broken or missing storage gives a fresh set', () => {
-  store.set('gymrank.setDraft.7.Barbell row', 'not json')
+  store.set('gymrank.setDraft.unone.7.Barbell row', 'not json')
   assert.deepEqual(loadDraft(7, 'Barbell row'), EMPTY_DRAFT)
-  store.set('gymrank.setDraft.7.Barbell row', JSON.stringify({ timer: 'bogus' }))
+  store.set('gymrank.setDraft.unone.7.Barbell row', JSON.stringify({ timer: 'bogus' }))
   assert.deepEqual(loadDraft(7, 'Barbell row'), EMPTY_DRAFT)
 })
 
