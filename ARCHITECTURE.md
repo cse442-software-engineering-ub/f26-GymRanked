@@ -105,12 +105,14 @@ before deploying this frontend; see its local/shared-database instructions.
 
 Saves what a user lifts. Migration `database/migrations/009_workout_sessions.sql` adds two tables: `workout_sessions` (one row per workout, with the plan, day and exercises copied from the user's plan when it starts) and `workout_sets` (one row per set: `exercise`, `set_number`, `weight_lb`, `reps`, `logged_at`, `updated_at`). Deleting a user deletes their sessions and sets. The step-by-step checks are in `task-tests/7-workout-session-backend.md`; `node tests/workout-session-api.mjs` runs them against a local server.
 
+Migration `database/migrations/019_workout_set_request_ids.sql` adds a nullable `request_id` and a unique key per session. Apply it to existing local and shared databases before deploying the updated set API. New set saves send an 8–64 character ID using letters, digits, underscores or hyphens; Retry resends the same ID and values and receives the original set (200), while a fresh save gets a new ID. Older clients and seed rows may omit the ID.
+
 | Endpoint | Request | Success |
 |---|---|---|
 | `POST api/workout_session.php` | `{}` or `{"day_position": 1}` | 201 `{"session": {...}}` for a new session, 200 for the current one |
 | `GET api/workout_session.php?id=N` | | 200 `{"session": {...}}` |
 | `GET api/workout_session.php?current=1` | | 200 `{"session": {...}}` for the signed-in user's unfinished session in the selected plan that started today (New York time), or `{"session": null}`; no session is created |
-| `POST api/workout_sets.php` | `{session_id, exercise, set_number, weight_lb, reps}` | 201 `{"set": {...}}` |
+| `POST api/workout_sets.php` | `{session_id, exercise, set_number, weight_lb, reps, request_id?}` | 201 `{"set": {...}}`; repeat the same ID and values for 200 with the original set |
 | `POST api/workout_sets.php` | `{id, weight_lb, reps}` (correction) | 200 `{"set": {...}}` |
 | `POST api/complete_workout.php` | `{session_id}` | 200 `{session_id, completed_at}` |
 | `POST api/swap_exercise.php` | `{session_id, exercise, replacement}` | 200 `{"session": {...}}` with the replacement in the exercise's place. 400 if the exercise isn't in the workout or the replacement isn't one of its alternatives for the user's setup, 404 for an exercise with no alternatives, 409 if the workout is completed, the exercise has saved sets, or the replacement is already in the workout |
