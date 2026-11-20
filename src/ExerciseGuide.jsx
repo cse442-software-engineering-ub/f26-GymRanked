@@ -38,8 +38,8 @@ function ExerciseGuide({ name }) {
   }, [name])
 
   // "Intermediate · Barbell" at the top of the guide: the same answer and text as the alternatives dialog's
-  // "You're doing" box (fetchAlternatives keeps it per exercise, so the two share one request). It is asked for
-  // when the guide first opens, not with the page, so opening an exercise still sends no alternatives request
+  // "You're doing" box, from the same request (fetchAlternatives asks the server afresh each time). It is asked for
+  // when the guide opens, not with the page, so opening an exercise still sends no alternatives request
   // (task #82, Test 1). Exercises the alternatives table doesn't list yet have no level or equipment, and then the
   // line is left out.
   const [details, setDetails] = useState(null)

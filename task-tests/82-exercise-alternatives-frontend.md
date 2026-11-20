@@ -61,7 +61,7 @@ The items have no buttons. The first version offers no "Swap" action.
 | Logged out | 401 | `Your login has expired. Log in again to see alternatives.` with a **Log in** link |
 
 - **Try again** sends the same request again, shows Loading, and then whichever state the new answer gives. Focus moves to the dialog title when the new state appears.
-- A successful answer is kept in memory per exercise name until the page reloads, like `ExerciseGuide`, so reopening shows it at once. Failures are never kept, so reopening after a failure always sends a new request.
+- Nothing is kept between opens: each time the dialog opens (and each **Try again**) it sends a new request and shows Loading until the answer arrives, because the answer depends on the user's saved equipment and experience, which can change at any time (see "Refresh after settings or account changes").
 - If the dialog is closed while a request is out, the late answer is ignored.
 - Nothing about the set in progress changes: the dialog sits over the page and never unmounts it, so the timer, the typed weight and reps (`setDraft.js`), the rest countdown and the saved sets are untouched. A 401 or a link away keeps the typed set too, because `setDraft.js` already stores it per session and exercise.
 - The screen only sends `GET`. It never calls `workout_sets.php`, `workout_session.php` (POST), `plan.php` or anything that writes.
@@ -175,9 +175,9 @@ Step 3: In the request's Response tab, confirm the four names and their order ma
 
 Step 4: Confirm the dialog shows `Alternatives to Bench press`, `Your setup: Intermediate · Dumbbells`, `4 alternatives`, and the four items in the same order as the response, each with the tags, muscles and reason in story #80, Acceptance Test 1, step 5.
 
-Step 5: Press **Close**, then **See alternatives** again. Confirm the list appears straight away and no second request is sent.
+Step 5: Press **Close**, then **See alternatives** again. Confirm exactly one new request to `exercise_alternatives.php` is sent, Loading shows while it is out, and the same four items appear.
 
-Expected outcome: one GET per exercise per page load, and the screen shows the response's items in its order with the text rules above.
+Expected outcome: one GET each time the dialog opens, and the screen shows the response's items in its order with the text rules above.
 
 ## Test 2: Loading state
 
@@ -213,7 +213,7 @@ Step 2: Press **Try again** twice. Confirm a new blocked request appears in Netw
 
 Step 3: Press **Close**. In Application → Local Storage, confirm the key `gymrank.setDraft.{session id}.Bench press` still holds `"weight":"140"` and `"reps":"4"`, and the page still shows `140`, `4` and `Set finished`.
 
-Step 4: Remove the block. Press **See alternatives**. Confirm the four alternatives appear (failures are not kept, so a new request is sent).
+Step 4: Remove the block. Press **See alternatives**. Confirm the four alternatives appear (every open sends a new request).
 
 Step 5: In Network set throttling to **Offline**. Reload is not needed: close the dialog, open Pull-up and press **See alternatives**. Confirm the same error message. Set **No throttling** and press **Try again**. Confirm the no-match state from Test 3, step 1.
 
