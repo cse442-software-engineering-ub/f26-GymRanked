@@ -4,7 +4,7 @@
 1. Sign in with an account that has a selected workout plan and no workout completed today.
 2. Open Workouts.
 3. Confirm the plan name, week number, and date range appear above a featured card with a gym photo distinct from the Dashboard and active workout photos, today's workout name, duration, plan name, exercises, and Start workout button.
-4. Confirm seven dated day tiles appear below the card, followed by View plan details. Open that link and confirm it shows the selected plan.
+4. On desktop, confirm seven dated day tiles appear below the card, followed by View plan details. On a phone, confirm View plan details is between the featured card and Your week. Open the link and confirm it shows the selected plan.
 
 ## Test 2: Completed workout summary remains accessible
 1. Sign in with an account that completed a workout earlier this week.

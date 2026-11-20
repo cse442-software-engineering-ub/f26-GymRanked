@@ -183,12 +183,15 @@ function WeeklyPlan() {
                 </p>
               )}
             </section>
+            <Link to={`/plans/${plan.id}`} state={{ from: '/weekly-plan' }} className="weekly-plan__details weekly-plan__details--mobile">
+              View plan details ›
+            </Link>
             <ol className="weekly-plan__days" aria-label="Your week">
               {days.map((day, index) => (
                 <DayCard key={day.label} day={day} date={dayDates[index]} highlighted={day.label.toLowerCase() === highlightedDay} savedSession={history.find((session) => easternDate(session.completed_at) === calendarDate(dayDates[index]))} />
               ))}
             </ol>
-            <Link to={`/plans/${plan.id}`} state={{ from: '/weekly-plan' }} className="weekly-plan__details">
+            <Link to={`/plans/${plan.id}`} state={{ from: '/weekly-plan' }} className="weekly-plan__details weekly-plan__details--desktop">
               View plan details ›
             </Link>
           </>
