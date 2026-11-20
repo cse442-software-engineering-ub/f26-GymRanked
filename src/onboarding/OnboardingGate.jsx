@@ -90,7 +90,8 @@ export default function OnboardingGate() {
     if (settled.current?.status === 'signed-out' && isAuthPath(settled.current.path) && isAuthPath(path)) {
       return withHandoff(<Outlet />, null)
     }
-    return withHandoff(framed(menuAccount.current, <main className="status" role="status">Checking your account setup…</main>), hold)
+    // During the slide into or out of the app the message is only for screen readers: the panel is the visible "wait".
+    return withHandoff(framed(menuAccount.current, <main className={hold ? 'status entry-hold-status' : 'status'} role="status">Checking your account setup…</main>), hold)
   }
   settled.current = check
   if (check.status === 'signed-out') {
