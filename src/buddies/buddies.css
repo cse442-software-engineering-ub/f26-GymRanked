@@ -639,11 +639,6 @@
     max-width: none;
   }
 
-  /* Near the top on a phone, so the on-screen keyboard doesn't cover the box or Send. */
-  .buddies-dialog {
-    margin: 16px auto auto;
-  }
-
   .buddies-compose .buddies-actions .buddies-button {
     flex: 1;
   }
