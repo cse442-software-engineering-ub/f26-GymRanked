@@ -251,9 +251,10 @@ acceptanceTests(
         ).toBeVisible()
       })
 
-      await step('Step 3: still on the login screen', async () => {
+      await step('Step 3: still on the login screen, with no Google or Apple buttons', async () => {
         await expect(page).toHaveURL(/#\/login$/)
         await expect(loginCard(page)).toBeVisible()
+        await expect(page.getByRole('button', { name: /Continue with (Google|Apple)/ })).toHaveCount(0)
       })
     },
   },
