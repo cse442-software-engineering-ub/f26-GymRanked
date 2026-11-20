@@ -50,6 +50,9 @@ function AppShell({ userName, children }) {
         navigate('/login', { replace: true, state: { message: 'You are logged out.' } })
         return
       }
+      // Marked straight away: if the page notices the ended session during the slide and opens log in itself, the
+      // log in screen still says "You are logged out." and finishes the slide.
+      startHandoff('leave')
       setLeaving(true)
     } catch (error) {
       setLogoutError(error.message)
@@ -58,7 +61,6 @@ function AppShell({ userName, children }) {
   }
 
   function leaveDone() {
-    startHandoff('leave')
     navigate('/login', { replace: true, state: { message: 'You are logged out.' } })
   }
 

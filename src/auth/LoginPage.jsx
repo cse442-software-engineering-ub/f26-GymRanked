@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import FormField from './FormField.jsx'
 import { authRequest, validate } from './api.js'
+import { peekHandoff } from './entryHandoff.js'
 import { getWeekly123Run, startWeekly123Run, weekly123LoginPayload } from './weekly123Run.js'
 
 // The log in form (story #18) on the right of the entry screen (EntryScreen.jsx). onEnter(path, state) plays the
@@ -11,7 +12,7 @@ export default function LoginForm({ onEnter, outgoing = false, headingRef }) {
   const idPrefix = outgoing ? 'out-' : ''
   const [values, setValues] = useState({ email: location.state?.email || '', password: '', remember: false })
   const [errors, setErrors] = useState({})
-  const [message, setMessage] = useState(location.state?.message || '')
+  const [message, setMessage] = useState(location.state?.message || (peekHandoff() === 'leave' ? 'You are logged out.' : ''))
   const [failure, setFailure] = useState('')
   const [busy, setBusy] = useState(false)
   const requestedTest = Number(new URLSearchParams(location.search).get('card123'))
