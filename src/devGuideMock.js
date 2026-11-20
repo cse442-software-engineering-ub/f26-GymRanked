@@ -3,6 +3,7 @@
 //
 //   localStorage.setItem('gymrank.mockGuide', 'video')   // a working sample clip (MDN's CC0 flower video)
 //   localStorage.setItem('gymrank.mockGuide', 'broken')  // a video link that fails to load
+//   localStorage.setItem('gymrank.mockGuide', 'none')    // no guide at all, as for an exercise WorkoutX lacks
 //   localStorage.removeItem('gymrank.mockGuide')         // back to the real api/exercise_guide.php
 //
 // It only runs when import.meta.env.DEV is true, so `npm run build` leaves it out and the deployed app never uses it.
@@ -10,6 +11,7 @@
 const VIDEOS = {
   video: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
   broken: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/missing-gymrank-mock.mp4',
+  none: null,
 }
 
 export function mockGuide(name) {
@@ -20,7 +22,7 @@ export function mockGuide(name) {
   } catch {
     return null
   }
-  if (!VIDEOS[mode]) return null
+  if (!mode || !Object.hasOwn(VIDEOS, mode)) return null
   return {
     id: `mock-${mode}`,
     name,
