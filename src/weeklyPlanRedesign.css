@@ -70,12 +70,15 @@
   .weekly-plan .today-workout__mobile-exercises ol { display: flex; }
   .weekly-plan .today-workout__mobile-exercises li + li::before { margin-right: 8px; }
   .weekly-plan a.today-workout__action, .weekly-plan button.today-workout__action { width: 100%; }
+  .weekly-plan button.today-workout__start { font-size: 16px; font-weight: 700; }
   .weekly-plan__details--mobile { display: grid; order: 2; }
   .weekly-plan__details--desktop { display: none; }
-  .weekly-plan__days { display: grid; order: 3; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto; grid-auto-rows: 1fr; gap: 8px; border: 0; }
+  .weekly-plan__days { display: grid; order: 3; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; grid-auto-rows: auto; gap: 8px; border: 0; }
   .weekly-plan__days::before { content: 'Your week'; grid-column: 1 / -1; margin: 4px 0; font-size: 20px; font-weight: 600; }
-  .weekly-plan .day-card { display: flex; min-height: 92px; padding: 12px; border: 1px solid var(--gr-border); border-radius: var(--gr-radius-inner); }
+  .weekly-plan .day-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto; align-items: center; min-height: 68px; padding: 8px 12px; gap: 2px 12px; border: 1px solid var(--gr-border); border-radius: var(--gr-radius-inner); }
   .weekly-plan .day-card--today { border-color: var(--gr-brand); }
-  .weekly-plan .day-card__status { text-align: left; }
+  .weekly-plan .day-card__weekday, .weekly-plan .day-card__name { grid-column: 1; min-width: 0; }
+  .weekly-plan .day-card__name { overflow-wrap: anywhere; }
+  .weekly-plan .day-card__status { grid-column: 2; grid-row: 1 / 3; align-self: center; text-align: right; }
   .weekly-plan .day-card__status a { min-height: 44px; display: inline-flex; align-items: center; }
 }

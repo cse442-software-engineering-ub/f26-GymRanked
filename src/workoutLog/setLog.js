@@ -47,6 +47,7 @@ export const SESSION_ENDED = 'Your session ended. Log in to keep logging.'
 // { status, message, fieldErrors }, with status 0 when the server couldn't be reached.
 export function saveErrorMessage(err) {
   if (err.status === 401) return SESSION_ENDED
+  if (err.status === 409 && err.message === 'This workout is no longer scheduled today') return 'This workout is no longer scheduled today. Return to Workouts to start today’s plan.'
   if (err.status === 409 && err.message === 'Request ID already used for a different set') return 'This save request has changed. Press Log set to start a new save.'
   if (err.status === 409 && err.message === 'Set already logged') return 'This set was already logged. Reload the workout to see the saved set.'
   if (err.status === 409) return 'This workout is already completed, so its sets can no longer change.'
@@ -66,6 +67,7 @@ export function isRetryable(err) {
 export function completeErrorMessage(err) {
   if (err.status === 401) return 'Your session ended. Log in to complete this workout.'
   if (err.status === 400) return 'Log at least one set before completing.'
+  if (err.status === 409 && err.message === 'This workout is no longer scheduled today') return 'This workout is no longer scheduled today. Return to Workouts to start today’s plan.'
   if (err.status === 409) return 'This workout was already completed.'
   if (err.status === 404) return "This workout couldn't be found. Reload the page and try again."
   return "Couldn't complete the workout. Try again."
