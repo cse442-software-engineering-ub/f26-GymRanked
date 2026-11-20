@@ -33,7 +33,6 @@ export default function RegistrationForm({ onEnter, outgoing = false, headingRef
     navigate('/login', { replace: true, state: { email: values.email.trim(), message: 'Account created. Log in to continue.' } })
   }
   return <section className="register-panel" aria-labelledby={`${idPrefix}register-title`}>
-    <Link className="close" to="/login" aria-label="Close registration">×</Link>
     <form className="register-card auth-stack" noValidate onSubmit={submit}>
       <h1 id={`${idPrefix}register-title`} ref={headingRef} tabIndex={-1}>Create your account</h1><p className="subtitle">Let's set up your training profile.</p>
       {failure && <p className="form-error" role="alert">{failure}</p>}

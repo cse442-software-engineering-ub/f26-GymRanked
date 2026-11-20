@@ -199,8 +199,6 @@ meter::-moz-meter-bar { background: var(--accent); }
 }
 .entry .primary:hover { background: var(--gr-brand-light); }
 .entry .account-link a { font-weight: 600; }
-.close { display: none; }
-
 /* Light/dark switch, top right of the screen (src/auth/ThemeSwitch.jsx). */
 .entry-theme {
   position: absolute;
@@ -312,27 +310,10 @@ meter::-moz-meter-bar { background: var(--accent); }
   .entry-hero__text { order: 1; padding: 8px 18px 0; font-size: 13px; line-height: 20px; max-width: none; }
   .entry-stage { order: 2; position: static; place-items: start center; padding: 24px 18px; background: var(--gr-bg-page); }
   .entry-showcase { order: 3; margin: 0; padding: 0 18px 32px; }
-  .entry-slide { width: min(480px, 100%); }
+  /* Top-aligned, so the shorter form doesn't sit lower while the taller one slides away and then jump up. */
+  .entry-slide { width: min(480px, 100%); align-self: start; }
   .entry-slide .auth-stack h1 { font-size: 22px; }
-  .entry--register .entry-hero, .entry--register .entry-hero__text, .entry--register .entry-showcase { display: none; }
-  .entry--register .entry-stage { padding-top: 8px; }
-  .close {
-    position: absolute;
-    top: 14px;
-    right: 18px;
-    width: 32px;
-    height: 32px;
-    display: grid;
-    place-items: center;
-    border: 1px solid var(--gr-track);
-    border-radius: 50%;
-    background: var(--gr-surface);
-    color: var(--gr-text);
-    font-size: 20px;
-  }
-  .entry-slide--out .close { display: none; }
   .entry-theme { top: 8px; right: 18px; }
-  .entry--register .entry-theme { right: 60px; }
   .login-panel .account-link span { display: none; }
   .login-panel .account-link a { display: grid; place-items: center; min-height: 44px; border: 1px solid var(--gr-brand); border-radius: var(--gr-radius-button); }
 }

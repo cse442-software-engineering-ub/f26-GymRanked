@@ -46,6 +46,9 @@ export default function EntryScreen() {
   useLayoutEffect(() => {
     if (!switched.current) return
     switched.current = false
+    // On a short phone, "Log in" at the bottom of the longer create account form leaves the page scrolled down; the
+    // new form starts at its title, not above the screen.
+    if (heading.current && heading.current.getBoundingClientRect().top < 0) window.scrollTo(0, 0)
     heading.current?.focus({ preventScroll: true })
   }, [shown.mode])
 
