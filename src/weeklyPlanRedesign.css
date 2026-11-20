@@ -69,7 +69,7 @@
   .weekly-plan .today-workout__mobile-exercises ol { display: flex; }
   .weekly-plan .today-workout__mobile-exercises li + li::before { margin-right: 8px; }
   .weekly-plan a.today-workout__action, .weekly-plan button.today-workout__action { width: 100%; }
-  .weekly-plan__days { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; border: 0; }
+  .weekly-plan__days { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto; grid-auto-rows: 1fr; gap: 8px; border: 0; }
   .weekly-plan__days::before { content: 'Your week'; grid-column: 1 / -1; margin: 4px 0; font-size: 20px; font-weight: 600; }
   .weekly-plan .day-card { display: flex; min-height: 92px; padding: 12px; border: 1px solid var(--gr-border); border-radius: var(--gr-radius-inner); }
   .weekly-plan .day-card--today { border-color: var(--gr-brand); }

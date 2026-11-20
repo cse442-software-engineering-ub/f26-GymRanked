@@ -36,3 +36,9 @@
 2. Confirm the photo has a consistent dark overlay through its rounded edges, including the top and bottom borders.
 3. Confirm the card is compact, the workout title sits near the top, and the plan, duration, and progress chips remain visible without clipping.
 4. Switch to the light theme and repeat steps 2 and 3.
+
+## Test 7: Phone week tiles have equal heights
+1. Sign in with an account that completed a workout on Monday and has a rest day on Tuesday.
+2. Open Workouts on a phone-sized screen.
+3. Confirm all seven day tiles have the same height, including Monday with View summary and Tuesday with Recovery.
+4. Confirm View summary remains fully visible and opens Monday's saved summary.
