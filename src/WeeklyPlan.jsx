@@ -8,7 +8,7 @@ import workoutLogApi from './workoutLog/workoutLogApi.js'
 import { summaryPath } from './workoutLog/setLog.js'
 import { easternDate, todaySessionState } from './weeklyTimeline.js'
 
-const STATUS_LABELS = { past: 'Scheduled', today: 'Today', upcoming: 'Upcoming' }
+const STATUS_LABELS = { past: 'Not logged', today: 'Today', upcoming: 'Upcoming' }
 const calendarDate = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 
 function DayCard({ day, date, savedSession, highlighted }) {
