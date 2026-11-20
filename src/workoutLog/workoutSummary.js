@@ -34,6 +34,19 @@ function formatSet(set) {
   return `${set.weight_lb === 0 ? 'Bodyweight' : formatVolume(set.weight_lb)} × ${set.reps}`
 }
 
+export function comparisonExplanation(today, previous, isBaseline = false) {
+  if (!today) return ''
+  if (!previous) return isBaseline ? `Today: ${formatSet(today)}. This is your first recorded result.` : ''
+
+  const weightChange = Number(today.weight_lb) - Number(previous.weight_lb)
+  const repChange = Number(today.reps) - Number(previous.reps)
+  const changes = []
+  if (weightChange) changes.push(`${formatVolume(Math.abs(weightChange))} ${weightChange > 0 ? 'more' : 'less'}`)
+  if (repChange) changes.push(`${Math.abs(repChange)} ${repChange > 0 ? 'more' : 'fewer'} ${Math.abs(repChange) === 1 ? 'rep' : 'reps'}`)
+  const result = changes.length ? `That's ${changes.join(' and ')}.` : "That's the same weight and reps."
+  return `Last time: ${formatSet(previous)}. Today: ${formatSet(today)}. ${result}`
+}
+
 export function displaySummary(session, records = null) {
   if (!session?.completed_at || !session.summary) return null
 
@@ -51,10 +64,12 @@ export function displaySummary(session, records = null) {
     highlights: (session.exercises || []).flatMap(({ name, sets }) => {
       if (!sets?.length) return []
       const record = recordsByExercise.get(name)
+      const today = record?.top_set ?? topSet(sets)
       return [{
         exercise: name,
-        topSet: formatSet(record?.top_set ?? topSet(sets)),
+        topSet: formatSet(today),
         versusLast: formatSet(record?.previous),
+        comparisonNote: record ? comparisonExplanation(today, record.previous, record.is_baseline === true) : '',
         isBaseline: record?.is_baseline === true,
         prLabel: record?.is_pr && !record?.is_baseline ? record.metric === 'reps' ? 'Rep PR' : 'Weight PR' : '',
       }]

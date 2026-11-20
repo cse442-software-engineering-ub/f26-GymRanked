@@ -43,3 +43,10 @@ Use a signed-in test account and a local database with the workout session and w
 1. Open a completed workout at the app link with `#/workouts/<id>/summary` appended and block only `api/workout_records.php` in browser Network tools.
 2. Reload. Confirm the saved workout title, date, totals, and top sets still appear, with `New PRs` shown as unavailable, a message that records are unavailable, and no unverified PR badges.
 3. Unblock the request and select `Try again`. Confirm `Vs last` values, baseline or PR labels, and the `New PRs` count appear without completing the workout again.
+
+## Test 7: Plain-language exercise comparisons
+
+1. Start from the app link with `#/workouts/<id>/summary` appended, using a completed workout whose previous Bench press top set was `100 lb × 5` and today's top set is `105 lb × 5`. Include a second exercise whose weight decreased while reps increased, and a first-ever exercise result.
+2. At 1440 px, confirm Bench press keeps its Top set, Vs last, and PR badge in the existing columns. Confirm a full-width line below says `Last time: 100 lb × 5. Today: 105 lb × 5. That's 5 lb more.`
+3. Confirm the second exercise's line shows both complete sets and explains both the weight and rep changes. Confirm the first-ever exercise says it is the first recorded result without inventing a previous set.
+4. Repeat at 375 px. Confirm the explanations wrap below their exercises without clipping the badges or requiring horizontal page scrolling.
