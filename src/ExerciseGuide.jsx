@@ -4,6 +4,8 @@ import GuideVideo from './GuideVideo.jsx'
 import GuideFallback from './GuideFallback.jsx'
 import { mockGuide } from './devGuideMock.js'
 import { loadPlaceholderSteps, placeholderSteps } from './guideFallbackPlaceholder.js'
+import { fetchAlternatives } from './workoutLog/exerciseAlternatives.js'
+import { exerciseLine } from './workoutLog/exerciseAlternativesFormat.js'
 
 const API_URL = `${import.meta.env.BASE_URL}api/exercise_guide.php`
 
@@ -34,6 +36,26 @@ function ExerciseGuide({ name }) {
     setWarm(false)
     loadPlaceholderSteps(name) // TEMPORARY until #92's backup steps exist (see guideFallbackPlaceholder.js).
   }, [name])
+
+  // "Intermediate · Barbell" at the top of the guide: the same answer and text as the alternatives dialog's
+  // "You're doing" box (fetchAlternatives keeps it per exercise, so the two share one request). It is asked for
+  // when the guide first opens, not with the page, so opening an exercise still sends no alternatives request
+  // (task #82, Test 1). Exercises the alternatives table doesn't list yet have no level or equipment, and then the
+  // line is left out.
+  const [details, setDetails] = useState(null)
+  useEffect(() => {
+    setDetails(null)
+  }, [name])
+  useEffect(() => {
+    if (!open) return undefined
+    let cancelled = false
+    fetchAlternatives(name).then((answer) => {
+      if (!cancelled && answer.level && answer.equipment) setDetails(exerciseLine(answer.level, answer.equipment))
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [name, open])
 
   useEffect(() => {
     let cancelled = false
@@ -107,6 +129,7 @@ function ExerciseGuide({ name }) {
         busy={!guide && loading}
         footer={guide ? (videoFailed ? 'Steps and tips from WorkoutX.' : 'Demo clip, steps and tips from WorkoutX.') : null}
       >
+        {details && <p className="exercise-guide__details">{details}</p>}
         {!guide && loading && (
           <p className="side-panel__status">
             <span className="side-panel__spinner" aria-hidden="true" />

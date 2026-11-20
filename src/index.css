@@ -2403,6 +2403,14 @@ a.today-workout__details:hover {
   border-radius: var(--gr-radius-inner);
 }
 
+/* "Intermediate · Barbell" at the top of the guide. The body's 20px gap is pulled in so it sits with what follows. */
+.side-panel__body .exercise-guide__details {
+  margin-bottom: -8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gr-text-soft);
+}
+
 /* The clip and its Play/Pause bar as one block (src/GuideVideo.jsx): the bar spans the bottom of the video and the
    pair shares one border and rounded corners. */
 .exercise-guide__player {
