@@ -24,7 +24,13 @@ function EncourageForm({ member, onSent, onCancel, onMemberGone, onUnauthorized 
     if (fieldError && fitsLimit(event.target.value, MESSAGE_MAX)) setFieldError('')
   }
 
-  useEffect(() => { box.current?.focus() }, [])
+  // Focus the box and bring the whole form (box, counter, Send) into view, so on a phone it is not left under the
+  // fold or behind the keyboard.
+  const form = useRef(null)
+  useEffect(() => {
+    box.current?.focus({ preventScroll: true })
+    form.current?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' })
+  }, [])
 
   async function onSubmit(event) {
     event.preventDefault()
@@ -52,7 +58,7 @@ function EncourageForm({ member, onSent, onCancel, onMemberGone, onUnauthorized 
   }
 
   return (
-    <form className="buddies-compose" onSubmit={onSubmit} noValidate
+    <form ref={form} className="buddies-compose" onSubmit={onSubmit} noValidate
       onKeyDown={(event) => { if (event.key === 'Escape' && !busy) onCancel() }}>
       <p className="buddies-compose__to">To <strong>{member.name}</strong></p>
       <div className="buddies-field">

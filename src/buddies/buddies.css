@@ -1,6 +1,8 @@
 /* Workout buddies page (story #78, card #79). Colours, radii and type follow DESIGN.md, from the --gr- variables
    only so light mode works. .buddies-screen wraps the nav bar and the page; .buddies-page is the page itself (the
-   card's phone check measures the controls inside it). The page uses the shared page column; its cards stop at a readable 760px inside it.
+   card's phone check measures the controls inside it). The page uses the shared page column and the Dashboard's look
+   (#136): a big header, then, in a group, the members beside the invite code and the encouragements (1.5 : 1, stacked
+   at a 1131px window). The join and create forms stop at a readable 760px.
    Phones (640px or less): the code box and "Join group" stack, the message form is full width, every control is
    at least 44px tall and wide. */
 
@@ -20,6 +22,9 @@
 .buddies-page__content > * {
   box-sizing: border-box;
   width: 100%;
+}
+
+.buddies-page__content > :not(.buddies-layout, .buddies-heading) {
   max-width: 760px;
 }
 
@@ -34,16 +39,43 @@
   outline-offset: 3px;
 }
 
-.buddies-heading h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 500;
+.buddies-heading {
+  margin-bottom: 8px;
 }
 
-.buddies-heading p {
-  margin: 6px 0 0;
+.buddies-heading__eyebrow {
+  margin: 0 0 6px;
   color: var(--gr-text-muted);
+  font-size: 14px;
+}
+
+.buddies-heading h1 {
+  margin: 0;
+  color: var(--gr-text);
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.buddies-heading p:last-child {
+  margin: 10px 0 0;
+  color: var(--gr-text-soft);
   font-size: 15px;
+}
+
+/* In a group: members on the left, invite code and encouragements on the right. */
+.buddies-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 24px 32px;
+}
+
+.buddies-side {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
 }
 
 .buddies-status {
@@ -70,10 +102,12 @@
 }
 
 .buddies-empty-title,
-.buddies-group-name {
+.buddies-group-name,
+.buddies-section-title {
   color: var(--gr-text);
   font-size: 22px;
-  font-weight: 500;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   overflow-wrap: anywhere;
 }
 
@@ -293,10 +327,12 @@
   color: var(--gr-text-subtle);
 }
 
-.buddies-button--text {
-  padding: 10px 8px;
-  background: transparent;
-  color: var(--gr-action-text);
+.buddies-button--primary:not(:disabled):hover {
+  background: var(--gr-brand-light);
+}
+
+.buddies-button--small {
+  padding: 8px 16px;
   font-size: 14px;
 }
 
@@ -313,27 +349,13 @@
 
 /* The group */
 .buddies-group-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px 24px;
-}
-
-.buddies-group-head > div:first-child {
   display: grid;
   gap: 4px;
   min-width: 0;
 }
 
 .buddies-invite {
-  display: grid;
-  flex: 0 1 320px;
   gap: 6px;
-  min-width: 240px;
-  padding: 14px 16px;
-  border-radius: var(--gr-radius-inner);
-  background: var(--gr-surface-sunken);
 }
 
 .buddies-invite__label {
@@ -387,15 +409,30 @@
   list-style: none;
 }
 
-.buddies-member {
-  display: grid;
-  gap: 10px;
-  padding: 10px 0;
-  border-top: 1px solid var(--gr-border);
+/* Member cards: two or more to a row when there is room; the one being encouraged takes the whole row. */
+.buddies-members {
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
 }
 
-.buddies-member:first-child {
-  border-top: 0;
+.buddies-member {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-inner);
+  background: var(--gr-surface-raised);
+}
+
+.buddies-member.is-me {
+  border-color: color-mix(in srgb, var(--gr-action) 45%, transparent);
+  background: var(--gr-selected-bg);
+}
+
+.buddies-member.is-composing {
+  grid-column: 1 / -1;
 }
 
 .buddies-member__line {
@@ -409,10 +446,10 @@
   display: grid;
   flex: none;
   place-items: center;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 999px;
-  background: var(--gr-surface-raised);
+  background: var(--gr-surface);
   color: var(--gr-text-soft);
   font-size: 12px;
   font-weight: 600;
@@ -434,17 +471,17 @@
 
 .buddies-member-name {
   color: var(--gr-text);
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .buddies-compose {
   display: grid;
   gap: 10px;
-  margin-left: 44px;
   padding: 14px;
   border-radius: var(--gr-radius-inner);
-  background: var(--gr-surface-sunken);
+  background: var(--gr-surface);
+  scroll-margin: 16px 0 24px;
 }
 
 .buddies-solo {
@@ -458,8 +495,8 @@
 /* Encouragements for you */
 .buddies-message {
   display: grid;
-  gap: 4px;
-  padding: 12px 0;
+  gap: 6px;
+  padding: 14px 0;
   border-top: 1px solid var(--gr-border);
 }
 
@@ -475,13 +512,30 @@
 .buddies-message__head {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.buddies-message__avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gr-surface-raised);
+  color: var(--gr-text-soft);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .buddies-message-from {
   color: var(--gr-text);
   font-weight: 600;
+}
+
+.buddies-card .buddies-message-text {
+  margin-left: 46px;
 }
 
 .buddies-message time {
@@ -490,14 +544,34 @@
 }
 
 .buddies-message-text {
-  color: var(--gr-text-soft);
+  color: var(--gr-text);
+  font-size: 16px;
+  line-height: 1.45;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
 
+@media (max-width: 1131px) {
+  .buddies-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (max-width: 824px) {
+  .buddies-heading h1 {
+    font-size: 32px;
+  }
+
   .buddies-card {
     padding: 16px;
+  }
+
+  .buddies-members {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .buddies-card .buddies-message-text {
+    margin-left: 0;
   }
 
   .buddies-join-row {
@@ -513,18 +587,10 @@
     max-width: none;
   }
 
-  .buddies-compose {
-    margin-left: 0;
-  }
-
   .buddies-compose .buddies-actions .buddies-button {
     flex: 1;
   }
 
-  .buddies-invite {
-    flex: 1 1 100%;
-    min-width: 0;
-  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
