@@ -1,12 +1,14 @@
 <?php
 // GET api/exercise_alternatives.php?exercise=Bench%20press
-//   -> 200 {"exercise":"Bench press","movement":"horizontal_push",
+//   -> 200 {"exercise":"Bench press","movement":"horizontal_push","level":"intermediate","equipment":"barbell",
 //           "alternatives":[{"name":"Dumbbell press","level":"beginner","equipment":"dumbbells"}, ...]}
 //
 // Exercises the logged-in user could do instead of the one sent (task #81, shown by the panel in #82): same
 // movement, only equipment from their saved setup (api/setup.php), and no harder than their experience level.
 // "alternatives" is [] when nothing fits, for example when no equipment is saved. The rules are in
 // exercise_alternatives_common.php and the supported exercises in database/migrations/016_exercise_alternatives.sql.
+// "level" and "equipment" are the sent exercise's own (task #91), shown as "Intermediate · Barbell" at the top of
+// the alternatives dialog and of the exercise guide.
 //
 // Errors are JSON: 400 {"error":"Send an exercise name."}, 401 {"error":"Please log in."},
 // 404 {"error":"No alternatives for this exercise."} (not one of the supported exercises),
@@ -43,4 +45,10 @@ $alternatives = array_map(function ($c) {
     return ['name' => $c['name'], 'level' => $c['level'], 'equipment' => $c['equipment']];
 }, pick_alternatives($source, $exercises, $setup['experience'] ?? null, $owned));
 
-respond(200, ['exercise' => $source['name'], 'movement' => $source['movement'], 'alternatives' => $alternatives]);
+respond(200, [
+    'exercise' => $source['name'],
+    'movement' => $source['movement'],
+    'level' => $source['level'],
+    'equipment' => $source['equipment'],
+    'alternatives' => $alternatives,
+]);
