@@ -330,7 +330,11 @@
     overscroll-behavior-inline: contain;
     scroll-snap-type: x proximity;
     scrollbar-width: thin;
-    padding-bottom: 8px;
+    margin-top: 14px;
+    padding: 10px;
+    border: 1px solid var(--gr-border-strong);
+    border-radius: var(--gr-radius-inner);
+    background: var(--gr-surface-sunken);
   }
   .workout-summary__weekly-day { scroll-snap-align: start; }
 }
@@ -492,7 +496,7 @@
     font-size: 22px;
   }
 
-  .workout-summary__weekly { min-height: 340px; padding: 20px; }
+  .workout-summary__weekly { padding: 20px; }
   .workout-summary__weekly header { flex-direction: column; align-items: flex-start; gap: 4px; }
   .workout-summary__weekly h2 { flex: none; font-size: 27px; white-space: nowrap; }
   .workout-summary__weekly-count { font-size: 14px; font-weight: 500; }

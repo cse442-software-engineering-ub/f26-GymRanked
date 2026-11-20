@@ -52,5 +52,6 @@
 ## Test 9: Phone weekly goal detail and day strip
 1. Open a completed workout summary with saved weekly goal progress on a phone-sized screen.
 2. Confirm the explanation beneath the goal message uses smaller text than the goal message.
-3. Swipe the training-day tiles left and right. Confirm all seven days can be reached without scrolling the whole page sideways.
-4. Focus the day strip with a keyboard and use the arrow keys to scroll it.
+3. Confirm the Weekly goal card fits its content without a large blank area below the day strip. Confirm the day strip has a darker recessed background in both Dark and Light appearance.
+4. Swipe the training-day tiles left and right. Confirm all seven days can be reached without scrolling the whole page sideways.
+5. Focus the day strip with a keyboard and use the arrow keys to scroll it.
