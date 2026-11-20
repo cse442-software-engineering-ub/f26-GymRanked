@@ -35,6 +35,9 @@ if (array_key_exists('id', $data)) {
     $db->begin_transaction();
     $session = find_session($db, (int) $owned['session_id'], $user_id, true);
     if ($session['completed_at'] !== null) respond(409, ['error' => 'Workout already completed']);
+    if (!workout_session_is_scheduled_today($db, $user_id, $session)) {
+        respond(409, ['error' => 'This workout is no longer scheduled today']);
+    }
     [$weight, $reps] = validated_set_values($data);
 
     $stmt = $db->prepare('UPDATE workout_sets SET weight_lb = ?, reps = ?, updated_at = UTC_TIMESTAMP() WHERE id = ?');
@@ -79,6 +82,9 @@ if ($request_id !== null) {
     }
 }
 if ($session['completed_at'] !== null) respond(409, ['error' => 'Workout already completed']);
+if (!workout_session_is_scheduled_today($db, $user_id, $session)) {
+    respond(409, ['error' => 'This workout is no longer scheduled today']);
+}
 if (!in_array($exercise, exercise_names($session), true)) respond(400, ['error' => "That exercise isn't part of this workout."]);
 [$weight, $reps] = validated_set_values($data);
 

@@ -83,7 +83,8 @@ function WeeklyPlan() {
   // Start, Resume and View summary wait for both lookups: a failed load offers Retry instead of a second workout.
   const workoutStatus = unfinishedStatus === 'error' || historyStatus === 'error' ? 'error' : unfinishedStatus === 'ready' && historyStatus === 'ready' ? 'ready' : 'loading'
 
-  const today = new Date()
+  const todayDate = easternDate(new Date())
+  const today = new Date(`${todayDate}T12:00:00`)
   // Workouts started or opened from here come back to today's day card.
   const startedFrom = { place: 'workouts', day: dayCode(today) }
   const plan = current?.plan
@@ -93,8 +94,8 @@ function WeeklyPlan() {
   const monday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7))
   const dayDates = days.map((_, index) => new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + index))
   const scheduledWorkout = days.find((day) => day.when === 'today')?.workout
-  // What is saved today wins over the weekday schedule: it is the workout the start button opens.
-  const saved = todaySessionState(history, unfinished, plan, easternDate(today))
+  // Only a session for today's scheduled day can replace the plan card.
+  const saved = todaySessionState(history, unfinished, plan, todayDate, scheduledWorkout?.name ?? null)
   const todayWorkout = saved ? plan.days.find((day) => day.name === saved.session.name) ?? scheduledWorkout : scheduledWorkout
 
   return (

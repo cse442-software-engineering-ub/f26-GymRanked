@@ -163,17 +163,18 @@ function Dashboard() {
   const goal = setup?.goal ?? null
   const currentDate = new Date()
   const todayDate = easternDate(currentDate)
-  const schedule = plan ? buildWeek(plan, currentDate) : []
+  const scheduleDate = new Date(`${todayDate}T12:00:00`)
+  const schedule = plan ? buildWeek(plan, scheduleDate) : []
   const scheduledToday = schedule.find((day) => day.when === 'today')?.workout ?? null
   // Start, Resume and View summary are offered only once both the unfinished workout and the history have loaded,
   // so a failed load can't let the lifter start a second workout.
   const workoutStatus = historyState.status === 'error' || unfinishedStatus === 'error' ? 'error' : historyState.status === 'ready' && unfinishedStatus === 'ready' ? 'ready' : 'loading'
-  // What is actually saved today wins over the weekday schedule, so the hero names the workout Today opens.
-  const saved = todaySessionState(historyState.sessions, unfinished, plan, todayDate)
+  // A session for today's scheduled day wins, so the hero names the workout Today opens.
+  const saved = todaySessionState(historyState.sessions, unfinished, plan, todayDate, scheduledToday?.name ?? null)
   const savedDay = saved ? plan?.days?.find((day) => day.name === saved.session.name) ?? { name: saved.session.name } : null
   const today = savedDay ?? scheduledToday
   const progress = historyState.status === 'ready' ? dashboardHistory(historyState.sessions, plan, currentDate) : null
-  const next = nextUp(plan, currentDate)
+  const next = nextUp(plan, scheduleDate)
   const heroState = setup === null ? 'loading'
     : planError ? 'error'
       : !plan ? 'no-plan'

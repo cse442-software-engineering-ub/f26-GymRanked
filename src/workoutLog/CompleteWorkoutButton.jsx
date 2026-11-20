@@ -101,7 +101,7 @@ export default function CompleteWorkoutButton({
       finish(await api.completeWorkout(sessionId))
     } catch (err) {
       // Completed already (for example in another tab): the summary is still the right place to go.
-      if (err.status === 409) {
+      if (err.status === 409 && err.message === 'Workout already completed') {
         finish({ session_id: sessionId })
         return
       }

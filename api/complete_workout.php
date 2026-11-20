@@ -29,6 +29,9 @@ $lock->get_result();
 $session = find_session($db, $session_id, $user_id, true);
 if (!$session) respond(404, ['error' => 'Session not found']);
 if ($session['completed_at'] !== null) respond(409, ['error' => 'Workout already completed']);
+if (!workout_session_is_scheduled_today($db, $user_id, $session)) {
+    respond(409, ['error' => 'This workout is no longer scheduled today']);
+}
 
 $stmt = $db->prepare('SELECT COUNT(*) AS sets FROM workout_sets WHERE session_id = ?');
 $stmt->bind_param('i', $session_id);
