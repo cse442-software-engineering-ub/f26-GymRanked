@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import BodyFigure from '../BodyFigure.jsx'
 import { MUSCLE_LABELS, musclesFor } from '../exerciseMuscles.js'
-import { validateSet } from './setValidation.js'
+import { isAllowedSetInput, validateSet } from './setValidation.js'
 import { formatSet, isRetryable, newSetRequestId, nextSetNumber, saveErrorMessage, upsertSet } from './setLog.js'
 import defaultApi from './workoutLogApi.js'
 import './workoutLog.css'
@@ -77,6 +77,7 @@ function useSetForm(initial = EMPTY) {
   const [status, setStatus] = useState({ state: 'idle', message: '', retry: false })
 
   function change(field, value) {
+    if (!isAllowedSetInput(field, value)) return
     setValues((current) => ({ ...current, [field]: value }))
     // Typing in a field clears that field's error, so stale messages don't linger.
     setErrors((current) => (current[field] ? { ...current, [field]: undefined } : current))

@@ -3,8 +3,8 @@
 //     "started_at":"2026-10-13T19:27:47Z","completed_at":"2026-10-13T20:12:59Z","duration_seconds":2712,
 //     "exercise_count":3,"set_count":4,"total_volume_lb":2553.5}, ...]}
 //
-// The logged-in user's completed workouts, most recently completed first (at most 100). Unfinished sessions and
-// other users' sessions are never included. exercise_count counts exercises with at least one set;
+// The logged-in user's completed workouts and prior-day unfinished workouts with saved sets, newest first
+// (at most 100). Today's active workout and empty abandoned sessions are excluded. exercise_count counts exercises with at least one set;
 // total_volume_lb is the sum of weight × reps in pounds. Open one with api/workout_session.php?id= for its sets.
 //
 // 401 not logged in, 405 not GET.
@@ -21,10 +21,12 @@ $stmt = $db->prepare(
             COUNT(DISTINCT st.exercise) AS exercise_count, COUNT(st.id) AS set_count,
             COALESCE(SUM(st.weight_lb * st.reps), 0) AS total_volume_lb
      FROM workout_sessions s LEFT JOIN workout_sets st ON st.session_id = s.id
-     WHERE s.user_id = ? AND s.completed_at IS NOT NULL
-     GROUP BY s.id ORDER BY s.completed_at DESC, s.id DESC LIMIT 100'
+     WHERE s.user_id = ? AND (s.completed_at IS NOT NULL OR
+       (s.started_at < ? AND EXISTS (SELECT 1 FROM workout_sets saved WHERE saved.session_id = s.id)))
+     GROUP BY s.id ORDER BY COALESCE(s.completed_at, s.started_at) DESC, s.id DESC LIMIT 100'
 );
-$stmt->bind_param('i', $user_id);
+$today_start = workout_today_start_utc();
+$stmt->bind_param('is', $user_id, $today_start);
 $stmt->execute();
 
 $sessions = [];
@@ -35,7 +37,8 @@ foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
         'plan' => $row['plan_name'],
         'started_at' => iso_time($row['started_at']),
         'completed_at' => iso_time($row['completed_at']),
-        'duration_seconds' => (int) $row['duration_seconds'],
+        'status' => $row['completed_at'] === null ? 'unfinished' : 'completed',
+        'duration_seconds' => $row['duration_seconds'] === null ? null : (int) $row['duration_seconds'],
         'exercise_count' => (int) $row['exercise_count'],
         'set_count' => (int) $row['set_count'],
         'total_volume_lb' => json_number($row['total_volume_lb']),

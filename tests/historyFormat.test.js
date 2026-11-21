@@ -19,9 +19,9 @@ test('weights show pounds, decimals, and bodyweight for 0', () => {
 test('counts use singular and plural words', () => {
   assert.equal(sizeLabel(3, 9), '3 exercises · 9 sets')
   assert.equal(sizeLabel(1, 1), '1 exercise · 1 set')
-  assert.equal(countLabel(6), '6 completed workouts')
-  assert.equal(countLabel(1), '1 completed workout')
-  assert.equal(countLabel(0), '0 completed workouts')
+  assert.equal(countLabel(6), '6 workouts')
+  assert.equal(countLabel(1), '1 workout')
+  assert.equal(countLabel(0), '0 workouts')
 })
 
 test('pages hold four workouts', () => {
