@@ -1,5 +1,11 @@
 # Test users
 
+## Temporary Saturday active-workout plan
+
+For Saturday active-workout testing on **November 21, 2026**, apply `saturday_active_workout_test_plan.sql` to a local or Aptitude test database after the plan migrations. It creates a plan named **TEST ONLY - Saturday Workout - Remove Nov 21** with six training days. Select it in the Plan library; Saturday shows **Saturday Test Workout** with Bench press, Overhead press, and Triceps pushdown. It is a database seed, so deploying frontend code alone will not add the plan. Do not load it on Cattle.
+
+After testing, switch any accounts using it to another plan, then run `saturday_active_workout_test_plan_cleanup.sql` on the same database. Cleanup refuses to remove the plan while it is selected. Saved sessions retain their copied plan name and sets.
+
 ## Card #123 weekly milestone accounts
 
 `build_weekly_milestone_seed.php` now **only creates or updates the 13 exact dedicated accounts**. It sets their test password hash and `is_test=1`; it does not reset workouts or create dated fixtures. A developer loads it once on an explicitly enabled non-production database after migration 013. Never load it on cattle.
