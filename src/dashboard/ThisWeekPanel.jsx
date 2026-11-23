@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
 import { DASHBOARD, addReturn } from '../returnTarget.js'
 import { summaryPath } from '../workoutLog/setLog.js'
-import { shortDay, weekStrip } from './dashboardFormat.js'
+import { nextUpPath, shortDay, weekStrip } from './dashboardFormat.js'
 
 // "This week": training days logged against the weekly goal (api/weekly_goal.php), a Monday–Sunday strip, and what is
-// next and last. state is {status: 'loading'|'ready'|'error', data}; next is {name, date} or null; last is
-// {id, name, date} or null. "Last logged" opens that exact saved workout's summary, whose "Go back" returns here.
+// next and last. state is {status: 'loading'|'ready'|'error', data}; next is {name, date, planId, position} or null;
+// last is {id, name, date} or null. "Next up" opens Plan details at that day and "Last logged" opens that exact saved
+// workout's summary (#136); the way back from both is the Dashboard.
 export default function ThisWeekPanel({ state, todayDate, next, last, hasPlan, historyStatus, onRetry }) {
   const { status, data } = state
   return (
@@ -46,7 +47,7 @@ export default function ThisWeekPanel({ state, todayDate, next, last, hasPlan, h
       <dl className="home-week__facts">
         <div>
           <dt>Next up</dt>
-          <dd>{next ? <><strong>{next.name}</strong> · {shortDay(next.date)}</> : hasPlan ? 'Nothing scheduled this week' : <Link to="/plans">Choose a plan</Link>}</dd>
+          <dd>{next ? <NextUp next={next} /> : hasPlan ? 'Nothing scheduled this week' : <Link to="/plans">Choose a plan</Link>}</dd>
         </div>
         <div>
           <dt>Last logged</dt>
@@ -54,6 +55,18 @@ export default function ThisWeekPanel({ state, todayDate, next, last, hasPlan, h
         </div>
       </dl>
     </section>
+  )
+}
+
+function NextUp({ next }) {
+  const text = <><strong>{next.name}</strong> · {shortDay(next.date)}</>
+  const path = nextUpPath(next)
+  if (!path) return text
+  return (
+    <Link className="home-week__link" to={path} state={{ from: '/dashboard' }}
+      aria-label={`${next.name}, ${shortDay(next.date)}: view this workout in your plan`}>
+      {text}<span className="home-week__chevron" aria-hidden="true">›</span>
+    </Link>
   )
 }
 
