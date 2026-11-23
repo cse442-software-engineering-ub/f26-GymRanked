@@ -907,3 +907,27 @@
     transition: background-color 120ms;
   }
 }
+
+/* "Sent by you" (sent encouragements story): a full-width row under the members and the encouragements for you,
+   divided by the same line as the rows above. The list reuses the "Encouragements for you" look. */
+.buddies-sent-row {
+  padding-top: 28px;
+  border-top: 1px solid var(--gr-border-strong);
+}
+
+.buddies-sent-row--optional:empty {
+  display: none;
+}
+
+.buddies-sent__hint {
+  margin: -8px 0 0;
+}
+
+.buddies-sent__list {
+  max-width: 760px;
+}
+
+.buddies-sent__to {
+  color: var(--gr-text-muted);
+  font-weight: 500;
+}
