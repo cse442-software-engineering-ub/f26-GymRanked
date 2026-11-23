@@ -5,8 +5,10 @@ import { MESSAGES, MESSAGE_MAX, countChars, fitsLimit } from './buddiesFormat.js
 // The message form in the Encourage modal (EncourageDialog.jsx). The box takes whatever is typed or pasted and the counter shows how much
 // of the 140 characters is used (an emoji counts as one, like #71's count); past the limit the counter turns to the
 // error colour. Sending an empty, blank or too long message is refused next to the box and the text stays, as story
-// #78 expects. A failed send keeps the text too; Escape or Cancel closes the form.
-function EncourageForm({ member, onSent, onCancel, onMemberGone, onUnauthorized }) {
+// #78 expects. A failed send keeps the text too; Escape or Cancel closes the form. A second message to the same
+// member on the same day is refused by the server (409, card #147): its words show under the form, the text stays,
+// and onAlreadySent lets the member's row switch to "Sent today".
+function EncourageForm({ member, onSent, onAlreadySent, onCancel, onMemberGone, onUnauthorized }) {
   const [message, setMessage] = useState('')
   const [fieldError, setFieldError] = useState('')
   const [sendError, setSendError] = useState('')
@@ -46,6 +48,10 @@ function EncourageForm({ member, onSent, onCancel, onMemberGone, onUnauthorized 
     if (response.ok) onSent(response.data.encouragement.to)
     else if (response.status === 400 && response.data?.errors) {
       setFieldError(response.data.errors.message || response.data.errors.member_id || MESSAGES.message)
+      box.current?.focus()
+    } else if (response.status === 409) {
+      setSendError(response.data?.error || MESSAGES.daily(member.name))
+      onAlreadySent?.()
       box.current?.focus()
     } else if (response.status === 404 && response.data?.error === 'Member not found.') onMemberGone()
     else setSendError(MESSAGES.send)

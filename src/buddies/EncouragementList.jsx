@@ -5,8 +5,10 @@ import { formatSentAt, initialsOf } from './buddiesFormat.js'
 // useBuddyGroupPoll) carry a "New" mark.
 function EncouragementList({ encouragements, fresh = [] }) {
   return (
-    <section className="buddies-card" aria-labelledby="buddies-inbox-title">
-      <h2 className="buddies-section-title" id="buddies-inbox-title">Encouragements for you</h2>
+    <section className="buddies-section" aria-labelledby="buddies-inbox-title">
+      <header className="buddies-section-heading">
+        <h2 id="buddies-inbox-title">Encouragements for you</h2>
+      </header>
       {encouragements.length === 0 ? (
         <p className="buddies-empty-inbox">No encouragements yet. When someone in your group encourages you, it appears here.</p>
       ) : (

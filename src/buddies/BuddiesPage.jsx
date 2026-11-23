@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import GroupPanel, { InviteCard } from './GroupPanel.jsx'
+import GroupPanel, { GroupHero, InviteCard } from './GroupPanel.jsx'
 import EncouragementList from './EncouragementList.jsx'
 import NoGroupPanel from './NoGroupPanel.jsx'
 import { useBuddyGroupPoll } from './useBuddyGroupPoll.js'
@@ -67,23 +67,44 @@ function BuddiesPage() {
         )}
 
         {status === 'ready' && !data.group && (
-          <NoGroupPanel onJoined={showJoinedGroup} onShowGroup={reloadFromScratch} onUnauthorized={toLogin} onStart={() => setNotice('')} />
+          <div className="buddies-top">
+            <NoGroupPanel onJoined={showJoinedGroup} onShowGroup={reloadFromScratch} onUnauthorized={toLogin} onStart={() => setNotice('')} />
+            <HowItWorks />
+          </div>
         )}
 
         {status === 'ready' && data.group && (
-          <div className="buddies-layout">
-            <GroupPanel group={data.group} me={data.me} titleRef={groupTitle} onNotice={setNotice}
-              onUnauthorized={toLogin} onMembersChanged={refresh} />
-            <div className="buddies-side">
+          <>
+            <div className={data.group.invite_code ? 'buddies-top' : 'buddies-top buddies-top--single'}>
+              <GroupHero group={data.group} me={data.me} titleRef={groupTitle} />
               {data.group.invite_code && <InviteCard group={data.group} />}
+            </div>
+            <div className="buddies-bottom">
+              <GroupPanel group={data.group} onNotice={setNotice} onUnauthorized={toLogin} onMembersChanged={refresh} />
               <EncouragementList encouragements={data.encouragements} fresh={fresh} />
             </div>
-          </div>
+          </>
         )}
         {/* Read out when new encouragement arrives while the page is open. */}
         <p className="buddies-sr-only" role="status" aria-live="polite">{announcement}</p>
       </main>
     </div>
+  )
+}
+
+// Beside the join and create forms for someone in no group: what a group is for, in three steps.
+function HowItWorks() {
+  return (
+    <section className="buddies-section" aria-labelledby="buddies-how-title">
+      <header className="buddies-section-heading">
+        <h2 id="buddies-how-title">How it works</h2>
+      </header>
+      <ol className="buddies-steps">
+        <li><strong>Get a code</strong><span>Ask a friend who owns a group for their 8-character invite code.</span></li>
+        <li><strong>Join or start a group</strong><span>Enter the code, or create your own group and share its code.</span></li>
+        <li><strong>Cheer each other on</strong><span>Send a member a short encouragement. Only they see it.</span></li>
+      </ol>
+    </section>
   )
 }
 
