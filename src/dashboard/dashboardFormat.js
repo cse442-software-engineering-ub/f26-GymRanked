@@ -49,11 +49,15 @@ export function nextUp(plan, now = new Date()) {
   return null
 }
 
-// The most recent finished workout from workout_history.php (newest first): {name, date} or null.
+// The most recent finished workout from workout_history.php (newest first): {id, name, date} or null. id is that
+// saved workout's session id, so "Last logged" opens exactly its summary (null if the server sent none).
 export function lastLogged(sessions) {
   for (const session of sessions || []) {
     const date = easternDate(session.completed_at)
-    if (date && session.completed_at) return { name: session.name || 'Workout', date }
+    if (date && session.completed_at) {
+      const id = Number.isInteger(session.id) && session.id > 0 ? session.id : null
+      return { id, name: session.name || 'Workout', date }
+    }
   }
   return null
 }

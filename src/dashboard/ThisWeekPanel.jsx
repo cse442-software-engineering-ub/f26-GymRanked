@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom'
+import { DASHBOARD, addReturn } from '../returnTarget.js'
+import { summaryPath } from '../workoutLog/setLog.js'
 import { shortDay, weekStrip } from './dashboardFormat.js'
 
 // "This week": training days logged against the weekly goal (api/weekly_goal.php), a Monday–Sunday strip, and what is
-// next and last. state is {status: 'loading'|'ready'|'error', data}; next and last are {name, date} or null.
+// next and last. state is {status: 'loading'|'ready'|'error', data}; next is {name, date} or null; last is
+// {id, name, date} or null. "Last logged" opens that exact saved workout's summary, whose "Go back" returns here.
 export default function ThisWeekPanel({ state, todayDate, next, last, hasPlan, historyStatus, onRetry }) {
   const { status, data } = state
   return (
@@ -47,9 +50,20 @@ export default function ThisWeekPanel({ state, todayDate, next, last, hasPlan, h
         </div>
         <div>
           <dt>Last logged</dt>
-          <dd>{historyStatus === 'loading' ? 'Loading…' : historyStatus === 'error' ? 'Unavailable' : last ? <><strong>{last.name}</strong> · {shortDay(last.date)}</> : 'No workouts yet'}</dd>
+          <dd>{historyStatus === 'loading' ? 'Loading…' : historyStatus === 'error' ? 'Unavailable' : last ? <LastLogged last={last} /> : 'No workouts yet'}</dd>
         </div>
       </dl>
     </section>
+  )
+}
+
+function LastLogged({ last }) {
+  const text = <><strong>{last.name}</strong> · {shortDay(last.date)}</>
+  if (!last.id) return text
+  return (
+    <Link className="home-week__link" to={addReturn(summaryPath(last.id), DASHBOARD)}
+      aria-label={`${last.name}, ${shortDay(last.date)}: view this saved workout`}>
+      {text}<span className="home-week__chevron" aria-hidden="true">›</span>
+    </Link>
   )
 }

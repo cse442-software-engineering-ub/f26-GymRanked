@@ -383,6 +383,27 @@
   color: var(--gr-action-text);
 }
 
+/* Next up and Last logged open that workout (#136): the row keeps its colours, with an underline and a chevron. */
+.home-week__facts a.home-week__link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  color: var(--gr-text-soft);
+  text-decoration: underline;
+  text-decoration-color: var(--gr-border-strong);
+  text-underline-offset: 3px;
+}
+
+.home-week__link:hover,
+.home-week__link:hover strong {
+  color: var(--gr-action-text);
+}
+
+.home-week__chevron {
+  color: var(--gr-text-muted);
+  text-decoration: none;
+}
+
 /* ------------------------------------------------------------ from your buddies */
 .home-buddies__message {
   margin: 0;
