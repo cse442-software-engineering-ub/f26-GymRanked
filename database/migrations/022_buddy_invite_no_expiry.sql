@@ -1,0 +1,21 @@
+-- 022_buddy_invite_no_expiry.sql
+-- Workout buddies invite codes no longer expire (story #78, card #152). A group's code works for as long as the group
+-- exists, so buddy_groups.invite_expires_at is not needed. api/buddy_group.php no longer writes it, api/buddy_join.php no
+-- longer checks it and the group view no longer returns it.
+--
+-- Requires: 018_workout_buddies.sql.
+--
+-- Apply locally:
+--   mysql -u root cse442_2026_fall_team_y_db < database/migrations/022_buddy_invite_no_expiry.sql
+-- On the dev server, only when a task card says to (see ServerOperationsGuide.md):
+--   mysql -u UBIT_USERNAME -p cse442_2026_fall_team_y_db < database/migrations/022_buddy_invite_no_expiry.sql
+-- Or paste this file into phpMyAdmin's SQL tab with the team database selected.
+--
+-- Deploy the card's PHP code and run this right after, in the same sitting. Between the two, creating a group can fail
+-- with a 500 (the old column is required and the new code no longer fills it); if this is run first, every buddy
+-- endpoint fails with a 500 (the old code still reads the column).
+--
+-- Run it once: a second run stops with "Can't DROP 'invite_expires_at'; check that column/key exists" and changes
+-- nothing. Only the column is removed: no group, member or message row changes, and every invite code that was ever
+-- given out keeps working.
+ALTER TABLE buddy_groups DROP COLUMN invite_expires_at;

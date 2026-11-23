@@ -13,7 +13,6 @@ require __DIR__ . '/workout_common.php';
 
 const BUDDY_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no I or O, no 0 or 1
 const BUDDY_CODE_PATTERN = '/\A[A-HJ-NP-Z2-9]{8}\z/'; // \z, not $, so "7KQ2MXP9\n" is refused
-const BUDDY_CODE_DAYS = 7;
 const BUDDY_NAME_MAX = 40;
 const BUDDY_MESSAGE_MAX = 140;
 const BUDDY_INBOX_LIMIT = 20;
@@ -42,10 +41,10 @@ function buddy_new_code() {
     return $code;
 }
 
-// The caller's membership (member_id, group_id, group name, owner, invite code and expiry), or null when in no group.
+// The caller's membership (member_id, group_id, group name, owner and invite code), or null when in no group.
 function buddy_membership($db, $user_id) {
     $stmt = $db->prepare(
-        'SELECT m.id AS member_id, m.group_id, g.name, g.owner_id, g.invite_code, g.invite_expires_at
+        'SELECT m.id AS member_id, m.group_id, g.name, g.owner_id, g.invite_code
          FROM buddy_members m JOIN buddy_groups g ON g.id = m.group_id WHERE m.user_id = ?'
     );
     $stmt->bind_param('i', $user_id);
@@ -69,13 +68,13 @@ function buddy_duplicate($error, $key) {
 }
 
 // The group view every endpoint returns:
-//   {"group":{"name","member_count","invite_code","invite_expires_at",
+//   {"group":{"name","member_count","invite_code",
 //             "members":[{"member_id","name","is_me","is_owner","encouraged_today"}]},
 //    "me":{"member_id","is_owner"},"encouragements":[{"id","from","message","sent_at"}]}
 // Members are listed owner first, then by when they joined. encouraged_today is true when the caller has already sent
-// that member an encouragement today (always false on the caller's own row). invite_code and invite_expires_at are
-// filled in for the owner only. encouragements are the last 20 sent to the caller, newest first. A caller in no group gets
-// {"group":null,"me":null,"encouragements":[]} (not an error).
+// that member an encouragement today (always false on the caller's own row). invite_code is filled in for the owner
+// only; it never expires, so there is no expiry field. encouragements are the last 20 sent to the caller, newest
+// first. A caller in no group gets {"group":null,"me":null,"encouragements":[]} (not an error).
 function buddy_view($db, $user_id) {
     $mine = buddy_membership($db, $user_id);
     if (!$mine) return ['group' => null, 'me' => null, 'encouragements' => []];
@@ -130,7 +129,6 @@ function buddy_view($db, $user_id) {
             'name' => $mine['name'],
             'member_count' => count($members),
             'invite_code' => $is_owner ? $mine['invite_code'] : null,
-            'invite_expires_at' => $is_owner ? iso_time($mine['invite_expires_at']) : null,
             'members' => $members,
         ],
         'me' => ['member_id' => (int) $mine['member_id'], 'is_owner' => $is_owner],

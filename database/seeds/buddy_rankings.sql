@@ -1,6 +1,6 @@
 -- Buddies rankings test accounts for story #78 (card #138): eighteen crew-<name>@example.com accounts in two groups plus
 -- one account in no group. The password is Crew-Test-78! for all of them; only its salted hash is stored here.
--- Requires database/migrations/001_auth.sql to 018_workout_buddies.sql. Safe to rerun: these accounts' names, password,
+-- Requires database/migrations/001_auth.sql to 022_buddy_invite_no_expiry.sql. Safe to rerun: these accounts' names, password,
 -- setup, profile, goals, groups, memberships and workouts are reset to the ones below, and no other account is touched.
 -- The accounts are marked users.is_test = 1, so they never appear on the Everyone boards; the Buddies scope ignores that flag.
 --
@@ -96,9 +96,9 @@ INSERT INTO user_profile (user_id, bodyweight_lb, gender, leaderboard_joined_at)
     ) p JOIN users u ON u.email = p.email;
 
 
-INSERT INTO buddy_groups (name, owner_id, invite_code, invite_expires_at, created_at) VALUES
-    ('Northside Crew',  (SELECT id FROM users WHERE email = 'crew-nora@example.com'), 'NRTH5CRW', UTC_TIMESTAMP() + INTERVAL 7 DAY, UTC_TIMESTAMP() - INTERVAL 5 DAY),
-    ('Eastside Lifters', (SELECT id FROM users WHERE email = 'crew-ola@example.com'),  'ESTL4FTR', UTC_TIMESTAMP() + INTERVAL 7 DAY, UTC_TIMESTAMP() - INTERVAL 5 DAY);
+INSERT INTO buddy_groups (name, owner_id, invite_code, created_at) VALUES
+    ('Northside Crew',  (SELECT id FROM users WHERE email = 'crew-nora@example.com'), 'NRTH5CRW', UTC_TIMESTAMP() - INTERVAL 5 DAY),
+    ('Eastside Lifters', (SELECT id FROM users WHERE email = 'crew-ola@example.com'),  'ESTL4FTR', UTC_TIMESTAMP() - INTERVAL 5 DAY);
 
 INSERT INTO buddy_members (group_id, user_id, joined_at)
     SELECT IF(u.email IN ('crew-nora@example.com', 'crew-eli@example.com', 'crew-ana@example.com', 'crew-ben@example.com', 'crew-fay@example.com', 'crew-gus@example.com', 'crew-hal@example.com', 'crew-ira@example.com', 'crew-jon@example.com', 'crew-kai@example.com', 'crew-lea@example.com', 'crew-cal@example.com', 'crew-dev@example.com'), (SELECT id FROM buddy_groups WHERE invite_code = 'NRTH5CRW'), (SELECT id FROM buddy_groups WHERE invite_code = 'ESTL4FTR')),
