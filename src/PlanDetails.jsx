@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { useLocation, useParams, useSearchParams } from 'react-router-dom'
 import BackLink from './BackLink.jsx'
 import BodyFigure from './BodyFigure.jsx'
 import PlanEquipmentDot from './PlanEquipmentDot.jsx'
@@ -10,9 +10,20 @@ import PlanSelectionStatus from './PlanSelectionStatus.jsx'
 import { fetchPlan } from './plansApi.js'
 import usePlanSelection from './usePlanSelection.jsx'
 
+// ?day=N (1 = the plan's first day, in the order api/plan.php returns them) opens the page at that day: the Dashboard's
+// "Next up" links here (#136). The day is highlighted, labelled "Next up" and scrolled into view; any other value is
+// ignored and the page opens at the top as usual.
+function dayFromQuery(value, dayCount) {
+  if (!/^[1-9]\d?$/.test(value ?? '')) return null
+  const day = Number(value)
+  return day <= dayCount ? day : null
+}
+
 function PlanDetails() {
   const { id } = useParams()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const highlighted = useRef(null)
   const returnPages = {
     '/plans': 'plan library',
     '/weekly-plan': 'workouts',
@@ -32,6 +43,13 @@ function PlanDetails() {
       .then(setPlan)
       .catch((err) => setError(err.message))
   }, [id])
+
+  const nextDay = plan ? dayFromQuery(searchParams.get('day'), plan.days.length) : null
+
+  // Bring the day into view once the plan has loaded.
+  useEffect(() => {
+    highlighted.current?.scrollIntoView?.({ block: 'center' })
+  }, [nextDay])
 
   return (
     <div className="plan-library">
@@ -60,10 +78,15 @@ function PlanDetails() {
               <p className="status">No weekly split yet</p>
             ) : (
               <ul className="plan-split">
-                {plan.days.map((day) => (
-                  <li key={day.name} className="plan-split__item">
+                {plan.days.map((day, index) => (
+                  <li key={day.name} ref={index + 1 === nextDay ? highlighted : undefined}
+                    className={index + 1 === nextDay ? 'plan-split__item plan-split__item--next' : 'plan-split__item'}
+                    aria-current={index + 1 === nextDay ? 'step' : undefined}>
                     <div className="plan-split__day">
-                      <span className="plan-split__name">{day.name}</span>
+                      <span className="plan-split__name">
+                        {day.name}
+                        {index + 1 === nextDay && <span className="plan-split__badge">Next up</span>}
+                      </span>
                       <span className="plan-split__detail">
                         <span className="plan-split__focus">{day.focus}</span>
                         <span className="plan-split__duration">~{day.duration_minutes} min</span>
