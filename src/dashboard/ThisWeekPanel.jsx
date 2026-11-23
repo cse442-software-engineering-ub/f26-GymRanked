@@ -45,16 +45,17 @@ export default function ThisWeekPanel({ state, todayDate, next, last, hasPlan, h
         </ol>
       </>}
       {/* Two tiles side by side; a tile with a workout is one big link (the whole tile is clickable). */}
+      {/* Last logged, then Next up, which is emphasised (--next) as the one to look at. */}
       <dl className="home-week__facts">
-        <div className={next && nextUpPath(next) ? 'home-week__fact home-week__fact--link' : 'home-week__fact'}>
-          <dt>Next up</dt>
-          <dd>{next ? <NextUp next={next} /> : hasPlan ? <span className="home-week__empty">Nothing scheduled this week</span> : <Link to="/plans">Choose a plan</Link>}</dd>
-        </div>
         <div className={historyStatus === 'ready' && last?.id ? 'home-week__fact home-week__fact--link' : 'home-week__fact'}>
           <dt>Last logged</dt>
           <dd>{historyStatus === 'loading' ? <span className="home-week__empty">Loading…</span>
             : historyStatus === 'error' ? <span className="home-week__empty">Unavailable</span>
               : last ? <LastLogged last={last} /> : <span className="home-week__empty">No workouts yet</span>}</dd>
+        </div>
+        <div className={`home-week__fact home-week__fact--next${next && nextUpPath(next) ? ' home-week__fact--link' : ''}`}>
+          <dt>Next up</dt>
+          <dd>{next ? <NextUp next={next} /> : hasPlan ? <span className="home-week__empty">Nothing scheduled this week</span> : <Link to="/plans">Choose a plan</Link>}</dd>
         </div>
       </dl>
     </section>

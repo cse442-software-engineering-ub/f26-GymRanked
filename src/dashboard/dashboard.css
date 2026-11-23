@@ -452,6 +452,31 @@
   background: var(--gr-selected-bg);
 }
 
+/* Next up stands out from Last logged: an action edge, the selected tint, an action-text eyebrow and a larger name. */
+.home-week__fact--next {
+  border-color: color-mix(in srgb, var(--gr-action) 60%, transparent);
+  background: var(--gr-selected-bg);
+}
+
+.home-week__fact--next dt {
+  color: var(--gr-action-text);
+  font-weight: 700;
+}
+
+.home-week__fact--next .home-week__name {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.home-week__fact--next .home-week__date {
+  color: var(--gr-text);
+}
+
+.home-week__fact--next.home-week__fact--link:hover {
+  border-color: var(--gr-action);
+  background: color-mix(in srgb, var(--gr-action) 24%, var(--gr-surface));
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .home-week__fact--link {
     transition: border-color 120ms, background-color 120ms;
