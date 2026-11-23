@@ -2,10 +2,44 @@ import { useEffect, useRef, useState } from 'react'
 import EncourageDialog from './EncourageDialog.jsx'
 import { formatExpiry, initialsOf, isExpired, memberCountLabel } from './buddiesFormat.js'
 
-// The group card: its name and size and the members (owner first, then by join time,
-// exactly as #71 returns them). Every member but you has an "Encourage" button, which opens the message form for that
-// member in a modal (EncourageDialog.jsx).
-function GroupPanel({ group, me, titleRef, onNotice, onUnauthorized, onMembersChanged }) {
+const FACES_SHOWN = 5
+
+// The group's hero card, like the Dashboard's "Today's workout": its name, a row of member faces and its size. After
+// joining or creating, focus lands on the name (titleRef).
+export function GroupHero({ group, me, titleRef }) {
+  const alone = group.member_count === 1 && me.is_owner
+  const faces = group.members.slice(0, FACES_SHOWN)
+  const more = group.members.length - faces.length
+  return (
+    <section className="buddies-hero" aria-labelledby="buddies-group-name">
+      <div className="buddies-hero__body">
+        <p className="buddies-hero__eyebrow">
+          <span>Your group</span>
+          {me.is_owner && <span className="buddies-hero__badge">Owner</span>}
+        </p>
+        <h2 className="buddies-hero__title" id="buddies-group-name" tabIndex={-1} ref={titleRef}>{group.name}</h2>
+        <div className="buddies-hero__meta">
+          <span className="buddies-faces" aria-hidden="true">
+            {faces.map((member) => (
+              <span key={member.member_id} className={member.is_me ? 'buddies-face is-me' : 'buddies-face'}>{initialsOf(member.name)}</span>
+            ))}
+            {more > 0 && <span className="buddies-face buddies-face--more">+{more}</span>}
+          </span>
+          <span className="buddies-count">{memberCountLabel(group.member_count)}</span>
+        </div>
+        <p className="buddies-hero__text">
+          {alone
+            ? <>You&apos;re the only member. Share your invite code so friends can join.</>
+            : <>Pick a member below and send them an encouragement. Only they will see it.</>}
+        </p>
+      </div>
+    </section>
+  )
+}
+
+// The members (owner first, then by join time, exactly as #71 returns them). Every member but you has an "Encourage"
+// button, which opens the message form for that member in a modal (EncourageDialog.jsx).
+function GroupPanel({ group, onNotice, onUnauthorized, onMembersChanged }) {
   const [composeFor, setComposeFor] = useState(null)
   const [goneError, setGoneError] = useState('')
   const encourageButtons = useRef(new Map())
@@ -31,16 +65,13 @@ function GroupPanel({ group, me, titleRef, onNotice, onUnauthorized, onMembersCh
     else setComposeFor(memberId)
   }
 
-  const alone = group.member_count === 1 && me.is_owner
   const composing = group.members.find((member) => member.member_id === composeFor) ?? null
 
   return (
-    <section className="buddies-card" aria-labelledby="buddies-group-name">
-      <div className="buddies-group-head">
-        <p className="buddies-eyebrow">Your group</p>
-        <h2 className="buddies-group-name" id="buddies-group-name" tabIndex={-1} ref={titleRef}>{group.name}</h2>
-        <p className="buddies-count">{memberCountLabel(group.member_count)}</p>
-      </div>
+    <section className="buddies-section" aria-labelledby="buddies-members-title">
+      <header className="buddies-section-heading">
+        <h2 id="buddies-members-title">Members</h2>
+      </header>
 
       {goneError && <p className="buddies-field-error" role="alert">{goneError}</p>}
 
@@ -81,22 +112,25 @@ function GroupPanel({ group, me, titleRef, onNotice, onUnauthorized, onMembersCh
             onMembersChanged()
           }} />
       )}
-
-      {alone && <p className="buddies-solo">You&apos;re the only member. Share your invite code so friends can join.</p>}
     </section>
   )
 }
 
 export default GroupPanel
 
-// The owner's invite code, beside the members on a wide screen and under them on a phone. Only the owner gets a code
-// from #71 (invite_code is null for everyone else), so only the owner sees this card.
+// The owner's invite code, beside the group's hero on a wide screen and under it on a phone. Only the owner gets a code
+// from #71 (invite_code is null for everyone else), so only the owner sees this.
 export function InviteCard({ group }) {
   const expired = group.invite_expires_at ? isExpired(group.invite_expires_at) : false
   return (
-    <section className={expired ? 'buddies-card buddies-invite buddies-invite--expired' : 'buddies-card buddies-invite'} aria-label="Invite code">
-      <span className="buddies-invite__label">Invite code</span>
-      <span className="buddies-invite-code">{group.invite_code}</span>
+    <section className={expired ? 'buddies-section buddies-invite buddies-invite--expired' : 'buddies-section buddies-invite'} aria-label="Invite code">
+      <header className="buddies-section-heading">
+        <h2>Invite friends</h2>
+      </header>
+      <div className="buddies-invite__box">
+        <span className="buddies-invite__label">Invite code</span>
+        <span className="buddies-invite-code">{group.invite_code}</span>
+      </div>
       {expired ? (
         <>
           <span><span className="buddies-pill buddies-pill--warn">Expired {formatExpiry(group.invite_expires_at)}</span></span>
