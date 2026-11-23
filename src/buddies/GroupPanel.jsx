@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import EncourageDialog from './EncourageDialog.jsx'
-import { formatExpiry, initialsOf, isExpired, memberCountLabel } from './buddiesFormat.js'
+import { initialsOf, memberCountLabel } from './buddiesFormat.js'
 
 const FACES_SHOWN = 5
 
@@ -141,11 +141,11 @@ function GroupPanel({ group, onNotice, onUnauthorized, onMembersChanged }) {
 export default GroupPanel
 
 // The owner's invite code, beside the group's hero on a wide screen and under it on a phone. Only the owner gets a code
-// from #71 (invite_code is null for everyone else), so only the owner sees this.
+// from #71 (invite_code is null for everyone else), so only the owner sees this. A code has no expiry: it works for as
+// long as the group exists (card #152).
 export function InviteCard({ group }) {
-  const expired = group.invite_expires_at ? isExpired(group.invite_expires_at) : false
   return (
-    <section className={expired ? 'buddies-section buddies-invite buddies-invite--expired' : 'buddies-section buddies-invite'} aria-label="Invite code">
+    <section className="buddies-section buddies-invite" aria-label="Invite code">
       <header className="buddies-section-heading">
         <h2>Invite friends</h2>
       </header>
@@ -153,17 +153,7 @@ export function InviteCard({ group }) {
         <span className="buddies-invite__label">Invite code</span>
         <span className="buddies-invite-code">{group.invite_code}</span>
       </div>
-      {expired ? (
-        <>
-          <span><span className="buddies-pill buddies-pill--warn">Expired {formatExpiry(group.invite_expires_at)}</span></span>
-          <span className="buddies-hint">This code no longer works, so nobody new can join. Getting a new code isn&apos;t part of this version.</span>
-        </>
-      ) : (
-        <>
-          <span className="buddies-invite__expires">Expires {formatExpiry(group.invite_expires_at)}</span>
-          <span className="buddies-hint">Share it in person or by text. Anyone with the code can join until it expires.</span>
-        </>
-      )}
+      <span className="buddies-hint">Share it in person or by text. Anyone with the code can join your group.</span>
     </section>
   )
 }

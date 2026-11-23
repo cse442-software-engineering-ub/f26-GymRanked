@@ -313,8 +313,7 @@
   font-size: 14px;
 }
 
-.buddies-compose__to,
-.buddies-invite__expires {
+.buddies-compose__to {
   color: var(--gr-text-soft);
   font-size: 14px;
 }
@@ -574,11 +573,6 @@
   user-select: all;
 }
 
-.buddies-invite--expired .buddies-invite-code {
-  color: var(--gr-text-muted);
-  text-decoration: line-through;
-}
-
 .buddies-pill {
   display: inline-flex;
   align-items: center;
@@ -622,12 +616,6 @@
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
-}
-
-.buddies-pill--warn {
-  border-color: var(--gr-error);
-  background: var(--gr-error-bg);
-  color: var(--gr-error-text);
 }
 
 .buddies-members,

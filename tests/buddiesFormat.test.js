@@ -6,10 +6,8 @@ import {
   cleanInviteCode,
   countChars,
   fitsLimit,
-  formatExpiry,
   formatSentAt,
   initialsOf,
-  isExpired,
   isInviteCode,
   memberCountLabel,
 } from '../src/buddies/buddiesFormat.js'
@@ -62,14 +60,6 @@ test('member count wording and initials', () => {
 
 test('times are shown in New York time', () => {
   assert.equal(formatSentAt('2026-11-13T15:04:05Z'), 'Nov 13, 10:04 AM')
-  assert.equal(formatExpiry('2026-11-18T15:00:00Z'), 'Nov 18, 2026, 10:00 AM')
   // Summer time: New York is 4 hours behind UTC.
   assert.equal(formatSentAt('2026-07-01T16:30:00Z'), 'Jul 1, 12:30 PM')
-})
-
-test('an invite code is expired from its expiry time on', () => {
-  const now = Date.parse('2026-11-13T15:00:00Z')
-  assert.equal(isExpired('2026-11-12T15:00:00Z', now), true)
-  assert.equal(isExpired('2026-11-13T15:00:00Z', now), true)
-  assert.equal(isExpired('2026-11-20T15:00:00Z', now), false)
 })

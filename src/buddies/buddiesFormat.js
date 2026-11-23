@@ -60,13 +60,3 @@ export function formatSentAt(iso) {
   })
 }
 
-// "Nov 18, 2026, 10:00 AM": when an invite code stops working.
-export function formatExpiry(iso) {
-  return new Date(iso).toLocaleString('en-US', {
-    timeZone: NEW_YORK, month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit',
-  })
-}
-
-export function isExpired(iso, now = Date.now()) {
-  return new Date(iso).getTime() <= now
-}
