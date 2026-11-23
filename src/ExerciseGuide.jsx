@@ -3,7 +3,7 @@ import SidePanel from './components/SidePanel.jsx'
 import GuideVideo from './GuideVideo.jsx'
 import GuideFallback from './GuideFallback.jsx'
 import { mockGuide } from './devGuideMock.js'
-import { loadPlaceholderSteps, placeholderSteps } from './guideFallbackPlaceholder.js'
+import { fallbackSteps, preloadFallbackPhoto } from './guideFallbackSteps.js'
 import { fetchAlternatives } from './workoutLog/exerciseAlternatives.js'
 import { exerciseLine } from './workoutLog/exerciseAlternativesFormat.js'
 
@@ -34,7 +34,7 @@ function ExerciseGuide({ name }) {
   useEffect(() => {
     setOpen(false)
     setWarm(false)
-    loadPlaceholderSteps(name) // TEMPORARY until #92's backup steps exist (see guideFallbackPlaceholder.js).
+    preloadFallbackPhoto(name)
   }, [name])
 
   // "Intermediate · Barbell" at the top of the guide: the same answer and text as the alternatives dialog's
@@ -136,9 +136,8 @@ function ExerciseGuide({ name }) {
             Loading the guide…
           </p>
         )}
-        {/* No guide (none listed, offline, or the server can't reach WorkoutX) or the clip failed: pictures and steps.
-            TEMPORARY: placeholderSteps is the stand-in for #92's backup steps. */}
-        {((!guide && !loading) || (guide && videoFailed)) && <GuideFallback key={name} steps={placeholderSteps(name)} />}
+        {/* No guide (none listed, offline, or the server can't reach WorkoutX) or the clip failed: pictures and steps. */}
+        {((!guide && !loading) || (guide && videoFailed)) && <GuideFallback key={name} steps={fallbackSteps(name)} />}
         {guide && (
           <>
             {!videoFailed && (
