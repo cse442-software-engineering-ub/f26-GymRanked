@@ -1,6 +1,6 @@
 # Story 78: As a gym goer, I want to be able to join an invite-only workout buddies group and encourage other members, which is confirmed by being able to accept an invite and send a member an encouragement message.
 
-- **Tasks:** #71 (backend), #79 (page), #147 (page restyle and one message a day to each member)
+- **Tasks:** #71 (backend), #79 (page), #147 (page restyle and one message a day to each member), #152 (invite codes no longer expire, backend), #153 (one message a day, server checks), #154 (one-a-day wording, "Encouragement sent" and no expiry on the page)
 - **Automated in:** not automated yet (the story has no Playwright task card)
 
 ### What this story is about, in plain words
@@ -13,7 +13,7 @@ A "workout buddies group" is a small private group of GymRank users who encourag
 2. One group per person. Someone who is already in a group cannot join another group or create one.
 3. Private. Only the members of a group can see its list of members. Everyone else sees nothing about the group. Names are shown as a first name and the first letter of the last name, for example "Olivia G.". Email addresses are never shown.
 4. Encouragement. A member can send a message of 1 to 140 characters to another member of the same group. Only the person it is sent to can read it. Nobody can send a message to themselves.
-5. One message a day to each member. A member can send each other member of the group one message a day, so they can still encourage everyone in the group on the same day, but only once each. After sending, that member's row says "Sent today" instead of showing the "Encourage" button. A new day starts at midnight, New York time.
+5. One message a day to each member. A member can send each other member of the group one message a day, so they can still encourage everyone in the group on the same day, but only once each. The page says so under "Members". After sending, that member's "Encourage" button is replaced by an "Encouragement sent" button that does nothing when clicked, also after the page is reloaded. The server refuses a second message even if it is sent another way. A new day starts at midnight, New York time.
 6. Not part of this story: leaving a group, removing someone, getting a new code, a limit on the number of members, and invites by email.
 
 ### What you need
@@ -245,15 +245,15 @@ Expected outcome: Cal has a new private group that he owns, with an invite code 
 
 ### Steps:
 
-1. In the row of links across the top of the page, click **"Buddies"**. Check that the large title on the page says "Workout buddies", and that the group "Morning Lifters" has three rows: "Olivia G." (You), "Ben C." and "Nina P.".
-2. Look at the row for "Ben C.". Check that it says **"Sent today"** and has no **"Encourage"** button, because Olivia already sent Ben a message today in Acceptance Test 3.
+1. In the row of links across the top of the page, click **"Buddies"**. Check that the large title on the page says "Workout buddies", that the group "Morning Lifters" has three rows: "Olivia G." (You), "Ben C." and "Nina P.", and that the line under the title "Members" says "You can encourage each member once a day. It starts again at midnight, New York time."
+2. Look at the row for "Ben C.". Check that it shows **"✓ Encouragement sent"** in green and has no **"Encourage"** button, because Olivia already sent Ben a message today in Acceptance Test 3. Click **"Encouragement sent"**. Check that nothing opens and the page does not change.
 3. Look at the row for "Nina P.". Check that it has an **"Encourage"** button. Sending Ben a message today does not stop Olivia from encouraging someone else.
 4. On the row for "Nina P." click **"Encourage"**. Click once inside the box **"Your message"** and type **Welcome to Morning Lifters!** (a capital W, a capital M, a capital L and an exclamation mark at the end). Click **"Send"**.
-5. Check that the page says "Encouragement sent to Nina P.", and that the row for "Nina P." now says **"Sent today"** instead of showing the **"Encourage"** button.
-6. Reload the page (click the round arrow button at the top left of the browser, next to the web address). Check that the rows for "Ben C." and "Nina P." both still say **"Sent today"** and neither has an **"Encourage"** button.
+5. Check that the page says "Encouragement sent to Nina P.", and that the row for "Nina P." now shows **"✓ Encouragement sent"** instead of the **"Encourage"** button.
+6. Reload the page (click the round arrow button at the top left of the browser, next to the web address). Check that the rows for "Ben C." and "Nina P." both still show **"✓ Encouragement sent"** and neither has an **"Encourage"** button.
 7. Look at the top right corner of the page. Click the small round button that shows your initials (**"OG"**). A small menu opens. Click **"Log out"** in that menu. Check that the Login page opens and says "You are logged out."
 8. On the Login page click the box **"Email"**, type **buddy-nina@example.com**, click the box **"Password"**, type **Buddy-Test-78!** and click **"Log in"**. Check that the Dashboard page opens.
 9. In the row of links across the top of the page, click **"Buddies"**. In the list "Encouragements for you", check that the newest message, at the top, is "Welcome to Morning Lifters!" from "Olivia G.".
-10. Check that the row for "Olivia G." has an **"Encourage"** button (not "Sent today"). Olivia's messages to Nina do not use up Nina's own message to Olivia.
+10. Check that the row for "Olivia G." has an **"Encourage"** button (not "Encouragement sent"). Olivia's messages to Nina do not use up Nina's own message to Olivia.
 
-Expected outcome: Olivia can send one message a day to each member of her group: Ben, whom she already encouraged today, can't be sent a second one, but she can still encourage Nina once. The "Sent today" marks stay after the page is reloaded, Nina receives the message, and Nina can still send her own message to Olivia.
+Expected outcome: Olivia can send one message a day to each member of her group: Ben, whom she already encouraged today, can't be sent a second one, but she can still encourage Nina once. The "Encouragement sent" buttons stay after the page is reloaded, Nina receives the message, and Nina can still send her own message to Olivia.

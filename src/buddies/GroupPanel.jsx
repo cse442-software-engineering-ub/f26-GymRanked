@@ -30,7 +30,7 @@ export function GroupHero({ group, me, titleRef }) {
         <p className="buddies-hero__text">
           {alone
             ? <>You&apos;re the only member. Share your invite code so friends can join.</>
-            : <>Pick a member below and send them an encouragement. Only they will see it.</>}
+            : <>Pick a member below and send them an encouragement, one a day to each member. Only they will see it.</>}
         </p>
       </div>
     </section>
@@ -39,11 +39,12 @@ export function GroupHero({ group, me, titleRef }) {
 
 // The members (owner first, then by join time, exactly as #71 returns them). Every member but you has an "Encourage"
 // button, which opens the message form for that member in a modal (EncourageDialog.jsx). You can encourage each
-// member once a day (card #147): after that their row says "Sent today" until midnight New York time.
+// member once a day (card #147): after that their row shows a disabled "Encouragement sent" until midnight New York
+// time. The rule is spelled out under the "Members" title.
 function GroupPanel({ group, onNotice, onUnauthorized, onMembersChanged }) {
   const [composeFor, setComposeFor] = useState(null)
   const [goneError, setGoneError] = useState('')
-  // Members sent one from this page, shown as "Sent today" at once, before the next group view says so.
+  // Members sent one from this page, shown as "Encouragement sent" at once, before the next group view says so.
   const [sentNow, setSentNow] = useState([])
   const encourageButtons = useRef(new Map())
   const returnFocusTo = useRef(null)
@@ -76,7 +77,7 @@ function GroupPanel({ group, onNotice, onUnauthorized, onMembersChanged }) {
     onMembersChanged()
   }
 
-  // The "Encourage" button, or "Sent today" in its place, is where the focus goes back to when the modal closes.
+  // The "Encourage" button, or "Encouragement sent" in its place, is where the focus goes back to when the modal closes.
   const keepFocusTarget = (memberId) => (element) => {
     if (element) encourageButtons.current.set(memberId, element)
   }
@@ -88,10 +89,13 @@ function GroupPanel({ group, onNotice, onUnauthorized, onMembersChanged }) {
       <header className="buddies-section-heading">
         <h2 id="buddies-members-title">Members</h2>
       </header>
+      <p className="buddies-hint buddies-daily-rule" id="buddies-daily-rule">
+        You can encourage each member once a day. It starts again at midnight, New York time.
+      </p>
 
       {goneError && <p className="buddies-field-error" role="alert">{goneError}</p>}
 
-      <ul className="buddies-members" aria-label="Members">
+      <ul className="buddies-members" aria-label="Members" aria-describedby="buddies-daily-rule">
         {group.members.map((member) => {
           const open = composeFor === member.member_id
           const sentToday = member.encouraged_today || sentNow.includes(member.member_id)
@@ -106,11 +110,14 @@ function GroupPanel({ group, onNotice, onUnauthorized, onMembersChanged }) {
                   {member.is_me && <span className="buddies-pill buddies-pill--me">You</span>}
                 </span>
                 {!member.is_me && sentToday && (
-                  <span className="buddies-sent-today" tabIndex={-1} ref={keepFocusTarget(member.member_id)}
-                    title="You can encourage them again tomorrow.">
-                    <span aria-hidden="true">✓</span> Sent today
-                    <span className="buddies-sr-only">: you encouraged {member.name} today. You can send another tomorrow.</span>
-                  </span>
+                  // Still a button, so it keeps the row's place in the Tab order and takes the focus back when the
+                  // modal closes, but aria-disabled and inert: a second message to this member waits until tomorrow.
+                  <button type="button" className="buddies-button buddies-button--small buddies-sent-today" aria-disabled="true"
+                    ref={keepFocusTarget(member.member_id)} title="You can encourage them again tomorrow."
+                    aria-label={`Encouragement sent to ${member.name} today. You can send another tomorrow.`}
+                    onClick={(event) => event.preventDefault()}>
+                    <span aria-hidden="true">✓</span> Encouragement sent
+                  </button>
                 )}
                 {!member.is_me && !sentToday && (
                   <button type="button" className="buddies-button buddies-button--primary buddies-button--small buddies-encourage" aria-expanded={open}

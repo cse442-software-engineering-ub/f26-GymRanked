@@ -7,7 +7,7 @@ import { MESSAGES, MESSAGE_MAX, countChars, fitsLimit } from './buddiesFormat.js
 // error colour. Sending an empty, blank or too long message is refused next to the box and the text stays, as story
 // #78 expects. A failed send keeps the text too; Escape or Cancel closes the form. A second message to the same
 // member on the same day is refused by the server (409, card #147): its words show under the form, the text stays,
-// and onAlreadySent lets the member's row switch to "Sent today".
+// and onAlreadySent lets the member's row switch to "Encouragement sent".
 function EncourageForm({ member, onSent, onAlreadySent, onCancel, onMemberGone, onUnauthorized }) {
   const [message, setMessage] = useState('')
   const [fieldError, setFieldError] = useState('')
@@ -71,7 +71,7 @@ function EncourageForm({ member, onSent, onAlreadySent, onCancel, onMemberGone, 
           onChange={onChange} required readOnly={busy}
           aria-invalid={fieldError ? 'true' : undefined}
           aria-describedby={fieldError ? `${id}-hint ${id}-error` : `${id}-hint`} />
-        <p className="buddies-hint" id={`${id}-hint`}>Only {member.name} will see this. Up to 140 characters.</p>
+        <p className="buddies-hint" id={`${id}-hint`}>Only {member.name} will see this. Up to 140 characters, one message a day to each member.</p>
         {fieldError && <p className="buddies-field-error" id={`${id}-error`} role="alert">{fieldError}</p>}
       </div>
       <div className="buddies-actions">

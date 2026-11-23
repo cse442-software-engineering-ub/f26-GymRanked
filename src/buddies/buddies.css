@@ -683,17 +683,20 @@
   white-space: nowrap;
 }
 
-/* In place of "Encourage" once you have sent that member one today (card #147). */
+/* In place of "Encourage" once you have sent that member one today (card #147): a disabled-looking button. */
 .buddies-sent-today {
   display: inline-flex;
   flex: none;
   align-items: center;
   gap: 6px;
-  min-height: 44px;
-  padding: 0 4px;
+  border-color: var(--gr-success);
+  background: var(--gr-success-bg);
   color: var(--gr-success-text);
-  font-size: 14px;
-  font-weight: 600;
+  cursor: not-allowed;
+}
+
+.buddies-daily-rule {
+  margin: -8px 0 0;
 }
 
 .buddies-encourage {
