@@ -9,7 +9,7 @@ A "workout buddies group" is a small private group of GymRank users who encourag
 
 ### The rules these tests check
 
-1. Invite code. A group has one invite code, 8 characters long, made of capital letters and numbers, for example 7KQ2MXP9. Only the owner of the group can see it. Anyone who is logged in and is not already in a group can join by typing it. No email is sent.
+1. Invite code. A group has one invite code, 8 characters long, made of capital letters and numbers, for example 7KQ2MXP9. Only the owner of the group can see it. Anyone who is logged in and is not already in a group can join by typing it. The code does not expire: it works for as long as the group exists. No email is sent.
 2. One group per person. Someone who is already in a group cannot join another group or create one.
 3. Private. Only the members of a group can see its list of members. Everyone else sees nothing about the group. Names are shown as a first name and the first letter of the last name, for example "Olivia G.". Email addresses are never shown.
 4. Encouragement. A member can send a message of 1 to 140 characters to another member of the same group. Only the person it is sent to can read it. Nobody can send a message to themselves.
@@ -34,7 +34,7 @@ Cal Moss, email buddy-cal@example.com. He is not in any group. He will create a 
 
 Omar Reyes, email buddy-omar@example.com. He is not in any group and never joins one. He is the "outsider".
 
-Pete Lowe, email buddy-pete@example.com. He owns a different group called "Late Starters". Its code (4MXT8H2R) ran out yesterday, so it no longer works.
+Pete Lowe, email buddy-pete@example.com. He owns a different group called "Late Starters", which he started more than a week ago. Its code is 4MXT8H2R, and it still works because codes do not expire.
 
 ### Important: run the tests in order, from 1 to 8, in one go, on the same day
 
@@ -84,7 +84,7 @@ Log out: look at the top right corner of the page, click the small round button 
 
 Expected outcome: Omar sees nothing about any group. Pete sees only his own group, "Late Starters", and nobody from "Morning Lifters".
 
-## Acceptance Test 2: A wrong or expired invite code is refused
+## Acceptance Test 2: A wrong invite code is refused
 
 ### Setup for this test:
 
@@ -98,8 +98,8 @@ Expected outcome: Omar sees nothing about any group. Pete sees only his own grou
 
 1. In the row of links across the top of the page, click **"Buddies"**. Check that the large title on the page says "Workout buddies" and that the web address in the long box at the top of the browser ends with /buddies.
 2. Click once inside the box **"Invite code"** and type **7KQ2** (only 4 characters). Click the button **"Join group"**. Check that the message "Enter the 8-character invite code." appears next to the box, and that the page still says "You're not in a group yet."
-3. Click inside the box, erase what is there (press the Backspace key until the box is empty) and type **ZZZZZZZZ** (the capital letter Z eight times). Click **"Join group"**. Check that the message "That invite code isn't valid or has expired." appears.
-4. Erase the box again and type **4MXT8H2R**. This is the code of the group "Late Starters", which ran out yesterday. Click **"Join group"**. Check that exactly the same message appears: "That invite code isn't valid or has expired." The page must not say whether the code was wrong or old.
+3. Click inside the box, erase what is there (press the Backspace key until the box is empty) and type **ZZZZZZZZ** (the capital letter Z eight times). Click **"Join group"**. Check that the message "That invite code isn't valid." appears.
+4. Erase the box again and type **QQQQ2222** (the capital letter Q four times, then the number 2 four times). No group has this code. Click **"Join group"**. Check that exactly the same message appears: "That invite code isn't valid."
 5. Erase the box again and type **7kq2mxp9** using small letters. Check that the box turns the letters into capital letters by itself, so it shows 7KQ2MXP9. Do not click "Join group" this time. Erase the box so it is empty.
 6. Click **"Join group"** with the empty box. Check that the message "Enter the 8-character invite code." appears.
 7. Reload the page (click the round arrow button at the top left of the browser, next to the web address). Check that the page still says "You're not in a group yet." and shows no group name and no names of people.
@@ -117,7 +117,7 @@ Expected outcome: none of the wrong codes let Omar into a group, the two codes t
 5. Click the button **"Log in"** under the two boxes. Check that the Dashboard page opens (the word **"Dashboard"** is highlighted in the row of links across the top of the page).
 6. In the row of links across the top of the page, click **"Buddies"**. Check that the large title on the page says "Workout buddies" and that the web address in the long box at the top of the browser ends with /buddies.
 7. Check that the page shows the group name "Morning Lifters" and the line "2 members", with a row for "Olivia G." (labels "Owner" and "You") and a row for "Ben C.".
-8. Because Olivia owns the group, check that the page also shows the label "Invite code" with the code 7KQ2MXP9, and the label "Expires" with a date about one week from today.
+8. Because Olivia owns the group, check that the page also shows the label "Invite code" with the code 7KQ2MXP9, and that there is no "Expires" label and no date next to the code, because codes do not expire.
 
 ### Steps:
 
@@ -227,7 +227,7 @@ Expected outcome: the second attempt is refused with the words "You are already 
 5. Click inside the name box and type **Cal's Crew** (a capital C, the letters a and l, an apostrophe, the letter s, a space, and the word Crew). Click **"Create"**.
 6. Check that the page now shows the group name "Cal's Crew" as a large title and the line "1 member".
 7. Check that the list of members has exactly one row, "Cal M.", with the labels "Owner" and "You".
-8. Because Cal owns the group, check that the page shows the label "Invite code" with a code of exactly 8 characters made of capital letters and numbers (for example 9HX4T2KM), and the label "Expires" with a date about one week from today. This is the code Cal would give to a friend.
+8. Because Cal owns the group, check that the page shows the label "Invite code" with a code of exactly 8 characters made of capital letters and numbers (for example 9HX4T2KM), and that there is no "Expires" label and no date next to it, because codes do not expire. This is the code Cal would give to a friend.
 9. Reload the page (click the round arrow button at the top left of the browser, next to the web address). Check that "Cal's Crew", the line "1 member" and the same invite code are shown, and that the button "Create a group" is gone (a person can only be in one group).
 
 Expected outcome: Cal has a new private group that he owns, with an invite code that only he can see.
