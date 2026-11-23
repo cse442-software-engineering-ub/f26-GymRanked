@@ -1,5 +1,5 @@
 // Backend checks for story #78: workout buddies groups, invites and encouragements (card #71 task tests).
-// Run against a LOCAL PHP server and a database that has migrations 001-018:
+// Run against a LOCAL PHP server and a database that has migrations 001-021:
 //   PHP_CLI_SERVER_WORKERS=4 php -S localhost:8000 -t api     (4 workers so the simultaneous-request checks overlap)
 //   node tests/buddies-api.mjs
 // It loads database/seeds/workout_buddies.sql itself (twice, which also checks that the seed can be run again), logs
@@ -55,6 +55,9 @@ const ALREADY = 'You are already in a workout buddies group.'
 const BAD_CODE = { code: 'Enter the 8-character invite code.' }
 const memberId = (email) => Number(sql(`SELECT m.id FROM buddy_members m JOIN users u ON u.id = m.user_id WHERE u.email = '${email}'`))
 const count = (table) => Number(sql(`SELECT COUNT(*) FROM ${table}`))
+// One message a day to each member (card #147): this makes Olivia's earlier messages count as sent on another day, so
+// the checks below can send Ben several.
+const newDay = () => sql("UPDATE buddy_encouragements SET sent_on = NULL WHERE sender_id = (SELECT id FROM users WHERE email = 'buddy-olivia@example.com')")
 
 // ---------------------------------------------------------------- Test 1: migration and seed
 loadSeed()
@@ -93,9 +96,9 @@ assert.deepEqual(joined.body, {
   group: {
     name: 'Morning Lifters', member_count: 3, invite_code: null, invite_expires_at: null,
     members: [
-      { member_id: OLIVIA, name: 'Olivia G.', is_me: false, is_owner: true },
-      { member_id: BEN, name: 'Ben C.', is_me: false, is_owner: false },
-      { member_id: NINA, name: 'Nina P.', is_me: true, is_owner: false },
+      { member_id: OLIVIA, name: 'Olivia G.', is_me: false, is_owner: true, encouraged_today: false },
+      { member_id: BEN, name: 'Ben C.', is_me: false, is_owner: false, encouraged_today: false },
+      { member_id: NINA, name: 'Nina P.', is_me: true, is_owner: false, encouraged_today: false },
     ],
   },
   me: { member_id: NINA, is_owner: false },
@@ -171,13 +174,17 @@ for (const id of ['x', 1.5, 0, -1, null]) {
   expectError(await encourage(olivia, id, 'Hi'), 400, 'Invalid request.', { member_id: 'Choose a member of your group.' })
 }
 expectError(await post(olivia, 'buddy_encourage.php', {}), 400, 'Invalid request.', { member_id: 'Choose a member of your group.', message: 'Write a message of 1 to 140 characters.' })
+newDay()
 assert.equal((await encourage(olivia, BEN, 'x'.repeat(140))).status, 201)
+newDay()
 assert.equal((await encourage(olivia, BEN, '<b>hi</b> & thanks')).status, 201)
 assert.equal((await get(ben, 'buddy_group.php')).body.encouragements[0].message, '<b>hi</b> & thanks')
+newDay()
 assert.equal((await encourage(olivia, BEN, '  spaces trimmed  ')).body.encouragement.message, 'spaces trimmed')
+newDay()
 assert.equal((await encourage(olivia, BEN, 'é'.repeat(140))).status, 201, '140 characters, not 140 bytes')
 assert.equal(count('buddy_encouragements'), messages + 5)
-for (let i = 0; i < 20; i++) await encourage(olivia, BEN, `bulk ${i}`)
+for (let i = 0; i < 20; i++) { newDay(); await encourage(olivia, BEN, `bulk ${i}`) }
 assert.equal((await get(ben, 'buddy_group.php')).body.encouragements.length, 20, 'the inbox shows the last 20')
 console.log('7 ok: encouragement')
 
@@ -194,7 +201,7 @@ assert.equal(made.body.group.name, "Cal's Crew")
 assert.equal(made.body.group.member_count, 1)
 assert.match(made.body.group.invite_code, /^[A-HJ-NP-Z2-9]{8}$/)
 assert.match(made.body.group.invite_expires_at, ISO)
-assert.deepEqual(made.body.group.members, [{ member_id: made.body.me.member_id, name: 'Cal M.', is_me: true, is_owner: true }])
+assert.deepEqual(made.body.group.members, [{ member_id: made.body.me.member_id, name: 'Cal M.', is_me: true, is_owner: true, encouraged_today: false }])
 assert.equal(made.body.me.is_owner, true)
 assert.deepEqual(made.body.encouragements, [])
 expectError(await create(cal, 'Another'), 409, ALREADY)

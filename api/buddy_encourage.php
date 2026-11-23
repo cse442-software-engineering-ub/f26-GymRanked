@@ -11,7 +11,10 @@
 // your group." (missing or not a whole number) and errors.message "Write a message of 1 to 140 characters."; 404
 // {"error":"Group not found."} when the caller is in no group; 404 {"error":"Member not found."} when member_id is not
 // a member of the caller's group (the same answer for a member of another group and an id that does not exist);
-// 400 with errors.member_id "You can't encourage yourself." Also 400 {"error":"Send a valid JSON object."}, 401 not
+// 400 with errors.member_id "You can't encourage yourself."; 409 {"error":"You already encouraged Ben C. today. You can
+// send them another one tomorrow."} when the caller has already sent that member one today (card #147: one a day to
+// each member, an America/New_York day; the unique key one_a_day of migration 021 refuses it, so two sends at the same
+// moment can't both get through). Also 400 {"error":"Send a valid JSON object."}, 401 not
 // logged in, 405 with Allow: POST, 415/413/403 as the other POST endpoints, 500 {"error":"Database error"}.
 
 require __DIR__ . '/buddy_common.php';
@@ -43,12 +46,19 @@ if ((int) $to['user_id'] === $user_id) {
 }
 
 $stmt = $db->prepare(
-    'INSERT INTO buddy_encouragements (group_id, sender_id, recipient_id, message, created_at)
-     VALUES (?, ?, ?, ?, UTC_TIMESTAMP())'
+    'INSERT INTO buddy_encouragements (group_id, sender_id, recipient_id, message, created_at, sent_on)
+     VALUES (?, ?, ?, ?, UTC_TIMESTAMP(), ?)'
 );
 $recipient_id = (int) $to['user_id'];
-$stmt->bind_param('iiis', $mine['group_id'], $user_id, $recipient_id, $message);
-$stmt->execute();
+$today = buddy_today();
+$stmt->bind_param('iiiss', $mine['group_id'], $user_id, $recipient_id, $message, $today);
+try {
+    $stmt->execute();
+} catch (mysqli_sql_exception $error) {
+    if (!buddy_duplicate($error, 'one_a_day')) throw $error;
+    $name = buddy_short_name($to['full_name']);
+    respond(409, ['error' => "You already encouraged $name today. You can send them another one tomorrow."]);
+}
 $id = $db->insert_id;
 
 $stmt = $db->prepare('SELECT created_at FROM buddy_encouragements WHERE id = ?');
