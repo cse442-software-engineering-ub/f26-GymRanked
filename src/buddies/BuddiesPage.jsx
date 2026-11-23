@@ -4,8 +4,9 @@ import GroupPanel, { GroupHero, InviteCard } from './GroupPanel.jsx'
 import EncouragementList from './EncouragementList.jsx'
 import NoGroupPanel from './NoGroupPanel.jsx'
 import SentEncouragements from './SentEncouragements.jsx'
+import LeaveGroupDialog from './LeaveGroupDialog.jsx'
 import { useBuddyGroupPoll } from './useBuddyGroupPoll.js'
-import { MESSAGES } from './buddiesFormat.js'
+import { MESSAGES, leftNotice } from './buddiesFormat.js'
 import './buddies.css'
 
 // Workout buddies (story #78, card #79): a private group joined with an invite code. Someone in no group sees the
@@ -19,6 +20,11 @@ function BuddiesPage() {
   const focusGroupTitle = useRef(false)
   // Bumped after a send so "Sent by you" loads again at once; it also loads again whenever the group view changes.
   const [sentVersion, setSentVersion] = useState(0)
+  // The Leave group confirmation, and where the focus goes afterwards (the "You left …" notice).
+  const [leaving, setLeaving] = useState(false)
+  const noticeRef = useRef(null)
+  const focusNotice = useRef(false)
+  const leaveButton = useRef(null)
 
   const toLogin = useCallback(() => navigate('/login', { replace: true }), [navigate])
   const { state, fresh, announcement, reload, refresh, replace } = useBuddyGroupPoll({ onUnauthorized: toLogin })
@@ -30,6 +36,36 @@ function BuddiesPage() {
       groupTitle.current.focus()
     }
   }, [state])
+
+  // After leaving, the keyboard and screen readers land on the "You left …" notice above the join form.
+  useEffect(() => {
+    if (focusNotice.current && noticeRef.current) {
+      focusNotice.current = false
+      noticeRef.current.focus()
+    }
+  }, [state, notice])
+
+  // Leaving answers with the no-group view (plus "left"), so the join and create forms show at once.
+  function showLeft(data) {
+    const { left, ...view } = data
+    setLeaving(false)
+    focusNotice.current = true
+    setNotice(leftNotice(left))
+    replace(view)
+  }
+
+  // Already out of the group (left in another tab): show what the server says now.
+  function showGone() {
+    setLeaving(false)
+    focusNotice.current = true
+    setNotice("You're no longer in this group.")
+    refresh()
+  }
+
+  function closeLeave() {
+    setLeaving(false)
+    leaveButton.current?.focus()
+  }
 
   // Join and create answer with the same body as GET, so the group shows at once with no second loading screen.
   function showJoinedGroup(data, message) {
@@ -55,7 +91,7 @@ function BuddiesPage() {
         </header>
 
         {notice && (
-          <p className="buddies-notice buddies-notice--ok" role="status">
+          <p className="buddies-notice buddies-notice--ok" role="status" tabIndex={-1} ref={noticeRef}>
             <span className="buddies-notice__icon" aria-hidden="true">✓</span>{notice}
           </p>
         )}
@@ -84,7 +120,8 @@ function BuddiesPage() {
         {status === 'ready' && data.group && (
           <>
             <div className={data.group.invite_code ? 'buddies-top' : 'buddies-top buddies-top--single'}>
-              <GroupHero group={data.group} me={data.me} titleRef={groupTitle} />
+              <GroupHero group={data.group} me={data.me} titleRef={groupTitle} leaveRef={leaveButton}
+                onLeave={() => { setNotice(''); setLeaving(true) }} />
               {data.group.invite_code && <InviteCard group={data.group} />}
             </div>
             <div className="buddies-bottom">
@@ -96,6 +133,10 @@ function BuddiesPage() {
               <SentEncouragements reloadKey={data} version={sentVersion} onUnauthorized={toLogin} />
             </div>
           </>
+        )}
+        {leaving && status === 'ready' && data.group && (
+          <LeaveGroupDialog group={data.group} me={data.me} onLeft={showLeft} onGone={showGone} onCancel={closeLeave}
+            onUnauthorized={toLogin} />
         )}
         {/* Read out when new encouragement arrives while the page is open. */}
         <p className="buddies-sr-only" role="status" aria-live="polite">{announcement}</p>
