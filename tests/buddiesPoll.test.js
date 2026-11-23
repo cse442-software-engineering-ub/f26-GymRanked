@@ -4,7 +4,7 @@ import { MAX_BACKOFF_MS, POLL_MS, announceFresh, mergeGroupView, nextDelay } fro
 
 const message = (id, from = 'Ben C.', text = `Message ${id}`) => ({ id, from, message: text, sent_at: '2026-11-19T15:00:00Z' })
 const view = (memberId, encouragements, groupName = 'Morning Lifters') => ({
-  group: { name: groupName, member_count: 2, invite_code: null, invite_expires_at: null, members: [{ member_id: memberId, name: 'Olivia G.', is_me: true, is_owner: false }] },
+  group: { name: groupName, member_count: 2, invite_code: null, members: [{ member_id: memberId, name: 'Olivia G.', is_me: true, is_owner: false }] },
   me: { member_id: memberId, is_owner: false },
   encouragements,
 })
