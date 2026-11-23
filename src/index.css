@@ -3190,13 +3190,14 @@ a.today-workout__details:hover {
   .plan-lib__more {
     container-type: inline-size;
     --lib-bleed: var(--gr-page-gutter);
-    --lib-card: min(72cqw, 280px);
+    /* A wide card (83% of the screen) leaves an equal strip on each side, enough to hint at the next card. */
+    --lib-card: min(calc((100cqw + 2 * var(--lib-bleed)) * 0.83), 340px);
   }
 
   .plan-lib__group:not(.plan-lib__group--all) .plan-lib__grid,
   .plan-lib__more .plan-lib__grid {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     margin-inline: calc(var(--lib-bleed) * -1);
     /* Space before the first and after the last card, so each one can reach the middle of the row. */
     padding-inline: calc((100cqw + 2 * var(--lib-bleed) - var(--lib-card)) / 2);
@@ -3222,7 +3223,7 @@ a.today-workout__details:hover {
   .plan-lib__group:not(.plan-lib__group--all) .plan-lib__grid > li:not([data-current="true"]):not(:focus-within),
   .plan-lib__more .plan-lib__grid > li:not([data-current="true"]):not(:focus-within) {
     opacity: 0.5;
-    transform: scale(0.95);
+    transform: scale(0.97);
   }
 
 
