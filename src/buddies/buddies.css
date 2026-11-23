@@ -695,6 +695,19 @@
   white-space: nowrap;
 }
 
+/* In place of "Encourage" once you have sent that member one today (card #147). */
+.buddies-sent-today {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 4px;
+  color: var(--gr-success-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .buddies-encourage {
   flex: none;
 }

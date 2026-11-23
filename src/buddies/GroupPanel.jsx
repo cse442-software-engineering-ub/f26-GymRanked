@@ -38,12 +38,18 @@ export function GroupHero({ group, me, titleRef }) {
 }
 
 // The members (owner first, then by join time, exactly as #71 returns them). Every member but you has an "Encourage"
-// button, which opens the message form for that member in a modal (EncourageDialog.jsx).
+// button, which opens the message form for that member in a modal (EncourageDialog.jsx). You can encourage each
+// member once a day (card #147): after that their row says "Sent today" until midnight New York time.
 function GroupPanel({ group, onNotice, onUnauthorized, onMembersChanged }) {
   const [composeFor, setComposeFor] = useState(null)
   const [goneError, setGoneError] = useState('')
+  // Members sent one from this page, shown as "Sent today" at once, before the next group view says so.
+  const [sentNow, setSentNow] = useState([])
   const encourageButtons = useRef(new Map())
   const returnFocusTo = useRef(null)
+
+  // A new group view from the server is the truth again (it also clears the marks at midnight).
+  useEffect(() => { setSentNow([]) }, [group])
 
   // When a form closes, focus goes back to the "Encourage" button that opened it.
   useEffect(() => {
@@ -65,6 +71,16 @@ function GroupPanel({ group, onNotice, onUnauthorized, onMembersChanged }) {
     else setComposeFor(memberId)
   }
 
+  function markSent(memberId) {
+    setSentNow((current) => (current.includes(memberId) ? current : [...current, memberId]))
+    onMembersChanged()
+  }
+
+  // The "Encourage" button, or "Sent today" in its place, is where the focus goes back to when the modal closes.
+  const keepFocusTarget = (memberId) => (element) => {
+    if (element) encourageButtons.current.set(memberId, element)
+  }
+
   const composing = group.members.find((member) => member.member_id === composeFor) ?? null
 
   return (
@@ -78,6 +94,7 @@ function GroupPanel({ group, onNotice, onUnauthorized, onMembersChanged }) {
       <ul className="buddies-members" aria-label="Members">
         {group.members.map((member) => {
           const open = composeFor === member.member_id
+          const sentToday = member.encouraged_today || sentNow.includes(member.member_id)
           const rowClass = ['buddies-member', member.is_owner && 'is-owner', member.is_me && 'is-me'].filter(Boolean).join(' ')
           return (
             <li key={member.member_id} className={rowClass}>
@@ -88,13 +105,17 @@ function GroupPanel({ group, onNotice, onUnauthorized, onMembersChanged }) {
                   {member.is_owner && <span className="buddies-pill">Owner</span>}
                   {member.is_me && <span className="buddies-pill buddies-pill--me">You</span>}
                 </span>
-                {!member.is_me && (
+                {!member.is_me && sentToday && (
+                  <span className="buddies-sent-today" tabIndex={-1} ref={keepFocusTarget(member.member_id)}
+                    title="You can encourage them again tomorrow.">
+                    <span aria-hidden="true">✓</span> Sent today
+                    <span className="buddies-sr-only">: you encouraged {member.name} today. You can send another tomorrow.</span>
+                  </span>
+                )}
+                {!member.is_me && !sentToday && (
                   <button type="button" className="buddies-button buddies-button--primary buddies-button--small buddies-encourage" aria-expanded={open}
                     aria-label={`Encourage ${member.name}`}
-                    ref={(element) => {
-                      if (element) encourageButtons.current.set(member.member_id, element)
-                      else encourageButtons.current.delete(member.member_id)
-                    }}
+                    ref={keepFocusTarget(member.member_id)}
                     onClick={() => toggleCompose(member.member_id)}>Encourage</button>
                 )}
               </div>
@@ -105,7 +126,8 @@ function GroupPanel({ group, onNotice, onUnauthorized, onMembersChanged }) {
 
       {composing && (
         <EncourageDialog key={composing.member_id} member={composing} onCancel={closeCompose} onUnauthorized={onUnauthorized}
-          onSent={(to) => { onNotice(`Encouragement sent to ${to}`); closeCompose() }}
+          onSent={(to) => { onNotice(`Encouragement sent to ${to}`); markSent(composing.member_id); closeCompose() }}
+          onAlreadySent={() => markSent(composing.member_id)}
           onMemberGone={() => {
             setGoneError(`${composing.name} isn't in your group any more.`)
             setComposeFor(null)
