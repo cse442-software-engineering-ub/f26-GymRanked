@@ -1,5 +1,4 @@
 import { expect } from '@playwright/test'
-import { shortDay } from '../../src/dashboard/dashboardFormat.js'
 import { weekRangeLabel } from '../../src/weeklySchedule.js'
 import { createAccount, logIn } from './helpers.js'
 import { step } from './banner.js'
@@ -250,9 +249,8 @@ acceptanceTests('86-home-dashboard.md', {
     const weekday = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short' }).format(new Date())
     testInfo.skip(weekday === 'Sat' || weekday === 'Sun', 'Push Pull Legs has no workout at the weekend; run this test Monday to Friday (New York time).')
     const facts = page.locator('.home-week__facts')
-    const nextLink = facts.getByRole('link', { name: /view this workout in your plan/ })
-    const lastLink = facts.getByRole('link', { name: /view this saved workout/ })
-    const todayLabel = shortDay(new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date()))
+    const nextLink = facts.getByRole('link', { name: /view this workout in your plan/i })
+    const lastLink = facts.getByRole('link', { name: /view this saved workout/i })
     let nextName
     let todayWorkout
 
@@ -268,7 +266,7 @@ acceptanceTests('86-home-dashboard.md', {
       await expect(nextLink).toBeVisible()
       nextName = (await nextLink.locator('strong').textContent()).trim()
       expect(['Push', 'Pull', 'Legs']).toContain(nextName)
-      await expect(nextLink.locator('.home-week__date')).toHaveText(/^(Mon|Tue|Wed|Thu|Fri), [A-Z][a-z]{2} \d{1,2}$/)
+      await expect(nextLink.locator('.home-week__date')).toHaveText(/^(Tomorrow|(Mon|Tue|Wed|Thu|Fri), [A-Z][a-z]{2} \d{1,2})$/)
       await expect(nextLink).toContainText('View in plan')
     })
     await step('Step 2: Next up opens that workout, highlighted in the plan', async () => {
@@ -305,14 +303,14 @@ acceptanceTests('86-home-dashboard.md', {
       await expect(page.getByRole('heading', { level: 1, name: `Workout complete - ${todayWorkout}` })).toBeVisible()
     })
     let summaryUrl
-    await step('Step 7: Go back shows today’s workout as Last logged', async () => {
+    await step('Step 7: Go back shows today’s workout as Last workout', async () => {
       await page.locator('main').getByRole('button', { name: 'Go back' }).click()
       await expect(page).toHaveURL(/#\/dashboard$/)
       await expect(lastLink.locator('.home-week__name')).toHaveText(todayWorkout)
-      await expect(lastLink.locator('.home-week__date')).toHaveText(todayLabel)
+      await expect(lastLink.locator('.home-week__date')).toHaveText('Today')
       await expect(lastLink).toContainText('View summary')
     })
-    await step('Step 8: Last logged opens that exact saved workout', async () => {
+    await step('Step 8: Last workout opens that exact saved workout', async () => {
       await lastLink.click()
       await expect(page).toHaveURL(/#\/workouts\/\d+\/summary\?from=dashboard$/)
       summaryUrl = page.url()
@@ -329,7 +327,7 @@ acceptanceTests('86-home-dashboard.md', {
       await page.locator('main').getByRole('button', { name: 'Go back' }).click()
       await expect(page).toHaveURL(/#\/dashboard$/)
       await expect(lastLink.locator('.home-week__name')).toHaveText(todayWorkout)
-      await expect(lastLink.locator('.home-week__date')).toHaveText(todayLabel)
+      await expect(lastLink.locator('.home-week__date')).toHaveText('Today')
     })
   },
 })

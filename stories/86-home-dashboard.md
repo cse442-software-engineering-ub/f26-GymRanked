@@ -1,6 +1,6 @@
 # Story 86: As a signed-in user, I want to view my home dashboard after logging in, which is confirmed by the dashboard displaying my account name and workout summary.
 
-- **Tasks:** #70 (home dashboard), #136 (Dashboard redesign: Next up and Last logged open their workouts)
+- **Tasks:** #70 (home dashboard), #136 (Dashboard redesign: Last workout and Next up open their workouts)
 - **Automated in:** `tests/e2e/86-home-dashboard.spec.js`
 
 ## Acceptance Test 1: Dashboard shows the signed-in account and saved workout plan
@@ -91,26 +91,26 @@
 5. Select **Beginner** and **Save and continue**. Confirm that `What equipment can you use?` opens. Select **Full gym access** and **Save and continue**. Confirm that `Choose your workout plan` opens.
 6. Choose **Beginner Fundamentals**. Confirm that the Dashboard opens with `Welcome back, Casey`, `Plan sessions this week`, and `Current plan: Beginner Fundamentals`.
 
-## Acceptance Test 7: Next up opens the upcoming workout, and Last logged opens the workout you just saved
+## Acceptance Test 7: Next up opens the upcoming workout, and Last workout opens the workout you just saved
 
 ### Setup for this test:
 
 1. Run this test on a weekday, Monday to Friday (New York time). Push Pull Legs has a workout every weekday and none at the weekend, so on Saturday or Sunday there is no workout to start today.
 2. Connect to the UB VPN or use the campus network. Open the [Registration page](https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/register) and register `Nadia Next` with a unique email such as `next-up+YOUR_INITIALS-TIMESTAMP@example.com` and `TaskTestPass12!` in both password fields. Confirm that the [Login page](https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login) says `Account created. Log in to continue.`
 3. Sign in. On `Personal details`, enter `180` in **Body weight (lb)**, select **Man**, and select **Save and continue**. On `Choose your training goal`, select **Strength** and **Save goal**. On `How experienced are you?`, select **Intermediate** and **Save and continue**. On `What equipment can you use?`, select **Full gym access** and **Save and continue**.
-4. On `Choose your workout plan`, select **Choose plan** for **Push Pull Legs**. Confirm that the Dashboard opens and that, under `This week`, `Last logged` says `No workouts yet`.
+4. On `Choose your workout plan`, select **Choose plan** for **Push Pull Legs**. Confirm that the Dashboard opens and that, under `This week`, the `Last workout` row says `No workouts yet`.
 
 ### Steps:
 
-1. Under `This week`, find `Next up`. It is a tile showing a workout name, a date and `View in plan`, for example `Pull` and `Tue, Nov 24` (tomorrow's workout, or Monday's if today is Friday). Write down the name and the date.
-2. Click anywhere on the `Next up` tile. Confirm that the `Push Pull Legs` plan page opens, that the address ends in `?day=` followed by a number, and that the workout you wrote down is highlighted with the label `Next up`, in view on the screen, with its exercises listed under it.
+1. Under `This week`, find the `Next up` row, below `Last workout`. It shows `Next up` with the day, a workout name, and `View in plan` on the right, for example `Next up · Tomorrow` and `Pull` (on a Friday the day is Monday's date, such as `Mon, Nov 30`). Write down the name and the date.
+2. Click anywhere on the `Next up` row. Confirm that the `Push Pull Legs` plan page opens, that the address ends in `?day=` followed by a number, and that the workout you wrote down is highlighted with the label `Next up`, in view on the screen, with its exercises listed under it.
 3. Click **Back to dashboard** at the top of the page. Confirm that the Dashboard opens again.
 4. In the `Today's workout` card, click **Start workout**. Confirm that the `Active workout` page opens with `Log a set` and the first exercise.
 5. Enter `135` in **Weight (lb)** and `8` in **Reps**, then click **Log set**. Confirm that `Saved sets` shows `1 set`.
 6. Click **Complete workout**, then **Complete workout** in the box that opens. When the box says `Some exercises have no logged sets`, click **Save partial workout**. Confirm that the page says `Workout complete` followed by today's workout name.
-7. Click **Go back**. Confirm that the Dashboard opens, and that `Last logged` now shows today's workout name, today's date and `View summary`, for example `Push` and `Mon, Nov 23`.
-8. Click anywhere on the `Last logged` tile. Confirm that the address ends in `/summary?from=dashboard`, and that the page says `Workout complete` followed by today's workout name and shows the set you logged as `135 lb × 8`.
+7. Click **Go back**. Confirm that the Dashboard opens, and that the `Last workout` row now says `Last workout · Today`, today's workout name (for example `Push`) and `View summary` on the right.
+8. Click anywhere on the `Last workout` row. Confirm that the address ends in `/summary?from=dashboard`, and that the page says `Workout complete` followed by today's workout name and shows the set you logged as `135 lb × 8`.
 9. Refresh the page. Confirm that the same summary, with the same set, is still shown.
-10. Click **Go back**. Confirm that the Dashboard opens and that `Last logged` still shows today's workout.
+10. Click **Go back**. Confirm that the Dashboard opens and that `Last workout` still shows today's workout.
 
-Expected outcome: `Next up` opens the upcoming workout in the plan, and `Last logged` opens the summary of exactly the workout that was just saved; the way back from both is the Dashboard.
+Expected outcome: `Next up` opens the upcoming workout in the plan, and `Last workout` opens the summary of exactly the workout that was just saved; the way back from both is the Dashboard.
