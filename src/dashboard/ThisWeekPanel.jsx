@@ -1,8 +1,13 @@
 import { Link } from 'react-router-dom'
-import { shortDay, weekStrip } from './dashboardFormat.js'
+import MobileDashboardIcon from '../MobileDashboardIcon.jsx'
+import { DASHBOARD, addReturn } from '../returnTarget.js'
+import { summaryPath } from '../workoutLog/setLog.js'
+import { nextUpPath, relativeDay, shortDay, weekStrip } from './dashboardFormat.js'
 
 // "This week": training days logged against the weekly goal (api/weekly_goal.php), a Monday–Sunday strip, and what is
-// next and last. state is {status: 'loading'|'ready'|'error', data}; next and last are {name, date} or null.
+// last and next. state is {status: 'loading'|'ready'|'error', data}; next is {name, date, planId, position} or null;
+// last is {id, name, date} or null. "Last workout" opens that exact saved workout's summary and "Next up" opens Plan
+// details at that day (#136); the way back from both is the Dashboard.
 export default function ThisWeekPanel({ state, todayDate, next, last, hasPlan, historyStatus, onRetry }) {
   const { status, data } = state
   return (
@@ -40,16 +45,52 @@ export default function ThisWeekPanel({ state, todayDate, next, last, hasPlan, h
           ))}
         </ol>
       </>}
-      <dl className="home-week__facts">
-        <div>
-          <dt>Next up</dt>
-          <dd>{next ? <><strong>{next.name}</strong> · {shortDay(next.date)}</> : hasPlan ? 'Nothing scheduled this week' : <Link to="/plans">Choose a plan</Link>}</dd>
-        </div>
-        <div>
-          <dt>Last logged</dt>
-          <dd>{historyStatus === 'loading' ? 'Loading…' : historyStatus === 'error' ? 'Unavailable' : last ? <><strong>{last.name}</strong> · {shortDay(last.date)}</> : 'No workouts yet'}</dd>
-        </div>
-      </dl>
+      {/* One card with two rows: the last workout, then the next one (in action-text). A row with a workout is one
+          link; what it opens is said on the right. */}
+      <ul className="home-week__facts" aria-label="Last and next workout">
+        <li><LastWorkout last={last} historyStatus={historyStatus} todayDate={todayDate} /></li>
+        <li><NextUp next={next} hasPlan={hasPlan} todayDate={todayDate} /></li>
+      </ul>
     </section>
+  )
+}
+
+// One row: an icon tile, a small label with the day, the workout's name, and on the right where it leads.
+function WorkoutRow({ kind, icon, label, day, name, empty, to, state, ariaLabel, action, external }) {
+  const body = <>
+    <span className="home-week__icon" aria-hidden="true"><MobileDashboardIcon name={icon} /></span>
+    <span className="home-week__text">
+      <span className="home-week__kicker">{label}{day && <> · <span className="home-week__date">{day}</span></>}</span>
+      {name ? <strong className="home-week__name">{name}</strong> : <span className="home-week__empty">{empty}</span>}
+    </span>
+    {to && <span className="home-week__action" aria-hidden="true"><span className="home-week__action-text">{action} </span><span className="home-week__arrow">{external ? '↗' : '→'}</span></span>}
+  </>
+  const className = `home-week__row home-week__row--${kind}`
+  if (!to) return <div className={className}>{body}</div>
+  return <Link className={`${className} home-week__row--link`} to={to} state={state} aria-label={ariaLabel}>{body}</Link>
+}
+
+function LastWorkout({ last, historyStatus, todayDate }) {
+  const common = { kind: 'last', icon: 'check', label: 'Last workout' }
+  if (historyStatus === 'loading') return <WorkoutRow {...common} empty="Loading…" />
+  if (historyStatus === 'error') return <WorkoutRow {...common} empty="Unavailable" />
+  if (!last) return <WorkoutRow {...common} empty="No workouts yet" />
+  return (
+    <WorkoutRow {...common} day={relativeDay(last.date, todayDate)} name={last.name}
+      to={last.id ? addReturn(summaryPath(last.id), DASHBOARD) : null} action="View summary" external
+      ariaLabel={`Last workout: ${last.name}, ${shortDay(last.date)}. View this saved workout`} />
+  )
+}
+
+function NextUp({ next, hasPlan, todayDate }) {
+  const common = { kind: 'next', icon: 'calendar', label: 'Next up' }
+  if (!next) {
+    if (hasPlan) return <WorkoutRow {...common} empty="Nothing scheduled this week" />
+    return <WorkoutRow {...common} empty="No plan yet" to="/plans" action="Choose a plan" ariaLabel="Next up: no plan yet. Choose a plan" />
+  }
+  return (
+    <WorkoutRow {...common} day={relativeDay(next.date, todayDate, { weekday: true })} name={next.name}
+      to={nextUpPath(next)} state={{ from: '/dashboard' }} action="View in plan"
+      ariaLabel={`Next up: ${next.name}, ${shortDay(next.date)}. View this workout in your plan`} />
   )
 }

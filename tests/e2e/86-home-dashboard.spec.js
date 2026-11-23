@@ -243,4 +243,91 @@ acceptanceTests('86-home-dashboard.md', {
       await expect(planSessions(page)).toBeVisible()
     })
   },
+
+  7: async ({ page }, testInfo) => {
+    // The server starts today's workout by New York time, and Push Pull Legs trains Monday to Friday only.
+    const weekday = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short' }).format(new Date())
+    testInfo.skip(weekday === 'Sat' || weekday === 'Sun', 'Push Pull Legs has no workout at the weekend; run this test Monday to Friday (New York time).')
+    const facts = page.locator('.home-week__facts')
+    const nextLink = facts.getByRole('link', { name: /view this workout in your plan/i })
+    const lastLink = facts.getByRole('link', { name: /view this saved workout/i })
+    let nextName
+    let todayWorkout
+
+    await step('Setup: register Nadia, finish onboarding as Intermediate and choose Push Pull Legs', async () => {
+      await newAccount(page, 'Nadia Next')
+      await finishOnboarding(page, { level: 'Intermediate' })
+      const row = page.locator('.ob-plan').filter({ has: page.getByText('Push Pull Legs', { exact: true }) })
+      await row.getByRole('button', { name: 'Choose plan' }).click()
+      await expect(page).toHaveURL(/#\/dashboard$/)
+      await expect(facts).toContainText('No workouts yet')
+    })
+    await step('Step 1: Next up shows a workout and a date', async () => {
+      await expect(nextLink).toBeVisible()
+      nextName = (await nextLink.locator('strong').textContent()).trim()
+      expect(['Push', 'Pull', 'Legs']).toContain(nextName)
+      await expect(nextLink.locator('.home-week__date')).toHaveText(/^(Tomorrow|(Mon|Tue|Wed|Thu|Fri), [A-Z][a-z]{2} \d{1,2})$/)
+      await expect(nextLink).toContainText('View in plan')
+    })
+    await step('Step 2: Next up opens that workout, highlighted in the plan', async () => {
+      await nextLink.click()
+      await expect(page).toHaveURL(/#\/plans\/\d+\?day=[1-9]$/)
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText('Push Pull Legs')
+      const day = page.locator('.plan-split__item--next')
+      await expect(day).toHaveCount(1)
+      await expect(day.locator('.plan-split__name')).toHaveText(`${nextName}Next up`)
+      await expect(day.locator('.plan-exercise').first()).toBeVisible()
+      await expect(day).toBeInViewport()
+    })
+    await step('Step 3: Back to dashboard returns to the Dashboard', async () => {
+      await page.getByRole('link', { name: 'Back to dashboard' }).click()
+      await expect(page).toHaveURL(/#\/dashboard$/)
+    })
+    await step('Step 4: Start workout opens the active workout', async () => {
+      todayWorkout = (await page.locator('.home-hero__title').textContent()).trim()
+      await page.locator('.home-hero').getByRole('button', { name: /Start workout/ }).click()
+      await expect(page).toHaveURL(/#\/workout\/active\?from=dashboard$/)
+      await expect(page.getByRole('heading', { name: 'Log a set' })).toBeVisible()
+    })
+    await step('Step 5: log 135 lb × 8', async () => {
+      await page.getByLabel('Weight (lb)').fill('135')
+      await page.getByLabel('Reps').fill('8')
+      await page.getByRole('button', { name: 'Log set' }).click()
+      await expect(page.locator('main')).toContainText('1 set')
+    })
+    await step('Step 6: complete and save the partial workout', async () => {
+      await page.locator('main').getByRole('button', { name: 'Complete workout' }).click()
+      await page.getByRole('dialog').getByRole('button', { name: 'Complete workout' }).click()
+      const partial = page.getByRole('alertdialog', { name: 'Some exercises have no logged sets' })
+      await partial.getByRole('button', { name: 'Save partial workout' }).click()
+      await expect(page.getByRole('heading', { level: 1, name: `Workout complete - ${todayWorkout}` })).toBeVisible()
+    })
+    let summaryUrl
+    await step('Step 7: Go back shows today’s workout as Last workout', async () => {
+      await page.locator('main').getByRole('button', { name: 'Go back' }).click()
+      await expect(page).toHaveURL(/#\/dashboard$/)
+      await expect(lastLink.locator('.home-week__name')).toHaveText(todayWorkout)
+      await expect(lastLink.locator('.home-week__date')).toHaveText('Today')
+      await expect(lastLink).toContainText('View summary')
+    })
+    await step('Step 8: Last workout opens that exact saved workout', async () => {
+      await lastLink.click()
+      await expect(page).toHaveURL(/#\/workouts\/\d+\/summary\?from=dashboard$/)
+      summaryUrl = page.url()
+      await expect(page.getByRole('heading', { level: 1, name: `Workout complete - ${todayWorkout}` })).toBeVisible()
+      await expect(page.locator('main')).toContainText('135 lb × 8')
+    })
+    await step('Step 9: the summary stays after a refresh', async () => {
+      await page.reload()
+      expect(page.url()).toBe(summaryUrl)
+      await expect(page.getByRole('heading', { level: 1, name: `Workout complete - ${todayWorkout}` })).toBeVisible()
+      await expect(page.locator('main')).toContainText('135 lb × 8')
+    })
+    await step('Step 10: Go back returns to the Dashboard', async () => {
+      await page.locator('main').getByRole('button', { name: 'Go back' }).click()
+      await expect(page).toHaveURL(/#\/dashboard$/)
+      await expect(lastLink.locator('.home-week__name')).toHaveText(todayWorkout)
+      await expect(lastLink.locator('.home-week__date')).toHaveText('Today')
+    })
+  },
 })
