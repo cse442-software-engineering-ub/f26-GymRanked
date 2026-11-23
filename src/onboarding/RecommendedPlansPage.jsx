@@ -28,10 +28,11 @@ function RecommendedPlans() {
   const location = useLocation();
   const navigate = useNavigate();
   // The equipment page sends { setupSaved: true } when onboarding is finished. Show the confirmation for this
-  // visit only: clear it from the history entry, which a reload would otherwise keep.
+  // visit only: swap it in the history entry for { inOnboarding }, which keeps the page open when coming back to it
+  // (browser Back, or "Back to recommended plans" on a plan) without a reload showing the confirmation again.
   const [justSaved] = useState(() => Boolean(location.state?.setupSaved));
   useEffect(() => {
-    if (location.state?.setupSaved) navigate(location.pathname, { replace: true, state: null });
+    if (location.state?.setupSaved) navigate(location.pathname, { replace: true, state: { inOnboarding: true } });
   }, [location, navigate]);
 
   useEffect(() => {
