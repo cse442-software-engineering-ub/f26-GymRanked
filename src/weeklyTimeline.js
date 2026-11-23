@@ -37,12 +37,12 @@ export function savedNamesByDate(sessions) {
   return names
 }
 
-// What the lifter has saved today for their current plan, whatever the weekday schedule says: the unfinished
-// session ('in_progress'), else a workout completed today ('completed'), else null. This matches what
-// api/workout_session.php opens for Today, so every screen names the same workout.
-export function todaySessionState(sessions, unfinished, plan, todayDate) {
-  if (!plan) return null
-  if (unfinished && unfinished.plan === plan.name) return { state: 'in_progress', session: unfinished }
-  const done = (sessions || []).find((session) => session.plan === plan.name && easternDate(session.completed_at) === todayDate)
+// A session counts for today's hero only when its day matches today's scheduled plan day. The unfinished
+// session takes priority over a completed one for the same scheduled day.
+export function todaySessionState(sessions, unfinished, plan, todayDate, scheduledName) {
+  if (!plan || scheduledName === null) return null
+  const matchesDay = (session) => scheduledName === undefined || session.name === scheduledName
+  if (unfinished && unfinished.plan === plan.name && matchesDay(unfinished) && easternDate(unfinished.started_at) === todayDate) return { state: 'in_progress', session: unfinished }
+  const done = (sessions || []).find((session) => session.plan === plan.name && matchesDay(session) && easternDate(session.started_at) === todayDate && easternDate(session.completed_at) === todayDate)
   return done ? { state: 'completed', session: done } : null
 }

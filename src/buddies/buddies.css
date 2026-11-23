@@ -396,6 +396,35 @@
   color: var(--gr-action-text);
 }
 
+.buddies-pill--new {
+  border-color: var(--gr-success);
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
+}
+
+.buddies-message.is-new {
+  animation: buddies-arrive 420ms ease-out both;
+}
+
+@keyframes buddies-arrive {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .buddies-message.is-new { animation: none; }
+}
+
+.buddies-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .buddies-pill--warn {
   border-color: var(--gr-error);
   background: var(--gr-error-bg);

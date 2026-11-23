@@ -10,15 +10,9 @@ a:hover, .text-button:hover { text-decoration: underline; }
 .accent { color: var(--gr-link); }
 .muted, .subtitle { color: var(--muted); }
 .subtitle { font-size: 13px; }
-.landing { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1fr) 480px; grid-template-rows: 64px auto 1fr; }
-.landing-brand { padding: 24px 64px 0; }
 .brand { display: inline-flex; gap: 10px; align-items: center; color: var(--gr-text); font-size: 18px; font-weight: 500; }
-.brand span { width: 24px; height: 24px; border-radius: 7px; background: var(--accent); }
-.hero { padding: 0 64px; }
-.hero h1 { font-size: 44px; line-height: 1.22; max-width: 420px; }
-.hero h1 .accent { display: block; }
-.hero p { font-size: 15px; color: var(--muted); max-width: 420px; margin-top: 24px; }
-.preview-slot { padding: 24px 64px; }
+.brand__mark { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; background: var(--gr-brand); color: var(--gr-on-brand); }
+.brand__mark svg { width: 18px; height: 18px; }
 .leaderboard { background: var(--panel); padding: 16px; border-radius: 12px; max-width: 420px; }
 .leaderboard-heading { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
 .leaderboard-row { display: flex; gap: 12px; align-items: center; padding: 8px; font-size: 14px; }
@@ -27,7 +21,6 @@ a:hover, .text-button:hover { text-decoration: underline; }
 .leaderboard-person { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
 .leaderboard-person small { font-size: 12px; color: var(--muted); }
 .leaderboard-row > :last-child { white-space: nowrap; }
-.login-panel { grid-column: 2; grid-row: 1 / 4; padding: 64px; background: var(--panel); }
 .auth-stack { display: flex; flex-direction: column; gap: 20px; }
 .auth-stack h1, .auth-stack h2 { font-size: 24px; font-weight: 500; }
 .form-field { display: flex; flex-direction: column; gap: 8px; }
@@ -35,8 +28,9 @@ a:hover, .text-button:hover { text-decoration: underline; }
 .input-wrap { display: flex; align-items: center; min-height: 42px; border: 1px solid var(--gr-input-border); border-radius: 8px; background: var(--gr-input-bg); }
 .input-wrap input { width: 100%; min-width: 0; padding: 11px 16px; border: 0; background: transparent; border-radius: 8px; color: var(--gr-input-text); font-size: 16px; }
 .input-wrap input::placeholder { color: var(--gr-input-placeholder); opacity: 1; }
-.input-wrap.invalid { border: 2px solid var(--gr-error); }
-.input-wrap:focus-within { border: 4px solid var(--accent); }
+/* The border stays 1px; the error and focus rings are drawn outside it, so focusing a box never moves the page. */
+.input-wrap.invalid { border-color: var(--gr-error); box-shadow: 0 0 0 1px var(--gr-error); }
+.input-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent); }
 .input-wrap input:focus-visible { outline: none; }
 .reveal { background: none; color: var(--gr-input-text); border: 0; font-size: 12px; padding: 12px; }
 .field-error, .form-error { color: var(--gr-error-text); font-size: 13px; line-height: 1.5; }
@@ -51,35 +45,396 @@ a:hover, .text-button:hover { text-decoration: underline; }
 .primary { background: var(--gr-neutral-button); border: 1px solid var(--gr-neutral-button); color: var(--gr-on-neutral); border-radius: 8px; min-height: 40px; padding: 10px 16px; }
 .primary:hover { background: var(--gr-neutral-button-hover); }
 .account-link { text-align: center; color: var(--muted); font-size: 13px; }
-.registration { min-height: 100vh; display: grid; place-items: center; padding: 40px 18px; }
-.register-card { width: 420px; max-width: 100%; background: var(--panel); border-radius: 16px; padding: 40px; }
-.registration-header { display: none; }
 .password-strength { display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
 .password-strength p { color: var(--muted); line-height: 16px; }
 .password-strength meter { width: 100%; height: 6px; appearance: none; border: 0; background: var(--gr-track); border-radius: 2px; }
 meter::-webkit-meter-bar { background: var(--gr-track); border: none; }
 meter::-webkit-meter-optimum-value { background: var(--accent); }
 meter::-moz-meter-bar { background: var(--accent); }
-@media (max-width: 850px) {
-  .landing { display: flex; flex-direction: column; background: var(--gr-bg-page); }
-  .landing-brand { order: 0; padding: 16px 18px; }
-  .brand { font-size: 13px; gap: 8px; }
-  .brand span { width: 20px; height: 20px; border-radius: 5px; }
-  .hero { order: 1; padding: 16px 18px 24px; }
-  .hero h1 { font-size: 28px; line-height: 34px; max-width: none; }
-  .hero h1 .accent { display: inline; }
-  .hero p { margin-top: 12px; font-size: 13px; line-height: 20px; }
-  .login-panel { order: 2; background: transparent; padding: 0 18px 24px; }
-  .login-panel h2 { font-size: 20px; }
-  .preview-slot { order: 3; padding: 0 18px 24px; }
-  .leaderboard { max-width: none; }
-  .account-link span { display: none; }
-  .login-panel .account-link a { display: grid; place-items: center; height: 44px; border: 1px solid var(--accent); border-radius: 8px; }
-  .registration { display: block; background: var(--gr-bg-page); padding: 0; }
-  .registration-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 18px; min-height: 52px; }
-  .close { width: 32px; height: 32px; display: grid; place-items: center; background: var(--panel); border: 1px solid var(--gr-track); border-radius: 50%; color: var(--gr-text); font-size: 20px; }
-  .register-card { background: transparent; width: 100%; padding: 24px 18px; gap: 16px; }
-  .register-card h1 { font-size: 22px; }
-  .register-card .primary { background: var(--accent); color: var(--gr-text-on-orange); min-height: 46px; }
+
+/* ---------------------------------------------------------------------------------------------------------------
+   Entry screens: log in (story #18) and create account (story #17), src/auth/EntryScreen.jsx.
+   901px and wider: the dark brand panel on the left (the same colour and edge as the menu sidebar it turns into) and
+   the form on the right. Narrower: one column, brand row, headline, form, then the example board.
+   The form slides between log in and create account; the screen slides into the app after either succeeds and
+   back after Log out (src/auth/entryHandoff.js). Colours come only from the --gr- variables.
+   --------------------------------------------------------------------------------------------------------------- */
+:root {
+  --entry-brand-width: clamp(380px, 42vw, 620px);
+  --entry-ease: cubic-bezier(0.22, 0.8, 0.24, 1);
+  --entry-slide-ms: 480ms;
+  /* The menu sidebar's width on a window 901px or wider (src/navigation/navigation.css), where the panel is drawn. */
+  --entry-sidebar-width: 232px;
 }
-@media (max-width: 360px) { .leaderboard-row { gap: 7px; padding-inline: 0; font-size: 12px; } .login-options { align-items: flex-start; flex-direction: column; } }
+
+.entry {
+  position: relative;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: var(--entry-brand-width) minmax(0, 1fr);
+  background: var(--gr-bg-page);
+  color: var(--gr-text);
+}
+
+/* Brand panel */
+.entry-brand {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding: 28px clamp(32px, 4vw, 56px) 32px;
+  border-right: 1px solid var(--gr-border-strong);
+  background: var(--gr-bg-nav);
+}
+
+.entry-brand > :not(.entry-brand__glow) { position: relative; }
+
+.entry-brand__glow {
+  position: absolute;
+  width: 140%;
+  aspect-ratio: 1;
+  left: -55%;
+  top: -60%;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--gr-brand) 20%, transparent) 0%, transparent 62%);
+  pointer-events: none;
+}
+
+.entry-brand__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  max-width: 460px;
+}
+
+.entry-hero { font-size: clamp(34px, 3.3vw, 46px); line-height: 1.12; font-weight: 600; letter-spacing: -0.02em; color: var(--gr-text-strong); }
+.entry-hero .accent { display: block; color: var(--gr-link); }
+.entry-hero__text { color: var(--gr-text-soft); font-size: 15px; line-height: 1.55; max-width: 400px; }
+
+.entry-brand__top, .entry-brand__body { transition: opacity 200ms ease; }
+
+/* The moving example */
+.entry-showcase { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+.entry-chart, .entry-board {
+  padding: 16px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+}
+.entry-chart__head, .entry-board__head { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; color: var(--gr-text-muted); }
+.entry-chart__head strong { color: var(--gr-text); font-weight: 600; }
+.entry-board__head { font-size: 11px; letter-spacing: 0.04em; }
+.entry-chart__tag { color: var(--gr-action-text); font-weight: 600; letter-spacing: 0; }
+.entry-chart__value { margin-top: 6px; font-size: 28px; font-weight: 600; color: var(--gr-text-strong); font-variant-numeric: tabular-nums; }
+.entry-chart__change { margin-left: 6px; font-size: 13px; font-weight: 600; color: var(--gr-success-text); }
+.entry-chart__plot { display: block; width: 100%; height: 96px; margin-top: 10px; overflow: visible; }
+.entry-chart__grid { stroke: var(--gr-border-strong); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.entry-chart__bar {
+  fill: color-mix(in srgb, var(--gr-action) 55%, var(--gr-surface));
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: entry-bar 560ms var(--entry-ease) both;
+  animation-delay: calc(160ms + var(--i) * 45ms);
+}
+.entry-chart__bar:last-of-type { fill: var(--gr-action); }
+.entry-chart__trend {
+  fill: none;
+  stroke: var(--gr-brand-light);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: entry-line 1100ms ease-out 800ms forwards;
+}
+.entry-chart__foot { margin-top: 8px; font-size: 11px; color: var(--gr-text-muted); }
+.entry-board__rows { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.entry-board__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 4px;
+  font-size: 14px;
+  animation: entry-row 420ms var(--entry-ease) both;
+  animation-delay: calc(500ms + var(--i) * 90ms);
+}
+.entry-board__rank { width: 12px; color: var(--gr-action-text); }
+.entry-board__avatar { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--gr-brand); color: var(--gr-text-on-orange); font-size: 13px; font-weight: 600; }
+.entry-board__person { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.entry-board__person small { font-size: 12px; color: var(--gr-text-muted); }
+.entry-board__weight { white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* Form side */
+.entry-stage {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  padding: 48px clamp(24px, 5vw, 72px);
+  background:
+    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--gr-brand) 8%, transparent), transparent 40%),
+    radial-gradient(color-mix(in srgb, var(--gr-text) 7%, transparent) 1px, transparent 1px) 0 0 / 22px 22px,
+    var(--gr-bg-page);
+}
+
+/* Both forms share one grid cell, so the one sliding in and the one sliding away overlap. While they slide, the
+   track's height eases from the old form's to the new one's (EntryScreen.jsx). */
+.entry-track { display: grid; width: min(400px, 100%); transition: height var(--entry-slide-ms) var(--entry-ease); }
+.entry-slide { grid-area: 1 / 1; width: 100%; align-self: center; }
+.entry-slide .auth-stack h1 { font-size: 30px; font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; color: var(--gr-text-strong); }
+.entry-slide .auth-stack h1:focus { outline: none; }
+.entry-slide .subtitle { font-size: 14px; margin-top: -10px; }
+.entry .primary {
+  min-height: 46px;
+  border: 0;
+  border-radius: var(--gr-radius-button);
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+  font-size: 15px;
+  font-weight: 600;
+}
+.entry .primary:hover { background: var(--gr-brand-light); }
+.entry .account-link a { font-weight: 600; }
+/* Light/dark switch, top right of the screen (src/auth/ThemeSwitch.jsx). */
+.entry-theme {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: 50%;
+  background: var(--gr-surface);
+  color: var(--gr-text);
+}
+.entry-theme:hover { background: var(--gr-surface-hover); }
+.entry-theme svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.entry--entering .entry-theme { opacity: 0; transition: opacity 180ms ease; }
+
+.entry-stage[data-direction="next"] .entry-slide--in { animation: entry-in-right var(--entry-slide-ms) var(--entry-ease) both; }
+.entry-stage[data-direction="next"] .entry-slide--out { animation: entry-out-left var(--entry-slide-ms) var(--entry-ease) both; }
+.entry-stage[data-direction="back"] .entry-slide--in { animation: entry-in-left var(--entry-slide-ms) var(--entry-ease) both; }
+.entry-stage[data-direction="back"] .entry-slide--out { animation: entry-out-right var(--entry-slide-ms) var(--entry-ease) both; }
+.entry-slide--out { pointer-events: none; }
+
+/* First visit: the form rises in. Back from Log out: it slides in from the side the sidebar went to. */
+.entry--intro-first .entry-slide { animation: entry-rise 500ms var(--entry-ease) 80ms both; }
+.entry--intro-return .entry-stage { animation: entry-in-left 400ms var(--entry-ease) both; }
+.entry--intro-return .entry-brand__top, .entry--intro-return .entry-brand__body { animation: entry-fade 280ms ease 80ms both; }
+
+/* Into the app: the form and the panel's content fade, leaving the plain panel the handoff carries on from. */
+.entry--entering .entry-stage { animation: entry-exit 380ms var(--entry-ease) forwards; }
+/* An animation, not just opacity: 0, so it also wins over the "back from Log out" fade-in, whose fill would otherwise
+   keep the headline and example on screen beside the narrowing panel. */
+.entry.entry--entering .entry-brand__top,
+.entry.entry--entering .entry-brand__body,
+.entry.entry--entering .entry-brand__glow,
+.entry.entry--entering .entry-backdrop,
+/* On a phone the panel's body is display: contents (so its parts can sit above and below the form), which ignores
+   opacity, so its parts fade one by one. */
+.entry.entry--entering :is(.entry-hero, .entry-hero__text, .entry-showcase) { animation: entry-fade-out 180ms ease forwards; }
+@keyframes entry-fade-out { from { opacity: 1; } to { opacity: 0; } }
+/* The handoff panel (drawn over it at the same width) does the narrowing, so the real panel steps aside. */
+.entry--entering .entry-brand { border-right-color: transparent; background: var(--gr-bg-page); }
+
+@keyframes entry-in-right { from { transform: translateX(55%); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes entry-in-left { from { transform: translateX(-55%); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes entry-out-left { 60% { opacity: 0; } to { transform: translateX(-55%); opacity: 0; } }
+@keyframes entry-out-right { 60% { opacity: 0; } to { transform: translateX(55%); opacity: 0; } }
+@keyframes entry-rise { from { transform: translateY(10px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes entry-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes entry-exit { to { transform: translateX(-80px); opacity: 0; } }
+@keyframes entry-ring { 0%, 100% { transform: scale(0.96); } 50% { transform: scale(1.04); } }
+@keyframes entry-plate-left { from { transform: translateX(-50px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes entry-plate-right { from { transform: translateX(50px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes entry-bar { from { transform: scaleY(0.08); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes entry-line { to { stroke-dashoffset: 0; } }
+@keyframes entry-row { from { transform: translateX(-10px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* The handoff panel (src/auth/EntryHandoff.jsx) and the page sliding beside it */
+.entry-handoff { display: none; }
+.entry-backdrop, .entry-barbell { display: none; }
+
+/* "Checking your account setup…" while the handoff panel holds: read out, not shown. */
+.entry-hold-status {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0 !important;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (min-width: 901px) {
+  .entry-handoff {
+    display: block;
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 40;
+    width: var(--entry-brand-width);
+    border-right: 1px solid var(--gr-border-strong);
+    background: var(--gr-bg-nav);
+    pointer-events: none;
+  }
+  .entry-handoff--exit-sidebar { animation: entry-brand-to-sidebar 440ms var(--entry-ease) both; }
+  .entry-handoff--exit-none { animation: entry-brand-to-none 440ms var(--entry-ease) both; }
+  .entry-handoff--hold-sidebar,
+  .entry-handoff--arrive-wait { width: var(--entry-sidebar-width); }
+  .entry-handoff--arrive-sidebar { width: var(--entry-sidebar-width); animation: entry-settle 220ms ease 160ms both; }
+  .entry-handoff--arrive-none { animation: entry-sidebar-to-none 320ms var(--entry-ease) both; }
+  .entry-handoff--to-brand { animation: entry-to-brand 440ms var(--entry-ease) both; }
+  .entry-handoff--settle { animation: entry-settle 200ms ease both; }
+}
+
+@keyframes entry-brand-to-sidebar { from { width: var(--entry-brand-width); } to { width: var(--entry-sidebar-width); } }
+@keyframes entry-brand-to-none { from { width: var(--entry-brand-width); } to { width: 0; } }
+@keyframes entry-sidebar-to-none { from { width: var(--entry-sidebar-width); } to { width: 0; } }
+@keyframes entry-to-brand { from { width: var(--app-sidebar-width); } to { width: var(--entry-brand-width); } }
+@keyframes entry-settle { from { opacity: 1; } to { opacity: 0; } }
+
+/* While a page slides in or out it never makes the window scroll sideways. */
+:root[data-entry] #root,
+.app-shell--leaving {
+  overflow-x: clip;
+}
+
+/* The arriving page stays out of sight while it finishes loading, then slides in complete. */
+:root[data-entry="arrive-wait"] .app-shell__page { opacity: 0; }
+
+:root[data-entry="arrive-sidebar"] .app-shell__page,
+:root[data-entry="arrive-none"] #root > :first-child { animation: entry-arrive 420ms var(--entry-ease) both; }
+.app-shell--leaving .app-shell__page { animation: entry-leave 380ms var(--entry-ease) forwards; }
+.app-shell--leaving :is(.app-sidebar, .app-topstrip) > * { opacity: 0; transition: opacity 160ms ease; }
+/* Logging out from the phone menu: the open menu fades away with the page instead of staying on top of the slide. */
+.app-shell--leaving dialog.app-drawer,
+.app-shell--leaving dialog.app-drawer::backdrop { opacity: 0; transition: opacity 160ms ease; }
+
+@keyframes entry-arrive { from { transform: translateX(min(40vw, 480px)); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes entry-leave { to { transform: translateX(min(40vw, 480px)); opacity: 0; } }
+
+/* Tablets and phones: one column, like an ordinary mobile log in: the brand row, a short headline, then the form
+   centred on the screen. The example cards are left out; a faint copy of the bars and trend line, an orange glow
+   behind the centred brand and a dot grid sit behind the form instead (EntryBackdrop). */
+@media (max-width: 900px) {
+  .entry { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; overflow: hidden; }
+  .entry-brand, .entry-brand__body { display: contents; }
+  .entry-brand__glow, .entry-showcase { display: none; }
+  .entry-brand__top, .entry-hero, .entry-hero__text { position: relative; z-index: 1; }
+  /* The brand sits centred over the glow, larger than on wider screens. */
+  .entry-brand__top { order: 0; padding: 36px 18px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .entry-brand__top .brand { flex-direction: column; gap: 12px; font-size: 24px; font-weight: 600; }
+  .entry-brand__top .brand__mark { width: 56px; height: 56px; border-radius: 16px; }
+  .entry-brand__top .brand__mark svg { width: 30px; height: 30px; }
+  .entry-hero { order: 1; padding: 22px 18px 0; font-size: 30px; line-height: 36px; text-align: center; }
+  .entry-hero__text { order: 1; padding: 8px 18px 0; font-size: 14px; line-height: 21px; text-align: center; max-width: none; }
+  .entry-hero .accent { display: inline; }
+  /* The form is a sheet that pops up from the bottom over the designed background: rounded top corners, a grab bar,
+     and a soft orange light along its top edge. */
+  .entry-stage {
+    order: 2;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+    place-items: start center;
+    margin-top: 28px;
+    padding: 34px 18px 40px;
+    border: 1px solid var(--gr-border-strong);
+    border-bottom: 0;
+    border-radius: 28px 28px 0 0;
+    background: var(--gr-surface);
+    box-shadow: 0 -14px 44px color-mix(in srgb, var(--gr-brand) 22%, transparent);
+  }
+  .entry-stage::before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    width: 40px;
+    height: 4px;
+    margin-left: -20px;
+    border-radius: 999px;
+    background: var(--gr-border-strong);
+  }
+  /* Top-aligned, so the shorter form doesn't sit lower while the taller one slides away and then jump up. */
+  .entry-track { width: min(440px, 100%); overflow: visible clip; }
+  .entry-slide { align-self: start; }
+  .entry-slide .auth-stack h1 { font-size: 22px; }
+  .entry-theme { top: 8px; right: 18px; }
+  .login-panel .account-link span { display: none; }
+  .login-panel .account-link a { display: grid; place-items: center; min-height: 44px; border: 1px solid var(--gr-brand); border-radius: var(--gr-radius-button); }
+
+  .entry-backdrop {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 90% 320px at 50% 0%, color-mix(in srgb, var(--gr-brand) 42%, transparent), transparent 100%),
+      radial-gradient(color-mix(in srgb, var(--gr-text) 6%, transparent) 1px, transparent 1px) 0 0 / 22px 22px;
+  }
+  /* Rings around the brand, drawn outward from the mark like rank tiers, pulsing one after another. */
+  .entry-backdrop__rings {
+    position: absolute;
+    inset: 0 0 auto 0;
+    width: 100%;
+    height: 330px;
+    -webkit-mask-image: linear-gradient(to bottom, var(--gr-text) 40%, transparent 100%);
+    mask-image: linear-gradient(to bottom, var(--gr-text) 40%, transparent 100%);
+  }
+  .entry-backdrop__ring {
+    fill: none;
+    stroke: var(--gr-brand);
+    stroke-width: 1;
+    opacity: calc(0.5 - var(--i) * 0.08);
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: entry-ring 3600ms ease-in-out infinite;
+    animation-delay: calc(var(--i) * 260ms);
+  }
+
+  /* The barbell rests on the sheet's top edge; the sheet's own overflow is visible so the plates can stand above it. */
+  .entry-stage { overflow: visible; }
+  .entry-barbell {
+    display: block;
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    width: min(100%, 440px);
+    height: 60px;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+  .entry-barbell__bar { stroke: var(--gr-text-muted); stroke-width: 4; stroke-linecap: round; opacity: 0.8; }
+  .entry-barbell__plate {
+    fill: color-mix(in srgb, var(--gr-action) 70%, var(--gr-surface));
+    stroke: var(--gr-bg-page);
+    stroke-width: 1.5;
+    animation: entry-plate-left 520ms var(--entry-ease) both;
+    animation-delay: calc(200ms + var(--i) * 140ms);
+  }
+  .entry-barbell__plate--right { animation-name: entry-plate-right; }
+  .entry-barbell__plate:is(:nth-of-type(1), :nth-of-type(5)) { fill: var(--gr-action); }
+}
+
+@media (max-width: 360px) {
+  .entry-board__row { gap: 8px; padding-inline: 0; font-size: 12px; }
+  .login-options { align-items: flex-start; flex-direction: column; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entry *, .entry, .entry-handoff, .app-shell__page { animation: none !important; transition: none !important; }
+  .entry-chart__trend { stroke-dashoffset: 0; }
+}

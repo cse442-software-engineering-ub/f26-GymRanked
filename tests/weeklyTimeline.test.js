@@ -32,7 +32,7 @@ test('having no plan does not create completed rest days', () => {
 })
 
 const plan = { name: 'Full Body Strength' }
-const doneA = { id: 7, name: 'Full body A', plan: plan.name, completed_at: '2026-10-30T15:00:00Z' }
+const doneA = { id: 7, name: 'Full body A', plan: plan.name, started_at: '2026-10-30T14:00:00Z', completed_at: '2026-10-30T15:00:00Z' }
 
 test('a logged day shows the workout that was saved, not the scheduled one', () => {
   const day = weeklyDayState(today, today, { name: 'Full body B' }, true, true, 'Full body A')
@@ -47,9 +47,14 @@ test('saved names are keyed by New York date, newest session first', () => {
 })
 
 test("today's saved workout wins over the schedule, unfinished before completed", () => {
-  const unfinished = { name: 'Full body A', plan: plan.name }
-  assert.deepEqual(todaySessionState([], unfinished, plan, today), { state: 'in_progress', session: unfinished })
-  assert.deepEqual(todaySessionState([doneA], null, plan, today), { state: 'completed', session: doneA })
+  const unfinished = { name: 'Full body A', plan: plan.name, started_at: '2026-10-30T15:00:00Z' }
+  assert.deepEqual(todaySessionState([], unfinished, plan, today, 'Full body A'), { state: 'in_progress', session: unfinished })
+  assert.deepEqual(todaySessionState([doneA], null, plan, today, 'Full body A'), { state: 'completed', session: doneA })
+  assert.equal(todaySessionState([], { ...unfinished, started_at: '2026-10-29T15:00:00Z' }, plan, today, 'Full body A'), null)
+  assert.equal(todaySessionState([], unfinished, plan, today, 'Full body B'), null)
+  assert.equal(todaySessionState([doneA], null, plan, today, 'Full body B'), null)
+  assert.equal(todaySessionState([{ ...doneA, started_at: '2026-10-29T14:00:00Z' }], null, plan, today, 'Full body A'), null)
+  assert.equal(todaySessionState([doneA], null, plan, today, null), null)
   assert.equal(todaySessionState([doneA], null, plan, '2026-10-31'), null)
   assert.equal(todaySessionState([doneA], { plan: 'Other' }, { name: 'Other plan' }, today), null)
   assert.equal(todaySessionState([doneA], null, null, today), null)

@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
 import { DASHBOARD, addReturn } from './returnTarget.js'
 import { authRequest } from './auth/api.js'
+import { holdArrival } from './auth/entryHandoff.js'
 import { apiRequest } from './onboarding/api.js'
 import { fetchCurrentPlan, fetchPlan } from './plansApi.js'
 import { buildWeek } from './weeklySchedule.js'
 import workoutLogApi from './workoutLog/workoutLogApi.js'
 import { dashboardHistory } from './dashboardHistory.js'
 import { fetchUnfinishedSession } from './workoutSessionApi.js'
-import { getBuddyGroup } from './buddies/buddiesApi.js'
+import { useBuddyGroupPoll } from './buddies/useBuddyGroupPoll.js'
 import { easternDate, todaySessionState } from './weeklyTimeline.js'
 import TodayHero from './dashboard/TodayHero.jsx'
 import ThisWeekPanel from './dashboard/ThisWeekPanel.jsx'
@@ -81,16 +82,16 @@ function Dashboard() {
   const [loadAttempt, setLoadAttempt] = useState(0)
   const [historyState, setHistoryState] = useState({ status: 'loading', sessions: [] })
   const [weeklyState, setWeeklyState] = useState({ status: 'loading', data: null })
-  const [buddyState, setBuddyState] = useState({ status: 'loading', data: null })
   const [unfinished, setUnfinished] = useState(null)
   const [unfinishedStatus, setUnfinishedStatus] = useState('loading')
+  // "From your buddies" stays up to date while the Dashboard is open (src/buddies/useBuddyGroupPoll.js).
+  const buddies = useBuddyGroupPoll({ onUnauthorized: () => navigate('/login', { replace: true }) })
+  const buddyState = buddies.state
 
   useEffect(() => {
     let active = true
     setWeeklyState({ status: 'loading', data: null })
-    setBuddyState({ status: 'loading', data: null })
     apiRequest('weekly_goal.php').then((result) => { if (active) setWeeklyState({ status: result.ok ? 'ready' : 'error', data: result.ok ? result.data : null }) })
-    getBuddyGroup().then((result) => { if (active) setBuddyState({ status: result.ok ? 'ready' : 'error', data: result.ok ? result.data : null }) })
     setUnfinishedStatus('loading')
     fetchUnfinishedSession()
       .then((session) => { if (active) { setUnfinished(session); setUnfinishedStatus('ready') } })
@@ -139,7 +140,20 @@ function Dashboard() {
     return () => { active = false }
   }, [loadAttempt, navigate])
 
+  // Right after logging in, the slide into the app waits until the Dashboard's first data is in (at most 1.5s), so the
+  // page slides in complete instead of jumping when its plan, week and history arrive (src/auth/entryHandoff.js).
+  const releaseArrival = useRef(null)
+  useLayoutEffect(() => {
+    releaseArrival.current = holdArrival()
+    return () => releaseArrival.current?.()
+  }, [])
+  const firstLoadDone = setup !== null && weeklyState.status !== 'loading' && historyState.status !== 'loading' && unfinishedStatus !== 'loading'
+  useEffect(() => {
+    if (firstLoadDone) releaseArrival.current?.()
+  }, [firstLoadDone])
+
   function retry() {
+    buddies.reload()
     setSetup(null)
     setPlanError('')
     setLoadAttempt((attempt) => attempt + 1)
@@ -149,17 +163,18 @@ function Dashboard() {
   const goal = setup?.goal ?? null
   const currentDate = new Date()
   const todayDate = easternDate(currentDate)
-  const schedule = plan ? buildWeek(plan, currentDate) : []
+  const scheduleDate = new Date(`${todayDate}T12:00:00`)
+  const schedule = plan ? buildWeek(plan, scheduleDate) : []
   const scheduledToday = schedule.find((day) => day.when === 'today')?.workout ?? null
   // Start, Resume and View summary are offered only once both the unfinished workout and the history have loaded,
   // so a failed load can't let the lifter start a second workout.
   const workoutStatus = historyState.status === 'error' || unfinishedStatus === 'error' ? 'error' : historyState.status === 'ready' && unfinishedStatus === 'ready' ? 'ready' : 'loading'
-  // What is actually saved today wins over the weekday schedule, so the hero names the workout Today opens.
-  const saved = todaySessionState(historyState.sessions, unfinished, plan, todayDate)
+  // A session for today's scheduled day wins, so the hero names the workout Today opens.
+  const saved = todaySessionState(historyState.sessions, unfinished, plan, todayDate, scheduledToday?.name ?? null)
   const savedDay = saved ? plan?.days?.find((day) => day.name === saved.session.name) ?? { name: saved.session.name } : null
   const today = savedDay ?? scheduledToday
   const progress = historyState.status === 'ready' ? dashboardHistory(historyState.sessions, plan, currentDate) : null
-  const next = nextUp(plan, currentDate)
+  const next = nextUp(plan, scheduleDate)
   const heroState = setup === null ? 'loading'
     : planError ? 'error'
       : !plan ? 'no-plan'
@@ -241,7 +256,7 @@ function Dashboard() {
         </div>
 
         <div className="home-bottom">
-          <BuddiesFeed state={buddyState} onRetry={retry} />
+          <BuddiesFeed state={buddyState} fresh={buddies.fresh} announcement={buddies.announcement} onRetry={retry} />
           <RankingsPanel hasGroup={hasGroup} attempt={loadAttempt} />
         </div>
       </main>

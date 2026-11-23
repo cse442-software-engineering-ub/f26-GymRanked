@@ -1,7 +1,6 @@
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
-import LoginPage from './auth/LoginPage.jsx'
+import EntryScreen from './auth/EntryScreen.jsx'
 import Weekly123FinishPage from './auth/Weekly123FinishPage.jsx'
-import RegistrationPage from './auth/RegistrationPage.jsx'
 import ActiveWorkout from './ActiveWorkout.jsx'
 import ExerciseSession from './ExerciseSession.jsx'
 import Dashboard from './Dashboard.jsx'
@@ -34,8 +33,9 @@ function App() {
   return (
     <HashRouter><Routes>
       <Route element={<OnboardingGate />}>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegistrationPage />} />
+        {/* One screen for both: OnboardingGate keeps it mounted so the form slides between them. */}
+        <Route path="/login" element={<EntryScreen />} />
+        <Route path="/register" element={<EntryScreen />} />
         {testPagesAllowed && <Route path="/dev/workout-log" element={<WorkoutLogPreview />} />}
         {testPagesAllowed && <Route path="/dev/workout-summary" element={<WorkoutSummaryPage preview />} />}
         {testPagesAllowed && <Route path="/card-123/finish" element={<Weekly123FinishPage />} />}

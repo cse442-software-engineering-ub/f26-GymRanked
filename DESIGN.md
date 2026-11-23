@@ -30,7 +30,7 @@ Every screen supports two themes: **dark**, the default, and **light**. Text on 
 
 - **Colours come only from the `--gr-` variables** in `src/index.css`. Never write a hex, `rgb()`, `rgba()` or named colour (`white`) in a component's CSS, an inline `style`, or an SVG `fill`/`stroke`. Use `var(--gr-…)`, or `color-mix(in srgb, var(--gr-…) N%, transparent)` for a see-through tint. This is the rule that makes a new page work in light mode with no extra code.
 - **How the switch works:** `<html data-theme="light">` turns on the `:root[data-theme="light"]` block in `src/index.css`, which gives every variable its light value. `src/theme/theme.js` sets the attribute, remembers it in the browser and saves it to the account through `api/theme.php`. Don't add per-page theme code or read the theme in a component to pick colours.
-- **Always-dark pages:** sign-in, create account and the onboarding steps (personal details, training goal, experience, equipment, recommended plans) always show dark, whatever theme the account has saved. `isAlwaysDarkPath()` in `src/onboarding/onboardingRoute.js` lists them and `OnboardingGate` applies it, so these pages need no theme code; `index.html` repeats the list so they never flash light. They don't need checking in light mode.
+- **Always-dark pages:** the onboarding steps (personal details, training goal, experience, equipment, recommended plans) always show dark, whatever theme the account has saved. Log in and create account follow the theme (Sprint 4 entry screens redesign), with a sun/moon switch in their top-right corner that this browser remembers; after logging in, the account's saved theme applies. `isAlwaysDarkPath()` in `src/onboarding/onboardingRoute.js` lists them and `OnboardingGate` applies it, so these pages need no theme code; `index.html` repeats the list so they never flash light. They don't need checking in light mode.
 - **Need a new colour?** Add a variable to BOTH blocks in `src/index.css`: the dark value in `:root` and the light value in `:root[data-theme="light"]`. Then add a row to the tables below with both values. A variable left out of the light block keeps its dark value in light mode.
 - **Light-mode values:** pages are mid-light greys (page `#c9cdd4`, cards `#dde0e5`), never white. Orange *fills* (`brand`, `action`) are the same in both themes; orange and feedback *text* is darker in light mode so it keeps 4.5:1.
 - **Check both themes.** Before opening a pull request for UI work, look at the page in light mode too: your name at the bottom of the menu → **Profile** → Appearance → **Light** (this saves to your account; select **Dark** to switch back). For a quick look without saving, run `document.documentElement.dataset.theme = 'light'` in the browser console.
@@ -168,7 +168,7 @@ Layout patterns:
 |---|---|---|
 | 1132px or less | Dashboard grids become one column (the page is 900px or less beside the 232px sidebar) | index.css |
 | 900px or less | The sidebar is 184px wide instead of 232px | navigation.css |
-| 850px or less | Login and sign-up switch to the phone layout; the sign-up "×" appears | auth.css |
+| 900px or less | Login and sign-up switch to one column (brand row, headline, form, example board) | auth.css |
 | 824px or less | Signed-in pages use their phone layout (the page is 640px or less beside the 184px sidebar): side padding 20px, plan rows wrap, weekly plan shows 2 days per row | index.css and the page stylesheets |
 | 700px or less | No sidebar: the "Menu" strip and the phone menu | navigation.css |
 | 640px or less | Onboarding goes to one column; page side padding becomes 20px there too | index.css, onboarding.css |
@@ -253,6 +253,18 @@ Rows with a 32px circle marker, a title (15px / 500) and a hint (13px), divided 
 ### Tip box and inner list (`.dashboard-tip`, `.dashboard-exercises`)
 
 `surface-sunken`, 10px corners, 12px padding. A bold lead-in ("**Beginner tip:**") in `text`, the rest in `text-soft`.
+
+### Entry screens: log in and create account (`src/auth/EntryScreen.jsx`, entry screens redesign, Sprint 4)
+
+Modelled on the To the Moon team's sign-in pages, in GymRank's own colours.
+
+- **Layout (901px and wider):** one split screen for both `#/login` and `#/register`. On the left, the brand panel: `bg-nav` with the menu sidebar's `border-strong` edge (it becomes the sidebar, below), an orange `brand` glow, the 32px dumbbell mark, "Every rep gets a **rank.**" (34–46px / 600, "rank." in `brand`), one line of `text-soft`, then a moving example: a "Bench press · this week" card whose 14 bars rise in turn and whose trend line draws across them, and a three-row board. Both say "Preview": sample data, nothing fetched. On the right, the form on `bg-page` with a faint dot grid, at most 400px wide: a 30px / 600 title, labelled white inputs, and a full-width `action` button (46px tall, 15px / 600).
+- **900px and narrower:** one column: brand row (with the theme switch), headline, form, example board, the same on both screens, so switching never moves the form up or down. The space the forms share eases from one form's height to the other's during the slide, so the example board under it glides instead of jumping. There is no "×": "Already have an account? Log in" goes back. "Create an account" becomes a 44px outlined button.
+- **Log in ⇄ create account:** the form slides: create account comes in from the right while log in leaves to the left, and back the other way (480ms); the brand panel stays still. Focus moves to the new title. The form sliding away is swapped for a look-alike copy (`formGhost.js`) with no labels or ids, so the page only ever has one real form.
+- **Into the app** (the mirror of Log out): after a successful log in the form slides away to the left while a panel in the brand panel's colour narrows to the 232px sidebar (440ms). It waits there while `OnboardingGate` checks the account, then the page slides in from the right beside it (420ms) and the panel fades into the real sidebar. A page that loads its content after opening can ask the slide to wait until it's ready (`holdArrival()` in `src/auth/entryHandoff.js`, at most 1.5s), so it slides in complete; the Dashboard does. A new account (logged in straight away) narrows the panel to nothing, because the setup steps have no menu; so does an account whose setup isn't finished.
+- **Log out:** the same in reverse. The page slides away to the right while the sidebar widens back into the brand panel, then the log in form slides in from the left.
+- **Light and dark:** both screens follow the theme, so they match the app on either side of the slide. A 44px round switch in the top-right corner (`surface`, `border-strong` edge) shows a sun in dark mode and a moon in light mode and switches at once. Nobody is signed in, so it uses `chooseThemeSignedOut()` (remembered in this browser only) instead of `saveTheme()`. "rank." uses `link` so it stays readable in light mode.
+- **Reduced motion:** with "reduce motion" on, every page opens straight away with no slide, and the bars and line are drawn still.
 
 ### Feedback message (`.login-feedback`)
 
@@ -363,6 +375,7 @@ Buddies in the navigation opens it at `#/buddies`. Restyled in Sprint 4 to the D
 - "Encouragements for you" card: a 22/700 title, then like the Dashboard's "From your buddies": a 36px initials circle, the sender at 600 and the time in `text-muted` 12px, then the message at 16px in `text`, newest first; empty: "No encouragements yet. When someone in your group encourages you, it appears here."
 - Limits: the code box stops at 8 characters and the name at 40. The message box does not stop: it keeps whatever is typed or pasted, the counter goes past the limit ("141/140") in `error-text` at 600, and "Send" is refused with "Write a message of 1 to 140 characters." under the box until the text fits (an emoji counts as one). Story #78 checks that a too-long message is refused and kept, so the lifter can shorten it instead of losing its end.
 - Messages: success in the `success` box with a tick and `role="status"`; "already in a group" and a failed load in the `error` box with a button ("Show my group", "Try again"); a wrong code or a failed request as `error-text` under the box or button it belongs to, with the red outline and `aria-invalid` on a refused box. Busy buttons say "Joining…", "Creating…" or "Sending…" and are disabled.
+- Live updates (encouragement poller, Sprint 4): while the Dashboard or Buddies is open, `src/buddies/useBuddyGroupPoll.js` asks for news every 10 seconds (paused while the tab is hidden; at once when it comes back, gets the focus or goes back online). A new message slides in with a `success` "New" pill and is read out by a polite live region ("New encouragement from Ben C.: …"). Nothing else on the page is redrawn, so a message being typed stays as it is. A failed request keeps the page as it is and tries again after 20s, 40s, then every minute.
 - Keyboard: Enter submits each form, Escape closes the create and message forms and puts focus back on the button that opened them; after joining or creating, focus moves to the group's name.
 
 ### Gym backdrop (`src/components/GymBackdrop.jsx`, added by #93)
@@ -461,7 +474,6 @@ As of task #95 (2026-10-09). These pages predate the Dashboard redesign and shou
 
 | Area | What it uses now | Should use | File | Task |
 |---|---|---|---|---|
-| Login and sign-up | Grey "Log in" / "Create account" button (`neutral-button`) on desktop; white input fields; brand square 24px; sign-up card 16px corners | `action` primary; 32px brand square; 12px corners | `src/auth/auth.css` | #97, #99 |
 | Font setup | `:root` in auth.css still names Inter. `body` in index.css sets system-ui, so Inter shows nowhere (onboarding moved to `--gr-font` in #93), but the rule is misleading | Drop Inter from `:root` | `src/auth/auth.css` | #99 |
 | Breakpoints | 960, 900, 850, 640 and 480px | 900px and 640px | all three stylesheets | as each page is upgraded |
 

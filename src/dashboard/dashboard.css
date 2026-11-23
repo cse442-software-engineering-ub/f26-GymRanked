@@ -409,6 +409,29 @@
   font-weight: 700;
 }
 
+.home-buddies__new {
+  padding: 2px 9px;
+  border: 1px solid var(--gr-success);
+  border-radius: 999px;
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.home-buddies__message.is-new {
+  animation: home-buddies-arrive 420ms ease-out both;
+}
+
+@keyframes home-buddies-arrive {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-buddies__message.is-new { animation: none; }
+}
+
 .home-buddies__where {
   color: var(--gr-text-muted);
   font-size: 13px;

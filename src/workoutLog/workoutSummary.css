@@ -255,9 +255,20 @@
   vertical-align: middle;
 }
 
-.workout-summary__highlights tbody tr:last-child th,
-.workout-summary__highlights tbody tr:last-child td {
+.workout-summary__highlights tbody:last-of-type tr:last-child th,
+.workout-summary__highlights tbody:last-of-type tr:last-child td {
   border-bottom: 0;
+}
+
+.workout-summary__highlights .workout-summary__highlight-row--explained th,
+.workout-summary__highlights .workout-summary__highlight-row--explained td { border-bottom: 0; padding-bottom: 6px; }
+.workout-summary__highlights .workout-summary__explanation-row td {
+  width: auto;
+  padding-top: 0;
+  color: var(--gr-text-soft);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .workout-summary__improved {
@@ -537,9 +548,12 @@
     border-bottom: 1px solid var(--gr-border-strong);
   }
 
-  .workout-summary__highlights tbody tr:last-child {
+  .workout-summary__highlights tbody:last-of-type tr:last-child {
     border-bottom: 0;
   }
+
+  .workout-summary__highlights tbody .workout-summary__highlight-row--explained { padding-bottom: 0; border-bottom: 0; }
+  .workout-summary__highlights tbody .workout-summary__explanation-row { padding-top: 0; }
 
   .workout-summary__highlights tbody th {
     grid-column: 1 / -1;
@@ -560,6 +574,8 @@
     color: var(--gr-text-soft);
     font-weight: 400;
   }
+
+  .workout-summary__highlights tbody .workout-summary__explanation-row td::before { content: none; }
 
   .workout-summary__highlights tbody td { margin-top: 4px; }
   .workout-summary__highlights tbody td[data-label=''] { display: none; }

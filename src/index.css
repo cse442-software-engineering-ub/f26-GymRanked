@@ -2403,6 +2403,170 @@ a.today-workout__details:hover {
   border-radius: var(--gr-radius-inner);
 }
 
+/* "Intermediate · Barbell" at the top of the guide. The body's 20px gap is pulled in so it sits with what follows. */
+.side-panel__body .exercise-guide__details {
+  margin-bottom: -8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gr-text-soft);
+}
+
+/* The clip and its Play/Pause bar as one block (src/GuideVideo.jsx): the bar spans the bottom of the video and the
+   pair shares one border and rounded corners. */
+.exercise-guide__player {
+  display: flex;
+  flex-direction: column;
+  /* The panel body is a flex column with a fixed height; without this the player shrinks to a sliver and its
+     overflow: hidden crops the clip and hides the Play/Pause button. */
+  flex: none;
+  overflow: hidden;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-inner);
+}
+
+.exercise-guide__player .exercise-guide__video {
+  border: 0;
+  border-radius: 0;
+}
+
+.wl-button.exercise-guide__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  font-size: 14px;
+  color: var(--gr-text);
+  background: var(--gr-surface-raised);
+  border: 0;
+  border-top: 1px solid var(--gr-border-strong);
+  border-radius: 0;
+}
+
+/* The pictures and steps shown when the clip can't play (src/GuideFallback.jsx). */
+.guide-fallback {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.guide-fallback__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  color: var(--gr-warning-text);
+  background: var(--gr-warning-bg);
+  border: 1px solid color-mix(in srgb, var(--gr-warning) 35%, transparent);
+  border-radius: var(--gr-radius-button);
+  font-size: 14px;
+}
+
+.guide-fallback__notice svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+}
+
+.guide-fallback__step {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+
+.guide-fallback__image {
+  display: block;
+  width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+  box-sizing: border-box;
+  background: var(--gr-surface-sunken);
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-inner);
+}
+
+.guide-fallback__image--none {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 140px;
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+
+.guide-fallback__image--none svg {
+  width: 36px;
+  height: 36px;
+}
+
+.guide-fallback__instruction {
+  font-size: 15px;
+  color: var(--gr-text);
+  overflow-wrap: anywhere;
+}
+
+.guide-fallback__step figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.guide-fallback__credit {
+  font-size: 12px;
+  color: var(--gr-text-muted);
+}
+
+.guide-fallback__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wl-button.guide-fallback__button {
+  min-width: 96px;
+  font-size: 14px;
+  color: var(--gr-text);
+  background: var(--gr-surface-raised);
+  border-color: var(--gr-border-strong);
+  border-radius: var(--gr-radius-inner);
+}
+
+.wl-button.guide-fallback__button:not(:disabled):hover {
+  background: var(--gr-surface-hover);
+}
+
+.wl-button.guide-fallback__button:disabled {
+  color: var(--gr-nav-inactive);
+  border-color: transparent;
+}
+
+.guide-fallback__count {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gr-text-soft);
+  white-space: nowrap;
+}
+
+/* The ring is drawn inside the bar, since the block's overflow: hidden would clip one outside it. */
+.side-panel .exercise-guide__toggle:focus-visible {
+  outline-offset: -3px;
+}
+
+.wl-button.exercise-guide__toggle:hover {
+  background: var(--gr-surface-hover);
+}
+
+.exercise-guide__toggle svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
 .exercise-guide__section {
   display: flex;
   flex-direction: column;
@@ -2766,45 +2930,413 @@ a.today-workout__details:hover {
   outline-offset: 3px;
 }
 
+/* Phone-only pieces (see the 884px block): the stat tiles and the level label are hidden on wider screens. */
+.plan-lib__stats,
+.plan-lib__current-stats,
+.plan-lib__level {
+  display: none;
+}
+
+/* A dot before the facts line, coloured by level (DESIGN.md: Beginner success, Intermediate warning, Advanced error).
+   The text stays as it was, so the level is never shown by colour alone. */
+.plan-lib small[data-level]::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: var(--gr-text-muted);
+  vertical-align: 0;
+}
+
+.plan-lib small[data-level="beginner"]::before {
+  background: var(--gr-success);
+}
+
+.plan-lib small[data-level="intermediate"]::before {
+  background: var(--gr-warning);
+}
+
+.plan-lib small[data-level="advanced"]::before {
+  background: var(--gr-error);
+}
+
+/* Phone and tablet beside the sidebar ("Stat-forward grid"): the current-plan card (desktop colours) with three stat tiles,
+   then two-column plan cards that lead with the level and end with the numbers. */
 @media (max-width: 884px) {
   .plan-lib__title {
-    margin-bottom: 15px;
+    margin-bottom: 18px;
+    font-size: 32px;
   }
 
   .plan-lib__current {
     display: block;
-    padding: 17px;
+    padding: 20px 18px;
+    border-radius: 14px;
   }
 
-  .plan-lib__current .plan-lib__button {
-    margin-top: 13px;
-  }
-
-  .plan-lib__group {
-    margin-top: 20px;
-  }
-
-  .plan-lib__more {
-    margin-top: 17px;
-  }
-
-  .plan-lib h2 {
-    font-size: 19px;
+  .plan-lib__current .plan-lib__kicker {
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
   }
 
   .plan-lib__current h2 {
+    margin-bottom: 8px;
+    font-size: 28px;
+    letter-spacing: -0.03em;
+  }
+
+  .plan-lib__current p {
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  /* The stat tiles say what the facts line says, so the line is kept only for screen readers and tests. */
+  .plan-lib small {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .plan-lib__current-stats {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr);
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .plan-lib__current-stats span {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    padding: 12px 10px;
+    border-radius: 10px;
+    background: var(--gr-surface-raised);
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  .plan-lib__current-stats b {
     font-size: 26px;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+
+  /* "Intermediate" is a word, not a number: smaller so it fits the tile. */
+  .plan-lib__current-stats span:last-child b {
+    font-size: 15px;
+    line-height: 1.25;
+  }
+
+  .plan-lib__current .plan-lib__button {
+    display: flex;
+    width: 100%;
+    margin-top: 12px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+
+  .plan-lib__group {
+    margin-top: 28px;
+  }
+
+  .plan-lib__more {
+    margin-top: 22px;
+  }
+
+  .plan-lib h2 {
+    font-size: 22px;
+  }
+
+  .plan-lib__current h2 {
+    font-size: 28px;
   }
 
   .plan-lib__grid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
 
   .plan-lib__card {
-    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 14px;
+    border-radius: 12px;
+    background: var(--gr-surface);
   }
 
+  .plan-lib__level {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding-right: 24px;
+    font-size: 13px;
+    color: var(--gr-text-soft);
+  }
+
+  .plan-lib__level::before {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gr-text-muted);
+  }
+
+  .plan-lib__level[data-level="beginner"]::before {
+    background: var(--gr-success);
+  }
+
+  .plan-lib__level[data-level="intermediate"]::before {
+    background: var(--gr-warning);
+  }
+
+  .plan-lib__level[data-level="advanced"]::before {
+    background: var(--gr-error);
+  }
+
+  /* The arrow sits top right, level row aligned with it; the name starts below. */
+  .plan-lib__card-title {
+    display: block;
+    margin-top: 8px;
+    font-size: 17px;
+    line-height: 1.25;
+  }
+
+  .plan-lib__card-title span {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-size: 18px;
+  }
+
+  /* The summary is on the plan's details page; on the phone grid the numbers matter more. */
   .plan-lib__card p {
+    display: none;
+  }
+
+  .plan-lib__stats {
+    display: flex;
+    gap: 18px;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--gr-border);
+  }
+
+  .plan-lib__card-title {
+    margin-bottom: 14px;
+  }
+
+  .plan-lib__stats span {
+    display: flex;
+    flex-direction: column;
     font-size: 12px;
+    color: var(--gr-text-soft);
+  }
+
+  .plan-lib__stats b {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--gr-text);
+  }
+
+  .plan-lib__card:active,
+  .plan-lib__button:active {
+    background: var(--gr-surface-raised);
+    border-color: var(--gr-border-strong);
+  }
+
+  .plan-lib__more {
+    border: 1px solid var(--gr-border);
+    border-radius: 10px;
+    padding-inline: 16px;
+  }
+
+  .plan-lib__more[open] summary {
+    border-bottom: 1px solid var(--gr-border);
+    margin-bottom: 14px;
+  }
+
+  .plan-lib__more summary {
+    min-height: 56px;
+  }
+
+  .plan-lib__more summary strong {
+    font-size: 16px;
+  }
+
+  .plan-lib__more summary span {
+    font-size: 13px;
+  }
+
+  .plan-lib__more summary .plan-lib__chevron {
+    transition: transform 0.2s ease;
+  }
+}
+
+/* "Recommended for you" and "More plans" are swipeable carousels on a phone: cards snap one at a time and the next one peeks in from
+   the right edge. It runs edge to edge (the page gutter is 20px) and keeps the summary the grid cards leave out.
+   Only "All plans" (.plan-lib__group--all, shown when no plan is recommended) stays a grid. */
+@media (max-width: 884px) {
+  /* Container units (cqw) let the row know how wide its column is. */
+  .plan-lib__group:not(.plan-lib__group--all),
+  .plan-lib__more {
+    container-type: inline-size;
+    --lib-bleed: var(--gr-page-gutter);
+    --lib-card: min(72cqw, 280px);
+  }
+
+  .plan-lib__group:not(.plan-lib__group--all) .plan-lib__grid,
+  .plan-lib__more .plan-lib__grid {
+    display: flex;
+    gap: 12px;
+    margin-inline: calc(var(--lib-bleed) * -1);
+    /* Space before the first and after the last card, so each one can reach the middle of the row. */
+    padding-inline: calc((100cqw + 2 * var(--lib-bleed) - var(--lib-card)) / 2);
+    padding-bottom: 4px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .plan-lib__group:not(.plan-lib__group--all) .plan-lib__grid::-webkit-scrollbar,
+  .plan-lib__more .plan-lib__grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .plan-lib__group:not(.plan-lib__group--all) .plan-lib__grid > li,
+  .plan-lib__more .plan-lib__grid > li {
+    flex: 0 0 var(--lib-card);
+    scroll-snap-align: center;
+  }
+
+  /* The card in the middle is the one you're on (it keeps the normal card border); the others step back. Focus inside a card brings it forward too. */
+  .plan-lib__group:not(.plan-lib__group--all) .plan-lib__grid > li:not([data-current="true"]):not(:focus-within),
+  .plan-lib__more .plan-lib__grid > li:not([data-current="true"]):not(:focus-within) {
+    opacity: 0.5;
+    transform: scale(0.95);
+  }
+
+
+  .plan-lib__group:not(.plan-lib__group--all) .plan-lib__card,
+  .plan-lib__more .plan-lib__card {
+    padding: 16px;
+  }
+
+  .plan-lib__group:not(.plan-lib__group--all) .plan-lib__card p,
+  .plan-lib__more .plan-lib__card p {
+    display: -webkit-box;
+    margin-top: 6px;
+    margin-bottom: 14px;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .plan-lib__group:not(.plan-lib__group--all) .plan-lib__card-title,
+  .plan-lib__more .plan-lib__card-title {
+    margin-bottom: 0;
+  }
+
+  .plan-lib__group:not(.plan-lib__group--all) .plan-lib__stats,
+  .plan-lib__more .plan-lib__stats {
+    gap: 24px;
+  }
+
+  .plan-lib__group:not(.plan-lib__group--all) .plan-lib__stats b,
+  .plan-lib__more .plan-lib__stats b {
+    font-size: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .plan-lib__group:not(.plan-lib__group--all) .plan-lib__grid,
+  .plan-lib__more .plan-lib__grid {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Inside "More plans" the row's own 16px padding is the gutter, so the carousel runs to the row's edges, not the page's. */
+@media (max-width: 884px) {
+  .plan-lib__more {
+    --lib-bleed: 16px;
+  }
+}
+
+/* The dots under the carousel (RecommendedPlans): hidden on wider screens, where the cards are a grid. Each dot is a
+   44px button around a small mark; the current one is a longer orange pill. */
+.plan-lib__dots {
+  display: none;
+}
+
+@media (max-width: 884px) {
+  .plan-lib__dots {
+    display: flex;
+    justify-content: center;
+    margin-top: 2px;
+  }
+
+  .plan-lib__dot {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+
+  .plan-lib__dot::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--gr-text-muted);
+    opacity: 0.6;
+  }
+
+  .plan-lib__dot[aria-current="true"]::before {
+    width: 24px;
+    background: var(--gr-action);
+    opacity: 1;
+  }
+
+  .plan-lib__dot:focus-visible {
+    outline: 2px solid var(--gr-brand);
+    outline-offset: -4px;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 884px) and (prefers-reduced-motion: no-preference) {
+  .plan-lib__dot::before {
+    transition: width 120ms ease, background-color 120ms ease;
+  }
+}
+
+/* Very narrow phones: the two-column grid would squeeze names, so the cards go full width. */
+@media (max-width: 340px) {
+  .plan-lib__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plan-lib__more summary .plan-lib__chevron {
+    transition: none;
   }
 }

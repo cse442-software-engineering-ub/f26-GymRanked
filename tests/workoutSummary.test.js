@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { displaySummary, formatCompletedDate, formatDuration } from '../src/workoutLog/workoutSummary.js'
+import { comparisonExplanation, displaySummary, formatCompletedDate, formatDuration } from '../src/workoutLog/workoutSummary.js'
 import { createWorkoutLogApi } from '../src/workoutLog/workoutLogApi.js'
 import { workoutWeeklyMessage } from '../src/workoutLog/workoutWeeklyFeedback.js'
 import { progressText, weekDays } from '../src/weeklyGoal/weeklyGoalFormat.js'
@@ -44,10 +44,22 @@ test('completed session data becomes accurate summary values and top sets', () =
     totalReps: 18,
     newPrs: null,
     highlights: [
-      { exercise: 'Bench press', topSet: '105 lb × 5', versusLast: '', isBaseline: false, prLabel: '' },
-      { exercise: 'Overhead press', topSet: '50 lb × 8', versusLast: '', isBaseline: false, prLabel: '' },
+      { exercise: 'Bench press', topSet: '105 lb × 5', versusLast: '', comparisonNote: '', isBaseline: false, prLabel: '' },
+      { exercise: 'Overhead press', topSet: '50 lb × 8', versusLast: '', comparisonNote: '', isBaseline: false, prLabel: '' },
     ],
   })
+})
+
+test('summary counts reps across every saved set', () => {
+  const session = {
+    name: 'Full body', completed_at: '2026-11-17T20:00:00Z',
+    summary: { duration_seconds: 1200, total_volume_lb: 900, set_count: 3, exercise_count: 2, total_reps: 28 },
+    exercises: [
+      { name: 'Bench press', sets: [{ weight_lb: 25, reps: 10 }, { weight_lb: 25, reps: 10 }] },
+      { name: 'Squat', sets: [{ weight_lb: 50, reps: 8 }] },
+    ],
+  }
+  assert.equal(displaySummary(session).totalReps, 28)
 })
 
 test('an unfinished session has no summary, and bodyweight sets retain their label', () => {
@@ -86,17 +98,25 @@ test('records show previous results, baselines, weight PRs and bodyweight rep PR
   const summary = displaySummary(session, records)
   assert.equal(summary.newPrs, 2)
   assert.deepEqual(summary.highlights, [
-    { exercise: 'Bench press', topSet: '165 lb × 10', versusLast: '185 lb × 9', isBaseline: false, prLabel: '' },
-    { exercise: 'Overhead press', topSet: '100 lb × 12', versusLast: '100 lb × 6', isBaseline: false, prLabel: '' },
-    { exercise: 'Cable fly', topSet: '50 lb × 8', versusLast: '45 lb × 12', isBaseline: false, prLabel: 'Weight PR' },
-    { exercise: 'Pull-up', topSet: 'Bodyweight × 10', versusLast: 'Bodyweight × 9', isBaseline: false, prLabel: 'Rep PR' },
+    { exercise: 'Bench press', topSet: '165 lb × 10', versusLast: '185 lb × 9', comparisonNote: "Last time: 185 lb × 9. Today: 165 lb × 10. That's 20 lb less and 1 more rep.", isBaseline: false, prLabel: '' },
+    { exercise: 'Overhead press', topSet: '100 lb × 12', versusLast: '100 lb × 6', comparisonNote: "Last time: 100 lb × 6. Today: 100 lb × 12. That's 6 more reps.", isBaseline: false, prLabel: '' },
+    { exercise: 'Cable fly', topSet: '50 lb × 8', versusLast: '45 lb × 12', comparisonNote: "Last time: 45 lb × 12. Today: 50 lb × 8. That's 5 lb more and 4 fewer reps.", isBaseline: false, prLabel: 'Weight PR' },
+    { exercise: 'Pull-up', topSet: 'Bodyweight × 10', versusLast: 'Bodyweight × 9', comparisonNote: "Last time: Bodyweight × 9. Today: Bodyweight × 10. That's 1 more rep.", isBaseline: false, prLabel: 'Rep PR' },
   ])
   const baseline = displaySummary(session, {
     session_id: 7, new_pr_count: 0,
     exercises: [{ exercise: 'Pull-up', metric: 'reps', top_set: { weight_lb: 0, reps: 10 }, previous: null, change: null, best_before: null, is_baseline: true, is_pr: false }],
   })
   assert.equal(baseline.newPrs, 0)
-  assert.deepEqual(baseline.highlights[3], { exercise: 'Pull-up', topSet: 'Bodyweight × 10', versusLast: '', isBaseline: true, prLabel: '' })
+  assert.deepEqual(baseline.highlights[3], { exercise: 'Pull-up', topSet: 'Bodyweight × 10', versusLast: '', comparisonNote: 'Today: Bodyweight × 10. This is your first recorded result.', isBaseline: true, prLabel: '' })
+})
+
+test('comparison explanation keeps weight and reps visible across changes', () => {
+  assert.equal(comparisonExplanation({ weight_lb: 105, reps: 5 }, { weight_lb: 100, reps: 5 }), "Last time: 100 lb × 5. Today: 105 lb × 5. That's 5 lb more.")
+  assert.equal(comparisonExplanation({ weight_lb: 90, reps: 8 }, { weight_lb: 100, reps: 10 }), "Last time: 100 lb × 10. Today: 90 lb × 8. That's 10 lb less and 2 fewer reps.")
+  assert.equal(comparisonExplanation({ weight_lb: 100, reps: 5 }, { weight_lb: 100, reps: 5 }), "Last time: 100 lb × 5. Today: 100 lb × 5. That's the same weight and reps.")
+  assert.equal(comparisonExplanation({ weight_lb: 50, reps: 10 }, null, true), 'Today: 50 lb × 10. This is your first recorded result.')
+  assert.equal(comparisonExplanation({ weight_lb: 50, reps: 10 }, null), '')
 })
 
 test('session, completion and history calls use their backend endpoints', async () => {

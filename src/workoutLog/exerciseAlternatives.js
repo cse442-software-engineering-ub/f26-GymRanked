@@ -6,15 +6,15 @@
 // and setup.php is no longer asked. Only GET requests: nothing here writes.
 //
 // fetchAlternatives resolves to {state, ...} and never throws. state is one of alternatives, noMatch, notCovered,
-// loggedOut or failed. Answers that list alternatives (or none) are kept per exercise until the page reloads, so
-// reopening is instant; failures are never kept, so reopening after one asks again.
-
-const answers = new Map()
+// loggedOut or failed. Nothing is kept: every call asks the server again (with the browser's HTTP cache bypassed),
+// because the answer depends on the user's saved equipment and experience, which can change in Training
+// preferences, in another tab or by another account logging in (task #82, "Refresh after settings or account
+// changes").
 
 async function getJson(fetchImpl, path) {
   let response
   try {
-    response = await fetchImpl(`${import.meta.env?.BASE_URL ?? '/'}api/${path}`, { credentials: 'same-origin' })
+    response = await fetchImpl(`${import.meta.env?.BASE_URL ?? '/'}api/${path}`, { credentials: 'same-origin', cache: 'no-store' })
   } catch {
     return { status: 0, body: null }
   }
@@ -39,12 +39,7 @@ function isSetup(value) {
   return Boolean(value) && Array.isArray(value.equipment)
 }
 
-export function cachedAlternatives(exercise) {
-  return answers.get(exercise) ?? null
-}
-
 export async function fetchAlternatives(exercise, { fetchImpl = (...args) => fetch(...args) } = {}) {
-  if (answers.has(exercise)) return answers.get(exercise)
   const { status, body } = await getJson(fetchImpl, `exercise_alternatives.php?exercise=${encodeURIComponent(exercise)}`)
   const state = alternativesState(status, body)
   if (state !== 'alternatives' && state !== 'noMatch') return { state }
@@ -65,6 +60,5 @@ export async function fetchAlternatives(exercise, { fetchImpl = (...args) => fet
     you: { experience: you.experience ?? null, equipment: you.equipment },
     alternatives: body.alternatives,
   }
-  answers.set(exercise, answer)
   return answer
 }

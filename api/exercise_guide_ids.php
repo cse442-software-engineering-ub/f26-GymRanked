@@ -5,8 +5,6 @@
 // ids are chosen by hand instead of guessed at request time. An exercise missing here simply shows no guide.
 // Some entries are the closest movement WorkoutX has, not an exact match (noted on the line).
 // To add one, find the id with GET /v2/exercises?name=... and add a line.
-//
-// Not mapped, because WorkoutX has no usable match: acceleration sprint, broad jump, medicine ball throw.
 return [
     // Barbell lifts
     'bench press' => 'ex_SAWOOH',             // Barbell Bench Press
@@ -25,7 +23,8 @@ return [
     'barbell hip thrust' => 'ex_A7RLPO',      // Barbell Hip Thrust
     'bulgarian split squat' => 'ex_MCMDNU',   // Barbell Bulgarian Split Squat
 
-    // Dumbbell
+    // Dumbbell and kettlebell
+    'kettlebell swing' => 'ex_D6WO2Q',        // Kettlebell Swing
     'dumbbell curl' => 'ex_B5ZYR5',           // Dumbbell Curls
     'dumbbell press' => 'ex_2OSXDM',          // Dumbbell Bench Press
     'incline dumbbell press' => 'ex_X7I4K2',  // Dumbbell Incline Bench Press
@@ -66,6 +65,8 @@ return [
     'bodyweight squat' => 'ex_KNIBLJ',        // Bodyweight Squat
     'calf raise' => 'ex_H3VK5N',              // Bodyweight Standing Calf Raise
     'box jump' => 'ex_3BVVUH',                // Box Jump
+    'jump squat' => 'ex_XUVB7Y',              // Jump Squats Bodyweight
+    'alternate sprint' => 'ex_SG5OQI',        // Alternate Sprinter Lunge (closest; WorkoutX has no sprint-in-place)
     'glute bridge' => 'ex_WCBO3J',            // Barbell Glute Bridge (closest; no bodyweight version)
 
     // Core

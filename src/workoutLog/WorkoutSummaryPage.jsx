@@ -14,13 +14,13 @@ const PREVIEW_SUMMARY = {
   duration: '52 min 14 sec',
   totalVolume: '18,420 lb',
   setsCompleted: 21,
-  exerciseCount: 5,
+  totalReps: 208,
   newPrs: 2,
   highlights: [
-    { exercise: 'Bench press', topSet: '185 lb × 5', versusLast: '180 lb × 6', prLabel: 'Weight PR' },
-    { exercise: 'Incline dumbbell press', topSet: '70 lb × 8', versusLast: '', isBaseline: true },
-    { exercise: 'Cable fly', topSet: '40 lb × 12', versusLast: '45 lb × 10', prLabel: '' },
-    { exercise: 'Tricep pushdown', topSet: '55 lb × 12', versusLast: '50 lb × 10', prLabel: 'Weight PR' },
+    { exercise: 'Bench press', topSet: '185 lb × 5', versusLast: '180 lb × 6', comparisonNote: "Last time: 180 lb × 6. Today: 185 lb × 5. That's 5 lb more and 1 fewer rep.", prLabel: 'Weight PR' },
+    { exercise: 'Incline dumbbell press', topSet: '70 lb × 8', versusLast: '', comparisonNote: 'Today: 70 lb × 8. This is your first recorded result.', isBaseline: true },
+    { exercise: 'Cable fly', topSet: '40 lb × 12', versusLast: '45 lb × 10', comparisonNote: "Last time: 45 lb × 10. Today: 40 lb × 12. That's 5 lb less and 2 more reps.", prLabel: '' },
+    { exercise: 'Tricep pushdown', topSet: '55 lb × 12', versusLast: '50 lb × 10', comparisonNote: "Last time: 50 lb × 10. Today: 55 lb × 12. That's 5 lb more and 2 more reps.", prLabel: 'Weight PR' },
   ],
 }
 const PREVIEW_WEEKLY = {
@@ -177,7 +177,7 @@ export default function WorkoutSummaryPage({ preview = false }) {
             <section className="workout-summary__metrics" aria-label="Session statistics">
               <Metric label="Total volume" value={summary.totalVolume} icon="volume" />
               <Metric label="Sets completed" value={summary.setsCompleted} icon="sets" />
-              <Metric label="Exercises" value={summary.exerciseCount} icon="dumbbell" />
+              <Metric label="Reps completed" value={summary.totalReps} icon="dumbbell" />
               <Metric label="New PRs" value={summary.newPrs ?? '—'} icon="trophy" accent={summary.newPrs > 0} />
             </section>
 
@@ -193,15 +193,16 @@ export default function WorkoutSummaryPage({ preview = false }) {
               {highlights.length > 0 ? (
                 <table>
                   <thead><tr><th scope="col">Exercise</th><th scope="col">Top set</th><th scope="col">Vs last</th></tr></thead>
-                  <tbody>
-                    {highlights.map((item) => (
-                      <tr key={item.exercise}>
+                  {highlights.map((item) => (
+                    <tbody key={item.exercise}>
+                      <tr className={item.comparisonNote ? 'workout-summary__highlight-row--explained' : undefined}>
                         <th scope="row"><SummaryIcon name="dumbbell" />{item.exercise}</th>
                         <td data-label="Top set">{item.topSet}{item.prLabel && <span className="workout-summary__pr-label"><SummaryIcon name="trophy" /> {item.prLabel}</span>}{item.isBaseline && <span className="workout-summary__baseline">First result</span>}</td>
                         <td data-label={item.versusLast ? 'Vs last' : ''} className={item.versusLast ? '' : 'workout-summary__no-change'}>{item.versusLast}</td>
                       </tr>
-                    ))}
-                  </tbody>
+                      {item.comparisonNote && <tr className="workout-summary__explanation-row"><td colSpan={3}>{item.comparisonNote}</td></tr>}
+                    </tbody>
+                  ))}
                 </table>
               ) : <p className="workout-summary__no-highlights">No sets were recorded for this workout.</p>}
             </section>
@@ -211,9 +212,6 @@ export default function WorkoutSummaryPage({ preview = false }) {
               <Link className="workout-summary__secondary" to="/progress/history"><SummaryIcon name="list" /> Workout history</Link>
               <button type="button" className="workout-summary__secondary" onClick={shareSummary}><SummaryIcon name="share" /> Share summary</button>
             </div>
-            <nav className="workout-summary__mobile-links" aria-label="More workout results">
-              <Link to="/progress">View progress →</Link>
-            </nav>
             {shareStatus && <p className="workout-summary__share-status" role="status">{shareStatus}</p>}
           </>
         )}

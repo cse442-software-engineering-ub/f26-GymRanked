@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { authRequest } from '../auth/api.js'
+import EntryHandoff from '../auth/EntryHandoff.jsx'
+import { reducedMotion, startHandoff } from '../auth/entryHandoff.js'
 import AppMenu, { MenuBrand } from './AppMenu.jsx'
 import PhoneMenu from './PhoneMenu.jsx'
 import './navigation.css'
@@ -16,6 +18,9 @@ function AppShell({ userName, children }) {
   const focusPage = useRef(false)
   const [logoutBusy, setLogoutBusy] = useState(false)
   const [logoutError, setLogoutError] = useState('')
+  // After Log out: the page slides away and the sidebar widens back into the entry screen's brand panel, then the
+  // log in screen opens (src/auth/entryHandoff.js).
+  const [leaving, setLeaving] = useState(false)
 
   // After a page is chosen in the phone menu the menu is gone, so the focus moves to the new page. A choice in the
   // sidebar keeps the focus on its row, which stays on screen.
@@ -41,17 +46,28 @@ function AppShell({ userName, children }) {
     setLogoutError('')
     try {
       await authRequest('logout', {})
-      navigate('/login', { replace: true, state: { message: 'You are logged out.' } })
+      if (reducedMotion()) {
+        navigate('/login', { replace: true, state: { message: 'You are logged out.' } })
+        return
+      }
+      // Marked straight away: if the page notices the ended session during the slide and opens log in itself, the
+      // log in screen still says "You are logged out." and finishes the slide.
+      startHandoff('leave')
+      setLeaving(true)
     } catch (error) {
       setLogoutError(error.message)
       setLogoutBusy(false)
     }
   }
 
+  function leaveDone() {
+    navigate('/login', { replace: true, state: { message: 'You are logged out.' } })
+  }
+
   const menu = { userName, onLogout, logoutBusy, logoutError }
 
   return (
-    <div className="app-shell">
+    <div className={leaving ? 'app-shell app-shell--leaving' : 'app-shell'}>
       <button type="button" className="app-skip" onClick={() => page.current?.focus()}>Skip to the page</button>
       <aside className="app-sidebar">
         <MenuBrand />
@@ -61,6 +77,7 @@ function AppShell({ userName, children }) {
       <div className="app-shell__page" id="app-page" tabIndex={-1} ref={page}>
         {children}
       </div>
+      {leaving && <EntryHandoff phase="to-brand" onDone={leaveDone} />}
     </div>
   )
 }

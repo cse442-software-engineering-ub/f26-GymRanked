@@ -61,7 +61,7 @@ The items have no buttons. The first version offers no "Swap" action.
 | Logged out | 401 | `Your login has expired. Log in again to see alternatives.` with a **Log in** link |
 
 - **Try again** sends the same request again, shows Loading, and then whichever state the new answer gives. Focus moves to the dialog title when the new state appears.
-- A successful answer is kept in memory per exercise name until the page reloads, like `ExerciseGuide`, so reopening shows it at once. Failures are never kept, so reopening after a failure always sends a new request.
+- Nothing is kept between opens: each time the dialog opens (and each **Try again**) it sends a new request and shows Loading until the answer arrives, because the answer depends on the user's saved equipment and experience, which can change at any time (see "Refresh after settings or account changes").
 - If the dialog is closed while a request is out, the late answer is ignored.
 - Nothing about the set in progress changes: the dialog sits over the page and never unmounts it, so the timer, the typed weight and reps (`setDraft.js`), the rest countdown and the saved sets are untouched. A 401 or a link away keeps the typed set too, because `setDraft.js` already stores it per session and exercise.
 - The screen only sends `GET`. It never calls `workout_sets.php`, `workout_session.php` (POST), `plan.php` or anything that writes.
@@ -175,9 +175,9 @@ Step 3: In the request's Response tab, confirm the four names and their order ma
 
 Step 4: Confirm the dialog shows `Alternatives to Bench press`, `Your setup: Intermediate · Dumbbells`, `4 alternatives`, and the four items in the same order as the response, each with the tags, muscles and reason in story #80, Acceptance Test 1, step 5.
 
-Step 5: Press **Close**, then **See alternatives** again. Confirm the list appears straight away and no second request is sent.
+Step 5: Press **Close**, then **See alternatives** again. Confirm exactly one new request to `exercise_alternatives.php` is sent, Loading shows while it is out, and the same four items appear.
 
-Expected outcome: one GET per exercise per page load, and the screen shows the response's items in its order with the text rules above.
+Expected outcome: one GET each time the dialog opens, and the screen shows the response's items in its order with the text rules above.
 
 ## Test 2: Loading state
 
@@ -213,7 +213,7 @@ Step 2: Press **Try again** twice. Confirm a new blocked request appears in Netw
 
 Step 3: Press **Close**. In Application → Local Storage, confirm the key `gymrank.setDraft.{session id}.Bench press` still holds `"weight":"140"` and `"reps":"4"`, and the page still shows `140`, `4` and `Set finished`.
 
-Step 4: Remove the block. Press **See alternatives**. Confirm the four alternatives appear (failures are not kept, so a new request is sent).
+Step 4: Remove the block. Press **See alternatives**. Confirm the four alternatives appear (every open sends a new request).
 
 Step 5: In Network set throttling to **Offline**. Reload is not needed: close the dialog, open Pull-up and press **See alternatives**. Confirm the same error message. Set **No throttling** and press **Try again**. Confirm the no-match state from Test 3, step 1.
 
@@ -305,3 +305,110 @@ Run `npm test` from the repo root. Confirm every test passes, including `tests/e
 6. The no-match and not-covered texts for Alex's Pull-up and Romanian deadlift, word for word.
 
 Expected outcome: `npm test` reports 0 failures.
+
+## Refresh after settings or account changes
+
+Added when card #82 was reopened (`GitAndScrumDocumentation.md`, section 7): the dialog showed a list kept from earlier after the user changed their equipment or experience, or after another account logged in on the same browser. Each time **See alternatives** opens it now sends a new request and shows Loading until the answer arrives. The set being typed (weight, reps, set number and timer) is kept in this browser per account, workout and exercise, and when a different account logs in, the previous account's unlogged sets are removed.
+
+Setup for these tests: do Steps 1 to 4 of "Setup for all tests" above (the seed must be loaded on the test day). Unless a test says otherwise, log in as Gio Gym, `alt.gio@example.com` / `Alt-Gio-82!` (Advanced, Full gym access), and "the exercise" is **Bench press** in today's workout. The second account in Refresh Test 5 is Alex Alternatives, `alt.alex@example.com` / `Alt-Alex-82!` (Intermediate, Dumbbells). Training preferences are at `#/profile/training-preferences` (avatar → Profile → Training preferences).
+
+### Refresh Test 1: Full gym to Bodyweight only keeps the typed set
+
+Step 1: Press **Begin exercise** on the exercise. Press **Start set**, wait 3 seconds, press **Finish set**, then type `135` in **Weight (lb)** and `5` in **Reps**. Do NOT press **Log set**.
+
+Step 2: Press **See alternatives**. Confirm the setup line shows `Full gym access` and at least one alternative needs equipment (e.g., `Dumbbells` or `Barbell`). Write the list down. Press **Close**.
+
+Step 3: Open Training preferences from the menu. Change equipment to **Bodyweight only** and save. Confirm the page says it was saved.
+
+Step 4: Go back to the Active workout page and open the same exercise.
+
+Step 5: Confirm the page still shows `Set 1`, and **Weight (lb)** and **Reps** still hold `135` and `5`.
+
+Step 6: Press **See alternatives**. Confirm:
+- the setup line now shows `Bodyweight only` (not `Full gym access`);
+- every alternative shows `No equipment`, or the box shows `No alternative fits your setup`;
+- no alternative from step 2 that needs equipment appears.
+
+Step 7: Press **Close**. Confirm `135` and `5` are still there. Press **Log set** and confirm **Saved sets** shows `Set 1` with `135 lb × 5`.
+
+Expected outcome: the suggestions change to fit bodyweight only and the typed weight and reps survive all the way to being logged.
+
+Fails if any old equipment-based alternative still shows, the setup line still says `Full gym access`, or the weight, reps or set number are lost or changed.
+
+### Refresh Test 2: Lowering experience refreshes the suggestions
+
+Step 1: Open the exercise and press **See alternatives**. Note any alternatives marked `Intermediate` or `Advanced`. Press **Close**.
+
+Step 2: In Training preferences, change experience to **Beginner** and save.
+
+Step 3: Return to the exercise and press **See alternatives**.
+
+Step 4: Confirm the setup line shows `Beginner`, and every alternative is marked `Beginner` (or the box explains none fit).
+
+Expected outcome: only Beginner alternatives are offered after the change.
+
+Fails if any Intermediate or Advanced alternative still appears, or the setup line still shows the old level.
+
+### Refresh Test 3: Adding equipment back brings the options back
+
+Step 1: Do Refresh Test 1, steps 3–6, so the account is on Bodyweight only.
+
+Step 2: In Training preferences, change equipment back to **Full gym access** and experience to **Advanced**, then save.
+
+Step 3: Return to the exercise without reloading the page and press **See alternatives**.
+
+Step 4: Confirm the setup line shows `Advanced · Full gym access` and the alternatives that need equipment from Refresh Test 1, step 2 are back.
+
+Expected outcome: the list matches the original Full gym list.
+
+Fails if the bodyweight-only list or the `No alternative fits your setup` message is still shown.
+
+### Refresh Test 4: Settings changed in another tab
+
+Step 1: Open the exercise and type `100` in **Weight (lb)** and `8` in **Reps**. Don't log. Press **See alternatives**, note the list, and press **Close**.
+
+Step 2: Open a second browser tab with Training preferences. Change equipment to **Bodyweight only** and save. Close that tab.
+
+Step 3: Back in the first tab, without reloading, press **See alternatives** again.
+
+Step 4: Confirm the list now fits bodyweight only, and `100` and `8` are still in the boxes after closing it.
+
+Expected outcome: the suggestions reflect the change made in the other tab and the typed set is untouched.
+
+Fails if the old list from step 1 appears, or the typed numbers change.
+
+### Refresh Test 5: Switching accounts never shows the previous account's suggestions
+
+You need a second account with a workout today and different settings from the first (Alex Alternatives above: Intermediate, Dumbbells).
+
+Step 1: On the first account (Full gym, Advanced), open the exercise, type `135` and `5` without logging, and open **See alternatives**. Note the list. Press **Close**.
+
+Step 2: Log out. Log in as the second account and open the same exercise (or the first exercise of its workout).
+
+Step 3: Confirm the weight and reps boxes don't contain `135` and `5`.
+
+Step 4: Press **See alternatives**. Confirm the setup line shows the second account's settings, and the list fits them, not the first account's list.
+
+Expected outcome: the second account only sees its own setup and suggestions, and none of the first account's typed numbers.
+
+Fails if any of the first account's suggestions, setup line or typed numbers appear.
+
+### Refresh Test 6: Losing the connection doesn't lose the typed set
+
+Step 1: Open the exercise and type `135` and `5` without logging.
+
+Step 2: Change equipment to **Bodyweight only** in Training preferences and save, then go back to the exercise.
+
+Step 3: Turn off Wi-Fi. Press **See alternatives**.
+
+Step 4: Confirm the box shows `Couldn't load alternatives. Check your connection and try again.` with a **Try again** button, and no old list.
+
+Step 5: Turn Wi-Fi back on and press **Try again**. Confirm the bodyweight-only list appears.
+
+Step 6: Press **Close**. Confirm `135` and `5` are still in the boxes.
+
+Expected outcome: an error with Try again shows offline, the right list appears after retrying, and the typed set survives.
+
+Fails if an old list is shown while offline, Try again doesn't work, or the typed numbers are lost.
+
+After testing: set the first account back to Full gym access and Advanced (or load the seed again).

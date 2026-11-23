@@ -3,48 +3,22 @@ import { useNavigate } from 'react-router-dom'
 import GroupPanel, { InviteCard } from './GroupPanel.jsx'
 import EncouragementList from './EncouragementList.jsx'
 import NoGroupPanel from './NoGroupPanel.jsx'
-import { getBuddyGroup } from './buddiesApi.js'
+import { useBuddyGroupPoll } from './useBuddyGroupPoll.js'
 import { MESSAGES } from './buddiesFormat.js'
 import './buddies.css'
 
 // Workout buddies (story #78, card #79): a private group joined with an invite code. Someone in no group sees the
 // join and create forms; a member sees the group, its members and the encouragements sent to them. Everything shown
-// comes from Mansur's api/buddy_*.php (card #71). The group loads again whenever the tab comes back into view, so a
-// new member or message shows without a manual reload.
+// comes from Mansur's api/buddy_*.php (card #71). useBuddyGroupPoll keeps it up to date while the page is open, so a
+// new member or encouragement shows without a reload and without touching a message being typed.
 function BuddiesPage() {
   const navigate = useNavigate()
-  const [state, setState] = useState({ status: 'loading', data: null })
   const [notice, setNotice] = useState('')
-  // Only the newest request may change the page; older answers (and answers after leaving the page) are dropped.
-  const latest = useRef(0)
   const groupTitle = useRef(null)
   const focusGroupTitle = useRef(false)
 
   const toLogin = useCallback(() => navigate('/login', { replace: true }), [navigate])
-
-  // quiet: keep what is on screen while loading, and keep it if the request fails (background refreshes).
-  const load = useCallback(async (quiet) => {
-    const id = ++latest.current
-    if (!quiet) setState({ status: 'loading', data: null })
-    const response = await getBuddyGroup()
-    if (id !== latest.current) return
-    if (response.status === 401) toLogin()
-    else if (response.ok) setState({ status: 'ready', data: response.data })
-    else if (!quiet) setState({ status: 'error', data: null })
-  }, [toLogin])
-
-  useEffect(() => {
-    load(false)
-    return () => { latest.current += 1 }
-  }, [load])
-
-  useEffect(() => {
-    const refresh = () => {
-      if (document.visibilityState === 'visible' && latest.current > 0) load(true)
-    }
-    document.addEventListener('visibilitychange', refresh)
-    return () => document.removeEventListener('visibilitychange', refresh)
-  }, [load])
+  const { state, fresh, announcement, reload, refresh, replace } = useBuddyGroupPoll({ onUnauthorized: toLogin })
 
   // After joining or creating, the keyboard and screen readers land on the new group's name.
   useEffect(() => {
@@ -56,15 +30,14 @@ function BuddiesPage() {
 
   // Join and create answer with the same body as GET, so the group shows at once with no second loading screen.
   function showJoinedGroup(data, message) {
-    latest.current += 1
     focusGroupTitle.current = true
     setNotice(message)
-    setState({ status: 'ready', data })
+    replace(data)
   }
 
   function reloadFromScratch() {
     setNotice('')
-    load(false)
+    reload()
   }
 
   const { status, data } = state
@@ -100,13 +73,15 @@ function BuddiesPage() {
         {status === 'ready' && data.group && (
           <div className="buddies-layout">
             <GroupPanel group={data.group} me={data.me} titleRef={groupTitle} onNotice={setNotice}
-              onUnauthorized={toLogin} onMembersChanged={() => load(true)} />
+              onUnauthorized={toLogin} onMembersChanged={refresh} />
             <div className="buddies-side">
               {data.group.invite_code && <InviteCard group={data.group} />}
-              <EncouragementList encouragements={data.encouragements} />
+              <EncouragementList encouragements={data.encouragements} fresh={fresh} />
             </div>
           </div>
         )}
+        {/* Read out when new encouragement arrives while the page is open. */}
+        <p className="buddies-sr-only" role="status" aria-live="polite">{announcement}</p>
       </main>
     </div>
   )

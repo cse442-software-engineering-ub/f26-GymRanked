@@ -35,6 +35,9 @@ if (array_key_exists('id', $data)) {
     $db->begin_transaction();
     $session = find_session($db, (int) $owned['session_id'], $user_id, true);
     if ($session['completed_at'] !== null) respond(409, ['error' => 'Workout already completed']);
+    if (!workout_session_is_scheduled_today($db, $user_id, $session)) {
+        respond(409, ['error' => 'This workout is no longer scheduled today']);
+    }
     [$weight, $reps] = validated_set_values($data);
 
     $stmt = $db->prepare('UPDATE workout_sets SET weight_lb = ?, reps = ?, updated_at = UTC_TIMESTAMP() WHERE id = ?');
@@ -52,21 +55,45 @@ $set_number = $data['set_number'] ?? null;
 if (!is_int($set_number) || $set_number < 1 || $set_number > SET_NUMBER_MAX) {
     respond(400, ['error' => 'set_number must be a whole number from 1 to ' . SET_NUMBER_MAX . '.']);
 }
+$request_id = $data['request_id'] ?? null;
+if ($request_id !== null && (!is_string($request_id) || !preg_match('/\A[A-Za-z0-9_-]{8,64}\z/D', $request_id))) {
+    respond(400, ['error' => 'request_id must be 8 to 64 letters, digits, underscores, or hyphens.']);
+}
 
 // The row lock makes saving a set and completing the workout take turns, so no set lands after Complete.
 $db->begin_transaction();
 $session = find_session($db, $session_id, $user_id, true);
 if (!$session) respond(404, ['error' => 'Session not found']);
+// Return the original result after a lost response. A request ID cannot be reused for different values.
+if ($request_id !== null) {
+    $stmt = $db->prepare('SELECT id, exercise, set_number, weight_lb, reps FROM workout_sets WHERE session_id = ? AND request_id = ?');
+    $stmt->bind_param('is', $session_id, $request_id);
+    $stmt->execute();
+    $existing = $stmt->get_result()->fetch_assoc();
+    if ($existing) {
+        [$weight, $reps] = validated_set_values($data);
+        if ($existing['exercise'] !== $exercise || (int) $existing['set_number'] !== $set_number
+            || (float) $existing['weight_lb'] !== (float) $weight || (int) $existing['reps'] !== $reps) {
+            $db->rollback();
+            respond(409, ['error' => 'Request ID already used for a different set']);
+        }
+        $db->commit();
+        respond(200, ['set' => find_set($db, (int) $existing['id'])]);
+    }
+}
 if ($session['completed_at'] !== null) respond(409, ['error' => 'Workout already completed']);
+if (!workout_session_is_scheduled_today($db, $user_id, $session)) {
+    respond(409, ['error' => 'This workout is no longer scheduled today']);
+}
 if (!in_array($exercise, exercise_names($session), true)) respond(400, ['error' => "That exercise isn't part of this workout."]);
 [$weight, $reps] = validated_set_values($data);
 
 try {
     $stmt = $db->prepare(
-        'INSERT INTO workout_sets (session_id, exercise, set_number, weight_lb, reps, logged_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())'
+        'INSERT INTO workout_sets (session_id, exercise, set_number, weight_lb, reps, request_id, logged_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())'
     );
-    $stmt->bind_param('isisi', $session_id, $exercise, $set_number, $weight, $reps);
+    $stmt->bind_param('isisis', $session_id, $exercise, $set_number, $weight, $reps, $request_id);
     $stmt->execute();
 } catch (mysqli_sql_exception $error) {
     if ($error->getCode() !== 1062) throw $error;

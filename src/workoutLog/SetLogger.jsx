@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import BodyFigure from '../BodyFigure.jsx'
 import { MUSCLE_LABELS, musclesFor } from '../exerciseMuscles.js'
 import { validateSet } from './setValidation.js'
-import { formatSet, isRetryable, nextSetNumber, saveErrorMessage, upsertSet } from './setLog.js'
+import { formatSet, isRetryable, newSetRequestId, nextSetNumber, saveErrorMessage, upsertSet } from './setLog.js'
 import defaultApi from './workoutLogApi.js'
 import './workoutLog.css'
 
@@ -112,6 +112,7 @@ export default function SetLogger({
   const edit = useSetForm()
   const draftWeightRef = useRef(null)
   const editWeightRef = useRef(null)
+  const pendingSave = useRef(null)
   // Bumped after each successful save; the effect below then moves the cursor to the next set's Weight box.
   // Focusing straight away doesn't work because the box is still disabled until the save finishes rendering.
   const [focusDraft, setFocusDraft] = useState(0)
@@ -138,7 +139,7 @@ export default function SetLogger({
     form.setStatus({ state: 'failed', message: saveErrorMessage(err), retry: isRetryable(err) })
   }
 
-  async function saveDraft() {
+  async function saveDraft(retry = false) {
     if (draft.status.state === 'saving') return
     const checked = validateSet(draft.values)
     if (!checked.ok) {
@@ -146,16 +147,14 @@ export default function SetLogger({
       draft.setStatus({ state: 'idle', message: '', retry: false })
       return
     }
-    const setNumber = nextSetNumber(sets)
+    const request = retry && pendingSave.current
+      ? pendingSave.current
+      : { sessionId, exercise, setNumber: nextSetNumber(sets), weightLb: checked.values.weight_lb, reps: checked.values.reps, requestId: newSetRequestId() }
+    pendingSave.current = request
     draft.setStatus({ state: 'saving', message: '', retry: false })
     try {
-      const saved = await api.saveSet({
-        sessionId,
-        exercise,
-        setNumber,
-        weightLb: checked.values.weight_lb,
-        reps: checked.values.reps,
-      })
+      const saved = await api.saveSet(request)
+      pendingSave.current = null
       setSets((current) => upsertSet(current, saved))
       setNotice({ id: saved.id, text: `Set ${saved.set_number} saved` })
       draft.reset()
@@ -300,7 +299,7 @@ export default function SetLogger({
             errors={draft.errors}
             disabled={draftSaving}
             placeholders={lastSet ? { weight: String(lastSet.weight_lb), reps: String(lastSet.reps) } : { weight: 'e.g. 135', reps: 'e.g. 8' }}
-            onChange={draft.change}
+            onChange={(field, value) => { pendingSave.current = null; draft.change(field, value); draft.setStatus({ state: 'idle', message: '', retry: false }) }}
             weightRef={draftWeightRef}
           />
           <p className="wl-hint">Weight from 0 to 1500 lb, up to 2 decimal places (0 for bodyweight). Reps from 1 to 100.</p>
@@ -309,7 +308,7 @@ export default function SetLogger({
               {draftSaving ? 'Saving…' : 'Save set'}
             </button>
             {draft.status.retry && !draftSaving && (
-              <button type="button" className="wl-button" onClick={saveDraft}>Retry</button>
+              <button type="button" className="wl-button" onClick={() => saveDraft(true)}>Retry</button>
             )}
           </div>
           {draft.status.message && (
