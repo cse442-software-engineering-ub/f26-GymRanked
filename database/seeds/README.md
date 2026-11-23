@@ -49,7 +49,8 @@ Fake accounts for testing login on a local or dev database. Each account has its
 | Nina Park | buddy-nina@example.com | `Buddy-Test-78!` | Workout buddies (#78): no group, joins Morning Lifters with the code |
 | Cal Moss | buddy-cal@example.com | `Buddy-Test-78!` | Workout buddies (#78): no group, creates a group |
 | Omar Reyes | buddy-omar@example.com | `Buddy-Test-78!` | Workout buddies (#78): no group, never joins one (the outside account) |
-| Pete Lowe | buddy-pete@example.com | `Buddy-Test-78!` | Workout buddies (#78): owner of Late Starters, whose invite code `4MXT8H2R` expired yesterday |
+| Pete Lowe | buddy-pete@example.com | `Buddy-Test-78!` | Workout buddies (#78): owner of Late Starters, a group made 400 days ago whose invite code `4MXT8H2R` still works (codes never expire); also the account that is already in a group |
+| Walt Hart | buddy-walt@example.com | `Buddy-Test-78!` | Workout buddies (#78, card #152): no group, joins Late Starters with its old code |
 | Nora Vale and 17 more | `crew-nora@example.com`, `crew-eli`, `crew-ola`, `crew-zed` and the other `crew-<name>@example.com` accounts | `Crew-Test-78!` | Buddies rankings (#78, card #138): Northside Crew (13 members), Eastside Lifters (4) and one account in no group. Loaded by `buddy_rankings.sql` |
 | Avery Stone and 5 more | `dash-avery@example.com`, `dash-blake`, `dash-cam`, `dash-drew`, `dash-emery`, `dash-finn` | `Dash-Demo-136!` | Dashboard demo (card #136): a fully filled Dashboard. Loaded by `dashboard_demo.sql` |
 | Pat Record One to Eleven | summary-pr-1@example.com to summary-pr-11@example.com | `Summary-PR-Test-12!` | Workout records (#12, card #137): one completed Bench press (account 9: Push-up) history per comparison case. Loaded by `workout_records.sql` |
@@ -182,7 +183,7 @@ mysql -u root cse442_2026_fall_team_y_db -e "DELETE FROM auth_attempts;"
 
 ## Workout buddies accounts
 
-`workout_buddies.sql` (story #78, card #71) adds the six `buddy-*@example.com` accounts above, the groups Morning Lifters and Late Starters, and one message from Olivia to Ben. It needs every migration up to `018_workout_buddies.sql`. The accounts are marked `is_test`, so they never appear on a leaderboard. Loading it again resets only these accounts, their groups and their messages (use it to start the buddy tests over):
+`workout_buddies.sql` (story #78, card #71) adds the seven `buddy-*@example.com` accounts above, the groups Morning Lifters and Late Starters, and one message from Olivia to Ben. It needs every migration up to `022_buddy_invite_no_expiry.sql`. The accounts are marked `is_test`, so they never appear on a leaderboard. Loading it again resets only these accounts, their groups and their messages (use it to start the buddy tests over):
 
 ```bash
 mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < database/seeds/workout_buddies.sql
@@ -192,7 +193,7 @@ It ends by printing each member's `member_id` and the invite codes, which the ta
 
 ## Buddies rankings accounts
 
-`buddy_rankings.sql` (story #78, card #138) adds eighteen `crew-<name>@example.com` accounts: Northside Crew (owner Nora, 13 members, invite code `NRTH5CRW`), Eastside Lifters (owner Ola, 4 members, `ESTL4FTR`) and Zed in no group, with the lifts, workouts, weekly goals and weekly training days listed at the top of the file. It needs every migration up to `018_workout_buddies.sql`. The accounts are marked `is_test`, so they never appear on the Everyone boards. The weekly workouts are dated in the current week, so loading it on any day gives the same tables. Loading it again resets only these accounts and their groups. `tests/buddy-rankings-api.mjs` loads it for you:
+`buddy_rankings.sql` (story #78, card #138) adds eighteen `crew-<name>@example.com` accounts: Northside Crew (owner Nora, 13 members, invite code `NRTH5CRW`), Eastside Lifters (owner Ola, 4 members, `ESTL4FTR`) and Zed in no group, with the lifts, workouts, weekly goals and weekly training days listed at the top of the file. It needs every migration up to `022_buddy_invite_no_expiry.sql`. The accounts are marked `is_test`, so they never appear on the Everyone boards. The weekly workouts are dated in the current week, so loading it on any day gives the same tables. Loading it again resets only these accounts and their groups. `tests/buddy-rankings-api.mjs` loads it for you:
 
 ```bash
 mysql --default-character-set=utf8mb4 -u root cse442_2026_fall_team_y_db < database/seeds/buddy_rankings.sql

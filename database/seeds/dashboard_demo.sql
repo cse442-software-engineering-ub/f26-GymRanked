@@ -1,6 +1,6 @@
 -- Dashboard redesign demo accounts (card #136): six dash-<name>@example.com accounts that fill every part of the Dashboard,
 -- for showing it off. The password is Dash-Demo-136! for all of them; only its salted hash is stored here.
--- Requires database/migrations/001_auth.sql to 018_workout_buddies.sql and the plan catalog (Push Pull Legs). Safe to rerun:
+-- Requires database/migrations/001_auth.sql to 022_buddy_invite_no_expiry.sql and the plan catalog (Push Pull Legs). Safe to rerun:
 -- these accounts' names, password, setup, plan, profile, goals, group, messages and workouts are reset to the ones below,
 -- and no other account is touched.
 --
@@ -82,8 +82,8 @@ INSERT INTO user_weekly_competition (user_id, joined_at, ranked_from)
     SELECT u.id, TIMESTAMP(@monday - INTERVAL 20 DAY, '12:00:00'), @monday - INTERVAL 14 DAY FROM users u JOIN dash_people p ON p.email = u.email;
 
 -- The group and its messages (newest first on the Dashboard: Avery sees Cam's).
-INSERT INTO buddy_groups (name, owner_id, invite_code, invite_expires_at, created_at)
-    SELECT 'Iron Circle', u.id, 'DASH136G', UTC_TIMESTAMP() + INTERVAL 7 DAY, TIMESTAMP(@monday - INTERVAL 20 DAY, '12:00:00')
+INSERT INTO buddy_groups (name, owner_id, invite_code, created_at)
+    SELECT 'Iron Circle', u.id, 'DASH136G', TIMESTAMP(@monday - INTERVAL 20 DAY, '12:00:00')
     FROM users u WHERE u.email = 'dash-avery@example.com';
 SET @group = (SELECT id FROM buddy_groups WHERE invite_code = 'DASH136G');
 INSERT INTO buddy_members (group_id, user_id, joined_at)
