@@ -8,7 +8,7 @@ import WorkoutHistoryItem from './WorkoutHistoryItem.jsx'
 import { PAGE_SIZE, countLabel, pageCount, pageList, rangeLabel } from './historyFormat.js'
 import './history.css'
 
-// Story #9: the logged-in account's finished workouts, newest first, four per page (Sam's Sprint 1 designs #35
+// Story #9: the logged-in account's completed and prior-day unfinished workouts, newest first, four per page (Sam's Sprint 1 designs #35
 // and #55). The list comes from api/workout_history.php; opening a workout loads its sets from
 // api/workout_session.php?id=, once per workout.
 function WorkoutHistoryPage() {
@@ -107,14 +107,14 @@ function WorkoutHistoryPage() {
         {status === 'ready' && workouts.length === 0 && (
           <section className="history-empty" aria-labelledby="history-empty-title">
             <h2 id="history-empty-title">No workouts logged yet</h2>
-            <p>Finish your first workout and it will show up here with every exercise, set, and weight you logged.</p>
+            <p>Log a set in a workout and it will appear here after you finish or after the day ends.</p>
             <Link to="/weekly-plan" className="button-primary history-empty__action">Start a workout</Link>
           </section>
         )}
 
         {status === 'ready' && workouts.length > 0 && (
           <>
-            <ol className="history-list" ref={listRef} aria-label="Completed workouts">
+            <ol className="history-list" ref={listRef} aria-label="Workouts in history">
               {shown.map((workout) => (
                 <WorkoutHistoryItem
                   key={workout.id}

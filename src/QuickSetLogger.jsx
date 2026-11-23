@@ -3,7 +3,7 @@ import ExerciseGuide from './ExerciseGuide.jsx'
 import ExerciseAlternatives from './workoutLog/ExerciseAlternatives.jsx'
 import { EMPTY_DRAFT, loadDraft, saveDraft } from './setDraft.js'
 import { formatSet, isRetryable, lastSavedSet, newSetRequestId, nextSetNumber, repeatValues, saveErrorMessage } from './workoutLog/setLog.js'
-import { validateSet } from './workoutLog/setValidation.js'
+import { isAllowedSetInput, validateSet } from './workoutLog/setValidation.js'
 import workoutLogApi from './workoutLog/workoutLogApi.js'
 
 const DEFAULT_REST_SECONDS = 90
@@ -117,6 +117,7 @@ export default function QuickSetLogger({ sessionId, exercise, exercisePosition, 
   }
 
   function update(field, value) {
+    if (!isAllowedSetInput(field, value)) return
     setCanRetry(false)
     pendingSave.current = null
     setDraft((previous) => ({ ...previous, [field]: value }))
@@ -219,10 +220,10 @@ export default function QuickSetLogger({ sessionId, exercise, exercisePosition, 
           <input type="text" inputMode="numeric" autoComplete="off" value={draft.reps} onChange={(event) => update('reps', event.target.value)} aria-invalid={Boolean(errors.reps)} aria-describedby={errors.reps ? 'quick-reps-error' : undefined} disabled={saving} />
           {errors.reps && <span id="quick-reps-error" className="wl-field-error">{errors.reps}</span>}
         </label>
+        {saveError && <p className="wl-message wl-message--error quick-set__save-error" role="alert">{saveError}</p>}
         <button type="button" className="wl-button wl-button--quiet" onClick={repeatLastSet} disabled={saving || !lastSet}>Repeat last set</button>
         <button type="submit" className="wl-button wl-button--primary" disabled={saving}>{saving ? 'Saving…' : 'Log set'}</button>
       </form>
-      {saveError && <p className="wl-message wl-message--error" role="alert">{saveError}</p>}
       {canRetry && <button type="button" className="wl-button wl-button--quiet" onClick={() => logSet(null, true)} disabled={saving}>Retry saving set</button>}
       {notice && <p className="wl-message wl-message--success" role="status">{notice}</p>}
       <p className="quick-set__count">{sets.length} {sets.length === 1 ? 'set' : 'sets'} saved</p>

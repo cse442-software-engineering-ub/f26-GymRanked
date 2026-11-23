@@ -9,6 +9,12 @@ export const WEIGHT_MAX_LB = 1500
 export const REPS_MIN = 1
 export const REPS_MAX = 100
 
+// Keep input editable while preventing signs, letters, exponents and fractional reps.
+// The final range checks still run when Log set is pressed.
+export function isAllowedSetInput(field, value) {
+  return field === 'weight' ? /^\d*(?:\.\d{0,2})?$/.test(value) : /^\d*$/.test(value)
+}
+
 export const MESSAGES = {
   weightEmpty: 'Enter a weight (0 for bodyweight).',
   weightNotNumber: 'Enter a weight as a number.',
