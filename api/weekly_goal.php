@@ -16,7 +16,8 @@
 //   completed_count is that number of days; progress_days is completed_count capped at target_days and
 //   progress_percent is progress_days / target_days rounded to a whole percent, so a 4th day on a 3-day goal still
 //   reads 3 of 3 and 100%. goal_reached is completed_count >= target_days.
-// - Only finished workouts count and they are read from workout_sessions on every request, so the days follow the
+// - Finished workouts count, and so do unfinished ones from an earlier day that have a saved set (api/counted_workouts.php).
+//   They are read from workout_sessions on every request, so the days follow the
 //   workout history. Nothing about the plan is used: switching or clearing a plan changes neither the target nor
 //   the days already earned.
 // - target_days is 1 to 7. Until a target is saved for the week it is the target of the most recent earlier week the user

@@ -20,9 +20,9 @@
 // USAPL applies DOTS to a meet total of competition lifts; this feeds it ESTIMATED 1RMs from logged
 // workouts (Epley, sets of 1 to 10 reps), not meet lifts, so a score is a GymRank score on the DOTS scale and not an
 // official USAPL result.
-// - e1RM = Epley, weight_lb x (1 + reps / 30), best set over all finished workouts, not rounded before scoring. Only
-//   exactly "Bench press", "Back squat" and "Deadlift" count, sets of 1 to 10 reps and more than 0 lb, in finished
-//   workouts (completed_at is not NULL).
+// - e1RM = Epley, weight_lb x (1 + reps / 30), best set over all counted workouts, not rounded before scoring. Only
+//   exactly "Bench press", "Back squat" and "Deadlift" count, sets of 1 to 10 reps and more than 0 lb, in counted
+//   workouts: finished ones, and unfinished ones from an earlier day that have a saved set (api/counted_workouts.php).
 // - A lift board scores that lift's e1RM alone (DOTS is defined for a total, so this is an adaptation). Overall scores the
 //   SUM of the three e1RMs (a total) and only exists for people with all three lifts. Overall rows have lift null.
 // - Scores are rounded half up to 2 decimals and ranks are decided on the rounded score (compared as whole hundredths),
@@ -56,6 +56,7 @@
 
 require __DIR__ . '/workout_common.php';
 require __DIR__ . '/ranking_scope.php';
+require_once __DIR__ . '/counted_workouts.php';
 
 const WORKOUTS_NEEDED = 3;
 const TOP_ROWS = 10;
@@ -186,12 +187,15 @@ $buddies = $scope === 'buddies';
 $group = $buddies ? ranking_group($db, $me_id) : null;
 $group_ids = $group ? $group['ids'] : [];
 
+// Counted workouts (api/counted_workouts.php): finished ones, and unfinished ones from an earlier day.
+$counted = counted_workout_sql('s');
+
 // Everyone who joined, plus the caller whether or not they did.
 $stmt = $db->prepare(
-    'SELECT u.id, u.full_name, u.is_test, p.bodyweight_lb, p.gender, p.scoring_table, p.leaderboard_joined_at,
-            (SELECT COUNT(*) FROM workout_sessions s WHERE s.user_id = u.id AND s.completed_at IS NOT NULL) AS workouts
+    "SELECT u.id, u.full_name, u.is_test, p.bodyweight_lb, p.gender, p.scoring_table, p.leaderboard_joined_at,
+            (SELECT COUNT(*) FROM workout_sessions s WHERE s.user_id = u.id AND $counted) AS workouts
      FROM users u LEFT JOIN user_profile p ON p.user_id = u.id
-     WHERE u.id = ? OR p.leaderboard_joined_at IS NOT NULL' . ($group_ids ? ' OR u.id IN (' . implode(',', $group_ids) . ')' : '')
+     WHERE u.id = ? OR p.leaderboard_joined_at IS NOT NULL" . ($group_ids ? ' OR u.id IN (' . implode(',', $group_ids) . ')' : '')
 );
 $stmt->bind_param('i', $me_id);
 $stmt->execute();
@@ -203,14 +207,15 @@ foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
 }
 
 // The best counted set of each lift: exact names (BINARY, because the column compares case-insensitively), 1 to 10 reps,
-// more than 0 lb, finished workouts only. weight x (30 + reps) is exact DECIMAL arithmetic.
+// more than 0 lb, counted workouts only (finished, or unfinished from an earlier day). weight x (30 + reps) is exact
+// DECIMAL arithmetic.
 $stmt = $db->prepare(
-    'SELECT s.user_id, st.exercise, MAX(st.weight_lb * (30 + st.reps)) AS best
+    "SELECT s.user_id, st.exercise, MAX(st.weight_lb * (30 + st.reps)) AS best
      FROM workout_sets st JOIN workout_sessions s ON s.id = st.session_id
-     WHERE s.completed_at IS NOT NULL AND st.weight_lb > 0 AND st.reps BETWEEN 1 AND 10
-       AND BINARY st.exercise IN (\'Bench press\', \'Back squat\', \'Deadlift\')
+     WHERE $counted AND st.weight_lb > 0 AND st.reps BETWEEN 1 AND 10
+       AND BINARY st.exercise IN ('Bench press', 'Back squat', 'Deadlift')
        AND (s.user_id = ? OR s.user_id IN (SELECT user_id FROM user_profile WHERE leaderboard_joined_at IS NOT NULL))
-     GROUP BY s.user_id, st.exercise'
+     GROUP BY s.user_id, st.exercise"
 );
 $stmt->bind_param('i', $me_id);
 $stmt->execute();

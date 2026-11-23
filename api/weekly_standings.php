@@ -15,7 +15,7 @@
 //
 // - Each person's target and training days are Surya's rule from api/weekly_goal.php (card #89), worked out here for
 //   everyone in a few queries: the target saved for this week, else the most recent earlier saved week, else 3; a day
-//   is a New York date with a finished workout that has at least one saved set, and one date counts once. Nothing is
+//   is a New York date with a counted workout (finished, or unfinished from an earlier day: api/counted_workouts.php) that has at least one saved set, and one date counts once. Nothing is
 //   stored, so Home, the weekly goal page and these standings can't disagree.
 // - progress_days is the days capped at the target, progress_percent is progress_days / target_days rounded to a whole
 //   percent, so a 4th day on a 3-day goal still reads 3 of 3 and 100%.
@@ -43,6 +43,7 @@
 require __DIR__ . '/workout_common.php';
 require __DIR__ . '/weekly_standings_time.php';
 require __DIR__ . '/ranking_scope.php';
+require_once __DIR__ . '/counted_workouts.php';
 
 const STANDINGS_DEFAULT_TARGET = 3; // the same default as api/weekly_goal.php
 
@@ -134,12 +135,15 @@ foreach ($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
     if (isset($people[(int) $row['user_id']])) $people[(int) $row['user_id']]['target'] = (int) $row['target_days'];
 }
 
-// Each person's training days: New York dates of this week's finished workouts that have a saved set.
+// Each person's training days: New York dates of this week's counted workouts (finished, or unfinished from an earlier
+// day: api/counted_workouts.php) that have a saved set.
+$counted = counted_workout_sql('s');
+$at = counted_workout_time_sql('s');
 $stmt = $db->prepare(
-    'SELECT s.user_id, s.completed_at FROM workout_sessions s
-     WHERE s.completed_at >= ? AND s.completed_at < ?
+    "SELECT s.user_id, $at AS completed_at FROM workout_sessions s
+     WHERE $counted AND $at >= ? AND $at < ?
        AND (s.user_id = ? OR s.user_id IN (SELECT user_id FROM user_weekly_competition))
-       AND EXISTS (SELECT 1 FROM workout_sets st WHERE st.session_id = s.id)'
+       AND EXISTS (SELECT 1 FROM workout_sets st WHERE st.session_id = s.id)"
 );
 $stmt->bind_param('ssi', $from, $to, $user_id);
 $stmt->execute();
