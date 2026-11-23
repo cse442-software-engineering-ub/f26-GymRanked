@@ -2,6 +2,8 @@
 // Shared counting rules for the live weekly goal and immutable workout snapshots.
 // Stored workout times are UTC; week boundaries and distinct days are New York dates.
 
+require_once __DIR__ . '/counted_workouts.php';
+
 const GOAL_TIME_ZONE = 'America/New_York';
 const GOAL_DEFAULT_DAYS = 3;
 
@@ -31,18 +33,22 @@ function goal_target_for_week($db, $user_id, $week) {
     return $row ? (int) $row['target_days'] : GOAL_DEFAULT_DAYS;
 }
 
-// If $through is supplied, include only completions up to that UTC time. A finished workout without a saved set
-// never counts. Completion takes the user-row lock, so no later completion for this user can enter this query.
+// If $through is supplied, include only workouts up to that UTC time. A workout without a saved set never counts. An
+// unfinished workout from an earlier day counts (api/counted_workouts.php); its row's completed_at is the time it
+// belongs to, which for an unfinished one is when it was started. Completion takes the user-row lock, so no later
+// completion for this user can enter this query.
 function goal_completed_workouts($db, $user_id, $week_start, $next_start, $through = null) {
     $utc = new DateTimeZone('UTC');
     $from = $week_start->setTimezone($utc)->format('Y-m-d H:i:s');
     $to = $next_start->setTimezone($utc)->format('Y-m-d H:i:s');
+    $counted = counted_workout_sql('s');
+    $at = counted_workout_time_sql('s');
     $stmt = $db->prepare(
-        'SELECT s.id, s.completed_at FROM workout_sessions s
-         WHERE s.user_id = ? AND s.completed_at >= ? AND s.completed_at < ?
-           AND (? IS NULL OR s.completed_at <= ?)
+        "SELECT s.id, $at AS completed_at FROM workout_sessions s
+         WHERE s.user_id = ? AND $counted AND $at >= ? AND $at < ?
+           AND (? IS NULL OR $at <= ?)
            AND EXISTS (SELECT 1 FROM workout_sets st WHERE st.session_id = s.id)
-         ORDER BY s.completed_at, s.id'
+         ORDER BY $at, s.id"
     );
     $stmt->bind_param('issss', $user_id, $from, $to, $through, $through);
     $stmt->execute();
