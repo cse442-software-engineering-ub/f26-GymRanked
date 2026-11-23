@@ -8,7 +8,7 @@ import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
 import RestTimer from './RestTimer.jsx'
 import ExerciseAlternatives from './workoutLog/ExerciseAlternatives.jsx'
 import { formatSet, isRetryable, lastSavedSet, newSetRequestId, nextSetNumber, repeatValues, saveErrorMessage, upsertSet } from './workoutLog/setLog.js'
-import { validateSet } from './workoutLog/setValidation.js'
+import { isAllowedSetInput, validateSet } from './workoutLog/setValidation.js'
 import workoutLogApi from './workoutLog/workoutLogApi.js'
 import { startSession } from './workoutSessionApi.js'
 import './workoutLog/workoutLog.css'
@@ -112,6 +112,7 @@ function ExerciseSession() {
   }
 
   function updateValue(field, value) {
+    if (!isAllowedSetInput(field, value)) return
     setCanRetry(false)
     pendingSave.current = null
     setDraft((d) => ({ ...d, [field]: value }))

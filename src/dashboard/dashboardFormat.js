@@ -24,6 +24,18 @@ function addDays(date, days) {
   return next.toISOString().slice(0, 10)
 }
 
+// A date said relative to today for "Last workout" and "Next up" (#136): "Today", "Tomorrow" or "Yesterday";
+// otherwise "Nov 19", or "Mon, Nov 30" with weekday (a day ahead reads better with its weekday).
+export function relativeDay(date, todayDate, { weekday = false } = {}) {
+  if (todayDate) {
+    if (date === todayDate) return 'Today'
+    if (date === addDays(todayDate, 1)) return 'Tomorrow'
+    if (date === addDays(todayDate, -1)) return 'Yesterday'
+  }
+  if (weekday) return shortDay(date)
+  return new Date(`${date}T12:00:00Z`).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' })
+}
+
 // The seven days of the week that starts on weekStart (a Monday), for the "This week" strip:
 // [{date, weekday: 'Mon', day: 16, done, today}]. done is a date with a logged workout.
 export function weekStrip(weekStart, completedDates, todayDate) {
@@ -34,8 +46,9 @@ export function weekStrip(weekStart, completedDates, todayDate) {
   })
 }
 
-// The next scheduled workout after today, up to a week ahead: {name, date} or null (no plan, or nothing scheduled).
-// Uses the same weekday split as the weekly plan (src/weeklySchedule.js).
+// The next scheduled workout after today, up to a week ahead: {name, date, planId, position} or null (no plan, or
+// nothing scheduled). position is that workout's place in the plan's days (1 = first), so "Next up" can open Plan
+// details at it (/plans/<planId>?day=<position>). Uses the same weekday split as the weekly plan (src/weeklySchedule.js).
 export function nextUp(plan, now = new Date()) {
   if (!plan?.days?.length) return null
   for (let offset = 1; offset <= 7; offset += 1) {
@@ -43,17 +56,28 @@ export function nextUp(plan, now = new Date()) {
     const workout = buildWeek(plan, day)[(day.getDay() + 6) % 7].workout
     if (workout) {
       const date = [day.getFullYear(), String(day.getMonth() + 1).padStart(2, '0'), String(day.getDate()).padStart(2, '0')].join('-')
-      return { name: workout.name, date }
+      const position = plan.days.indexOf(workout) + 1
+      return { name: workout.name, date, planId: plan.id ?? null, position: position > 0 ? position : null }
     }
   }
   return null
 }
 
-// The most recent finished workout from workout_history.php (newest first): {name, date} or null.
+// Where "Next up" leads: Plan details opened at that day, or null when the plan or the day isn't known.
+export function nextUpPath(next) {
+  if (!next?.planId || !next.position) return null
+  return `/plans/${next.planId}?day=${next.position}`
+}
+
+// The most recent finished workout from workout_history.php (newest first): {id, name, date} or null. id is that
+// saved workout's session id, so "Last logged" opens exactly its summary (null if the server sent none).
 export function lastLogged(sessions) {
   for (const session of sessions || []) {
     const date = easternDate(session.completed_at)
-    if (date && session.completed_at) return { name: session.name || 'Workout', date }
+    if (date && session.completed_at) {
+      const id = Number.isInteger(session.id) && session.id > 0 ? session.id : null
+      return { id, name: session.name || 'Workout', date }
+    }
   }
   return null
 }
