@@ -9,10 +9,11 @@ export const WEIGHT_MAX_LB = 1500
 export const REPS_MIN = 1
 export const REPS_MAX = 100
 
-// Keep input editable while preventing signs, letters, exponents and fractional reps.
+// Keep input editable while preventing letters, exponents and fractional reps. A leading minus is allowed so that
+// "-5" is shown and refused by validateSet; dropping the "-" would quietly turn it into a valid "5".
 // The final range checks still run when Log set is pressed.
 export function isAllowedSetInput(field, value) {
-  return field === 'weight' ? /^\d*(?:\.\d{0,2})?$/.test(value) : /^\d*$/.test(value)
+  return field === 'weight' ? /^-?\d*(?:\.\d{0,2})?$/.test(value) : /^-?\d*$/.test(value)
 }
 
 export const MESSAGES = {
