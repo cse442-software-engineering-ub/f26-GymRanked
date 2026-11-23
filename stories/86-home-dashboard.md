@@ -102,14 +102,14 @@
 
 ### Steps:
 
-1. Under `This week`, find `Next up`. It shows a workout name and a date, for example `Pull · Tue, Nov 24` (tomorrow's workout, or Monday's if today is Friday). Write down the name and the date.
-2. Click the `Next up` workout. Confirm that the `Push Pull Legs` plan page opens, that the address ends in `?day=` followed by a number, and that the workout you wrote down is highlighted with the label `Next up`, in view on the screen, with its exercises listed under it.
+1. Under `This week`, find `Next up`. It is a tile showing a workout name, a date and `View in plan`, for example `Pull` and `Tue, Nov 24` (tomorrow's workout, or Monday's if today is Friday). Write down the name and the date.
+2. Click anywhere on the `Next up` tile. Confirm that the `Push Pull Legs` plan page opens, that the address ends in `?day=` followed by a number, and that the workout you wrote down is highlighted with the label `Next up`, in view on the screen, with its exercises listed under it.
 3. Click **Back to dashboard** at the top of the page. Confirm that the Dashboard opens again.
 4. In the `Today's workout` card, click **Start workout**. Confirm that the `Active workout` page opens with `Log a set` and the first exercise.
 5. Enter `135` in **Weight (lb)** and `8` in **Reps**, then click **Log set**. Confirm that `Saved sets` shows `1 set`.
 6. Click **Complete workout**, then **Complete workout** in the box that opens. When the box says `Some exercises have no logged sets`, click **Save partial workout**. Confirm that the page says `Workout complete` followed by today's workout name.
-7. Click **Go back**. Confirm that the Dashboard opens, and that `Last logged` now shows today's workout name and today's date, for example `Push · Mon, Nov 23`.
-8. Click the `Last logged` workout. Confirm that the address ends in `/summary?from=dashboard`, and that the page says `Workout complete` followed by today's workout name and shows the set you logged as `135 lb × 8`.
+7. Click **Go back**. Confirm that the Dashboard opens, and that `Last logged` now shows today's workout name, today's date and `View summary`, for example `Push` and `Mon, Nov 23`.
+8. Click anywhere on the `Last logged` tile. Confirm that the address ends in `/summary?from=dashboard`, and that the page says `Workout complete` followed by today's workout name and shows the set you logged as `135 lb × 8`.
 9. Refresh the page. Confirm that the same summary, with the same set, is still shown.
 10. Click **Go back**. Confirm that the Dashboard opens and that `Last logged` still shows today's workout.
 
