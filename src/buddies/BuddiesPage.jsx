@@ -62,9 +62,18 @@ function BuddiesPage() {
     refresh()
   }
 
+  // Focus goes back to "Leave group" once the dialog has closed (not before: a modal dialog keeps the focus inside).
+  const returnToLeave = useRef(false)
+  useEffect(() => {
+    if (!leaving && returnToLeave.current) {
+      returnToLeave.current = false
+      leaveButton.current?.focus()
+    }
+  }, [leaving])
+
   function closeLeave() {
+    returnToLeave.current = true
     setLeaving(false)
-    leaveButton.current?.focus()
   }
 
   // Join and create answer with the same body as GET, so the group shows at once with no second loading screen.
