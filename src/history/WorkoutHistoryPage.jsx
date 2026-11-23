@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import BackLink from '../BackLink.jsx'
+import { addReturn, historyParams, readHistoryView } from '../returnTarget.js'
+import { summaryPath } from '../workoutLog/setLog.js'
 import workoutLogApi from '../workoutLog/workoutLogApi.js'
 import WorkoutHistoryItem from './WorkoutHistoryItem.jsx'
 import { PAGE_SIZE, countLabel, pageCount, pageList, rangeLabel } from './historyFormat.js'
 import './history.css'
 
-// Story #9: the logged-in account's finished workouts, newest first, four per page (Sam's Sprint 1 designs #35
+// Story #9: the logged-in account's completed and prior-day unfinished workouts, newest first, four per page (Sam's Sprint 1 designs #35
 // and #55). The list comes from api/workout_history.php; opening a workout loads its sets from
 // api/workout_session.php?id=, once per workout.
 function WorkoutHistoryPage() {
@@ -14,8 +16,12 @@ function WorkoutHistoryPage() {
   const listRef = useRef(null)
   const [attempt, setAttempt] = useState(0)
   const [history, setHistory] = useState({ status: 'loading', workouts: [] })
-  const [page, setPage] = useState(1)
-  const [openId, setOpenId] = useState(null)
+  // The page and open workout live in the address too (replacing the entry, not adding one), so a summary's
+  // Go back button, a refresh or a new tab shows the same view. A bad value is ignored (page 1, nothing open).
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [view] = useState(() => readHistoryView(searchParams))
+  const [page, setPage] = useState(view.page)
+  const [openId, setOpenId] = useState(view.open)
   // Sets of the workouts opened so far, by id: {status, session}.
   const [details, setDetails] = useState({})
 
@@ -45,7 +51,7 @@ function WorkoutHistoryPage() {
   }
 
   function toggle(id) {
-    if (openId === id) {
+    if (openShown === id) {
       setOpenId(null)
       return
     }
@@ -62,7 +68,21 @@ function WorkoutHistoryPage() {
 
   const { status, workouts } = history
   const pages = pageCount(workouts.length)
-  const shown = workouts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const currentPage = Math.min(page, Math.max(pages, 1))
+  const shown = workouts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+  // An open workout from the address only counts if it is on the page being shown.
+  const openShown = shown.some((workout) => workout.id === openId) ? openId : null
+
+  useEffect(() => {
+    if (status !== 'ready') return
+    if (currentPage !== page) setPage(currentPage)
+    if (openShown !== openId) setOpenId(openShown)
+    if (openShown !== null && !details[openShown]) loadDetail(openShown)
+  }, [status, currentPage, openShown]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (status === 'ready') setSearchParams(historyParams({ page: currentPage, open: openShown }), { replace: true })
+  }, [status, currentPage, openShown]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="history-page">
@@ -87,19 +107,20 @@ function WorkoutHistoryPage() {
         {status === 'ready' && workouts.length === 0 && (
           <section className="history-empty" aria-labelledby="history-empty-title">
             <h2 id="history-empty-title">No workouts logged yet</h2>
-            <p>Finish your first workout and it will show up here with every exercise, set, and weight you logged.</p>
+            <p>Log a set in a workout and it will appear here after you finish or after the day ends.</p>
             <Link to="/weekly-plan" className="button-primary history-empty__action">Start a workout</Link>
           </section>
         )}
 
         {status === 'ready' && workouts.length > 0 && (
           <>
-            <ol className="history-list" ref={listRef} aria-label="Completed workouts">
+            <ol className="history-list" ref={listRef} aria-label="Workouts in history">
               {shown.map((workout) => (
                 <WorkoutHistoryItem
                   key={workout.id}
                   workout={workout}
-                  open={openId === workout.id}
+                  open={openShown === workout.id}
+                  summaryTo={addReturn(summaryPath(workout.id), { place: 'history', page: currentPage, open: workout.id })}
                   detail={details[workout.id]}
                   onToggle={() => toggle(workout.id)}
                   onRetry={() => loadDetail(workout.id)}
@@ -108,28 +129,28 @@ function WorkoutHistoryPage() {
             </ol>
             {pages > 1 && (
               <nav className="history-pager" aria-label="Workout history pages">
-                <p className="history-pager__range">{rangeLabel(page, workouts.length)}</p>
+                <p className="history-pager__range">{rangeLabel(currentPage, workouts.length)}</p>
                 <div className="history-pager__buttons">
-                  <button type="button" className="history-pager__step" disabled={page === 1} onClick={() => goToPage(page - 1)}>
+                  <button type="button" className="history-pager__step" disabled={currentPage === 1} onClick={() => goToPage(currentPage - 1)}>
                     Previous
                   </button>
-                  {pageList(page, pages).map((item, index) =>
+                  {pageList(currentPage, pages).map((item, index) =>
                     item === '…' ? (
                       <span key={`gap-${index}`} className="history-pager__gap" aria-hidden="true">…</span>
                     ) : (
                       <button
                         key={item}
                         type="button"
-                        className={item === page ? 'history-pager__page history-pager__page--current' : 'history-pager__page'}
+                        className={item === currentPage ? 'history-pager__page history-pager__page--current' : 'history-pager__page'}
                         aria-label={`Page ${item}`}
-                        aria-current={item === page ? 'page' : undefined}
+                        aria-current={item === currentPage ? 'page' : undefined}
                         onClick={() => goToPage(item)}
                       >
                         {item}
                       </button>
                     ),
                   )}
-                  <button type="button" className="history-pager__step" disabled={page === pages} onClick={() => goToPage(page + 1)}>
+                  <button type="button" className="history-pager__step" disabled={currentPage === pages} onClick={() => goToPage(currentPage + 1)}>
                     Next
                   </button>
                 </div>

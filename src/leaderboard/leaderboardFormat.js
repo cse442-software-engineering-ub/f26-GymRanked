@@ -78,9 +78,11 @@ export function rankSteps(me) {
   ]
 }
 
-// Which card to show: a test account, ranked on this board, every step done but not on this board, or the steps.
+// Which card to show: a test account, no buddies group (Buddies only, card 139), ranked on this board, every step done
+// but not on this board, or the steps.
 export function standingKind(me) {
   if (me.reason === 'test_account') return 'test'
+  if (me.reason === 'no_group') return 'no-group'
   if (me.ranked) return 'ranked'
   return rankSteps(me).every((step) => step.done) ? 'not-on-board' : 'steps'
 }
@@ -91,4 +93,11 @@ export function notOnBoardText(me, board) {
   if (key !== 'overall') return `Log a ${lift} to get on the ${label} board.`
   const missing = LIFTS.filter(({ key: liftKey }) => me.lifts?.[liftKey] == null).map((item) => `a ${item.lift}`)
   return `Overall needs all three lifts. Log ${listWithAnd(missing)} to get on it.`
+}
+
+// The api/leaderboard.php path for a board and scope. The Buddies Overall board is exactly "leaderboard.php?scope=buddies"
+// (the server's default board is overall), the same URL Rankings and the Dashboard both request (card 138, Test 9).
+export function leaderboardPath(board, scope = 'everyone') {
+  if (scope === 'buddies') return board === 'overall' ? 'leaderboard.php?scope=buddies' : `leaderboard.php?board=${encodeURIComponent(board)}&scope=buddies`
+  return `leaderboard.php?board=${encodeURIComponent(board)}`
 }

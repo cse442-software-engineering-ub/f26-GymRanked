@@ -14,7 +14,7 @@ Test account: `Riley Brooks`, email `riley.brooks@example.com`, password `Riley-
 
 ### Steps:
 
-1. Select **Progress** in the top navigation, then **Workout history**. Confirm that the address ends in `#/progress/history`, that **Progress** is highlighted in the navigation, that the path above the heading reads `Progress › Workout history`, that the heading says `Workout history`, and that the line under it says `6 completed workouts`.
+1. Select **Progress** in the menu, then **Workout history**. Confirm that the address ends in `#/progress/history`, that **Progress** is highlighted in the navigation, that a **Back to progress** link is above the heading, that the heading says `Workout history`, and that the line under it says `6 completed workouts`.
 2. Confirm that four workouts are listed in this order, each closed, showing its name, date, and size:
    - `Full body C`, `Friday, October 9, 2026`, `3 exercises · 9 sets`
    - `Full body B`, `Wednesday, October 7, 2026`, `3 exercises · 8 sets`
@@ -26,7 +26,7 @@ Test account: `Riley Brooks`, email `riley.brooks@example.com`, password `Riley-
 
 ### Setup for this test:
 
-1. Log in as Riley as in Acceptance Test 1, then select **Progress** in the top navigation, then **Workout history**. Confirm that `Workout history` opens.
+1. Log in as Riley as in Acceptance Test 1, then select **Progress** in the menu, then **Workout history**. Confirm that `Workout history` opens.
 
 ### Steps:
 
@@ -41,7 +41,7 @@ Test account: `Riley Brooks`, email `riley.brooks@example.com`, password `Riley-
 
 ### Setup for this test:
 
-1. Log in as Riley as in Acceptance Test 1, then select **Progress** in the top navigation, then **Workout history**. Confirm that `Showing 1–4 of 6 workouts` appears.
+1. Log in as Riley as in Acceptance Test 1, then select **Progress** in the menu, then **Workout history**. Confirm that `Showing 1–4 of 6 workouts` appears.
 
 ### Steps:
 
@@ -58,11 +58,11 @@ Test account: `Riley Brooks`, email `riley.brooks@example.com`, password `Riley-
 
 ### Setup for this test:
 
-1. Log in as Riley as in Acceptance Test 1, then select **Progress** in the top navigation, then **Workout history**. Confirm that `6 completed workouts` appears.
+1. Log in as Riley as in Acceptance Test 1, then select **Progress** in the menu, then **Workout history**. Confirm that `6 completed workouts` appears.
 
 ### Steps:
 
-1. Open the account menu (the round `RB` button, top right) and select **Log out**. Confirm that the Login page says `You are logged out.`
+1. Select **Log out** at the bottom of the menu. Confirm that the Login page says `You are logged out.`
 2. Log in again with `riley.brooks@example.com` and `Riley-Curl95!`, then select **Progress**, then **Workout history**. Confirm that it still says `6 completed workouts` and lists the same four workouts as in Acceptance Test 1, step 2, in the same order.
 3. Refresh the page. Confirm that the same heading, count, and four workouts appear again.
 
@@ -75,7 +75,7 @@ Test account: `Riley Brooks`, email `riley.brooks@example.com`, password `Riley-
 
 ### Steps:
 
-1. Select **Progress** in the top navigation, then **Workout history**. Confirm that `Workout history` and `0 completed workouts` appear, followed by `No workouts logged yet`, `Finish your first workout and it will show up here with every exercise, set, and weight you logged.`, and a **Start a workout** button.
+1. Select **Progress** in the menu, then **Workout history**. Confirm that `Workout history` and `0 completed workouts` appear, followed by `No workouts logged yet`, `Finish your first workout and it will show up here with every exercise, set, and weight you logged.`, and a **Start a workout** button.
 2. Confirm that there is no list of workouts and no page buttons, and that none of Riley's workouts (such as `Full body C` or `Friday, October 9, 2026`) appear.
 3. Select **Start a workout**. Confirm that the weekly plan opens with the heading `Beginner Fundamentals — Week 1`.
 4. Log out. Log in with `riley.brooks@example.com` and `Riley-Curl95!` and select **Progress**, then **Workout history**. Confirm that Riley still has `6 completed workouts`.
@@ -115,3 +115,7 @@ Test account: `Riley Brooks`, email `riley.brooks@example.com`, password `Riley-
 
 1. Visit the [Workout history page](https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/progress/history) directly. Confirm that the Login page opens (the address ends in `#/login`) and that no workouts are shown.
 2. Log in with `riley.brooks@example.com` and `Riley-Curl95!`, then select **Progress**, then **Workout history**. Confirm that `6 completed workouts` appears.
+
+## Notes
+
+Updated on 2026-11-18 (card #133): the menu replaced the top navigation and the breadcrumb (#130), so Test 1 checks the "Back to progress" link and logging out is at the bottom of the menu.

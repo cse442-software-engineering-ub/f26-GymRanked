@@ -24,9 +24,10 @@ export function isAuthPath(path) {
   return AUTH_PATHS.includes(path)
 }
 
-// Sign-in, create account and the onboarding steps are always shown in dark mode, whatever the saved theme.
+// The onboarding steps are always shown in dark mode, whatever the saved theme. Log in and create account follow the
+// theme (with their own switch, src/auth/ThemeSwitch.jsx), so they match the app on either side of the slide.
 export function isAlwaysDarkPath(path) {
-  return isAuthPath(path) || ONBOARDING_PATHS.includes(path)
+  return ONBOARDING_PATHS.includes(path)
 }
 
 export function signedInRedirect(path, required, equipmentJustSaved = false) {

@@ -4,13 +4,13 @@
 // Contract agreed with the backend task:
 //   POST api/workout_session.php {}                                         -> {session}
 //   GET  api/workout_session.php?id=N                                       -> {session}
-//   POST api/workout_sets.php     {session_id, exercise, set_number, weight_lb, reps} -> 201 {set}
+//   POST api/workout_sets.php     {session_id, exercise, set_number, weight_lb, reps, request_id?} -> 201 {set}, 200 on identical retry
 //   POST api/workout_sets.php     {id, weight_lb, reps}                               -> 200 {set}  (correction)
 //   POST api/complete_workout.php {session_id}                                        -> 200 {session_id, completed_at}
 //   POST api/swap_exercise.php    {session_id, exercise, replacement}                 -> 200 {session}
 //   GET  api/workout_history.php                                            -> {sessions}
 //   GET  api/workout_weekly_goal.php?session_id=N                            -> {snapshot, reason?}
-//   GET  api/workout_summary_comparison.php?session_id=N                     -> {comparisons}
+//   GET  api/workout_records.php?session_id=N                                -> {session_id, new_pr_count, exercises}
 //   GET  api/exercise_progress.php[?from=YYYY-MM-DD&to=YYYY-MM-DD]          -> {summary, exercises, prs, ...} (#109)
 //   set = {id, exercise, set_number, weight_lb, reps}
 //   Errors are JSON {error, errors?}: 400 bad input (errors.weight_lb / errors.reps per field),
@@ -85,8 +85,8 @@ export function createWorkoutLogApi({ baseUrl, fetchImpl = (...args) => fetch(..
       return request(`workout_weekly_goal.php?session_id=${encodeURIComponent(sessionId)}`)
     },
 
-    async getSummaryComparison(sessionId) {
-      return request(`workout_summary_comparison.php?session_id=${encodeURIComponent(sessionId)}`)
+    async getWorkoutRecords(sessionId) {
+      return request(`workout_records.php?session_id=${encodeURIComponent(sessionId)}`)
     },
 
     async getHistory() {
@@ -103,13 +103,14 @@ export function createWorkoutLogApi({ baseUrl, fetchImpl = (...args) => fetch(..
       return request(`exercise_progress.php${search ? `?${search}` : ''}`)
     },
 
-    async saveSet({ sessionId, exercise, setNumber, weightLb, reps }) {
+    async saveSet({ sessionId, exercise, setNumber, weightLb, reps, requestId }) {
       const data = await post('workout_sets.php', {
         session_id: sessionId,
         exercise,
         set_number: setNumber,
         weight_lb: weightLb,
         reps,
+        ...(requestId ? { request_id: requestId } : {}),
       })
       return data.set
     },

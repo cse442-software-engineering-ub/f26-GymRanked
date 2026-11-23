@@ -1,8 +1,10 @@
 /* Workout buddies page (story #78, card #79). Colours, radii and type follow DESIGN.md, from the --gr- variables
    only so light mode works. .buddies-screen wraps the nav bar and the page; .buddies-page is the page itself (the
-   card's phone check measures the controls inside it). The page uses the shared page column; its cards stop at a readable 760px inside it.
-   Phones (640px or less): the code box and "Join group" stack, the message form is full width, every control is
-   at least 44px tall and wide. */
+   card's phone check measures the controls inside it). The page is laid out like the Dashboard (#136): the big header,
+   then two rows on a 1.5 : 1 grid divided by a border-strong line, stacked at a 1131px window. In a group: the group's
+   photo hero beside the owner's invite code, then the members beside the encouragements. In no group: the join and
+   create forms in the hero beside "How it works".
+   Phones (640px or less): the code box and "Join group" stack, every control is at least 44px tall and wide. */
 
 .buddies-screen {
   min-height: 100vh;
@@ -14,12 +16,16 @@
 .buddies-page__content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 28px;
 }
 
 .buddies-page__content > * {
   box-sizing: border-box;
   width: 100%;
+}
+
+.buddies-page__content > .buddies-notice,
+.buddies-page__content > .buddies-status {
   max-width: 760px;
 }
 
@@ -34,16 +40,270 @@
   outline-offset: 3px;
 }
 
-.buddies-heading h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 500;
+.buddies-heading {
+  margin-bottom: -8px;
 }
 
-.buddies-heading p {
-  margin: 6px 0 0;
+.buddies-heading__eyebrow {
+  margin: 0 0 6px;
   color: var(--gr-text-muted);
+  font-size: 14px;
+}
+
+.buddies-heading h1 {
+  margin: 0;
+  color: var(--gr-text);
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.buddies-heading p:last-child {
+  margin: 10px 0 0;
+  color: var(--gr-text-soft);
   font-size: 15px;
+}
+
+/* The two rows, like the Dashboard's .home-top and .home-bottom. */
+.buddies-top,
+.buddies-bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 48px;
+}
+
+.buddies-top {
+  align-items: center;
+}
+
+.buddies-top--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.buddies-bottom {
+  align-items: start;
+  padding-top: 28px;
+  border-top: 1px solid var(--gr-border-strong);
+}
+
+/* A section without a card, titled like the Dashboard's "This week" and "From your buddies". */
+.buddies-section {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  min-width: 0;
+}
+
+.buddies-section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.buddies-section-heading h2 {
+  margin: 0;
+  color: var(--gr-text);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* The hero card, like the Dashboard's "Today's workout": a gym photo on the right, faded into the card. */
+.buddies-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 280px;
+  overflow: hidden;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+}
+
+.buddies-hero::before,
+.buddies-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 50%;
+  pointer-events: none;
+}
+
+.buddies-hero::before {
+  background: url('/backdrops/dumbbells.webp') 60% 50% / cover no-repeat;
+}
+
+/* The class squatting together: a wider photo, so more than one lifter shows beside the form. */
+.buddies-hero--join::before,
+.buddies-hero--join::after {
+  width: 62%;
+}
+
+.buddies-hero--join::before {
+  background-image: url('/backdrops/group-class.webp');
+  background-position: 74% 50%;
+}
+
+.buddies-hero::after {
+  background: linear-gradient(90deg, var(--gr-surface) 0%, color-mix(in srgb, var(--gr-surface) 55%, transparent) 40%, transparent 100%);
+}
+
+.buddies-hero__body {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 14px;
+  width: 100%;
+  max-width: 70%;
+  padding: 32px;
+}
+
+.buddies-hero p,
+.buddies-hero h2 {
+  margin: 0;
+}
+
+.buddies-hero__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--gr-action-text);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.buddies-hero__badge {
+  padding: 3px 8px;
+  border: 1px solid var(--gr-border-strong);
+  border-radius: 6px;
+  background: var(--gr-surface-raised);
+  color: var(--gr-text);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.buddies-hero__title {
+  color: var(--gr-text);
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.buddies-hero__title:focus-visible {
+  border-radius: 4px;
+}
+
+.buddies-hero__title--long {
+  font-size: 34px;
+}
+
+.buddies-hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.buddies-hero__text {
+  color: var(--gr-text-soft);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* The member faces in the hero, overlapping like a stack. */
+.buddies-faces {
+  display: flex;
+}
+
+.buddies-face {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  margin-left: -10px;
+  border: 2px solid var(--gr-surface);
+  border-radius: 50%;
+  background: var(--gr-surface-raised);
+  color: var(--gr-text-soft);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.buddies-face:first-child {
+  margin-left: 0;
+}
+
+.buddies-face.is-me {
+  background: var(--gr-action);
+  color: var(--gr-text-on-orange);
+}
+
+.buddies-face--more {
+  color: var(--gr-text-muted);
+}
+
+/* "How it works", beside the join form: numbered steps. */
+.buddies-steps {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: buddies-step;
+}
+
+.buddies-steps li {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  padding: 14px 0 14px 48px;
+  border-top: 1px solid var(--gr-border);
+  counter-increment: buddies-step;
+}
+
+.buddies-steps li:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.buddies-steps li::before {
+  content: counter(buddies-step);
+  position: absolute;
+  top: 14px;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--gr-action);
+  border-radius: 50%;
+  color: var(--gr-action-text);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.buddies-steps li:first-child::before {
+  top: 0;
+}
+
+.buddies-steps strong {
+  color: var(--gr-text);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.buddies-steps span {
+  color: var(--gr-text-soft);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .buddies-status {
@@ -53,37 +313,7 @@
   font-size: 14px;
 }
 
-/* Cards */
-.buddies-card {
-  display: grid;
-  gap: 14px;
-  min-width: 0;
-  padding: 20px;
-  border: 1px solid var(--gr-border);
-  border-radius: var(--gr-radius-card);
-  background: var(--gr-surface);
-}
-
-.buddies-card p,
-.buddies-card h2 {
-  margin: 0;
-}
-
-.buddies-empty-title,
-.buddies-group-name {
-  color: var(--gr-text);
-  font-size: 22px;
-  font-weight: 500;
-  overflow-wrap: anywhere;
-}
-
-.buddies-group-name:focus-visible {
-  border-radius: 4px;
-}
-
-.buddies-card__lead,
-.buddies-compose__to,
-.buddies-invite__expires {
+.buddies-compose__to {
   color: var(--gr-text-soft);
   font-size: 14px;
 }
@@ -92,18 +322,16 @@
   color: var(--gr-text);
 }
 
-.buddies-eyebrow {
-  color: var(--gr-text-muted);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+.buddies-count {
+  color: var(--gr-text-soft);
+  font-size: 15px;
 }
 
-.buddies-count,
 .buddies-empty-inbox {
-  color: var(--gr-text-muted);
+  margin: 0;
+  color: var(--gr-text-soft);
   font-size: 14px;
+  line-height: 1.5;
 }
 
 /* Success and error boxes: an icon and words as well as colour. */
@@ -141,7 +369,7 @@
 
 .buddies-notice__icon {
   margin-right: 8px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* Fields */
@@ -275,6 +503,7 @@
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .buddies-button--primary {
@@ -293,10 +522,12 @@
   color: var(--gr-text-subtle);
 }
 
-.buddies-button--text {
-  padding: 10px 8px;
-  background: transparent;
-  color: var(--gr-action-text);
+.buddies-button--primary:not(:disabled):hover {
+  background: var(--gr-brand-light);
+}
+
+.buddies-button--small {
+  padding: 8px 16px;
   font-size: 14px;
 }
 
@@ -312,26 +543,15 @@
 }
 
 /* The group */
-.buddies-group-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px 24px;
-}
-
-.buddies-group-head > div:first-child {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-}
-
 .buddies-invite {
+  gap: 10px;
+}
+
+.buddies-invite__box {
   display: grid;
-  flex: 0 1 320px;
   gap: 6px;
-  min-width: 240px;
-  padding: 14px 16px;
+  padding: 18px 20px;
+  border: 1px dashed var(--gr-border-strong);
   border-radius: var(--gr-radius-inner);
   background: var(--gr-surface-sunken);
 }
@@ -346,15 +566,11 @@
 .buddies-invite-code {
   color: var(--gr-text);
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 26px;
+  font-size: 34px;
   font-weight: 600;
   letter-spacing: 0.16em;
+  overflow-wrap: anywhere;
   user-select: all;
-}
-
-.buddies-invite--expired .buddies-invite-code {
-  color: var(--gr-text-muted);
-  text-decoration: line-through;
 }
 
 .buddies-pill {
@@ -373,10 +589,33 @@
   color: var(--gr-action-text);
 }
 
-.buddies-pill--warn {
-  border-color: var(--gr-error);
-  background: var(--gr-error-bg);
-  color: var(--gr-error-text);
+.buddies-pill--new {
+  border-color: var(--gr-success);
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
+}
+
+.buddies-message.is-new {
+  animation: buddies-arrive 420ms ease-out both;
+}
+
+@keyframes buddies-arrive {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .buddies-message.is-new { animation: none; }
+}
+
+.buddies-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .buddies-members,
@@ -387,15 +626,20 @@
   list-style: none;
 }
 
+/* Member rows, divided by a border line like the Dashboard's rankings. */
 .buddies-member {
-  display: grid;
-  gap: 10px;
+  min-width: 0;
   padding: 10px 0;
   border-top: 1px solid var(--gr-border);
 }
 
 .buddies-member:first-child {
+  padding-top: 0;
   border-top: 0;
+}
+
+.buddies-member:last-child {
+  padding-bottom: 0;
 }
 
 .buddies-member__line {
@@ -409,9 +653,9 @@
   display: grid;
   flex: none;
   place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   background: var(--gr-surface-raised);
   color: var(--gr-text-soft);
   font-size: 12px;
@@ -434,32 +678,90 @@
 
 .buddies-member-name {
   color: var(--gr-text);
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
 }
+
+/* In place of "Encourage" once you have sent that member one today (card #147): a disabled-looking button. */
+.buddies-sent-today {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  border-color: var(--gr-success);
+  background: var(--gr-success-bg);
+  color: var(--gr-success-text);
+  cursor: not-allowed;
+}
+
+.buddies-daily-rule {
+  margin: -8px 0 0;
+}
+
+.buddies-encourage {
+  flex: none;
+}
+
 
 .buddies-compose {
   display: grid;
-  gap: 10px;
-  margin-left: 44px;
-  padding: 14px;
-  border-radius: var(--gr-radius-inner);
-  background: var(--gr-surface-sunken);
+  gap: 12px;
 }
 
-.buddies-solo {
-  padding: 10px 12px;
-  border-radius: var(--gr-radius-inner);
-  background: var(--gr-surface-sunken);
-  color: var(--gr-text-muted);
-  font-size: 13px;
+/* The Encourage modal (EncourageDialog.jsx): DESIGN.md's dialog, a little wider for the message box. */
+.buddies-dialog {
+  box-sizing: border-box;
+  width: min(440px, calc(100% - 32px));
+  max-width: none;
+  padding: 0;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface);
+  color: var(--gr-text);
+  font-family: var(--gr-font);
+  box-shadow: var(--gr-shadow-menu);
 }
+
+.buddies-dialog::backdrop {
+  background: var(--gr-backdrop);
+}
+
+.buddies-dialog *,
+.buddies-dialog *::before,
+.buddies-dialog *::after {
+  box-sizing: border-box;
+}
+
+.buddies-dialog :focus-visible {
+  outline: 3px solid var(--gr-brand);
+  outline-offset: 3px;
+}
+
+.buddies-dialog__body {
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+}
+
+.buddies-dialog__title {
+  margin: 0;
+  color: var(--gr-text);
+  font-size: 22px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.buddies-dialog p {
+  margin: 0;
+}
+
 
 /* Encouragements for you */
 .buddies-message {
   display: grid;
-  gap: 4px;
-  padding: 12px 0;
+  gap: 6px;
+  padding: 14px 0;
   border-top: 1px solid var(--gr-border);
 }
 
@@ -475,13 +777,38 @@
 .buddies-message__head {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.buddies-message__avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gr-surface-raised);
+  color: var(--gr-text-soft);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .buddies-message-from {
   color: var(--gr-text);
   font-weight: 600;
+}
+
+.buddies-message-text {
+  margin: 4px 0 0 46px;
+}
+
+.buddies-message-text::before {
+  content: '\201C';
+}
+
+.buddies-message-text::after {
+  content: '\201D';
 }
 
 .buddies-message time {
@@ -490,14 +817,59 @@
 }
 
 .buddies-message-text {
-  color: var(--gr-text-soft);
+  color: var(--gr-text);
+  font-size: 18px;
+  line-height: 1.4;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
 
+@media (max-width: 1131px) {
+  .buddies-top,
+  .buddies-bottom {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+}
+
 @media (max-width: 824px) {
-  .buddies-card {
-    padding: 16px;
+  .buddies-heading h1 {
+    font-size: 30px;
+  }
+
+  /* The photo fills the hero on a phone, darkened from the bottom so the text over it stays readable. */
+  .buddies-hero::before,
+  .buddies-hero::after {
+    width: 100%;
+  }
+
+  .buddies-hero::before {
+    opacity: 0.45;
+  }
+
+  .buddies-hero::after {
+    background: linear-gradient(0deg, var(--gr-surface) 35%, color-mix(in srgb, var(--gr-surface) 60%, transparent) 100%);
+  }
+
+  .buddies-hero__body {
+    max-width: none;
+    padding: 24px 20px;
+  }
+
+  .buddies-hero__title {
+    font-size: 36px;
+  }
+
+  .buddies-hero__title--long {
+    font-size: 28px;
+  }
+
+  .buddies-message-text {
+    margin-left: 0;
+  }
+
+  .buddies-open-create {
+    justify-self: stretch;
   }
 
   .buddies-join-row {
@@ -513,17 +885,20 @@
     max-width: none;
   }
 
-  .buddies-compose {
-    margin-left: 0;
-  }
-
   .buddies-compose .buddies-actions .buddies-button {
     flex: 1;
   }
 
-  .buddies-invite {
-    flex: 1 1 100%;
-    min-width: 0;
+}
+
+/* The smallest phones (320px): a narrower Encourage button, so a name stays on one line beside it. */
+@media (max-width: 360px) {
+  .buddies-member__line {
+    gap: 10px;
+  }
+
+  .buddies-button--small {
+    padding-inline: 12px;
   }
 }
 

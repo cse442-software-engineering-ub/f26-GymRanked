@@ -1,6 +1,6 @@
 # Story 78: As a gym goer, I want to be able to join an invite-only workout buddies group and encourage other members, which is confirmed by being able to accept an invite and send a member an encouragement message.
 
-- **Tasks:** #71 (backend), #79 (page)
+- **Tasks:** #71 (backend), #79 (page), #147 (page restyle and one message a day to each member), #152 (invite codes no longer expire, backend), #153 (one message a day, server checks), #154 (one-a-day wording, "Encouragement sent" and no expiry on the page)
 - **Automated in:** not automated yet (the story has no Playwright task card)
 
 ### What this story is about, in plain words
@@ -9,11 +9,12 @@ A "workout buddies group" is a small private group of GymRank users who encourag
 
 ### The rules these tests check
 
-1. Invite code. A group has one invite code, 8 characters long, made of capital letters and numbers, for example 7KQ2MXP9. Only the owner of the group can see it. Anyone who is logged in and is not already in a group can join by typing it. No email is sent.
+1. Invite code. A group has one invite code, 8 characters long, made of capital letters and numbers, for example 7KQ2MXP9. Only the owner of the group can see it. Anyone who is logged in and is not already in a group can join by typing it. The code does not expire: it works for as long as the group exists. No email is sent.
 2. One group per person. Someone who is already in a group cannot join another group or create one.
 3. Private. Only the members of a group can see its list of members. Everyone else sees nothing about the group. Names are shown as a first name and the first letter of the last name, for example "Olivia G.". Email addresses are never shown.
 4. Encouragement. A member can send a message of 1 to 140 characters to another member of the same group. Only the person it is sent to can read it. Nobody can send a message to themselves.
-5. Not part of this story: leaving a group, removing someone, getting a new code, a limit on the number of members, and invites by email.
+5. One message a day to each member. A member can send each other member of the group one message a day, so they can still encourage everyone in the group on the same day, but only once each. The page says so under "Members". After sending, that member's "Encourage" button is replaced by an "Encouragement sent" button that does nothing when clicked, also after the page is reloaded. The server refuses a second message even if it is sent another way. A new day starts at midnight, New York time.
+6. Not part of this story: leaving a group, removing someone, getting a new code, a limit on the number of members, and invites by email.
 
 ### What you need
 
@@ -33,11 +34,11 @@ Cal Moss, email buddy-cal@example.com. He is not in any group. He will create a 
 
 Omar Reyes, email buddy-omar@example.com. He is not in any group and never joins one. He is the "outsider".
 
-Pete Lowe, email buddy-pete@example.com. He owns a different group called "Late Starters". Its code (4MXT8H2R) ran out yesterday, so it no longer works.
+Pete Lowe, email buddy-pete@example.com. He owns a different group called "Late Starters", which he started more than a week ago. Its code is 4MXT8H2R, and it still works because codes do not expire.
 
-### Important: run the tests in order, from 1 to 7, in one go
+### Important: run the tests in order, from 1 to 8, in one go, on the same day
 
-Tests 3 to 7 change the test accounts (messages are sent, a person joins a group, a group is created). They are written so that, run once and in order, each test finds the accounts exactly as it expects. Tests 5 and 6 belong together: Test 6 uses the second browser tab that you open in the Setup of Test 5. If you run the tests a second time, or in a different order, the accounts will already have changed, so ask a team member to reset the test accounts first.
+Tests 3 to 8 change the test accounts (messages are sent, a person joins a group, a group is created). They are written so that, run once and in order, each test finds the accounts exactly as it expects. Tests 5 and 6 belong together: Test 6 uses the second browser tab that you open in the Setup of Test 5. Test 8 checks the one-message-a-day rule using the message Olivia sends Ben in Test 3, so Tests 3 and 8 must be run on the same day (before midnight, New York time). If you run the tests a second time, or in a different order, the accounts will already have changed, so ask a team member to reset the test accounts first.
 
 ### Words and actions used in these tests
 
@@ -83,7 +84,7 @@ Log out: look at the top right corner of the page, click the small round button 
 
 Expected outcome: Omar sees nothing about any group. Pete sees only his own group, "Late Starters", and nobody from "Morning Lifters".
 
-## Acceptance Test 2: A wrong or expired invite code is refused
+## Acceptance Test 2: A wrong invite code is refused
 
 ### Setup for this test:
 
@@ -97,8 +98,8 @@ Expected outcome: Omar sees nothing about any group. Pete sees only his own grou
 
 1. In the row of links across the top of the page, click **"Buddies"**. Check that the large title on the page says "Workout buddies" and that the web address in the long box at the top of the browser ends with /buddies.
 2. Click once inside the box **"Invite code"** and type **7KQ2** (only 4 characters). Click the button **"Join group"**. Check that the message "Enter the 8-character invite code." appears next to the box, and that the page still says "You're not in a group yet."
-3. Click inside the box, erase what is there (press the Backspace key until the box is empty) and type **ZZZZZZZZ** (the capital letter Z eight times). Click **"Join group"**. Check that the message "That invite code isn't valid or has expired." appears.
-4. Erase the box again and type **4MXT8H2R**. This is the code of the group "Late Starters", which ran out yesterday. Click **"Join group"**. Check that exactly the same message appears: "That invite code isn't valid or has expired." The page must not say whether the code was wrong or old.
+3. Click inside the box, erase what is there (press the Backspace key until the box is empty) and type **ZZZZZZZZ** (the capital letter Z eight times). Click **"Join group"**. Check that the message "That invite code isn't valid." appears.
+4. Erase the box again and type **QQQQ2222** (the capital letter Q four times, then the number 2 four times). No group has this code. Click **"Join group"**. Check that exactly the same message appears: "That invite code isn't valid."
 5. Erase the box again and type **7kq2mxp9** using small letters. Check that the box turns the letters into capital letters by itself, so it shows 7KQ2MXP9. Do not click "Join group" this time. Erase the box so it is empty.
 6. Click **"Join group"** with the empty box. Check that the message "Enter the 8-character invite code." appears.
 7. Reload the page (click the round arrow button at the top left of the browser, next to the web address). Check that the page still says "You're not in a group yet." and shows no group name and no names of people.
@@ -116,7 +117,7 @@ Expected outcome: none of the wrong codes let Omar into a group, the two codes t
 5. Click the button **"Log in"** under the two boxes. Check that the Dashboard page opens (the word **"Dashboard"** is highlighted in the row of links across the top of the page).
 6. In the row of links across the top of the page, click **"Buddies"**. Check that the large title on the page says "Workout buddies" and that the web address in the long box at the top of the browser ends with /buddies.
 7. Check that the page shows the group name "Morning Lifters" and the line "2 members", with a row for "Olivia G." (labels "Owner" and "You") and a row for "Ben C.".
-8. Because Olivia owns the group, check that the page also shows the label "Invite code" with the code 7KQ2MXP9, and the label "Expires" with a date about one week from today.
+8. Because Olivia owns the group, check that the page also shows the label "Invite code" with the code 7KQ2MXP9, and that there is no "Expires" label and no date next to the code, because codes do not expire.
 
 ### Steps:
 
@@ -141,15 +142,15 @@ Expected outcome: Ben received the new message above his older one, and Pete, wh
 
 1. Connect to the UB VPN or use the campus network. If the next page does not open, you are not connected yet.
 2. Open your web browser (Chrome, Safari or Firefox) and click this link: [Login page](https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login). A page titled "Log in to GymRank" opens.
-3. Click once inside the white box **"Email"** so a blinking line appears, then type **buddy-olivia@example.com**
+3. Click once inside the white box **"Email"** so a blinking line appears, then type **buddy-ben@example.com**
 4. Click once inside the box **"Password"** and type **Buddy-Test-78!** (a capital B, a dash, a capital T, a dash, the number 78 and an exclamation mark).
 5. Click the button **"Log in"** under the two boxes. Check that the Dashboard page opens (the word **"Dashboard"** is highlighted in the row of links across the top of the page).
 6. In the row of links across the top of the page, click **"Buddies"**. Check that the large title on the page says "Workout buddies" and that the web address in the long box at the top of the browser ends with /buddies.
-7. Check that the page shows the group name "Morning Lifters" and a row for "Ben C." with an **"Encourage"** button.
+7. Check that the page shows the group name "Morning Lifters" and a row for "Olivia G." with an **"Encourage"** button. (Ben sends this test's message to Olivia, because Olivia already sent Ben his one message for today in Acceptance Test 3.)
 
 ### Steps:
 
-1. On the row for "Ben C." click **"Encourage"**. Leave the box **"Your message"** empty and click **"Send"**. Check that the message "Write a message of 1 to 140 characters." appears next to the box, and that the page does not say "Encouragement sent to Ben C."
+1. On the row for "Olivia G." click **"Encourage"**. Leave the box **"Your message"** empty and click **"Send"**. Check that the message "Write a message of 1 to 140 characters." appears next to the box, and that the page does not say "Encouragement sent to Olivia G."
 2. Click inside the box **"Your message"** and press the space bar (the long key at the bottom of the keyboard) three times, so the box holds only blank spaces. Click **"Send"**. Check that the same message, "Write a message of 1 to 140 characters.", appears.
 3. Erase the spaces with the Backspace key. Now copy the long line of numbers below: drag the mouse across the whole line while holding the left button, right-click on it and click "Copy". It is 141 characters long, which is one too many.
 
@@ -157,10 +158,10 @@ Expected outcome: Ben received the new message above his older one, and Pete, wh
 
 4. Click inside the box **"Your message"**, right-click and click "Paste". Check that the line of numbers appears in the box.
 5. Click **"Send"**. Check that the message "Write a message of 1 to 140 characters." appears, and that the long line is still in the box (nothing you typed was lost).
-6. Click at the very end of the line in the box and press the Backspace key once, so the last character, the letter A, is erased and 140 characters are left. Click **"Send"**. Check that the page says "Encouragement sent to Ben C."
-7. Look at the row for "Olivia G." (yourself). Check that it has the label "You" and no **"Encourage"** button, so nobody can send a message to themselves.
-8. Look at the top right corner of the page. Click the small round button that shows your initials (**"OG"**). A small menu opens. Click **"Log out"** in that menu. Check that the Login page opens and says "You are logged out."
-9. On the Login page click the box **"Email"**, type **buddy-ben@example.com**, click the box **"Password"**, type **Buddy-Test-78!** and click **"Log in"**. Check that the Dashboard page opens.
+6. Click at the very end of the line in the box and press the Backspace key once, so the last character, the letter A, is erased and 140 characters are left. Click **"Send"**. Check that the page says "Encouragement sent to Olivia G."
+7. Look at the row for "Ben C." (yourself). Check that it has the label "You" and no **"Encourage"** button, so nobody can send a message to themselves.
+8. Look at the top right corner of the page. Click the small round button that shows your initials (**"BC"**). A small menu opens. Click **"Log out"** in that menu. Check that the Login page opens and says "You are logged out."
+9. On the Login page click the box **"Email"**, type **buddy-olivia@example.com**, click the box **"Password"**, type **Buddy-Test-78!** and click **"Log in"**. Check that the Dashboard page opens.
 10. In the row of links across the top of the page, click **"Buddies"**. Check that the large title on the page says "Workout buddies" and that the web address in the long box at the top of the browser ends with /buddies.
 11. In the list "Encouragements for you", check that the newest message, at the top, is the long line of numbers that starts with 1234567890 and has no letter A at the end.
 
@@ -226,7 +227,33 @@ Expected outcome: the second attempt is refused with the words "You are already 
 5. Click inside the name box and type **Cal's Crew** (a capital C, the letters a and l, an apostrophe, the letter s, a space, and the word Crew). Click **"Create"**.
 6. Check that the page now shows the group name "Cal's Crew" as a large title and the line "1 member".
 7. Check that the list of members has exactly one row, "Cal M.", with the labels "Owner" and "You".
-8. Because Cal owns the group, check that the page shows the label "Invite code" with a code of exactly 8 characters made of capital letters and numbers (for example 9HX4T2KM), and the label "Expires" with a date about one week from today. This is the code Cal would give to a friend.
+8. Because Cal owns the group, check that the page shows the label "Invite code" with a code of exactly 8 characters made of capital letters and numbers (for example 9HX4T2KM), and that there is no "Expires" label and no date next to it, because codes do not expire. This is the code Cal would give to a friend.
 9. Reload the page (click the round arrow button at the top left of the browser, next to the web address). Check that "Cal's Crew", the line "1 member" and the same invite code are shown, and that the button "Create a group" is gone (a person can only be in one group).
 
 Expected outcome: Cal has a new private group that he owns, with an invite code that only he can see.
+
+## Acceptance Test 8: You can encourage each member once a day
+
+### Setup for this test:
+
+1. Run this after Acceptance Tests 3 and 5, on the same day as Acceptance Test 3 (before midnight, New York time). In Test 3 Olivia sent Ben a message, and in Test 5 Nina joined "Morning Lifters". Olivia has not sent Nina anything yet.
+2. Connect to the UB VPN or use the campus network. If the next page does not open, you are not connected yet.
+3. Open your web browser (Chrome, Safari or Firefox) and click this link: [Login page](https://cattle.cse.buffalo.edu/CSE442/2026-Fall/cse-442y/#/login). A page titled "Log in to GymRank" opens. If someone is still logged in from an earlier test, log out first.
+4. Click once inside the white box **"Email"** so a blinking line appears, then type **buddy-olivia@example.com**
+5. Click once inside the box **"Password"** and type **Buddy-Test-78!** (a capital B, a dash, a capital T, a dash, the number 78 and an exclamation mark).
+6. Click the button **"Log in"** under the two boxes. Check that the Dashboard page opens (the word **"Dashboard"** is highlighted in the row of links across the top of the page).
+
+### Steps:
+
+1. In the row of links across the top of the page, click **"Buddies"**. Check that the large title on the page says "Workout buddies", that the group "Morning Lifters" has three rows: "Olivia G." (You), "Ben C." and "Nina P.", and that the line under the title "Members" says "You can encourage each member once a day. It starts again at midnight, New York time."
+2. Look at the row for "Ben C.". Check that it shows **"✓ Encouragement sent"** in green and has no **"Encourage"** button, because Olivia already sent Ben a message today in Acceptance Test 3. Click **"Encouragement sent"**. Check that nothing opens and the page does not change.
+3. Look at the row for "Nina P.". Check that it has an **"Encourage"** button. Sending Ben a message today does not stop Olivia from encouraging someone else.
+4. On the row for "Nina P." click **"Encourage"**. Click once inside the box **"Your message"** and type **Welcome to Morning Lifters!** (a capital W, a capital M, a capital L and an exclamation mark at the end). Click **"Send"**.
+5. Check that the page says "Encouragement sent to Nina P.", and that the row for "Nina P." now shows **"✓ Encouragement sent"** instead of the **"Encourage"** button.
+6. Reload the page (click the round arrow button at the top left of the browser, next to the web address). Check that the rows for "Ben C." and "Nina P." both still show **"✓ Encouragement sent"** and neither has an **"Encourage"** button.
+7. Look at the top right corner of the page. Click the small round button that shows your initials (**"OG"**). A small menu opens. Click **"Log out"** in that menu. Check that the Login page opens and says "You are logged out."
+8. On the Login page click the box **"Email"**, type **buddy-nina@example.com**, click the box **"Password"**, type **Buddy-Test-78!** and click **"Log in"**. Check that the Dashboard page opens.
+9. In the row of links across the top of the page, click **"Buddies"**. In the list "Encouragements for you", check that the newest message, at the top, is "Welcome to Morning Lifters!" from "Olivia G.".
+10. Check that the row for "Olivia G." has an **"Encourage"** button (not "Encouragement sent"). Olivia's messages to Nina do not use up Nina's own message to Olivia.
+
+Expected outcome: Olivia can send one message a day to each member of her group: Ben, whom she already encouraged today, can't be sent a second one, but she can still encourage Nina once. The "Encouragement sent" buttons stay after the page is reloaded, Nina receives the message, and Nina can still send her own message to Olivia.

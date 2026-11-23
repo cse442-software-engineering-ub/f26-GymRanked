@@ -1,5 +1,5 @@
-/* The side panel / modal dialog (src/components/SidePanel.jsx). As a modal it sits in .modal-backdrop, whose 16px
-   padding makes it the window width minus 32px on a phone. The header and footer stay put while the body scrolls
+/* The pop-up dialog (src/components/SidePanel.jsx), centred in .modal-backdrop on every screen size. The backdrop's
+   16px padding makes it the window width minus 32px on a phone. The header and footer stay put while the body scrolls
    between them. */
 
 .side-panel {
@@ -159,55 +159,6 @@
 .side-panel :focus-visible {
   outline: 3px solid var(--gr-brand);
   outline-offset: 2px;
-}
-
-/* At 1332px and wider (DOCKED_QUERY in SidePanel.jsx: the old 1100px plus the 232px sidebar) the dialog is a 360px
-   panel fixed on the left or right of the page area, from 16px under the top of the window to the bottom, with no
-   dimming: clicks reach the page. A left panel starts after the sidebar (--app-sidebar-width, navigation.css). */
-@media (min-width: 1332px) {
-  .modal-backdrop.side-panel-backdrop {
-    align-items: stretch;
-    padding: 16px 24px 24px;
-    background: transparent;
-    pointer-events: none;
-  }
-
-  .modal-backdrop.side-panel-backdrop--right {
-    justify-content: flex-end;
-  }
-
-  .modal-backdrop.side-panel-backdrop--left {
-    justify-content: flex-start;
-    padding-left: calc(var(--app-sidebar-width) + 24px);
-  }
-
-  .side-panel-backdrop .side-panel {
-    max-width: 360px;
-    max-height: none;
-    height: 100%;
-    pointer-events: auto;
-  }
-
-  .side-panel-backdrop--right .side-panel {
-    box-shadow: -12px 0 30px var(--gr-shadow-color);
-  }
-
-  .side-panel-backdrop--left .side-panel {
-    box-shadow: 12px 0 30px var(--gr-shadow-color);
-  }
-
-  .side-panel-backdrop .side-panel__header {
-    padding-left: 20px;
-  }
-
-  .side-panel-backdrop .side-panel__body {
-    gap: 16px;
-    padding: 16px 20px 20px;
-  }
-
-  .side-panel-backdrop .side-panel__footer {
-    padding: 12px 20px;
-  }
 }
 
 @media (max-width: 640px) {

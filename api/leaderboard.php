@@ -1,5 +1,5 @@
 <?php
-// GET api/leaderboard.php[?board=overall|bench|squat|deadlift] -> 200
+// GET api/leaderboard.php[?board=overall|bench|squat|deadlift][&scope=everyone|buddies] -> 200
 //   {"board":"overall","ranked_count":51,"workouts_needed":3,
 //    "rows":[{"rank":1,"name":"Cy P.","score":319.16,"lift":null,"is_me":false,"gap_before":false}, ...],
 //    "me":{"ranked":true,"rank":2,"score":243.63,"reason":null,"joined":true,"bodyweight_lb":200,"gender":"man",
@@ -42,13 +42,20 @@
 // test_account, not_joined, no_bodyweight, needs_scoring_table, too_few_workouts, no_lift, missing_lifts (Overall only:
 // ranked on some lift but missing one or two; me.lifts shows which).
 //
-// 400 {"error":"Invalid request.","errors":{"board"|"join"|"scoring_table": "..."}}, 401 {"error":"Please log in."},
+// scope=buddies ranks only the caller's own workout buddies group (api/ranking_scope.php, card #138) by the same rules,
+// except that is_test is not applied (the group chose its members). ranked_count, rows and me.rank are among those people,
+// every ranked member is listed (no top 10, no gap_before), and the response adds "group" ({name, member_count} or null)
+// and "unranked" ([{"name":"Cal M."}], names only). me.reason is no_group for a caller in no group. The default, everyone,
+// is the board above and has neither key.
+//
+// 400 {"error":"Invalid request.","errors":{"board"|"scope"|"join"|"scoring_table": "..."}}, 401 {"error":"Please log in."},
 // 405 with Allow: GET, POST, DELETE, 500 {"error":"Database error"}.
 //
 // ponytail: every joined user is read and ranked in PHP on each request, which is fine for hundreds or a few thousand
 // members; past that, keep the best lifts in a small table updated when a workout is completed.
 
 require __DIR__ . '/workout_common.php';
+require __DIR__ . '/ranking_scope.php';
 
 const WORKOUTS_NEEDED = 3;
 const TOP_ROWS = 10;
@@ -171,16 +178,20 @@ if (array_key_exists('board', $_GET)) {
     }
     $board = $_GET['board'];
 }
+$scope = ranking_scope_param();
 
 $db = database();
 $me_id = workout_user_id($db);
+$buddies = $scope === 'buddies';
+$group = $buddies ? ranking_group($db, $me_id) : null;
+$group_ids = $group ? $group['ids'] : [];
 
 // Everyone who joined, plus the caller whether or not they did.
 $stmt = $db->prepare(
     'SELECT u.id, u.full_name, u.is_test, p.bodyweight_lb, p.gender, p.scoring_table, p.leaderboard_joined_at,
             (SELECT COUNT(*) FROM workout_sessions s WHERE s.user_id = u.id AND s.completed_at IS NOT NULL) AS workouts
      FROM users u LEFT JOIN user_profile p ON p.user_id = u.id
-     WHERE u.id = ? OR p.leaderboard_joined_at IS NOT NULL'
+     WHERE u.id = ? OR p.leaderboard_joined_at IS NOT NULL' . ($group_ids ? ' OR u.id IN (' . implode(',', $group_ids) . ')' : '')
 );
 $stmt->bind_param('i', $me_id);
 $stmt->execute();
@@ -232,10 +243,23 @@ function unranked_reason($person, $board, $table) {
     return isset($person['q'][$board]) ? null : 'no_lift';
 }
 
+// scope=buddies: only the caller's own group (api/ranking_scope.php), whose members are chosen by the group itself, so
+// the test-account rule does not apply. A caller in no group is the only person kept and is never ranked.
+$no_group = $buddies && $group === null;
+if ($buddies) {
+    $people = array_intersect_key($people, array_flip($group_ids) + [$me_id => true]);
+    foreach ($people as &$person) $person['is_test'] = 0;
+    unset($person);
+}
+
 $entries = [];   // everyone ranked on this board
+$unranked = [];  // scope=buddies: group members with no rank
 foreach ($people as $id => $person) {
     $table = table_for($person['gender'], $person['scoring_table']);
-    if (unranked_reason($person, $board, $table) !== null) continue;
+    if ($no_group || unranked_reason($person, $board, $table) !== null) {
+        if (!$no_group) $unranked[] = ['id' => $id, 'name' => $person['full_name']];
+        continue;
+    }
     $entries[] = ['id' => $id, 'name' => $person['full_name'], 'cents' => board_score_cents($person, $board, $table)];
 }
 usort($entries, function ($a, $b) {
@@ -251,8 +275,8 @@ unset($entry);
 // The top 10 and everyone tied with 10th place, then the caller and one person either side.
 $count = count($entries);
 $keep = [];
-$top = min(TOP_ROWS, $count);
-while ($top < $count && $entries[$top]['cents'] === $entries[TOP_ROWS - 1]['cents']) $top++;
+$top = $buddies ? $count : min(TOP_ROWS, $count);   // Buddies lists every ranked member
+while (!$buddies && $top < $count && $entries[$top]['cents'] === $entries[TOP_ROWS - 1]['cents']) $top++;
 for ($i = 0; $i < $top; $i++) $keep[$i] = true;
 $my_index = null;
 foreach ($entries as $i => $entry) if ($entry['id'] === $me_id) $my_index = $i;
@@ -278,7 +302,7 @@ foreach (array_keys($keep) as $i) {
 // The caller's own numbers.
 $me = $people[$me_id];
 $table = table_for($me['gender'], $me['scoring_table']);
-$reason = unranked_reason($me, $board, $table);
+$reason = $no_group ? 'no_group' : unranked_reason($me, $board, $table);
 $ranked = $reason === null;
 $lifts = [];
 foreach (array_keys(LIFT_NAMES) as $lift) {
@@ -301,4 +325,4 @@ respond(200, [
         'lifts' => $lifts,
         'workouts_done' => (int) $me['workouts'],
     ],
-]);
+] + ($buddies ? ['group' => ranking_group_json($group), 'unranked' => ranking_unranked_json($unranked)] : []));

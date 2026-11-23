@@ -2,8 +2,7 @@
 
 export const PAGE_SIZE = 4
 
-// The backend saves finish times in UTC. Dates are shown in New York time, the time zone the backend's weekly
-// schedule uses, so a workout finished at 9:30 PM on a Friday reads Friday rather than the UTC Saturday.
+// Session times are UTC. History dates use New York time, matching the workout schedule.
 const dateFormat = new Intl.DateTimeFormat('en-US', {
   weekday: 'long',
   month: 'long',
@@ -30,9 +29,9 @@ export function sizeLabel(exerciseCount, setCount) {
   return `${plural(exerciseCount, 'exercise')} · ${plural(setCount, 'set')}`
 }
 
-// "6 completed workouts"
+// "6 workouts"
 export function countLabel(count) {
-  return plural(count, 'completed workout')
+  return plural(count, 'workout')
 }
 
 export function pageCount(total) {

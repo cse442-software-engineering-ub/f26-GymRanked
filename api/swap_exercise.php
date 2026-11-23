@@ -33,6 +33,9 @@ $db->begin_transaction();
 $session = find_session($db, $session_id, $user_id, true);
 if (!$session) respond(404, ['error' => 'Session not found']);
 if ($session['completed_at'] !== null) respond(409, ['error' => 'Workout already completed']);
+if (!workout_session_is_scheduled_today($db, $user_id, $session)) {
+    respond(409, ['error' => 'This workout is no longer scheduled today']);
+}
 
 $names = exercise_names($session);
 $position = array_search($exercise, $names, true);

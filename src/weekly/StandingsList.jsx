@@ -4,7 +4,8 @@ import { daysLine, emptyGroupLine, sharedRankNote } from './weeklyFormat.js'
 
 // This week's group: everyone with the same goal, most days first. Rows show only the rank, first name + last
 // initial, the days (capped at the goal) and the percentage; people with the same days share a rank (1, 1, 3).
-export default function StandingsList({ rows, targetDays }) {
+// note={false} leaves out the closing note (the Buddies view shows one note under all its goal tables).
+export default function StandingsList({ rows, targetDays, note = true }) {
   if (rows.length === 0) return <p className="weekly-empty">{emptyGroupLine(targetDays)}</p>
 
   return (
@@ -39,7 +40,7 @@ export default function StandingsList({ rows, targetDays }) {
           </Fragment>
         ))}
       </ol>
-      <p className="weekly-note">{sharedRankNote(targetDays)}</p>
+      {note && <p className="weekly-note">{sharedRankNote(targetDays)}</p>}
     </>
   )
 }

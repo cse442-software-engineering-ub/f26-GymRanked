@@ -1,9 +1,9 @@
 // Backend checks for story #78: workout buddies groups, invites and encouragements (card #71 task tests).
-// Run against a LOCAL PHP server and a database that has migrations 001-018:
+// Run against a LOCAL PHP server and a database that has migrations 001-022:
 //   PHP_CLI_SERVER_WORKERS=4 php -S localhost:8000 -t api     (4 workers so the simultaneous-request checks overlap)
 //   node tests/buddies-api.mjs
 // It loads database/seeds/workout_buddies.sql itself (twice, which also checks that the seed can be run again), logs
-// in as the six buddy-*@example.com accounts, and leaves the seed's state behind. It needs the `mysql` command; set
+// in as the seven buddy-*@example.com accounts, and leaves the seed's state behind. It needs the `mysql` command; set
 // WORKOUT_TEST_DB / WORKOUT_TEST_MYSQL_USER (and MYSQL_PWD) if your local database isn't `cse442_2026_fall_team_y_db`
 // with a passwordless root. The shared aptitude and cattle databases are never touched: the base must be local.
 import assert from 'node:assert/strict'
@@ -19,7 +19,9 @@ const loadSeed = () => execFileSync('mysql', ['--default-character-set=utf8mb4',
   { input: readFileSync(new URL('../database/seeds/workout_buddies.sql', import.meta.url)), stdio: ['pipe', 'ignore', 'inherit'] })
 const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
 const PASSWORD = 'Buddy-Test-78!'
-const CODE = '7KQ2MXP9', EXPIRED = '4MXT8H2R'
+// Invite codes never expire (card #152): OLD_GROUP_CODE belongs to a group the seed makes 400 days old and still works;
+// MISSING_CODE is well formed but no group has it.
+const CODE = '7KQ2MXP9', OLD_GROUP_CODE = '4MXT8H2R', MISSING_CODE = 'QQQQ2222'
 
 async function call(jar, method, path, body, { raw } = {}) {
   const response = await fetch(`${base}/${path}`, {
@@ -55,18 +57,23 @@ const ALREADY = 'You are already in a workout buddies group.'
 const BAD_CODE = { code: 'Enter the 8-character invite code.' }
 const memberId = (email) => Number(sql(`SELECT m.id FROM buddy_members m JOIN users u ON u.id = m.user_id WHERE u.email = '${email}'`))
 const count = (table) => Number(sql(`SELECT COUNT(*) FROM ${table}`))
+// One message a day to each member (card #147): this makes Olivia's earlier messages count as sent on another day, so
+// the checks below can send Ben several.
+const newDay = () => sql("UPDATE buddy_encouragements SET sent_on = NULL WHERE sender_id = (SELECT id FROM users WHERE email = 'buddy-olivia@example.com')")
 
 // ---------------------------------------------------------------- Test 1: migration and seed
 loadSeed()
 loadSeed()
 sql('DELETE FROM auth_attempts')
-assert.equal(sql("SELECT COUNT(*) FROM users WHERE email LIKE 'buddy-%@example.com' AND is_test = 1"), '6')
-assert.equal(sql("SELECT CONCAT(g.name, ':', COUNT(*)) FROM buddy_groups g JOIN buddy_members m ON m.group_id = g.id GROUP BY g.id ORDER BY g.id"), 'Morning Lifters:2\nLate Starters:1')
+assert.equal(sql("SELECT COUNT(*) FROM users WHERE email LIKE 'buddy-%@example.com' AND is_test = 1"), '7')
+assert.equal(sql("SELECT CONCAT(g.name, ':', COUNT(*)) FROM buddy_groups g JOIN buddy_members m ON m.group_id = g.id WHERE g.name IN ('Morning Lifters', 'Late Starters') GROUP BY g.id ORDER BY g.id"), 'Morning Lifters:2\nLate Starters:1')
 assert.equal(sql("SELECT COUNT(*) FROM buddy_encouragements WHERE recipient_id = (SELECT id FROM users WHERE email = 'buddy-ben@example.com')"), '1')
+assert.equal(sql("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'buddy_groups' AND column_name = 'invite_expires_at'"), '0', 'migration 022 removed the expiry column')
+assert.equal(sql("SELECT TIMESTAMPDIFF(DAY, created_at, UTC_TIMESTAMP()) FROM buddy_groups WHERE invite_code = '4MXT8H2R'"), '400', 'Late Starters is the old group')
 assert.throws(() => execFileSync('mysql', ['-u', mysqlUser, database, '-e',
   "INSERT INTO buddy_members (group_id, user_id, joined_at) SELECT group_id, user_id, UTC_TIMESTAMP() FROM buddy_members WHERE user_id = (SELECT id FROM users WHERE email = 'buddy-ben@example.com')"],
   { stdio: 'pipe' }), /Duplicate entry|ERROR 1062/, 'one group per person is enforced by the database')
-const [olivia, ben, nina, cal, omar, pete] = await Promise.all(['olivia', 'ben', 'nina', 'cal', 'omar', 'pete'].map(login))
+const [olivia, ben, nina, cal, omar, pete, walt] = await Promise.all(['olivia', 'ben', 'nina', 'cal', 'omar', 'pete', 'walt'].map(login))
 const OLIVIA = memberId('buddy-olivia@example.com'), BEN = memberId('buddy-ben@example.com'), PETE = memberId('buddy-pete@example.com')
 console.log('1 ok: migration, seed (twice) and the one-group-per-person key')
 
@@ -91,11 +98,11 @@ assert.equal(joined.status, 200, joined.text)
 const NINA = joined.body.me.member_id
 assert.deepEqual(joined.body, {
   group: {
-    name: 'Morning Lifters', member_count: 3, invite_code: null, invite_expires_at: null,
+    name: 'Morning Lifters', member_count: 3, invite_code: null,
     members: [
-      { member_id: OLIVIA, name: 'Olivia G.', is_me: false, is_owner: true },
-      { member_id: BEN, name: 'Ben C.', is_me: false, is_owner: false },
-      { member_id: NINA, name: 'Nina P.', is_me: true, is_owner: false },
+      { member_id: OLIVIA, name: 'Olivia G.', is_me: false, is_owner: true, encouraged_today: false },
+      { member_id: BEN, name: 'Ben C.', is_me: false, is_owner: false, encouraged_today: false },
+      { member_id: NINA, name: 'Nina P.', is_me: true, is_owner: false, encouraged_today: false },
     ],
   },
   me: { member_id: NINA, is_owner: false },
@@ -103,13 +110,11 @@ assert.deepEqual(joined.body, {
 })
 const owner = (await get(olivia, 'buddy_group.php')).body
 assert.equal(owner.group.invite_code, CODE)
-assert.match(owner.group.invite_expires_at, ISO)
-const days = (Date.parse(owner.group.invite_expires_at) - Date.now()) / 86400000
-assert.ok(days > 6.9 && days <= 7.01, `expires in ${days} days`)
+assert.ok(!('invite_expires_at' in owner.group), 'there is no expiry field')
 assert.equal(owner.group.member_count, 3)
 const member = (await get(ben, 'buddy_group.php')).body
 assert.equal(member.group.invite_code, null)
-assert.equal(member.group.invite_expires_at, null)
+assert.ok(!('invite_expires_at' in member.group))
 assert.equal(member.encouragements.length, 1)
 assert.equal(member.encouragements[0].from, 'Olivia G.')
 assert.equal(member.encouragements[0].message, 'Nice work on leg day!')
@@ -126,10 +131,14 @@ for (const code of ['7KQ2', '7kq2mxp9', '7KQ2MXI9', '7KQ2MXP9\n', 'ABCDEFGH1', 1
   expectError(await join(omar, code), 400, 'Invalid request.', BAD_CODE)
 }
 expectError(await post(omar, 'buddy_join.php', {}), 400, 'Invalid request.', BAD_CODE)
-for (const code of ['ZZZZZZZZ', EXPIRED]) expectError(await join(omar, code), 404, "That invite code isn't valid or has expired.")
+for (const code of ['ZZZZZZZZ', MISSING_CODE]) {
+  const refused = await join(omar, code)
+  expectError(refused, 404, "That invite code isn't valid.")
+  assert.doesNotMatch(refused.text, /expire/i)
+}
 assert.deepEqual((await get(omar, 'buddy_group.php')).body, NO_GROUP)
 assert.equal(count('buddy_members'), members)
-console.log('4 ok: invalid and expired invites')
+console.log('4 ok: invalid invites')
 
 // ---------------------------------------------------------------- Test 5: accepting twice (example 3)
 expectError(await join(nina, CODE), 409, ALREADY)
@@ -145,11 +154,23 @@ expectError(await encourage(omar, 999999, 'Hi'), 404, 'Group not found.')
 const petes = (await get(pete, 'buddy_group.php')).body
 assert.equal(petes.group.name, 'Late Starters')
 assert.deepEqual(petes.group.members.map((m) => m.name), ['Pete L.'])
-assert.equal(petes.group.invite_code, EXPIRED)
+assert.equal(petes.group.invite_code, OLD_GROUP_CODE)
 expectError(await encourage(ben, PETE, 'Hi'), 404, 'Member not found.')
 expectError(await encourage(ben, 999999, 'Hi'), 404, 'Member not found.')
 const messages = count('buddy_encouragements')
-console.log('6 ok: outside account')
+// A code from a group made 400 days ago still joins it: codes never expire.
+assert.deepEqual((await get(walt, 'buddy_group.php')).body, NO_GROUP)
+const walts = await join(walt, OLD_GROUP_CODE)
+assert.equal(walts.status, 200, walts.text)
+assert.equal(walts.body.group.name, 'Late Starters')
+assert.deepEqual(walts.body.group.members.map((m) => [m.name, m.is_me, m.is_owner]), [['Pete L.', false, true], ['Walt H.', true, false]])
+assert.equal(walts.body.group.invite_code, null)
+assert.ok(!('invite_expires_at' in walts.body.group))
+const petesNow = (await get(pete, 'buddy_group.php')).body
+assert.equal(petesNow.group.invite_code, OLD_GROUP_CODE)
+assert.equal(petesNow.group.member_count, 2)
+assert.ok(!('invite_expires_at' in petesNow.group))
+console.log('6 ok: outside account, and an old group\'s code still joins it')
 
 // ---------------------------------------------------------------- Test 7: encouragement
 const sent = await encourage(olivia, BEN, 'Great session today, keep it up!')
@@ -171,13 +192,17 @@ for (const id of ['x', 1.5, 0, -1, null]) {
   expectError(await encourage(olivia, id, 'Hi'), 400, 'Invalid request.', { member_id: 'Choose a member of your group.' })
 }
 expectError(await post(olivia, 'buddy_encourage.php', {}), 400, 'Invalid request.', { member_id: 'Choose a member of your group.', message: 'Write a message of 1 to 140 characters.' })
+newDay()
 assert.equal((await encourage(olivia, BEN, 'x'.repeat(140))).status, 201)
+newDay()
 assert.equal((await encourage(olivia, BEN, '<b>hi</b> & thanks')).status, 201)
 assert.equal((await get(ben, 'buddy_group.php')).body.encouragements[0].message, '<b>hi</b> & thanks')
+newDay()
 assert.equal((await encourage(olivia, BEN, '  spaces trimmed  ')).body.encouragement.message, 'spaces trimmed')
+newDay()
 assert.equal((await encourage(olivia, BEN, 'é'.repeat(140))).status, 201, '140 characters, not 140 bytes')
 assert.equal(count('buddy_encouragements'), messages + 5)
-for (let i = 0; i < 20; i++) await encourage(olivia, BEN, `bulk ${i}`)
+for (let i = 0; i < 20; i++) { newDay(); await encourage(olivia, BEN, `bulk ${i}`) }
 assert.equal((await get(ben, 'buddy_group.php')).body.encouragements.length, 20, 'the inbox shows the last 20')
 console.log('7 ok: encouragement')
 
@@ -193,8 +218,8 @@ assert.equal(made.status, 201, made.text)
 assert.equal(made.body.group.name, "Cal's Crew")
 assert.equal(made.body.group.member_count, 1)
 assert.match(made.body.group.invite_code, /^[A-HJ-NP-Z2-9]{8}$/)
-assert.match(made.body.group.invite_expires_at, ISO)
-assert.deepEqual(made.body.group.members, [{ member_id: made.body.me.member_id, name: 'Cal M.', is_me: true, is_owner: true }])
+assert.ok(!('invite_expires_at' in made.body.group), 'there is no expiry field')
+assert.deepEqual(made.body.group.members, [{ member_id: made.body.me.member_id, name: 'Cal M.', is_me: true, is_owner: true, encouraged_today: false }])
 assert.equal(made.body.me.is_owner, true)
 assert.deepEqual(made.body.encouragements, [])
 expectError(await create(cal, 'Another'), 409, ALREADY)

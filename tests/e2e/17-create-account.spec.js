@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test'
 import { step } from './banner.js'
-import { createAccount } from './helpers.js'
+import { ONBOARDING_STEPS, addPersonalDetails, createAccount } from './helpers.js'
 import { acceptanceTests } from './stories.js'
 
 // The card uses Jamie Lee / jamie-a-1001@example.com. Each run uses a new address so it can be repeated.
@@ -25,7 +25,12 @@ const onRegistration = async (page) => {
 }
 
 const goalHeading = (page) => page.getByRole('heading', { name: 'Choose your training goal' })
-const accountCreated = (page) => page.locator('.login-panel').getByRole('status')
+async function expectSetupStep(page, current) {
+  await expect(page.getByRole('heading', { name: 'Personal details' })).toBeVisible()
+  const progress = page.getByRole('navigation', { name: 'Setup progress' })
+  await expect(progress.getByRole('listitem')).toHaveText(ONBOARDING_STEPS)
+  await expect(progress.locator('[aria-current="step"]')).toHaveText(current)
+}
 const profilePreview = (page) =>
   page.locator('.ob-panel').filter({ has: page.getByRole('heading', { name: 'Profile preview' }) })
 
@@ -62,8 +67,8 @@ acceptanceTests(
       })
 
       await step('Step 1: the login screen shows "Every rep gets a rank." and "Log in to GymRank"', async () => {
-        await expect(page.locator('.hero h1')).toHaveText('Every rep gets a rank.')
-        await expect(page.locator('.hero .accent')).toHaveText('rank.')
+        await expect(page.locator('.entry-hero')).toHaveText('Every rep gets a rank.')
+        await expect(page.locator('.entry-hero .accent')).toHaveText('rank.')
         await expect(loginCard(page)).toBeVisible()
       })
 
@@ -91,49 +96,53 @@ acceptanceTests(
         await expect(strength(page)).toHaveText('Password strength: Strong')
       })
 
-      await step('Step 5: confirm the password and press "Create account"; the login card says "Account created. Log in to continue."', async () => {
+      await step('Step 5: confirm the password and press "Create account"; "Personal details" opens with no login screen in between', async () => {
         await typeText(field(page, 'Confirm password'), PASSWORD)
+        const urls = []
+        page.on('framenavigated', (frame) => { if (frame === page.mainFrame()) urls.push(frame.url()) })
         await createButton(page).click()
-        await expect(page).toHaveURL(/#\/login$/)
-        await expect(loginCard(page)).toBeVisible()
-        await expect(accountCreated(page)).toHaveText('Account created. Log in to continue.')
-        await expect(accountCreated(page)).toHaveClass(/login-feedback-success/)
-        await expect(field(page, 'Email')).toHaveValue(email)
-        await expect(field(page, 'Password')).toHaveValue('')
+        await expect(createButton(page)).toHaveCount(0)
+        await expect(page).toHaveURL(/#\/personal-details$/)
+        await expectSetupStep(page, 'Personal details')
+        expect(urls.some((url) => /#\/login$/.test(url)), 'the login screen opened in between').toBe(false)
       })
     },
 
     2: async ({ page }) => {
       const email = newEmail()
 
-      await step('Setup: do Test 1, so the login card says "Account created. Log in to continue."', async () => {
+      await step('Setup: do Test 1, so "Personal details" is open', async () => {
         await registerThroughForm(page, email)
-        await expect(accountCreated(page)).toHaveText('Account created. Log in to continue.')
+        await expect(page).toHaveURL(/#\/personal-details$/)
       })
 
-      await step('Step 1: the email is filled in; log in and "Choose your training goal" opens', async () => {
-        await expect(field(page, 'Email')).toHaveValue(email)
-        await typeText(field(page, 'Password'), PASSWORD)
-        await page.getByRole('button', { name: 'Log in', exact: true }).click()
-        await expect(page).toHaveURL(/#\/goal$/)
-        await expect(goalHeading(page)).toBeVisible()
-        await expect(page.getByText('Invalid email or password.')).toHaveCount(0)
-        const progress = page.getByRole('navigation', { name: 'Setup progress' })
-        await expect(progress.getByRole('listitem')).toHaveText(['Training goal', 'Experience', 'Equipment', 'Choose plan'])
-        await expect(progress.locator('[aria-current="step"]')).toHaveText('Training goal')
-      })
-
-      await step('Step 2: the Profile preview shows "JL", "Jamie Lee" and "No goal yet"', async () => {
-        await expect(profilePreview(page).locator('.ob-avatar')).toHaveText('JL')
-        await expect(profilePreview(page).locator('.ob-profile-name')).toHaveText(NAME)
-        await expect(profilePreview(page).locator('.ob-tag')).toHaveText('No goal yet')
-      })
-
-      await step('Step 3: "Log out" in the top-right corner shows "Log in to GymRank" with "You are logged out."', async () => {
+      await step('Step 1: "Log out" in the top-right corner shows "Log in to GymRank" with "You are logged out."', async () => {
         await page.locator('.ob-page').getByRole('button', { name: 'Log out' }).click()
         await expect(page).toHaveURL(/#\/login$/)
         await expect(loginCard(page)).toBeVisible()
         await expect(page.locator('.login-panel').getByText('You are logged out.')).toBeVisible()
+      })
+
+      await step('Step 2: log in again; no error, and "Personal details" opens as the current step', async () => {
+        await typeText(field(page, 'Email'), email)
+        await typeText(field(page, 'Password'), PASSWORD)
+        await page.getByRole('button', { name: 'Log in', exact: true }).click()
+        await expect(page).toHaveURL(/#\/personal-details$/)
+        await expect(page.getByText('Invalid email or password.')).toHaveCount(0)
+        await expectSetupStep(page, 'Personal details')
+      })
+
+      await step('Step 3: 180 lb and "Man", then "Save and continue", opens "Choose your training goal"', async () => {
+        await addPersonalDetails(page)
+        await expect(goalHeading(page)).toBeVisible()
+        const progress = page.getByRole('navigation', { name: 'Setup progress' })
+        await expect(progress.locator('[aria-current="step"]')).toHaveText('Training goal')
+      })
+
+      await step('Step 4: the Profile preview shows "JL", "Jamie Lee" and "No goal yet"', async () => {
+        await expect(profilePreview(page).locator('.ob-avatar')).toHaveText('JL')
+        await expect(profilePreview(page).locator('.ob-profile-name')).toHaveText(NAME)
+        await expect(profilePreview(page).locator('.ob-tag')).toHaveText('No goal yet')
       })
     },
 
@@ -235,31 +244,33 @@ acceptanceTests(
         await page.goto('#/login')
       })
 
+      const titleTop = async () => Math.round((await loginCard(page).boundingBox()).y)
+      let before = 0
+
       await step('Step 1: open the login screen and press "Create an account"', async () => {
+        await expect(loginCard(page)).toBeVisible()
+        await page.waitForTimeout(700) // the form rises 10px into place when the page first opens
+        before = await titleTop()
         await page.getByRole('link', { name: 'Create an account' }).click()
         await onRegistration(page)
       })
 
-      // Step 2 is for computers and step 3 for phones, so each screen size runs one of them.
-      if (testInfo.project.name === 'desktop') {
-        await step('Step 2: on a computer, "Log in" at the bottom of the card returns to "Log in to GymRank"', async () => {
-          await expect(close).toBeHidden()
-          await page.locator('.account-link').getByRole('link', { name: 'Log in' }).click()
-          await expect(page).toHaveURL(/#\/login$/)
-          await expect(loginCard(page)).toBeVisible()
-          expect(signUps, 'a sign-up request was sent').toHaveLength(0)
-        })
-      } else {
-        await step('Step 3: on a phone, the "×" in the top-right corner returns to "Log in to GymRank"', async () => {
-          await expect(close).toHaveText('×')
-          await close.click()
-          await expect(page).toHaveURL(/#\/login$/)
-          await expect(loginCard(page)).toBeVisible()
-          expect(signUps, 'a sign-up request was sent').toHaveLength(0)
-        })
-      }
+      // Step 2 runs on the computer and step 3 on the phone: the same way back, and no "×" anywhere.
+      const phone = testInfo.project.name !== 'desktop'
+      await step(phone ? 'Step 3: on a phone, "Log in" returns to "Log in to GymRank" in the same place, with no "×"'
+        : 'Step 2: "Log in" under the button returns to "Log in to GymRank"', async () => {
+        await expect(close).toHaveCount(0)
+        await page.locator('.account-link').getByRole('link', { name: 'Log in' }).click()
+        await expect(page).toHaveURL(/#\/login$/)
+        await expect(loginCard(page)).toBeVisible()
+        expect(signUps, 'a sign-up request was sent').toHaveLength(0)
+        // Mid-slide and after it, the title is where it was before step 1: the screen didn't jump.
+        expect(await titleTop(), 'the log in title moved').toBe(before)
+        await page.waitForTimeout(700)
+        expect(await titleTop(), 'the log in title moved after the slide').toBe(before)
+      })
     },
   },
-  // Test 5's "×" exists only at 850px wide or narrower, so Test 5 also runs on mobile (its step 3).
+  // Test 5 also runs on mobile (its step 3).
   { mobile: [1, 5] },
 )

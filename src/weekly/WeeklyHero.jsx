@@ -1,27 +1,36 @@
 import MobileDashboardIcon from '../MobileDashboardIcon.jsx'
+import { goalLabel } from '../leaderboard/rankingScope.js'
 import { RESET_TEXT, circleLabel, heroKind, progressLine, rankedFromLine, timeLeft } from './weeklyFormat.js'
 
+// data is the whole answer; in the Buddies view "You're #1 of 3" counts the group members with your goal.
 const TITLES = {
-  ranked: (me) => `You're #${me.rank}`,
+  ranked: (me, data, buddies) => (buddies ? `You're #${me.rank} of ${data.member_count}` : `You're #${me.rank}`),
   join: () => 'Join the weekly competition',
   practice: () => 'Practice week',
   test: () => 'Weekly consistency',
+  nogroup: () => 'No buddy group yet',
 }
 
 // The top card: your group, your rank (or the Join step, or your practice week), your days against your goal, and
 // the time left before the Monday reset (Monday visual brief, page 3, "Your place is easy to find").
 // busy is 'join' or 'leave' while that request runs; error is the message for the last one that failed.
-export default function WeeklyHero({ data, msLeft, busy, error, onJoin, onLeave }) {
+// buddies (card 139): the answer is for your buddies group, so the card names the group instead of the circle.
+export default function WeeklyHero({ data, buddies = false, msLeft, busy, error, onJoin, onLeave }) {
   const { me, target_days: target } = data
   const kind = heroKind(me)
+  let eyebrow = circleLabel(target)
+  if (buddies) eyebrow = kind === 'nogroup' ? 'Buddies' : `Buddies · ${goalLabel(target)}`
 
   return (
     <section className={me.goal_reached ? 'weekly-hero is-done' : 'weekly-hero'} aria-labelledby="weekly-hero-title">
       <div className="weekly-hero__top">
         <div className="weekly-hero__main">
-          <span className="weekly-hero__eyebrow">{circleLabel(target)}</span>
-          <h1 id="weekly-hero-title">{TITLES[kind](me)}</h1>
-          {kind === 'ranked' && <p className="weekly-hero__text">Show up. Move up. Start fresh.</p>}
+          <span className="weekly-hero__eyebrow">{eyebrow}</span>
+          <h1 id="weekly-hero-title">{TITLES[kind](me, data, buddies)}</h1>
+          {kind === 'ranked' && <p className="weekly-hero__text">{buddies ? data.group.name : 'Show up. Move up. Start fresh.'}</p>}
+          {kind === 'nogroup' && (
+            <p className="weekly-hero__text">Your training days still count. Join a group to compare this week with your workout buddies.</p>
+          )}
           {kind === 'join' && (
             <p className="weekly-hero__text">
               Compete with people who have the same weekly goal. Others see your first name, last initial and how many

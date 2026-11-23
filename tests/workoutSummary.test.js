@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { displaySummary, formatCompletedDate, formatDuration } from '../src/workoutLog/workoutSummary.js'
+import { comparisonExplanation, displaySummary, formatCompletedDate, formatDuration } from '../src/workoutLog/workoutSummary.js'
 import { createWorkoutLogApi } from '../src/workoutLog/workoutLogApi.js'
 import { workoutWeeklyMessage } from '../src/workoutLog/workoutWeeklyFeedback.js'
 import { progressText, weekDays } from '../src/weeklyGoal/weeklyGoalFormat.js'
@@ -42,11 +42,24 @@ test('completed session data becomes accurate summary values and top sets', () =
     setsCompleted: 3,
     exerciseCount: 2,
     totalReps: 18,
+    newPrs: null,
     highlights: [
-      { exercise: 'Bench press', topSet: '105 lb × 5', versusLast: '', isPr: false },
-      { exercise: 'Overhead press', topSet: '50 lb × 8', versusLast: '', isPr: false },
+      { exercise: 'Bench press', topSet: '105 lb × 5', versusLast: '', comparisonNote: '', isBaseline: false, prLabel: '' },
+      { exercise: 'Overhead press', topSet: '50 lb × 8', versusLast: '', comparisonNote: '', isBaseline: false, prLabel: '' },
     ],
   })
+})
+
+test('summary counts reps across every saved set', () => {
+  const session = {
+    name: 'Full body', completed_at: '2026-11-17T20:00:00Z',
+    summary: { duration_seconds: 1200, total_volume_lb: 900, set_count: 3, exercise_count: 2, total_reps: 28 },
+    exercises: [
+      { name: 'Bench press', sets: [{ weight_lb: 25, reps: 10 }, { weight_lb: 25, reps: 10 }] },
+      { name: 'Squat', sets: [{ weight_lb: 50, reps: 8 }] },
+    ],
+  }
+  assert.equal(displaySummary(session).totalReps, 28)
 })
 
 test('an unfinished session has no summary, and bodyweight sets retain their label', () => {
@@ -61,7 +74,7 @@ test('an unfinished session has no summary, and bodyweight sets retain their lab
   assert.equal(formatCompletedDate('2026-11-18T02:00:00Z'), 'Tuesday, November 17, 2026')
 })
 
-test('comparison shows the last top set and awards PRs strictly by weight', () => {
+test('records show previous results, baselines, weight PRs and bodyweight rep PRs', () => {
   const session = {
     name: 'Push', completed_at: '2026-11-17T20:00:00Z',
     summary: { duration_seconds: 90, total_volume_lb: 0, set_count: 4, exercise_count: 4, total_reps: 40 },
@@ -72,20 +85,38 @@ test('comparison shows the last top set and awards PRs strictly by weight', () =
       { name: 'Pull-up', sets: [{ weight_lb: 0, reps: 10 }] },
     ],
   }
-  const comparisons = {
-    'Bench press': { last_set: { weight_lb: 185, reps: 9 }, best_weight_lb: 185 },
-    'Overhead press': { last_set: { weight_lb: 100, reps: 6 }, best_weight_lb: 100 },
-    'Cable fly': { last_set: { weight_lb: 45, reps: 12 }, best_weight_lb: 48 },
-    'Pull-up': { last_set: null, best_weight_lb: null },
+  const records = {
+    session_id: 7,
+    new_pr_count: 2,
+    exercises: [
+      { exercise: 'Bench press', metric: 'weight', top_set: { weight_lb: 165, reps: 10 }, previous: { weight_lb: 185, reps: 9 }, best_before: { weight_lb: 185, reps: 9 }, is_baseline: false, is_pr: false },
+      { exercise: 'Overhead press', metric: 'weight', top_set: { weight_lb: 100, reps: 12 }, previous: { weight_lb: 100, reps: 6 }, best_before: { weight_lb: 100, reps: 6 }, is_baseline: false, is_pr: false },
+      { exercise: 'Cable fly', metric: 'weight', top_set: { weight_lb: 50, reps: 8 }, previous: { weight_lb: 45, reps: 12 }, best_before: { weight_lb: 48, reps: 8 }, is_baseline: false, is_pr: true },
+      { exercise: 'Pull-up', metric: 'reps', top_set: { weight_lb: 0, reps: 10 }, previous: { weight_lb: 0, reps: 9 }, best_before: { weight_lb: 0, reps: 9 }, is_baseline: false, is_pr: true },
+    ],
   }
-  assert.deepEqual(displaySummary(session, comparisons).highlights, [
-    { exercise: 'Bench press', topSet: '165 lb × 10', versusLast: '185 lb × 9', isPr: false },
-    { exercise: 'Overhead press', topSet: '100 lb × 12', versusLast: '100 lb × 6', isPr: false },
-    { exercise: 'Cable fly', topSet: '50 lb × 8', versusLast: '45 lb × 12', isPr: true },
-    { exercise: 'Pull-up', topSet: 'Bodyweight × 10', versusLast: '', isPr: true },
+  const summary = displaySummary(session, records)
+  assert.equal(summary.newPrs, 2)
+  assert.deepEqual(summary.highlights, [
+    { exercise: 'Bench press', topSet: '165 lb × 10', versusLast: '185 lb × 9', comparisonNote: "Last time: 185 lb × 9. Today: 165 lb × 10. That's 20 lb less and 1 more rep.", isBaseline: false, prLabel: '' },
+    { exercise: 'Overhead press', topSet: '100 lb × 12', versusLast: '100 lb × 6', comparisonNote: "Last time: 100 lb × 6. Today: 100 lb × 12. That's 6 more reps.", isBaseline: false, prLabel: '' },
+    { exercise: 'Cable fly', topSet: '50 lb × 8', versusLast: '45 lb × 12', comparisonNote: "Last time: 45 lb × 12. Today: 50 lb × 8. That's 5 lb more and 4 fewer reps.", isBaseline: false, prLabel: 'Weight PR' },
+    { exercise: 'Pull-up', topSet: 'Bodyweight × 10', versusLast: 'Bodyweight × 9', comparisonNote: "Last time: Bodyweight × 9. Today: Bodyweight × 10. That's 1 more rep.", isBaseline: false, prLabel: 'Rep PR' },
   ])
-  const olderBest = { ...comparisons, 'Cable fly': { last_set: { weight_lb: 45, reps: 12 }, best_weight_lb: 60 } }
-  assert.equal(displaySummary(session, olderBest).highlights[2].isPr, false)
+  const baseline = displaySummary(session, {
+    session_id: 7, new_pr_count: 0,
+    exercises: [{ exercise: 'Pull-up', metric: 'reps', top_set: { weight_lb: 0, reps: 10 }, previous: null, change: null, best_before: null, is_baseline: true, is_pr: false }],
+  })
+  assert.equal(baseline.newPrs, 0)
+  assert.deepEqual(baseline.highlights[3], { exercise: 'Pull-up', topSet: 'Bodyweight × 10', versusLast: '', comparisonNote: 'Today: Bodyweight × 10. This is your first recorded result.', isBaseline: true, prLabel: '' })
+})
+
+test('comparison explanation keeps weight and reps visible across changes', () => {
+  assert.equal(comparisonExplanation({ weight_lb: 105, reps: 5 }, { weight_lb: 100, reps: 5 }), "Last time: 100 lb × 5. Today: 105 lb × 5. That's 5 lb more.")
+  assert.equal(comparisonExplanation({ weight_lb: 90, reps: 8 }, { weight_lb: 100, reps: 10 }), "Last time: 100 lb × 10. Today: 90 lb × 8. That's 10 lb less and 2 fewer reps.")
+  assert.equal(comparisonExplanation({ weight_lb: 100, reps: 5 }, { weight_lb: 100, reps: 5 }), "Last time: 100 lb × 5. Today: 100 lb × 5. That's the same weight and reps.")
+  assert.equal(comparisonExplanation({ weight_lb: 50, reps: 10 }, null, true), 'Today: 50 lb × 10. This is your first recorded result.')
+  assert.equal(comparisonExplanation({ weight_lb: 50, reps: 10 }, null), '')
 })
 
 test('session, completion and history calls use their backend endpoints', async () => {
@@ -115,16 +146,21 @@ test('session, completion and history calls use their backend endpoints', async 
   assert.equal(calls[2].options.body, '{"session_id":7}')
 })
 
-test('summary comparison reads the saved session history endpoint', async () => {
+test('summary records use a separate request after loading the saved session', async () => {
+  const calls = []
   const api = createWorkoutLogApi({
     baseUrl: '/base/',
     fetchImpl: async (url, options) => {
-      assert.equal(url, '/base/api/workout_summary_comparison.php?session_id=7')
-      assert.equal(options.method, 'GET')
-      return { ok: true, status: 200, json: async () => ({ comparisons: { Squat: { last_set: null, best_weight_lb: null } } }) }
+      calls.push([url, options.method])
+      return { ok: true, status: 200, json: async () => url.includes('workout_records') ? { session_id: 7, new_pr_count: 0, exercises: [] } : { session: { id: 7 } } }
     },
   })
-  assert.deepEqual(await api.getSummaryComparison(7), { comparisons: { Squat: { last_set: null, best_weight_lb: null } } })
+  assert.deepEqual(await api.getSession(7), { id: 7 })
+  assert.deepEqual(await api.getWorkoutRecords(7), { session_id: 7, new_pr_count: 0, exercises: [] })
+  assert.deepEqual(calls, [
+    ['/base/api/workout_session.php?id=7', 'GET'],
+    ['/base/api/workout_records.php?session_id=7', 'GET'],
+  ])
 })
 
 test('reading another user\'s session reports the backend 404', async () => {

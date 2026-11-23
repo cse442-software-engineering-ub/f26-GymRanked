@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import SidePanel from '../components/SidePanel.jsx'
-import { cachedAlternatives, fetchAlternatives } from './exerciseAlternatives.js'
+import { fetchAlternatives } from './exerciseAlternatives.js'
 import {
   NO_MATCH_TITLE, countText, equipmentTag, exerciseLine, introText, levelTag, muscleText, noMatchText, notCoveredText,
   notCoveredTitle, reasonText, setupLine,
@@ -22,8 +22,7 @@ function InfoIcon() {
 // until the button is pressed. Each alternative has "Switch", which calls onSwitch(name) (the page switches the
 // exercise in today's workout through api/swap_exercise.php and rejects with an Error on failure); there is none
 // when `locked` (the exercise already has saved sets) or for an exercise already in the workout (`workoutExercises`).
-// The plan and history are never changed. The panel is a SidePanel on the right: docked beside the exercise column
-// on wide screens, so the set in progress can still be logged, and a centred modal on narrow ones.
+// The plan and history are never changed. The panel is a SidePanel: a pop-up centred over the page on every screen.
 function ExerciseAlternatives({ exercise, workoutExercises = [], locked = false, onSwitch }) {
   const [open, setOpen] = useState(false)
   const [answer, setAnswer] = useState(null) // null while loading
@@ -34,11 +33,11 @@ function ExerciseAlternatives({ exercise, workoutExercises = [], locked = false,
   // Bumped by every request and every close, so an answer that arrives late is ignored.
   const request = useRef(0)
 
+  // Every open and every Try again sends a new request and shows Loading until it answers: never an earlier list,
+  // since the user's equipment or experience (or the account) may have changed since.
   function load() {
     const id = ++request.current
-    const cached = cachedAlternatives(exercise)
-    setAnswer(cached)
-    if (cached) return
+    setAnswer(null)
     fetchAlternatives(exercise).then((result) => {
       if (request.current === id) setAnswer(result)
     })
@@ -99,7 +98,6 @@ function ExerciseAlternatives({ exercise, workoutExercises = [], locked = false,
       <SidePanel
         open={open}
         onClose={close}
-        side="right"
         title={`Alternatives to ${exercise}`}
         titleRef={titleRef}
         returnFocusRef={buttonRef}

@@ -18,6 +18,41 @@ const WEIGHT_MAX_LB = 1500;
 const REPS_MIN = 1;
 const REPS_MAX = 100;
 const SET_NUMBER_MAX = 50;
+const TRAINING_WEEKDAYS = [
+    1 => [0], 2 => [0, 3], 3 => [0, 2, 4], 4 => [0, 1, 3, 4],
+    5 => [0, 1, 2, 3, 4], 6 => [0, 1, 2, 3, 4, 5], 7 => [0, 1, 2, 3, 4, 5, 6],
+];
+
+// The plan switches days at midnight in New York, including daylight-saving changes.
+function workout_today_start_utc() {
+    $start = (new DateTimeImmutable('now', new DateTimeZone('America/New_York')))->setTime(0, 0);
+    return $start->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+}
+
+function workout_session_is_today($session) {
+    return $session['started_at'] >= workout_today_start_utc() && $session['started_at'] <= gmdate('Y-m-d H:i:s');
+}
+
+// Old or explicitly started sessions cannot accept sets after the plan advances to another day.
+function workout_session_is_scheduled_today($db, $user_id, $session) {
+    if (!workout_session_is_today($session)) return false;
+    $stmt = $db->prepare(
+        'SELECT p.id, p.days_per_week FROM user_plans up JOIN workout_plans p ON p.id = up.plan_id WHERE up.user_id = ?'
+    );
+    $stmt->bind_param('i', $user_id);
+    $stmt->execute();
+    $plan = $stmt->get_result()->fetch_assoc();
+    if (!$plan || (int) $plan['id'] !== (int) $session['plan_id']) return false;
+    $weekdays = TRAINING_WEEKDAYS;
+    $today = new DateTimeImmutable('now', new DateTimeZone('America/New_York'));
+    $slot = array_search((int) $today->format('N') - 1, $weekdays[(int) $plan['days_per_week']] ?? $weekdays[3], true);
+    if ($slot === false) return false;
+    $stmt = $db->prepare('SELECT name FROM workout_plan_days WHERE plan_id = ? ORDER BY position');
+    $stmt->bind_param('i', $plan['id']);
+    $stmt->execute();
+    $days = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    return $days && $session['day_name'] === $days[$slot % count($days)]['name'];
+}
 
 // The same wording as src/workoutLog/setValidation.js, so the form and the server refuse the same values.
 const SET_MESSAGES = [
@@ -57,7 +92,7 @@ function json_number($value) {
 // so a set being saved and Complete can't interleave.
 function find_session($db, $session_id, $user_id, $lock = false) {
     $stmt = $db->prepare(
-        'SELECT id, plan_name, day_name, focus, exercises, started_at, completed_at,
+        'SELECT id, plan_id, plan_name, day_name, focus, exercises, started_at, completed_at,
                 TIMESTAMPDIFF(SECOND, started_at, completed_at) AS duration_seconds
          FROM workout_sessions WHERE id = ? AND user_id = ?' . ($lock ? ' FOR UPDATE' : '')
     );

@@ -438,7 +438,7 @@ a.leaderboard-step__action {
   gap: 10px;
 }
 
-/* The board card: Everyone / Friends, the lift tabs, then the rows. */
+/* The board card: Everyone / Buddies, the lift tabs, then the rows. */
 .leaderboard-board {
   display: flex;
   flex-direction: column;
@@ -476,17 +476,6 @@ a.leaderboard-step__action {
   background: var(--gr-surface-raised);
   color: var(--gr-text);
   font-weight: 500;
-}
-
-.leaderboard-scope button:disabled {
-  cursor: not-allowed;
-}
-
-.leaderboard-later {
-  padding: 0 6px;
-  border: 1px solid var(--gr-control-outline);
-  border-radius: 999px;
-  font-size: 11px;
 }
 
 .leaderboard-tabs {
@@ -772,6 +761,7 @@ a.leaderboard-step__action {
   .leaderboard-scope button {
     flex: 1 1 0;
     justify-content: center;
+    min-height: 44px;
   }
 
   /* One line of short labels (Overall · Bench · Squat · Deadlift), each tab a quarter of the width. */
@@ -875,5 +865,150 @@ a.leaderboard-step__action {
     min-height: 44px;
     padding: 6px 8px;
     text-align: center;
+  }
+}
+
+/* Buddies view on both Rankings boards (card 139): the group header, the unranked names, the no-group state and
+   the weekly goal tables. */
+.ranking-group {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0 0;
+}
+
+.ranking-group__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ranking-group__name {
+  margin: 0;
+  color: var(--gr-text-strong);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.ranking-group__line {
+  margin: 0;
+  color: var(--gr-text-muted);
+  font-size: 13px;
+}
+
+a.ranking-group__link {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  color: var(--gr-link);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+a.ranking-group__link:hover {
+  text-decoration: underline;
+}
+
+.ranking-unranked {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 12px 4px;
+  border-top: 1px solid var(--gr-divider);
+}
+
+.ranking-unranked h3 {
+  margin: 0;
+  color: var(--gr-text-label);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ranking-unranked ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ranking-unranked li {
+  padding: 4px 12px;
+  border: 1px solid var(--gr-border);
+  border-radius: 999px;
+  background: var(--gr-surface-sunken);
+  color: var(--gr-text-soft);
+  font-size: 13px;
+}
+
+.ranking-no-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 16px 4px 4px;
+}
+
+.ranking-no-group h2 {
+  margin: 0;
+  color: var(--gr-text-strong);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.ranking-no-group p {
+  margin: 0;
+  color: var(--gr-text-soft);
+  font-size: 14px;
+}
+
+.ranking-goal {
+  display: flex;
+  flex-direction: column;
+}
+
+.ranking-goal__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 4px;
+  color: var(--gr-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ranking-goal__mine {
+  padding: 1px 8px;
+  border: 1px solid var(--gr-action-text);
+  border-radius: 999px;
+  color: var(--gr-action-text);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* On the weekly board the audience control sits at the top of the standings card. */
+.weekly-standings > .leaderboard-scope {
+  margin: 8px 0 4px;
+}
+
+.weekly-standings > .ranking-group {
+  margin-top: 8px;
+}
+
+.weekly-standings > .weekly-error {
+  margin-top: 12px;
+}
+
+/* DESIGN.md: tap targets are at least 44px on a phone. */
+@media (max-width: 824px) {
+  a.ranking-group__link {
+    min-height: 44px;
   }
 }

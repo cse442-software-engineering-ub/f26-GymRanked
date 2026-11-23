@@ -18,6 +18,8 @@ export const MESSAGES = {
   join: "Couldn't join the group. Check your connection and try again.",
   create: "Couldn't create the group. Check your connection and try again.",
   send: "Couldn't send your encouragement. Check your connection and try again.",
+  // The server's own 409 words (card #147) are shown when it sends them; this is the same sentence as a fallback.
+  daily: (name) => `You already encouraged ${name} today. You can send them another one tomorrow.`,
 }
 
 // What the invite code box shows for what was typed or pasted: capitals, no spaces, at most 8 characters.
@@ -58,13 +60,3 @@ export function formatSentAt(iso) {
   })
 }
 
-// "Nov 18, 2026, 10:00 AM": when an invite code stops working.
-export function formatExpiry(iso) {
-  return new Date(iso).toLocaleString('en-US', {
-    timeZone: NEW_YORK, month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit',
-  })
-}
-
-export function isExpired(iso, now = Date.now()) {
-  return new Date(iso).getTime() <= now
-}

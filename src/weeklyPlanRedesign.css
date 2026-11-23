@@ -1,0 +1,84 @@
+/* Workouts page: the featured session and seven-day strip. */
+.weekly-plan { gap: 24px; }
+.weekly-plan__heading h1 { font-size: clamp(28px, 3vw, 40px); font-weight: 600; letter-spacing: -.025em; }
+.weekly-plan__heading p { margin-top: 8px; font-size: 17px; }
+.weekly-plan > .today-workout:has(.today-workout__heading-row) {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 320px;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px;
+  background: var(--gr-surface);
+}
+.weekly-plan > .today-workout:has(.today-workout__heading-row)::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 0 48%;
+  background: var(--workout-hero-image) center / cover no-repeat;
+  filter: grayscale(1);
+}
+.weekly-plan > .today-workout:has(.today-workout__heading-row)::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(to right, var(--gr-surface) 37%, color-mix(in srgb, var(--gr-surface) 92%, transparent) 51%, transparent 83%);
+}
+.today-workout__heading-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.weekly-plan .today-workout__label { color: var(--gr-brand-text); font-weight: 600; }
+.today-workout__badge { padding: 5px 9px; border: 1px solid var(--gr-border-strong); border-radius: var(--gr-radius-button); background: var(--gr-surface-raised); color: var(--gr-text-soft); font-size: 12px; font-weight: 600; }
+.weekly-plan .today-workout__name { max-width: 65%; font-size: clamp(36px, 5vw, 64px); font-weight: 600; line-height: 1.05; letter-spacing: -.04em; }
+.weekly-plan .today-workout__meta { max-width: 58%; font-size: 16px; }
+.weekly-plan .today-workout__mobile-exercises { display: block; width: auto; max-width: 60%; margin-top: 4px; }
+.weekly-plan .today-workout__mobile-exercises ol { display: flex; flex-wrap: wrap; gap: 8px 16px; list-style: none; margin: 0; padding: 0; }
+.weekly-plan .today-workout__mobile-exercises li { color: var(--gr-text); font-size: 14px; }
+.weekly-plan .today-workout__mobile-exercises li:not(:first-child)::before { content: '·'; margin-right: 14px; color: var(--gr-brand-text); }
+.weekly-plan .today-workout__mobile-exercises li span { display: none; }
+.weekly-plan .today-workout__mobile-exercises li strong { font-weight: 400; }
+.weekly-plan a.today-workout__action, .weekly-plan button.today-workout__action { width: auto; min-width: 190px; min-height: 48px; margin-top: 12px; padding-inline: 22px; }
+.weekly-plan button.today-workout__start { flex-direction: row-reverse; justify-content: space-between; font-size: 15px; }
+.weekly-plan__days { gap: 12px; }
+.weekly-plan .day-card { min-height: 112px; padding: 16px 12px; gap: 8px; background: var(--gr-surface); border: 1px solid var(--gr-border); border-radius: var(--gr-radius-inner); }
+.weekly-plan .day-card--today { background: var(--gr-selected-bg); border-color: var(--gr-brand); }
+.weekly-plan .day-card__weekday { font-size: 13px; }
+.weekly-plan .day-card__date { display: inline; }
+.weekly-plan .day-card__name { font-size: 15px; }
+.weekly-plan .day-card__status { font-size: 13px; }
+.weekly-plan .day-card__status a { color: var(--gr-action-text); font-weight: 600; }
+.weekly-plan__details { display: grid; place-items: center; min-height: 52px; padding: 10px; border: 1px solid var(--gr-border-strong); border-radius: var(--gr-radius-button); color: var(--gr-text-soft); text-decoration: none; font-weight: 600; }
+.weekly-plan__details--mobile { display: none; }
+.weekly-plan__details:hover { background: var(--gr-surface); color: var(--gr-text); }
+.weekly-plan :is(a, button):focus-visible { outline: 3px solid var(--gr-action-text); outline-offset: 2px; }
+
+@media (max-width: 1050px) {
+  .weekly-plan__days { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .weekly-plan { gap: 16px; }
+  .weekly-plan__desktop-title { display: inline; }
+  .weekly-plan__mobile-title { display: none; }
+  .weekly-plan > .today-workout:has(.today-workout__heading-row) { min-height: 300px; padding: 24px; border-left: 1px solid var(--gr-border); background: var(--gr-surface); }
+  .weekly-plan > .today-workout:has(.today-workout__heading-row)::before { inset: 0; opacity: .35; }
+  .weekly-plan > .today-workout:has(.today-workout__heading-row)::after { background: linear-gradient(to right, var(--gr-surface) 4%, color-mix(in srgb, var(--gr-surface) 88%, transparent) 65%, color-mix(in srgb, var(--gr-surface) 45%, transparent)); }
+  .weekly-plan .today-workout__name, .weekly-plan .today-workout__meta, .weekly-plan .today-workout__mobile-exercises { max-width: 100%; }
+  .weekly-plan .today-workout__name { font-size: clamp(34px, 9vw, 52px); }
+  .weekly-plan .today-workout__meta { font-size: 14px; }
+  .weekly-plan .today-workout__mobile-exercises ol { display: flex; }
+  .weekly-plan .today-workout__mobile-exercises li + li::before { margin-right: 8px; }
+  .weekly-plan a.today-workout__action, .weekly-plan button.today-workout__action { width: 100%; }
+  .weekly-plan button.today-workout__start { font-size: 16px; font-weight: 700; }
+  .weekly-plan__details--mobile { display: grid; order: 2; }
+  .weekly-plan__details--desktop { display: none; }
+  .weekly-plan__days { display: grid; order: 3; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; grid-auto-rows: auto; gap: 8px; border: 0; }
+  .weekly-plan__days::before { content: 'Your week'; grid-column: 1 / -1; margin: 4px 0; font-size: 20px; font-weight: 600; }
+  .weekly-plan .day-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto; align-items: center; min-height: 68px; padding: 8px 12px; gap: 2px 12px; border: 1px solid var(--gr-border); border-radius: var(--gr-radius-inner); }
+  .weekly-plan .day-card--today { border-color: var(--gr-brand); }
+  .weekly-plan .day-card__weekday, .weekly-plan .day-card__name { grid-column: 1; min-width: 0; }
+  .weekly-plan .day-card__name { overflow-wrap: anywhere; }
+  .weekly-plan .day-card__status { grid-column: 2; grid-row: 1 / 3; align-self: center; text-align: right; }
+  .weekly-plan .day-card__status a { min-height: 44px; display: inline-flex; align-items: center; }
+}

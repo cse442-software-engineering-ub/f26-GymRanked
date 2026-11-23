@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import BodyFigure from './BodyFigure.jsx'
 import BackLink from './BackLink.jsx'
@@ -7,8 +7,8 @@ import { EMPTY_DRAFT, loadDraft, saveDraft } from './setDraft.js'
 import { MUSCLE_LABELS, musclesFor } from './exerciseMuscles.js'
 import RestTimer from './RestTimer.jsx'
 import ExerciseAlternatives from './workoutLog/ExerciseAlternatives.jsx'
-import { formatSet, nextSetNumber, saveErrorMessage, upsertSet } from './workoutLog/setLog.js'
-import { validateSet } from './workoutLog/setValidation.js'
+import { formatSet, isRetryable, lastSavedSet, newSetRequestId, nextSetNumber, repeatValues, saveErrorMessage, upsertSet } from './workoutLog/setLog.js'
+import { isAllowedSetInput, validateSet } from './workoutLog/setValidation.js'
 import workoutLogApi from './workoutLog/workoutLogApi.js'
 import { startSession } from './workoutSessionApi.js'
 import './workoutLog/workoutLog.css'
@@ -35,7 +35,10 @@ function ExerciseSession() {
   const [fieldErrors, setFieldErrors] = useState({})
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
+  const [canRetry, setCanRetry] = useState(false)
+  const pendingSave = useRef(null)
   const [switchedFrom, setSwitchedFrom] = useState(null) // the exercise this one replaced, for the notice
+  const [repeatNotice, setRepeatNotice] = useState('') // announced to screen readers after Repeat last set
 
   const index = Number(exerciseIndex)
   const exercise = session?.exercises[index]
@@ -109,8 +112,12 @@ function ExerciseSession() {
   }
 
   function updateValue(field, value) {
+    if (!isAllowedSetInput(field, value)) return
+    setCanRetry(false)
+    pendingSave.current = null
     setDraft((d) => ({ ...d, [field]: value }))
     setFieldErrors((previous) => ({ ...previous, [field]: undefined }))
+    setRepeatNotice('')
   }
 
   const restTotal = draft.restTotal ?? DEFAULT_REST_SECONDS
@@ -145,7 +152,19 @@ function ExerciseSession() {
     }
   }
 
-  async function finishSet() {
+  // Fills the boxes from the exercise's latest saved set. Saves nothing: the user still presses Log set.
+  function repeatLastSet() {
+    if (!lastSet || saving) return
+    setDraft((d) => ({ ...d, ...repeatValues(lastSet) }))
+    setFieldErrors((previous) => ({ ...previous, weight: undefined, reps: undefined }))
+    setSaveError('')
+    setCanRetry(false)
+    pendingSave.current = null
+    setRepeatNotice(`Weight and reps filled from Set ${lastSet.set_number}`)
+    document.getElementById('set-weight')?.focus()
+  }
+
+  async function finishSet(retry = false) {
     if (saving) return
     const checked = validateSet(values)
     if (!checked.ok) {
@@ -154,15 +173,17 @@ function ExerciseSession() {
     }
     setSaving(true)
     setSaveError('')
+    setCanRetry(false)
+    const request = retry && pendingSave.current ? pendingSave.current : {
+      sessionId: session.id, exercise: exercise.name, setNumber: nextSetNumber(sets),
+      weightLb: checked.values.weight_lb, reps: checked.values.reps, requestId: newSetRequestId(),
+    }
+    pendingSave.current = request
     try {
-      const saved = await workoutLogApi.saveSet({
-        sessionId: session.id,
-        exercise: exercise.name,
-        setNumber: nextSetNumber(sets),
-        weightLb: checked.values.weight_lb,
-        reps: checked.values.reps,
-      })
+      const saved = await workoutLogApi.saveSet(request)
+      pendingSave.current = null
       setSets((previous) => upsertSet(previous, saved))
+      setRepeatNotice('')
       // The next set starts fresh, after a rest of the length the user last chose.
       setDraft({ ...EMPTY_DRAFT, restTotal, restEndsAt: Date.now() + restTotal * 1000 })
     } catch (err) {
@@ -170,6 +191,7 @@ function ExerciseSession() {
       else {
         if (err.fieldErrors && Object.keys(err.fieldErrors).length > 0) setFieldErrors(err.fieldErrors)
         setSaveError(saveErrorMessage(err))
+        setCanRetry(isRetryable(err))
       }
     } finally {
       setSaving(false)
@@ -178,6 +200,7 @@ function ExerciseSession() {
 
   const muscles = exercise ? musclesFor(exercise.name) : []
   const setNumber = nextSetNumber(sets)
+  const lastSet = exercise ? lastSavedSet(sets, exercise.name) : null
 
   return (
     <div className="dashboard-page">
@@ -311,10 +334,20 @@ function ExerciseSession() {
                       </div>
                     </div>
                     {saveError && <p className="wl-message wl-message--error" role="alert">{saveError}</p>}
+                    {canRetry && <button type="button" className="wl-button wl-button--quiet wl-button--wide" onClick={() => finishSet(true)} disabled={saving}>Retry saving set</button>}
+                    <button
+                      type="button"
+                      className="wl-button wl-button--quiet wl-button--wide"
+                      onClick={repeatLastSet}
+                      disabled={saving || !lastSet}
+                    >
+                      Repeat last set
+                    </button>
+                    {repeatNotice && <p className="wl-message wl-message--success" role="status">{repeatNotice}</p>}
                     <button
                       type="button"
                       className="wl-button wl-button--primary wl-button--wide"
-                      onClick={finishSet}
+                      onClick={() => finishSet()}
                       disabled={saving}
                     >
                       {saving ? 'Saving…' : 'Log set'}

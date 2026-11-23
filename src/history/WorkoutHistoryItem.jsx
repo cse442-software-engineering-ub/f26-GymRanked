@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom'
-import { summaryPath } from '../workoutLog/setLog.js'
 import { formatWeight, formatWorkoutDate, sizeLabel } from './historyFormat.js'
 
-// One finished workout in the history list: a row that opens to show a Set / Reps / Weight table per exercise.
+// One saved workout in history: a row that opens to show a Set / Reps / Weight table per exercise.
 // `detail` is {status: 'loading' | 'error' | 'ready', session} once the row has been opened.
-function WorkoutHistoryItem({ workout, open, detail, onToggle, onRetry }) {
+function WorkoutHistoryItem({ workout, open, detail, summaryTo, onToggle, onRetry }) {
   const panelId = `workout-${workout.id}-sets`
-  const date = formatWorkoutDate(workout.completed_at)
+  const unfinished = workout.status === 'unfinished' || !workout.completed_at
+  const date = formatWorkoutDate(workout.completed_at || workout.started_at)
   const exercises = detail?.status === 'ready' ? detail.session.exercises.filter((exercise) => exercise.sets.length > 0) : []
 
   return (
@@ -15,6 +15,7 @@ function WorkoutHistoryItem({ workout, open, detail, onToggle, onRetry }) {
         <span className="history-item__title">
           <span className="history-item__name">{workout.name}</span>
           <span className="history-item__date">{date}</span>
+          {unfinished && <span className="history-item__unfinished">Unfinished workout</span>}
         </span>
         <span className="history-item__size">{sizeLabel(workout.exercise_count, workout.set_count)}</span>
         <svg className="history-item__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -58,7 +59,7 @@ function WorkoutHistoryItem({ workout, open, detail, onToggle, onRetry }) {
               ))}
             </div>
           )}
-          {detail?.status === 'ready' && <Link className="history-item__summary-link" to={summaryPath(workout.id)}>View saved summary</Link>}
+          {detail?.status === 'ready' && !unfinished && <Link className="history-item__summary-link" to={summaryTo}>View saved summary</Link>}
         </div>
       )}
     </li>

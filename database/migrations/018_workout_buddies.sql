@@ -13,8 +13,9 @@
 -- Only adds three tables, so no existing row changes and nobody is in a group until they create or join one. Safe to
 -- run more than once: IF NOT EXISTS skips a table that is already there. All times are UTC.
 --
--- buddy_groups.invite_code is the one invite method: 8 characters from A-H J-N P-Z 2-9, valid until
--- invite_expires_at (7 days after the group is made), unique across all groups. Only the group's owner is shown it.
+-- buddy_groups.invite_code is the one invite method: 8 characters from A-H J-N P-Z 2-9, unique across all groups. Only
+-- the group's owner is shown it. (As first written it also had invite_expires_at, 7 days after the group was made;
+-- 022_buddy_invite_no_expiry.sql removes that column, so a code now works for as long as its group exists.)
 -- buddy_members.user_id is UNIQUE: that is what makes it one group per person, even for two joins at the same time.
 -- The owner has a member row like everyone else; buddy_members.id is the member_id the API returns (it is not the
 -- user id, so no user id leaves the server). Deleting a user deletes their memberships and messages, and deleting an

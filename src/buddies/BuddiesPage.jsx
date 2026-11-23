@@ -1,50 +1,24 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import GroupPanel from './GroupPanel.jsx'
+import GroupPanel, { GroupHero, InviteCard } from './GroupPanel.jsx'
 import EncouragementList from './EncouragementList.jsx'
 import NoGroupPanel from './NoGroupPanel.jsx'
-import { getBuddyGroup } from './buddiesApi.js'
+import { useBuddyGroupPoll } from './useBuddyGroupPoll.js'
 import { MESSAGES } from './buddiesFormat.js'
 import './buddies.css'
 
 // Workout buddies (story #78, card #79): a private group joined with an invite code. Someone in no group sees the
 // join and create forms; a member sees the group, its members and the encouragements sent to them. Everything shown
-// comes from Mansur's api/buddy_*.php (card #71). The group loads again whenever the tab comes back into view, so a
-// new member or message shows without a manual reload.
+// comes from Mansur's api/buddy_*.php (card #71). useBuddyGroupPoll keeps it up to date while the page is open, so a
+// new member or encouragement shows without a reload and without touching a message being typed.
 function BuddiesPage() {
   const navigate = useNavigate()
-  const [state, setState] = useState({ status: 'loading', data: null })
   const [notice, setNotice] = useState('')
-  // Only the newest request may change the page; older answers (and answers after leaving the page) are dropped.
-  const latest = useRef(0)
   const groupTitle = useRef(null)
   const focusGroupTitle = useRef(false)
 
   const toLogin = useCallback(() => navigate('/login', { replace: true }), [navigate])
-
-  // quiet: keep what is on screen while loading, and keep it if the request fails (background refreshes).
-  const load = useCallback(async (quiet) => {
-    const id = ++latest.current
-    if (!quiet) setState({ status: 'loading', data: null })
-    const response = await getBuddyGroup()
-    if (id !== latest.current) return
-    if (response.status === 401) toLogin()
-    else if (response.ok) setState({ status: 'ready', data: response.data })
-    else if (!quiet) setState({ status: 'error', data: null })
-  }, [toLogin])
-
-  useEffect(() => {
-    load(false)
-    return () => { latest.current += 1 }
-  }, [load])
-
-  useEffect(() => {
-    const refresh = () => {
-      if (document.visibilityState === 'visible' && latest.current > 0) load(true)
-    }
-    document.addEventListener('visibilitychange', refresh)
-    return () => document.removeEventListener('visibilitychange', refresh)
-  }, [load])
+  const { state, fresh, announcement, reload, refresh, replace } = useBuddyGroupPoll({ onUnauthorized: toLogin })
 
   // After joining or creating, the keyboard and screen readers land on the new group's name.
   useEffect(() => {
@@ -56,15 +30,14 @@ function BuddiesPage() {
 
   // Join and create answer with the same body as GET, so the group shows at once with no second loading screen.
   function showJoinedGroup(data, message) {
-    latest.current += 1
     focusGroupTitle.current = true
     setNotice(message)
-    setState({ status: 'ready', data })
+    replace(data)
   }
 
   function reloadFromScratch() {
     setNotice('')
-    load(false)
+    reload()
   }
 
   const { status, data } = state
@@ -72,10 +45,11 @@ function BuddiesPage() {
   return (
     <div className="buddies-screen">
       <main className="buddies-page buddies-page__content" aria-busy={status === 'loading'}>
-        <div className="buddies-heading">
+        <header className="buddies-heading">
+          <p className="buddies-heading__eyebrow">Community</p>
           <h1>Workout buddies</h1>
           <p>A private group for encouraging each other. Only members can see it.</p>
-        </div>
+        </header>
 
         {notice && (
           <p className="buddies-notice buddies-notice--ok" role="status">
@@ -93,18 +67,44 @@ function BuddiesPage() {
         )}
 
         {status === 'ready' && !data.group && (
-          <NoGroupPanel onJoined={showJoinedGroup} onShowGroup={reloadFromScratch} onUnauthorized={toLogin} onStart={() => setNotice('')} />
+          <div className="buddies-top">
+            <NoGroupPanel onJoined={showJoinedGroup} onShowGroup={reloadFromScratch} onUnauthorized={toLogin} onStart={() => setNotice('')} />
+            <HowItWorks />
+          </div>
         )}
 
         {status === 'ready' && data.group && (
           <>
-            <GroupPanel group={data.group} me={data.me} titleRef={groupTitle} onNotice={setNotice}
-              onUnauthorized={toLogin} onMembersChanged={() => load(true)} />
-            <EncouragementList encouragements={data.encouragements} />
+            <div className={data.group.invite_code ? 'buddies-top' : 'buddies-top buddies-top--single'}>
+              <GroupHero group={data.group} me={data.me} titleRef={groupTitle} />
+              {data.group.invite_code && <InviteCard group={data.group} />}
+            </div>
+            <div className="buddies-bottom">
+              <GroupPanel group={data.group} onNotice={setNotice} onUnauthorized={toLogin} onMembersChanged={refresh} />
+              <EncouragementList encouragements={data.encouragements} fresh={fresh} />
+            </div>
           </>
         )}
+        {/* Read out when new encouragement arrives while the page is open. */}
+        <p className="buddies-sr-only" role="status" aria-live="polite">{announcement}</p>
       </main>
     </div>
+  )
+}
+
+// Beside the join and create forms for someone in no group: what a group is for, in three steps.
+function HowItWorks() {
+  return (
+    <section className="buddies-section" aria-labelledby="buddies-how-title">
+      <header className="buddies-section-heading">
+        <h2 id="buddies-how-title">How it works</h2>
+      </header>
+      <ol className="buddies-steps">
+        <li><strong>Get a code</strong><span>Ask a friend who owns a group for their 8-character invite code.</span></li>
+        <li><strong>Join or start a group</strong><span>Enter the code, or create your own group and share its code.</span></li>
+        <li><strong>Cheer each other on</strong><span>Send a member a short encouragement. Only they see it.</span></li>
+      </ol>
+    </section>
   )
 }
 

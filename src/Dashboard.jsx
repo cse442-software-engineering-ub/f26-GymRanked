@@ -1,150 +1,24 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
-import MobileDashboardIcon from './MobileDashboardIcon.jsx'
+import { DASHBOARD, addReturn } from './returnTarget.js'
 import { authRequest } from './auth/api.js'
+import { holdArrival } from './auth/entryHandoff.js'
 import { apiRequest } from './onboarding/api.js'
 import { fetchCurrentPlan, fetchPlan } from './plansApi.js'
-import { buildWeek, weekRangeLabel } from './weeklySchedule.js'
+import { buildWeek } from './weeklySchedule.js'
 import workoutLogApi from './workoutLog/workoutLogApi.js'
-import { summaryPath } from './workoutLog/setLog.js'
-import { formatVolume } from './workoutLog/workoutSummary.js'
 import { dashboardHistory } from './dashboardHistory.js'
 import { fetchUnfinishedSession } from './workoutSessionApi.js'
-import { getWeeklyStandings } from './weekly/weeklyApi.js'
-import { circleLabel, homeRank } from './weekly/weeklyFormat.js'
-import WeeklyMilestoneCard from './WeeklyMilestoneCard.jsx'
-import { easternDate, savedNamesByDate, todaySessionState, weeklyDayState } from './weeklyTimeline.js'
+import { useBuddyGroupPoll } from './buddies/useBuddyGroupPoll.js'
+import { easternDate, todaySessionState } from './weeklyTimeline.js'
+import TodayHero from './dashboard/TodayHero.jsx'
+import ThisWeekPanel from './dashboard/ThisWeekPanel.jsx'
+import BuddiesFeed from './dashboard/BuddiesFeed.jsx'
+import RankingsPanel from './dashboard/RankingsPanel.jsx'
+import { lastLogged, nextUp, todayHeading } from './dashboard/dashboardFormat.js'
+import './dashboard/dashboard.css'
 
-const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-
-function WeeklyGoalCard({ state, standings, plan, planReady, planError, schedule, progress, historyStatus, today, nextWorkout, unfinished, inProgress, savedNames, completedSession, workoutStatus, onRetry, onStart }) {
-  const { status, data } = state
-  const dates = data?.completed_dates ?? []
-  const easternToday = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
-  }).formatToParts(new Date())
-  const datePart = (type) => easternToday.find((part) => part.type === type).value
-  const todayDate = `${datePart('year')}-${datePart('month')}-${datePart('day')}`
-  const weekDays = data ? Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(`${data.week_start}T00:00:00Z`)
-    date.setUTCDate(date.getUTCDate() + index)
-    return date.toISOString().slice(0, 10)
-  }) : []
-  const action = unfinished && plan && unfinished.plan === plan.name ? 'Resume workout' : 'Start workout'
-  const daysLeft = data ? Math.max(0, data.target_days - data.progress_days) : 0
-  const rank = standings.status === 'ready' ? homeRank(standings.data.me) : standings.status === 'error' ? 'Unavailable' : 'Loading…'
-  const planSessions = planError ? 'Unavailable' : !planReady ? 'Loading…' : !plan ? 'No plan' : historyStatus === 'error' ? 'Unavailable' : historyStatus === 'loading' ? 'Loading…' : `${progress?.thisWeek ?? 0} of ${plan.days_per_week}`
-  const streak = historyStatus === 'error' ? 'Unavailable' : historyStatus === 'loading' ? 'Loading…' : `${progress?.streakWeeks ?? 0} ${progress?.streakWeeks === 1 ? 'week' : 'weeks'}`
-  return <section className="dashboard-card dashboard-weekly" aria-label="This week">
-    <div className="dashboard-weekly__hero">
-      <div className="dashboard-weekly__mission">
-        <p className="dashboard-weekly__eyebrow">Your weekly mission</p>
-        <h2>This week</h2>
-        {status === 'loading' && <p role="status">Loading your weekly progress...</p>}
-        {status === 'error' && <div className="dashboard-weekly__error" role="alert">Couldn't load your weekly progress. Try again. <button type="button" onClick={onRetry}>Try again</button></div>}
-        {status === 'ready' && <>
-          <h3>{daysLeft === 0 ? 'A week well earned.' : daysLeft === 1 ? 'One more day. A week well earned.' : `${daysLeft} more days. Keep going.`}</h3>
-          <p>Log a workout on {data.target_days} different {data.target_days === 1 ? 'day' : 'days'} this week. Consistency is the win.</p>
-        </>}
-        <div className="dashboard-weekly__actions">{!planReady ? null : plan && workoutStatus !== 'ready' ? (workoutStatus === 'error' ? <button type="button" className="dashboard-primary-action" onClick={onRetry}>Try again</button> : <p role="status">Checking your workout…</p>) : plan && (today || inProgress) && !completedSession ? <button type="button" className="dashboard-primary-action" onClick={onStart}>{action} →</button> : plan && completedSession ? <Link className="dashboard-weekly__secondary" to={summaryPath(completedSession.id)}>View workout summary ›</Link> : plan ? <Link className="dashboard-weekly__secondary" to="/weekly-plan">View your weekly plan ›</Link> : <Link className="dashboard-primary-action" to="/plans">Browse workout plans ›</Link>}</div>
-      </div>
-      {status === 'ready' && <div className="dashboard-weekly__ring" style={{ '--dashboard-goal-progress': `${data.progress_percent}%` }} role="progressbar" aria-label="Weekly goal progress" aria-valuemin={0} aria-valuemax={data.target_days} aria-valuenow={data.progress_days} aria-valuetext={`${data.progress_days} of ${data.target_days} training days`}>
-        <div className="dashboard-weekly__ring-center"><strong>{data.progress_days}<span>/{data.target_days}</span></strong><small>training days logged</small></div>
-      </div>}
-    </div>
-    {status === 'ready' && <div className="dashboard-weekly__timeline">
-      <div className="dashboard-weekly__section-heading"><h3>A little progress, day by day</h3><Link to="/weekly-plan">Weekly plan ›</Link></div>
-      <ol className="dashboard-weekly__days" aria-label="This week's training days">{weekDays.map((date, index) => {
-        const day = weeklyDayState(date, todayDate, schedule[index]?.workout, Boolean(plan), dates.includes(date), savedNames[date])
-        return <li key={date} className={`dashboard-weekly__day${day.complete ? ' dashboard-weekly__day--done' : ''}${day.today ? ' dashboard-weekly__day--today' : ''}`}>
-          <span className="dashboard-weekly__weekday">{DAY_NAMES[(index + 1) % 7]}</span>
-          <span className="dashboard-weekly__day-mark" aria-hidden="true">{day.mark}</span>
-          <span className="dashboard-weekly__day-workout">{day.name}</span>
-          {day.status && <span className="dashboard-weekly__day-status">{day.status}</span>}
-        </li>
-      })}</ol>
-      <p className="dashboard-weekly__note">Rest days check off automatically when they arrive. Only logged workout days count toward your milestone.</p>
-    </div>}
-    <div className="dashboard-weekly__next-row">
-      <span className="dashboard-weekly__next-icon" aria-hidden="true"><MobileDashboardIcon name="dumbbell" /></span>
-      <div><p className="dashboard-weekly__eyebrow">{inProgress ? 'Workout in progress' : 'Your next workout'}</p><strong>{inProgress ? inProgress.name : nextWorkout ? nextWorkout.name : planError ? 'Plan unavailable' : plan ? 'Rest day' : 'Choose a plan to begin'}</strong><span>{plan?.name ?? 'Your workout plan'}{nextWorkout?.duration_minutes ? ` · About ${nextWorkout.duration_minutes} min` : ''}</span></div>
-      {planError ? <button type="button" onClick={onRetry}>Try again</button> : <Link to={plan ? `/plans/${plan.id}` : '/plans'} state={{ from: '/dashboard' }}>View plan ›</Link>}
-    </div>
-    <div className="dashboard-weekly__stats" aria-label="Weekly summary">
-      <div><span>Plan sessions this week</span><strong>{planSessions}</strong></div>
-      <div><span>Weekly consistency</span><strong>{streak}</strong></div>
-      <div><span>Weekly rank</span><strong>{rank}</strong></div>
-    </div>
-    <div className="dashboard-weekly__standing">{standings.status === 'error' && <p role="alert">Couldn't load weekly standings. Try again. <button type="button" onClick={onRetry}>Try again</button></p>}<Link to="/leaderboard/weekly">View weekly standings ›</Link>{standings.status === 'ready' && <span>{circleLabel(standings.data.target_days)}</span>}</div>
-  </section>
-}
-
-// plan is null when the user hasn't selected one; today is that day's workout or null on a rest day.
-// today is the day shown (the saved workout's plan day when the lifter is doing a different one than scheduled);
-// scheduledName is the weekday's scheduled workout, shown only when it differs.
-function TodayWorkoutCard({ plan, today, scheduledName, inProgress, completedSession, weekLabel, onBrowse, onView }) {
-  if (!plan) {
-    return (
-      <article className="dashboard-card dashboard-today" aria-label="Today's workout">
-        <header className="dashboard-card__heading">
-          <div className="dashboard-today__heading-label"><h2>Today's workout</h2><span aria-hidden="true">·</span><span>{weekLabel}</span></div>
-        </header>
-        <h3 className="dashboard-card__title">No workout plan selected</h3>
-        <p className="dashboard-card__text">
-          Start by selecting a workout plan. Once you pick one, today's session will show up here.
-        </p>
-        <button type="button" className="dashboard-today__view dashboard-primary-action--spaced" onClick={onBrowse}>
-          Browse workout plans ›
-        </button>
-      </article>
-    )
-  }
-  return (
-    <article className="dashboard-card dashboard-today dashboard-today--planned" aria-label="Today's workout">
-      <header className="dashboard-card__heading">
-        <div className="dashboard-today__heading-label"><h2>Today's workout</h2><span aria-hidden="true">·</span><span>{weekLabel}</span></div>
-        {today && <span className="dashboard-card__meta">About {today.duration_minutes} min</span>}
-      </header>
-      <p className="dashboard-today__plan">
-        Current plan: <Link to={`/plans/${plan.id}`} state={{ from: '/dashboard' }}>{plan.name}</Link>
-      </p>
-      {inProgress && <p className="dashboard-today__completed">In progress · saved to your account</p>}
-      {today && scheduledName && scheduledName !== today.name && <p className="dashboard-card__text">Scheduled today: {scheduledName}. You're doing {today.name} instead.</p>}
-      {completedSession && <p className="dashboard-today__completed">Completed today · {completedSession.set_count} sets · {formatVolume(completedSession.total_volume_lb)}</p>}
-      <h3 className="dashboard-card__title">{today ? today.name : 'Rest day'}</h3>
-      <p className="dashboard-card__text">
-        {today
-          ? `${today.focus} — part of your ${plan.name} plan.`
-          : `No session scheduled today in your ${plan.name} plan. Rest up and come back tomorrow.`}
-      </p>
-      <div className="dashboard-today__mobile-summary">
-        <span className="dashboard-today__mobile-icon"><MobileDashboardIcon name="dumbbell" /></span>
-        <div>
-          <strong>{today ? today.name : 'Rest day'}</strong>
-          <span>{today ? today.focus : `No session scheduled today in your ${plan.name} plan.`}</span>
-          {today && <span className="dashboard-today__mobile-duration"><MobileDashboardIcon name="clock" /> About {today.duration_minutes} min</span>}
-        </div>
-      </div>
-      {today?.exercises?.length > 0 && (
-        <ol className="dashboard-exercises" aria-label="Today's exercises">
-          {today.exercises.map((exercise, index) => (
-            <li className="dashboard-exercise" key={exercise}>
-              <span className="dashboard-exercise__number">{index + 1}</span>
-              <span className="dashboard-exercise__mobile-icon"><MobileDashboardIcon name="dumbbell" /></span>
-              <div><strong>{exercise}</strong></div>
-              <MobileDashboardIcon name="chevron" className="dashboard-exercise__chevron" />
-            </li>
-          ))}
-        </ol>
-      )}
-      <button type="button" className="dashboard-today__view dashboard-primary-action--spaced" onClick={onView}>
-        <span className="dashboard-desktop-only">{completedSession ? 'View workout summary ›' : today ? `View ${plan.name} ›` : 'View your weekly plan ›'}</span>
-        <span className="dashboard-mobile-only">{completedSession ? 'View summary ›' : today ? 'View plan ›' : 'View your weekly plan ›'}</span>
-      </button>
-    </article>
-  )
-}
-
+// Shown under the welcome until the three first-week steps are done, then hidden for good.
 function ChecklistCard({ items }) {
   const doneCount = items.filter((item) => item.done).length
   return (
@@ -208,16 +82,16 @@ function Dashboard() {
   const [loadAttempt, setLoadAttempt] = useState(0)
   const [historyState, setHistoryState] = useState({ status: 'loading', sessions: [] })
   const [weeklyState, setWeeklyState] = useState({ status: 'loading', data: null })
-  const [standingState, setStandingState] = useState({ status: 'loading', data: null })
   const [unfinished, setUnfinished] = useState(null)
   const [unfinishedStatus, setUnfinishedStatus] = useState('loading')
+  // "From your buddies" stays up to date while the Dashboard is open (src/buddies/useBuddyGroupPoll.js).
+  const buddies = useBuddyGroupPoll({ onUnauthorized: () => navigate('/login', { replace: true }) })
+  const buddyState = buddies.state
 
   useEffect(() => {
     let active = true
     setWeeklyState({ status: 'loading', data: null })
-    setStandingState({ status: 'loading', data: null })
     apiRequest('weekly_goal.php').then((result) => { if (active) setWeeklyState({ status: result.ok ? 'ready' : 'error', data: result.ok ? result.data : null }) })
-    getWeeklyStandings().then((result) => { if (active) setStandingState({ status: result.ok ? 'ready' : 'error', data: result.ok ? result.data : null }) })
     setUnfinishedStatus('loading')
     fetchUnfinishedSession()
       .then((session) => { if (active) { setUnfinished(session); setUnfinishedStatus('ready') } })
@@ -244,7 +118,7 @@ function Dashboard() {
       apiRequest('preferences.php').then((result) => (result.ok ? result.data.training_goal : null)),
     ]).then(([planResult, goalResult]) => {
       if (!active) return
-      setPlanError(planResult.status === 'rejected' ? "Couldn't load your workout summary. Check your connection and try again." : '')
+      setPlanError(planResult.status === 'rejected' ? "Couldn't load your workout plan. Check your connection and try again." : '')
       setSetup({
         plan: planResult.status === 'fulfilled' ? planResult.value : null,
         goal: goalResult.status === 'fulfilled' ? goalResult.value : null,
@@ -266,7 +140,20 @@ function Dashboard() {
     return () => { active = false }
   }, [loadAttempt, navigate])
 
-  function retryPlan() {
+  // Right after logging in, the slide into the app waits until the Dashboard's first data is in (at most 1.5s), so the
+  // page slides in complete instead of jumping when its plan, week and history arrive (src/auth/entryHandoff.js).
+  const releaseArrival = useRef(null)
+  useLayoutEffect(() => {
+    releaseArrival.current = holdArrival()
+    return () => releaseArrival.current?.()
+  }, [])
+  const firstLoadDone = setup !== null && weeklyState.status !== 'loading' && historyState.status !== 'loading' && unfinishedStatus !== 'loading'
+  useEffect(() => {
+    if (firstLoadDone) releaseArrival.current?.()
+  }, [firstLoadDone])
+
+  function retry() {
+    buddies.reload()
     setSetup(null)
     setPlanError('')
     setLoadAttempt((attempt) => attempt + 1)
@@ -275,17 +162,26 @@ function Dashboard() {
   const plan = setup?.plan ?? null
   const goal = setup?.goal ?? null
   const currentDate = new Date()
-  const schedule = plan ? buildWeek(plan, currentDate) : []
+  const todayDate = easternDate(currentDate)
+  const scheduleDate = new Date(`${todayDate}T12:00:00`)
+  const schedule = plan ? buildWeek(plan, scheduleDate) : []
   const scheduledToday = schedule.find((day) => day.when === 'today')?.workout ?? null
-  // What is actually saved today wins over the weekday schedule, so every card names the workout Today opens.
   // Start, Resume and View summary are offered only once both the unfinished workout and the history have loaded,
   // so a failed load can't let the lifter start a second workout.
   const workoutStatus = historyState.status === 'error' || unfinishedStatus === 'error' ? 'error' : historyState.status === 'ready' && unfinishedStatus === 'ready' ? 'ready' : 'loading'
-  const saved = todaySessionState(historyState.sessions, unfinished, plan, easternDate(currentDate))
-  const today = saved ? plan?.days?.find((day) => day.name === saved.session.name) ?? scheduledToday : scheduledToday
-  const savedNames = savedNamesByDate(historyState.sessions)
+  // A session for today's scheduled day wins, so the hero names the workout Today opens.
+  const saved = todaySessionState(historyState.sessions, unfinished, plan, todayDate, scheduledToday?.name ?? null)
+  const savedDay = saved ? plan?.days?.find((day) => day.name === saved.session.name) ?? { name: saved.session.name } : null
+  const today = savedDay ?? scheduledToday
   const progress = historyState.status === 'ready' ? dashboardHistory(historyState.sessions, plan, currentDate) : null
-  const nextWorkout = schedule.find((day) => (day.when === 'today' && !progress?.todaySession || day.when === 'upcoming') && day.workout)?.workout ?? plan?.days?.[0] ?? null
+  const next = nextUp(plan, scheduleDate)
+  const heroState = setup === null ? 'loading'
+    : planError ? 'error'
+      : !plan ? 'no-plan'
+        : saved?.state === 'in_progress' ? 'in-progress'
+          : saved?.state === 'completed' ? 'done'
+            : today ? 'workout' : 'rest'
+
   const checklist = [
     {
       title: 'Choose your training goal',
@@ -299,7 +195,7 @@ function Dashboard() {
       detail: planError ? "Couldn't check your saved plan" : plan ? `You're following ${plan.name}` : 'Browse the library and pick the plan that fits you',
       done: Boolean(plan),
       action: planError ? 'Try again' : 'Browse plans',
-      onAction: planError ? retryPlan : () => navigate('/plans'),
+      onAction: planError ? retry : () => navigate('/plans'),
     },
     {
       title: 'Log your first lift',
@@ -307,13 +203,16 @@ function Dashboard() {
       done: Boolean(progress?.hasLift),
     },
   ]
+  // Only once everything has loaded, so the checklist doesn't flash for someone who has finished it.
+  const showChecklist = setup !== null && historyState.status !== 'loading' && !checklist.every((item) => item.done)
+  const hasGroup = buddyState.status === 'ready' ? Boolean(buddyState.data.group) : buddyState.status === 'error' ? false : null
 
   const displayName = fullName || 'Athlete'
   const firstName = displayName.split(/\s+/)[0]
 
   return (
     <div className="dashboard-page">
-      <main className="dashboard-content">
+      <main className="dashboard-content home">
         {!personalDetails.complete && <section className="dashboard-card dashboard-personal-details" aria-label="Personal details for ranking">
           <p className="dashboard-card__text">You can't qualify for ranking without entering weight and gender</p>
           <Link className="dashboard-primary-action" to="/personal-details">Add personal details</Link>
@@ -326,62 +225,40 @@ function Dashboard() {
             </button>
           </div>
         )}
-        <header className="dashboard-header">
-          <div>
-            <span className="dashboard-header__eyebrow">{planError ? 'WORKOUT SUMMARY UNAVAILABLE' : plan ? `YOUR ${plan.level.toUpperCase()} PLAN` : 'WELCOME TO GYMRANK'}</span>
-            <h1>{plan || planError || setup === null ? `Welcome back, ${firstName}` : `Welcome, ${firstName}`}</h1>
-            <p className="dashboard-header__desktop-copy">
-              {setup === null
-                ? 'Loading your dashboard...'
-                : planError
-                  ? 'Your workout summary could not be loaded. Try again below.'
-                : plan
-                  ? weeklyState.status === 'ready' && weeklyState.data.completed_count === 0
-                    ? 'A fresh week starts with one workout. Show up today and build your momentum.'
-                    : progress?.totalCompleted > 0 ? 'Your completed workouts are adding up. Keep the momentum going.' : 'You are one workout away from starting your first week.'
-                  : 'Start by selecting a workout plan — it takes a minute and sets up your week.'}
-            </p>
-            {setup !== null && plan && <p className="dashboard-header__mobile-copy">{weeklyState.status === 'ready' && weeklyState.data.completed_count === 0 ? 'A fresh week starts with one workout. Show up today.' : 'Consistency builds strength. Let’s keep the momentum going.'}</p>}
-          </div>
+        <header className="home-header">
+          <p className="home-header__date">{todayHeading(currentDate)}</p>
+          <h1>{plan || planError || setup === null ? `Welcome back, ${firstName}` : `Welcome, ${firstName}`}</h1>
         </header>
 
-        <WeeklyGoalCard state={weeklyState} standings={standingState} plan={plan} planReady={setup !== null && !planError} planError={planError} schedule={schedule} progress={progress} historyStatus={historyState.status} today={today} nextWorkout={nextWorkout} unfinished={unfinished} inProgress={saved?.state === 'in_progress' ? saved.session : null} savedNames={savedNames} completedSession={progress?.todaySession} workoutStatus={workoutStatus} onRetry={retryPlan} onStart={() => navigate('/workout/active')} />
-        {workoutStatus === 'error' && (
-          <div className="dashboard-history-error" role="alert">
-            <span>Couldn't load your workouts. Check your connection and try again.</span>
-            <button type="button" onClick={retryPlan}>Try again</button>
-          </div>
-        )}
+        {showChecklist && <ChecklistCard items={checklist} />}
 
-        <section className="dashboard-overview" aria-label="Workout overview">
-          {setup === null ? (
-            <article className="dashboard-card dashboard-today" aria-busy="true">
-              <p className="dashboard-card__text">Loading today's workout...</p>
-            </article>
-          ) : planError ? (
-            <article className="dashboard-card dashboard-today" aria-label="Today's workout" role="alert">
-              <header className="dashboard-card__heading">
-                <div className="dashboard-today__heading-label"><h2>Today's workout</h2><span aria-hidden="true">·</span><span>{weekRangeLabel(currentDate)}</span></div>
-              </header>
-              <p className="dashboard-card__text">{planError}</p>
-              <button type="button" className="dashboard-primary-action dashboard-primary-action--spaced" onClick={retryPlan}>Try again</button>
-            </article>
-          ) : (
-            <TodayWorkoutCard
-              plan={plan}
-              today={today}
-              scheduledName={scheduledToday?.name}
-              inProgress={saved?.state === 'in_progress'}
-              completedSession={progress?.todaySession}
-              weekLabel={weekRangeLabel(currentDate)}
-              onBrowse={() => navigate('/plans')}
-              onView={() => navigate(progress?.todaySession ? summaryPath(progress.todaySession.id) : today ? `/plans/${plan.id}` : '/weekly-plan', { state: { from: '/dashboard' } })}
-            />
-          )}
-          {checklist.every((item) => item.done)
-            ? <WeeklyMilestoneCard goal={weeklyState.data} status={weeklyState.status} planDays={plan?.days_per_week} onSaved={(data) => setWeeklyState({ status: 'ready', data })} onRetry={retryPlan} />
-            : <ChecklistCard items={checklist} />}
-        </section>
+        <div className="home-top">
+          <TodayHero
+            state={heroState}
+            plan={plan}
+            workout={today}
+            completedSession={saved?.state === 'completed' ? saved.session : null}
+            next={next}
+            errorText={planError}
+            workoutStatus={workoutStatus}
+            onStart={() => navigate(addReturn('/workout/active', DASHBOARD))}
+            onRetry={retry}
+          />
+          <ThisWeekPanel
+            state={weeklyState}
+            todayDate={todayDate}
+            next={next}
+            last={lastLogged(historyState.sessions)}
+            hasPlan={Boolean(plan)}
+            historyStatus={historyState.status}
+            onRetry={retry}
+          />
+        </div>
+
+        <div className="home-bottom">
+          <BuddiesFeed state={buddyState} fresh={buddies.fresh} announcement={buddies.announcement} onRetry={retry} />
+          <RankingsPanel hasGroup={hasGroup} attempt={loadAttempt} />
+        </div>
       </main>
     </div>
   )

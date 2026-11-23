@@ -5,6 +5,7 @@ export default function MobileDashboardIcon({ name, className = '' }) {
     calendar: <><rect x="4" y="5" width="16" height="16" rx="2" /><path d="M8 3v4m8-4v4M4 10h16M8 14h1m5 0h1m-7 4h1m5 0h1" /></>,
     clock: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l4 2" /></>,
     chevron: <path d="m9 5 7 7-7 7" />,
+    check: <path d="m5 12 5 5L20 7" />,
     home: <><path d="m3 10 9-7 9 7v10H3V10Z" /><path d="M9 20v-7h6v7" /></>,
     progress: <><path d="M5 20v-5m7 5V9m7 11V4" /></>,
     today: <><rect x="4" y="5" width="16" height="16" rx="2" /><path d="M8 3v4m8-4v4M4 10h16m5 5h6" /></>,

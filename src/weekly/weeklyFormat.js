@@ -34,15 +34,17 @@ export function msUntilReset(data, fetchedAt, clientNow) {
 }
 
 // Which top card to show. Your first ranked week is the Monday after you join; until then it's a practice week.
+// In the Buddies view (card 139) someone in no buddies group gets their own card.
 export function heroKind(me) {
   if (me.reason === 'test_account') return 'test'
+  if (me.reason === 'no_group') return 'nogroup'
   if (!me.joined) return 'join'
   if (me.rank == null) return 'practice'
   return 'ranked'
 }
 
 // The rank on Home: "#2", or in two words why there is none (the standings page explains each one).
-const NO_RANK = { practice_week: 'Practice week', not_joined: 'Not joined', test_account: 'Test account' }
+const NO_RANK = { practice_week: 'Practice week', not_joined: 'Not joined', test_account: 'Test account', no_group: 'No group' }
 export function homeRank(me) {
   if (me.rank != null) return `#${me.rank}`
   return NO_RANK[me.reason] ?? 'Unranked'

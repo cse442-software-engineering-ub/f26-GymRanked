@@ -99,60 +99,63 @@ function NoGroupPanel({ onJoined, onShowGroup, onUnauthorized, onStart }) {
   }
 
   return (
-    <section className="buddies-card" aria-labelledby="buddies-empty-title">
-      <h2 className="buddies-empty-title" id="buddies-empty-title">You&apos;re not in a group yet.</h2>
-      <p className="buddies-card__lead">Join a friend&apos;s group with their invite code, or start your own.</p>
+    <section className="buddies-hero buddies-hero--join" aria-labelledby="buddies-empty-title">
+      <div className="buddies-hero__body">
+        <p className="buddies-hero__eyebrow">Get started</p>
+        <h2 className="buddies-hero__title buddies-hero__title--long" id="buddies-empty-title">You&apos;re not in a group yet.</h2>
+        <p className="buddies-hero__text">Join a friend&apos;s group with their invite code, or start your own.</p>
 
-      {conflict && (
-        <div className="buddies-notice buddies-notice--error" role="alert">
-          <p><span className="buddies-notice__icon" aria-hidden="true">!</span>{MESSAGES.already}</p>
-          <button type="button" className="buddies-button buddies-button--secondary" onClick={onShowGroup}>Show my group</button>
-        </div>
-      )}
-
-      <form className="buddies-field" onSubmit={onJoin} noValidate>
-        <label htmlFor="buddies-invite-code">Invite code <span className="buddies-required" aria-hidden="true">*</span></label>
-        <div className="buddies-join-row">
-          <div className="buddies-join-row__code">
-            <input ref={codeInput} id="buddies-invite-code" name="code" className="buddies-input buddies-input--code"
-              value={code} onChange={(event) => setCode(cleanInviteCode(event.target.value))}
-              maxLength={CODE_LENGTH} required readOnly={joinBusy} autoComplete="off" autoCapitalize="characters"
-              autoCorrect="off" spellCheck="false" aria-invalid={codeError ? 'true' : undefined}
-              aria-describedby={codeError ? 'buddies-code-hint buddies-code-error' : 'buddies-code-hint'} />
-            <p className="buddies-hint" id="buddies-code-hint">8 letters and numbers, for example 7KQ2MXP9. Ask the group&apos;s owner for it.</p>
-            {codeError && <p className="buddies-field-error" id="buddies-code-error" role="alert">{codeError}</p>}
+        {conflict && (
+          <div className="buddies-notice buddies-notice--error" role="alert">
+            <p><span className="buddies-notice__icon" aria-hidden="true">!</span>{MESSAGES.already}</p>
+            <button type="button" className="buddies-button buddies-button--secondary" onClick={onShowGroup}>Show my group</button>
           </div>
-          <button type="submit" className="buddies-button buddies-button--primary" disabled={joinBusy}>
-            {joinBusy ? 'Joining…' : 'Join group'}
-          </button>
-        </div>
-        {joinError && <p className="buddies-field-error" role="alert">{joinError}</p>}
-      </form>
+        )}
 
-      <p className="buddies-or">or</p>
-
-      {createOpen ? (
-        <form className="buddies-field" onSubmit={onCreate} noValidate
-          onKeyDown={(event) => { if (event.key === 'Escape') closeCreate() }}>
-          <label htmlFor="buddies-group-name">Group name <span className="buddies-required" aria-hidden="true">*</span></label>
-          <input ref={nameInput} id="buddies-group-name" name="name" className="buddies-input" value={name}
-            onChange={(event) => setName(event.target.value)} maxLength={NAME_MAX} required readOnly={createBusy}
-            autoComplete="off" aria-invalid={nameError ? 'true' : undefined}
-            aria-describedby={nameError ? 'buddies-name-hint buddies-name-error' : 'buddies-name-hint'} />
-          <p className="buddies-hint" id="buddies-name-hint">Up to 40 characters. Members see this name.</p>
-          {nameError && <p className="buddies-field-error" id="buddies-name-error" role="alert">{nameError}</p>}
-          <div className="buddies-actions">
-            <button type="submit" className="buddies-button buddies-button--primary" disabled={createBusy}>
-              {createBusy ? 'Creating…' : 'Create'}
+        <form className="buddies-field" onSubmit={onJoin} noValidate>
+          <label htmlFor="buddies-invite-code">Invite code <span className="buddies-required" aria-hidden="true">*</span></label>
+          <div className="buddies-join-row">
+            <div className="buddies-join-row__code">
+              <input ref={codeInput} id="buddies-invite-code" name="code" className="buddies-input buddies-input--code"
+                value={code} onChange={(event) => setCode(cleanInviteCode(event.target.value))}
+                maxLength={CODE_LENGTH} required readOnly={joinBusy} autoComplete="off" autoCapitalize="characters"
+                autoCorrect="off" spellCheck="false" aria-invalid={codeError ? 'true' : undefined}
+                aria-describedby={codeError ? 'buddies-code-hint buddies-code-error' : 'buddies-code-hint'} />
+              <p className="buddies-hint" id="buddies-code-hint">8 letters and numbers, for example 7KQ2MXP9. Ask the group&apos;s owner for it.</p>
+              {codeError && <p className="buddies-field-error" id="buddies-code-error" role="alert">{codeError}</p>}
+            </div>
+            <button type="submit" className="buddies-button buddies-button--primary" disabled={joinBusy}>
+              {joinBusy ? 'Joining…' : 'Join group'}
             </button>
-            <button type="button" className="buddies-button buddies-button--subtle" disabled={createBusy} onClick={closeCreate}>Cancel</button>
           </div>
-          {createError && <p className="buddies-field-error" role="alert">{createError}</p>}
+          {joinError && <p className="buddies-field-error" role="alert">{joinError}</p>}
         </form>
-      ) : (
-        <button ref={openCreateButton} type="button" className="buddies-button buddies-button--secondary buddies-open-create"
-          onClick={() => setCreateOpen(true)}>Create a group</button>
-      )}
+
+        <p className="buddies-or">or</p>
+
+        {createOpen ? (
+          <form className="buddies-field" onSubmit={onCreate} noValidate
+            onKeyDown={(event) => { if (event.key === 'Escape') closeCreate() }}>
+            <label htmlFor="buddies-group-name">Group name <span className="buddies-required" aria-hidden="true">*</span></label>
+            <input ref={nameInput} id="buddies-group-name" name="name" className="buddies-input" value={name}
+              onChange={(event) => setName(event.target.value)} maxLength={NAME_MAX} required readOnly={createBusy}
+              autoComplete="off" aria-invalid={nameError ? 'true' : undefined}
+              aria-describedby={nameError ? 'buddies-name-hint buddies-name-error' : 'buddies-name-hint'} />
+            <p className="buddies-hint" id="buddies-name-hint">Up to 40 characters. Members see this name.</p>
+            {nameError && <p className="buddies-field-error" id="buddies-name-error" role="alert">{nameError}</p>}
+            <div className="buddies-actions">
+              <button type="submit" className="buddies-button buddies-button--primary" disabled={createBusy}>
+                {createBusy ? 'Creating…' : 'Create'}
+              </button>
+              <button type="button" className="buddies-button buddies-button--subtle" disabled={createBusy} onClick={closeCreate}>Cancel</button>
+            </div>
+            {createError && <p className="buddies-field-error" role="alert">{createError}</p>}
+          </form>
+        ) : (
+          <button ref={openCreateButton} type="button" className="buddies-button buddies-button--secondary buddies-open-create"
+            onClick={() => setCreateOpen(true)}>Create a group</button>
+        )}
+      </div>
     </section>
   )
 }

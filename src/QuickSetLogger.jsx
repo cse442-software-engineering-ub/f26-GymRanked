@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import ExerciseGuide from './ExerciseGuide.jsx'
 import ExerciseAlternatives from './workoutLog/ExerciseAlternatives.jsx'
 import { EMPTY_DRAFT, loadDraft, saveDraft } from './setDraft.js'
-import { formatSet, nextSetNumber, saveErrorMessage } from './workoutLog/setLog.js'
-import { validateSet } from './workoutLog/setValidation.js'
+import { formatSet, isRetryable, lastSavedSet, newSetRequestId, nextSetNumber, repeatValues, saveErrorMessage } from './workoutLog/setLog.js'
+import { isAllowedSetInput, validateSet } from './workoutLog/setValidation.js'
 import workoutLogApi from './workoutLog/workoutLogApi.js'
 
 const DEFAULT_REST_SECONDS = 90
@@ -30,16 +30,22 @@ export default function QuickSetLogger({ sessionId, exercise, exercisePosition, 
   const [draft, setDraft] = useState(() => readDraft(sessionId, exercise))
   const [errors, setErrors] = useState({})
   const [saveError, setSaveError] = useState('')
+  const [canRetry, setCanRetry] = useState(false)
+  const pendingSave = useRef(null)
   const [saving, setSaving] = useState(false)
   const [notice, setNotice] = useState('')
   const [now, setNow] = useState(() => Date.now())
   const [scrollToRest, setScrollToRest] = useState(false)
   const restRef = useRef(null)
+  const weightRef = useRef(null)
+  const lastSet = lastSavedSet(sets, exercise)
 
   useEffect(() => {
     setDraft(readDraft(sessionId, exercise))
     setErrors({})
     setSaveError('')
+    setCanRetry(false)
+    pendingSave.current = null
     setNotice('')
   }, [sessionId, exercise])
 
@@ -111,13 +117,28 @@ export default function QuickSetLogger({ sessionId, exercise, exercisePosition, 
   }
 
   function update(field, value) {
+    if (!isAllowedSetInput(field, value)) return
+    setCanRetry(false)
+    pendingSave.current = null
     setDraft((previous) => ({ ...previous, [field]: value }))
     setErrors((previous) => ({ ...previous, [field]: undefined }))
     setNotice('')
   }
 
-  async function logSet(event) {
-    event.preventDefault()
+  // Fills the boxes from the exercise's latest saved set. Saves nothing: the user still presses Log set.
+  function repeatLastSet() {
+    if (!lastSet || saving) return
+    setDraft((previous) => ({ ...previous, ...repeatValues(lastSet) }))
+    setErrors((previous) => ({ ...previous, weight: undefined, reps: undefined }))
+    setSaveError('')
+    setCanRetry(false)
+    pendingSave.current = null
+    setNotice(`Weight and reps filled from Set ${lastSet.set_number}`)
+    weightRef.current?.focus()
+  }
+
+  async function logSet(event, retry = false) {
+    event?.preventDefault()
     if (saving) return
     if (draft.timer === 'running' || draft.timer === 'paused') {
       setSaveError('Finish the set timer before logging this set.')
@@ -130,11 +151,15 @@ export default function QuickSetLogger({ sessionId, exercise, exercisePosition, 
     }
     setSaving(true)
     setSaveError('')
+    setCanRetry(false)
+    const request = retry && pendingSave.current ? pendingSave.current : {
+      sessionId, exercise, setNumber: nextSetNumber(sets),
+      weightLb: checked.values.weight_lb, reps: checked.values.reps, requestId: newSetRequestId(),
+    }
+    pendingSave.current = request
     try {
-      const saved = await workoutLogApi.saveSet({
-        sessionId, exercise, setNumber: nextSetNumber(sets),
-        weightLb: checked.values.weight_lb, reps: checked.values.reps,
-      })
+      const saved = await workoutLogApi.saveSet(request)
+      pendingSave.current = null
       onSetSaved(exercise, saved)
       setDraft((previous) => ({
         ...EMPTY_DRAFT,
@@ -147,6 +172,7 @@ export default function QuickSetLogger({ sessionId, exercise, exercisePosition, 
     } catch (error) {
       if (error.fieldErrors) setErrors(error.fieldErrors)
       setSaveError(saveErrorMessage(error))
+      setCanRetry(isRetryable(error))
     } finally {
       setSaving(false)
     }
@@ -186,17 +212,19 @@ export default function QuickSetLogger({ sessionId, exercise, exercisePosition, 
       </div> : <div className="quick-set__rest-placeholder">Rest timer starts when you finish a set.</div>}
       </div>
       <form onSubmit={logSet}>
+        <label>Weight (lb)
+          <input ref={weightRef} type="text" inputMode="decimal" autoComplete="off" value={draft.weight} onChange={(event) => update('weight', event.target.value)} aria-invalid={Boolean(errors.weight)} aria-describedby={errors.weight ? 'quick-weight-error' : undefined} disabled={saving} />
+          {errors.weight && <span id="quick-weight-error" className="wl-field-error">{errors.weight}</span>}
+        </label>
         <label>Reps
           <input type="text" inputMode="numeric" autoComplete="off" value={draft.reps} onChange={(event) => update('reps', event.target.value)} aria-invalid={Boolean(errors.reps)} aria-describedby={errors.reps ? 'quick-reps-error' : undefined} disabled={saving} />
           {errors.reps && <span id="quick-reps-error" className="wl-field-error">{errors.reps}</span>}
         </label>
-        <label>Weight (lb)
-          <input type="text" inputMode="decimal" autoComplete="off" value={draft.weight} onChange={(event) => update('weight', event.target.value)} aria-invalid={Boolean(errors.weight)} aria-describedby={errors.weight ? 'quick-weight-error' : undefined} disabled={saving} />
-          {errors.weight && <span id="quick-weight-error" className="wl-field-error">{errors.weight}</span>}
-        </label>
+        {saveError && <p className="wl-message wl-message--error quick-set__save-error" role="alert">{saveError}</p>}
+        <button type="button" className="wl-button wl-button--quiet" onClick={repeatLastSet} disabled={saving || !lastSet}>Repeat last set</button>
         <button type="submit" className="wl-button wl-button--primary" disabled={saving}>{saving ? 'Saving…' : 'Log set'}</button>
       </form>
-      {saveError && <p className="wl-message wl-message--error" role="alert">{saveError}</p>}
+      {canRetry && <button type="button" className="wl-button wl-button--quiet" onClick={() => logSet(null, true)} disabled={saving}>Retry saving set</button>}
       {notice && <p className="wl-message wl-message--success" role="status">{notice}</p>}
       <p className="quick-set__count">{sets.length} {sets.length === 1 ? 'set' : 'sets'} saved</p>
       {sets.length > 0 && <ol className="quick-set__saved" aria-label="Saved sets">{sets.map((set) => <li key={set.id}><span>Set {set.set_number}</span><strong>{formatSet(set)}</strong><span aria-hidden="true">✓</span></li>)}</ol>}
