@@ -44,39 +44,48 @@ export default function ThisWeekPanel({ state, todayDate, next, last, hasPlan, h
           ))}
         </ol>
       </>}
+      {/* Two tiles side by side; a tile with a workout is one big link (the whole tile is clickable). */}
       <dl className="home-week__facts">
-        <div>
+        <div className={next && nextUpPath(next) ? 'home-week__fact home-week__fact--link' : 'home-week__fact'}>
           <dt>Next up</dt>
-          <dd>{next ? <NextUp next={next} /> : hasPlan ? 'Nothing scheduled this week' : <Link to="/plans">Choose a plan</Link>}</dd>
+          <dd>{next ? <NextUp next={next} /> : hasPlan ? <span className="home-week__empty">Nothing scheduled this week</span> : <Link to="/plans">Choose a plan</Link>}</dd>
         </div>
-        <div>
+        <div className={historyStatus === 'ready' && last?.id ? 'home-week__fact home-week__fact--link' : 'home-week__fact'}>
           <dt>Last logged</dt>
-          <dd>{historyStatus === 'loading' ? 'Loading…' : historyStatus === 'error' ? 'Unavailable' : last ? <LastLogged last={last} /> : 'No workouts yet'}</dd>
+          <dd>{historyStatus === 'loading' ? <span className="home-week__empty">Loading…</span>
+            : historyStatus === 'error' ? <span className="home-week__empty">Unavailable</span>
+              : last ? <LastLogged last={last} /> : <span className="home-week__empty">No workouts yet</span>}</dd>
         </div>
       </dl>
     </section>
   )
 }
 
+function WorkoutTile({ name, date, action }) {
+  return <>
+    <strong className="home-week__name">{name}</strong>
+    <span className="home-week__date">{shortDay(date)}</span>
+    {action && <span className="home-week__action" aria-hidden="true">{action} <span className="home-week__arrow">→</span></span>}
+  </>
+}
+
 function NextUp({ next }) {
-  const text = <><strong>{next.name}</strong> · {shortDay(next.date)}</>
   const path = nextUpPath(next)
-  if (!path) return text
+  if (!path) return <WorkoutTile name={next.name} date={next.date} />
   return (
     <Link className="home-week__link" to={path} state={{ from: '/dashboard' }}
       aria-label={`${next.name}, ${shortDay(next.date)}: view this workout in your plan`}>
-      {text}<span className="home-week__chevron" aria-hidden="true">›</span>
+      <WorkoutTile name={next.name} date={next.date} action="View in plan" />
     </Link>
   )
 }
 
 function LastLogged({ last }) {
-  const text = <><strong>{last.name}</strong> · {shortDay(last.date)}</>
-  if (!last.id) return text
+  if (!last.id) return <WorkoutTile name={last.name} date={last.date} />
   return (
     <Link className="home-week__link" to={addReturn(summaryPath(last.id), DASHBOARD)}
       aria-label={`${last.name}, ${shortDay(last.date)}: view this saved workout`}>
-      {text}<span className="home-week__chevron" aria-hidden="true">›</span>
+      <WorkoutTile name={last.name} date={last.date} action="View summary" />
     </Link>
   )
 }

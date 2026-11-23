@@ -351,57 +351,119 @@
   color: var(--gr-action-text);
 }
 
+/* Next up and Last logged (#136): two tiles side by side. A tile with a workout is one link: the whole tile is
+   clickable (the link's ::after covers it), lifts to an action edge on hover, and says where it goes in action-text. */
 .home-week__facts {
   display: grid;
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
   margin: 20px 0 0;
   padding-top: 16px;
   border-top: 1px solid var(--gr-border-strong);
-  font-size: 13px;
 }
 
-.home-week__facts div {
+.home-week__fact {
+  position: relative;
   display: grid;
-  grid-template-columns: 84px minmax(0, 1fr);
-  gap: 12px;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-inner);
+  background: var(--gr-surface-raised);
 }
 
-.home-week__facts dt {
+.home-week__fact dt {
   color: var(--gr-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
-.home-week__facts dd {
+.home-week__fact dd {
   margin: 0;
   color: var(--gr-text-soft);
+  font-size: 14px;
 }
 
-.home-week__facts strong {
-  color: var(--gr-text);
-}
-
-.home-week__facts a {
+.home-week__fact dd > a:not(.home-week__link) {
   color: var(--gr-action-text);
+  font-weight: 600;
 }
 
-/* Next up and Last logged open that workout (#136): the row keeps its colours, with an underline and a chevron. */
-.home-week__facts a.home-week__link {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
+.home-week__link,
+.home-week__link:hover {
+  display: grid;
+  gap: 2px;
   color: var(--gr-text-soft);
-  text-decoration: underline;
-  text-decoration-color: var(--gr-border-strong);
-  text-underline-offset: 3px;
-}
-
-.home-week__link:hover,
-.home-week__link:hover strong {
-  color: var(--gr-action-text);
-}
-
-.home-week__chevron {
-  color: var(--gr-text-muted);
   text-decoration: none;
+}
+
+.home-week__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--gr-radius-inner);
+}
+
+.home-week__link:focus-visible {
+  outline: none;
+}
+
+.home-week__link:focus-visible::after {
+  outline: 2px solid var(--gr-brand);
+  outline-offset: 2px;
+}
+
+.home-week__name {
+  overflow: hidden;
+  color: var(--gr-text);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-week__date {
+  color: var(--gr-text-soft);
+  font-size: 14px;
+}
+
+.home-week__action {
+  margin-top: 8px;
+  color: var(--gr-action-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.home-week__arrow {
+  display: inline-block;
+}
+
+.home-week__fact--link {
+  cursor: pointer;
+}
+
+.home-week__fact--link:hover {
+  border-color: var(--gr-action);
+  background: var(--gr-selected-bg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-week__fact--link {
+    transition: border-color 120ms, background-color 120ms;
+  }
+
+  .home-week__arrow {
+    transition: transform 120ms;
+  }
+
+  .home-week__fact--link:hover .home-week__arrow {
+    transform: translateX(3px);
+  }
 }
 
 /* ------------------------------------------------------------ from your buddies */
