@@ -24,6 +24,18 @@ function addDays(date, days) {
   return next.toISOString().slice(0, 10)
 }
 
+// A date said relative to today for "Last workout" and "Next up" (#136): "Today", "Tomorrow" or "Yesterday";
+// otherwise "Nov 19", or "Mon, Nov 30" with weekday (a day ahead reads better with its weekday).
+export function relativeDay(date, todayDate, { weekday = false } = {}) {
+  if (todayDate) {
+    if (date === todayDate) return 'Today'
+    if (date === addDays(todayDate, 1)) return 'Tomorrow'
+    if (date === addDays(todayDate, -1)) return 'Yesterday'
+  }
+  if (weekday) return shortDay(date)
+  return new Date(`${date}T12:00:00Z`).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' })
+}
+
 // The seven days of the week that starts on weekStart (a Monday), for the "This week" strip:
 // [{date, weekday: 'Mon', day: 16, done, today}]. done is a date with a logged workout.
 export function weekStrip(weekStart, completedDates, todayDate) {

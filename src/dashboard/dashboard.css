@@ -351,70 +351,88 @@
   color: var(--gr-action-text);
 }
 
-/* Next up and Last logged (#136): two tiles side by side. A tile with a workout is one link: the whole tile is
-   clickable (the link's ::after covers it), lifts to an action edge on hover, and says where it goes in action-text. */
+/* Last workout and Next up (#136): one raised card with two rows, divided by a line. Each row is an icon tile, a small
+   uppercase label with the day, the workout's name, and on the right what it opens. Next up's label, icon and words
+   on the right are in action-text. A row with a workout is one link: it tints on hover and its arrow nudges. */
 .home-week__facts {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
   margin: 20px 0 0;
-  padding-top: 16px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--gr-border);
+  border-radius: var(--gr-radius-card);
+  background: var(--gr-surface-raised);
+  list-style: none;
+}
+
+.home-week__facts li + li {
   border-top: 1px solid var(--gr-border-strong);
 }
 
-.home-week__fact {
-  position: relative;
+.home-week__row {
   display: grid;
-  align-content: start;
-  gap: 6px;
-  min-width: 0;
-  padding: 14px 16px;
-  border: 1px solid var(--gr-border);
-  border-radius: var(--gr-radius-inner);
-  background: var(--gr-surface-raised);
-}
-
-.home-week__fact dt {
-  color: var(--gr-text-muted);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.home-week__fact dd {
-  margin: 0;
-  color: var(--gr-text-soft);
-  font-size: 14px;
-}
-
-.home-week__fact dd > a:not(.home-week__link) {
-  color: var(--gr-action-text);
-  font-weight: 600;
-}
-
-.home-week__link,
-.home-week__link:hover {
-  display: grid;
-  gap: 2px;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 72px;
+  padding: 12px 16px;
   color: var(--gr-text-soft);
   text-decoration: none;
 }
 
-.home-week__link::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: var(--gr-radius-inner);
+a.home-week__row:hover {
+  text-decoration: none;
 }
 
-.home-week__link:focus-visible {
-  outline: none;
+.home-week__row--link:hover {
+  background: var(--gr-selected-bg);
 }
 
-.home-week__link:focus-visible::after {
+.home-week__row--link:focus-visible {
   outline: 2px solid var(--gr-brand);
-  outline-offset: 2px;
+  outline-offset: -2px;
+  border-radius: var(--gr-radius-card);
+}
+
+.home-week__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--gr-radius-inner);
+  background: var(--gr-surface);
+  box-shadow: inset 0 0 0 1px var(--gr-border);
+  color: var(--gr-text);
+}
+
+.home-week__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.home-week__row--next .home-week__icon {
+  background: var(--gr-selected-bg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gr-action) 35%, transparent);
+  color: var(--gr-action-text);
+}
+
+.home-week__text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.home-week__kicker {
+  color: var(--gr-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-week__row--next .home-week__kicker {
+  color: var(--gr-action-text);
+  font-weight: 600;
 }
 
 .home-week__name {
@@ -427,56 +445,49 @@
   white-space: nowrap;
 }
 
-.home-week__date {
+.home-week__empty {
   color: var(--gr-text-soft);
   font-size: 14px;
 }
 
 .home-week__action {
-  margin-top: 8px;
-  color: var(--gr-action-text);
+  color: var(--gr-text-soft);
   font-size: 13px;
   font-weight: 600;
+  white-space: nowrap;
+}
+
+.home-week__row--next .home-week__action {
+  color: var(--gr-action-text);
 }
 
 .home-week__arrow {
   display: inline-block;
+  margin-left: 2px;
 }
 
-.home-week__fact--link {
-  cursor: pointer;
-}
+/* Narrow phones: the words on the right give way to the arrow, so the label and day stay on one line. */
+@media (max-width: 480px) {
+  .home-week__row {
+    gap: 12px;
+    padding: 12px 14px;
+  }
 
-.home-week__fact--link:hover {
-  border-color: var(--gr-action);
-  background: var(--gr-selected-bg);
-}
-
-/* Next up stands out from Last logged by its text: an action-text eyebrow, a larger name and a brighter date. */
-.home-week__fact--next dt {
-  color: var(--gr-action-text);
-  font-weight: 700;
-}
-
-.home-week__fact--next .home-week__name {
-  font-size: 24px;
-  font-weight: 800;
-}
-
-.home-week__fact--next .home-week__date {
-  color: var(--gr-text);
+  .home-week__action-text {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .home-week__fact--link {
-    transition: border-color 120ms, background-color 120ms;
+  .home-week__row--link {
+    transition: background-color 120ms;
   }
 
   .home-week__arrow {
     transition: transform 120ms;
   }
 
-  .home-week__fact--link:hover .home-week__arrow {
+  .home-week__row--link:hover .home-week__arrow {
     transform: translateX(3px);
   }
 }

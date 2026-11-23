@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom'
+import MobileDashboardIcon from '../MobileDashboardIcon.jsx'
 import { DASHBOARD, addReturn } from '../returnTarget.js'
 import { summaryPath } from '../workoutLog/setLog.js'
-import { nextUpPath, shortDay, weekStrip } from './dashboardFormat.js'
+import { nextUpPath, relativeDay, shortDay, weekStrip } from './dashboardFormat.js'
 
 // "This week": training days logged against the weekly goal (api/weekly_goal.php), a Monday–Sunday strip, and what is
-// next and last. state is {status: 'loading'|'ready'|'error', data}; next is {name, date, planId, position} or null;
-// last is {id, name, date} or null. "Next up" opens Plan details at that day and "Last logged" opens that exact saved
-// workout's summary (#136); the way back from both is the Dashboard.
+// last and next. state is {status: 'loading'|'ready'|'error', data}; next is {name, date, planId, position} or null;
+// last is {id, name, date} or null. "Last workout" opens that exact saved workout's summary and "Next up" opens Plan
+// details at that day (#136); the way back from both is the Dashboard.
 export default function ThisWeekPanel({ state, todayDate, next, last, hasPlan, historyStatus, onRetry }) {
   const { status, data } = state
   return (
@@ -44,49 +45,52 @@ export default function ThisWeekPanel({ state, todayDate, next, last, hasPlan, h
           ))}
         </ol>
       </>}
-      {/* Two tiles side by side; a tile with a workout is one big link (the whole tile is clickable). */}
-      {/* Last logged, then Next up, which is emphasised (--next) as the one to look at. */}
-      <dl className="home-week__facts">
-        <div className={historyStatus === 'ready' && last?.id ? 'home-week__fact home-week__fact--link' : 'home-week__fact'}>
-          <dt>Last logged</dt>
-          <dd>{historyStatus === 'loading' ? <span className="home-week__empty">Loading…</span>
-            : historyStatus === 'error' ? <span className="home-week__empty">Unavailable</span>
-              : last ? <LastLogged last={last} /> : <span className="home-week__empty">No workouts yet</span>}</dd>
-        </div>
-        <div className={`home-week__fact home-week__fact--next${next && nextUpPath(next) ? ' home-week__fact--link' : ''}`}>
-          <dt>Next up</dt>
-          <dd>{next ? <NextUp next={next} /> : hasPlan ? <span className="home-week__empty">Nothing scheduled this week</span> : <Link to="/plans">Choose a plan</Link>}</dd>
-        </div>
-      </dl>
+      {/* One card with two rows: the last workout, then the next one (in action-text). A row with a workout is one
+          link; what it opens is said on the right. */}
+      <ul className="home-week__facts" aria-label="Last and next workout">
+        <li><LastWorkout last={last} historyStatus={historyStatus} todayDate={todayDate} /></li>
+        <li><NextUp next={next} hasPlan={hasPlan} todayDate={todayDate} /></li>
+      </ul>
     </section>
   )
 }
 
-function WorkoutTile({ name, date, action }) {
-  return <>
-    <strong className="home-week__name">{name}</strong>
-    <span className="home-week__date">{shortDay(date)}</span>
-    {action && <span className="home-week__action" aria-hidden="true">{action} <span className="home-week__arrow">→</span></span>}
+// One row: an icon tile, a small label with the day, the workout's name, and on the right where it leads.
+function WorkoutRow({ kind, icon, label, day, name, empty, to, state, ariaLabel, action, external }) {
+  const body = <>
+    <span className="home-week__icon" aria-hidden="true"><MobileDashboardIcon name={icon} /></span>
+    <span className="home-week__text">
+      <span className="home-week__kicker">{label}{day && <> · <span className="home-week__date">{day}</span></>}</span>
+      {name ? <strong className="home-week__name">{name}</strong> : <span className="home-week__empty">{empty}</span>}
+    </span>
+    {to && <span className="home-week__action" aria-hidden="true"><span className="home-week__action-text">{action} </span><span className="home-week__arrow">{external ? '↗' : '→'}</span></span>}
   </>
+  const className = `home-week__row home-week__row--${kind}`
+  if (!to) return <div className={className}>{body}</div>
+  return <Link className={`${className} home-week__row--link`} to={to} state={state} aria-label={ariaLabel}>{body}</Link>
 }
 
-function NextUp({ next }) {
-  const path = nextUpPath(next)
-  if (!path) return <WorkoutTile name={next.name} date={next.date} />
+function LastWorkout({ last, historyStatus, todayDate }) {
+  const common = { kind: 'last', icon: 'check', label: 'Last workout' }
+  if (historyStatus === 'loading') return <WorkoutRow {...common} empty="Loading…" />
+  if (historyStatus === 'error') return <WorkoutRow {...common} empty="Unavailable" />
+  if (!last) return <WorkoutRow {...common} empty="No workouts yet" />
   return (
-    <Link className="home-week__link" to={path} state={{ from: '/dashboard' }}
-      aria-label={`${next.name}, ${shortDay(next.date)}: view this workout in your plan`}>
-      <WorkoutTile name={next.name} date={next.date} action="View in plan" />
-    </Link>
+    <WorkoutRow {...common} day={relativeDay(last.date, todayDate)} name={last.name}
+      to={last.id ? addReturn(summaryPath(last.id), DASHBOARD) : null} action="View summary" external
+      ariaLabel={`Last workout: ${last.name}, ${shortDay(last.date)}. View this saved workout`} />
   )
 }
 
-function LastLogged({ last }) {
-  if (!last.id) return <WorkoutTile name={last.name} date={last.date} />
+function NextUp({ next, hasPlan, todayDate }) {
+  const common = { kind: 'next', icon: 'calendar', label: 'Next up' }
+  if (!next) {
+    if (hasPlan) return <WorkoutRow {...common} empty="Nothing scheduled this week" />
+    return <WorkoutRow {...common} empty="No plan yet" to="/plans" action="Choose a plan" ariaLabel="Next up: no plan yet. Choose a plan" />
+  }
   return (
-    <Link className="home-week__link" to={addReturn(summaryPath(last.id), DASHBOARD)}
-      aria-label={`${last.name}, ${shortDay(last.date)}: view this saved workout`}>
-      <WorkoutTile name={last.name} date={last.date} action="View summary" />
-    </Link>
+    <WorkoutRow {...common} day={relativeDay(next.date, todayDate, { weekday: true })} name={next.name}
+      to={nextUpPath(next)} state={{ from: '/dashboard' }} action="View in plan"
+      ariaLabel={`Next up: ${next.name}, ${shortDay(next.date)}. View this workout in your plan`} />
   )
 }
