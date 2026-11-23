@@ -18,6 +18,14 @@ const BUDDY_NAME_MAX = 40;
 const BUDDY_MESSAGE_MAX = 140;
 const BUDDY_INBOX_LIMIT = 20;
 const BUDDY_ALREADY = 'You are already in a workout buddies group.';
+// One encouragement a day from each member to each other member (card #147). A day is an America/New_York calendar
+// day, the same boundary as the weekly goal and progress pages.
+const BUDDY_DAY_ZONE = 'America/New_York';
+
+// Today's date in BUDDY_DAY_ZONE, as stored in buddy_encouragements.sent_on: "2026-11-23".
+function buddy_today() {
+    return (new DateTimeImmutable('now', new DateTimeZone(BUDDY_DAY_ZONE)))->format('Y-m-d');
+}
 
 // "Ana Cole" -> "Ana C.", "Sean O'Brien" -> "Sean O."; a one-word name stays as it is. The same shortening as
 // api/leaderboard.php (that file is an endpoint, so the four lines are repeated here rather than required).
@@ -61,10 +69,12 @@ function buddy_duplicate($error, $key) {
 }
 
 // The group view every endpoint returns:
-//   {"group":{"name","member_count","invite_code","invite_expires_at","members":[{"member_id","name","is_me","is_owner"}]},
+//   {"group":{"name","member_count","invite_code","invite_expires_at",
+//             "members":[{"member_id","name","is_me","is_owner","encouraged_today"}]},
 //    "me":{"member_id","is_owner"},"encouragements":[{"id","from","message","sent_at"}]}
-// Members are listed owner first, then by when they joined. invite_code and invite_expires_at are filled in for the
-// owner only. encouragements are the last 20 sent to the caller, newest first. A caller in no group gets
+// Members are listed owner first, then by when they joined. encouraged_today is true when the caller has already sent
+// that member an encouragement today (always false on the caller's own row). invite_code and invite_expires_at are
+// filled in for the owner only. encouragements are the last 20 sent to the caller, newest first. A caller in no group gets
 // {"group":null,"me":null,"encouragements":[]} (not an error).
 function buddy_view($db, $user_id) {
     $mine = buddy_membership($db, $user_id);
@@ -77,13 +87,24 @@ function buddy_view($db, $user_id) {
     );
     $stmt->bind_param('ii', $mine['group_id'], $owner_id);
     $stmt->execute();
+    $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+    // Who the caller has already encouraged today.
+    $today = buddy_today();
+    $stmt = $db->prepare('SELECT recipient_id FROM buddy_encouragements WHERE sender_id = ? AND sent_on = ?');
+    $stmt->bind_param('is', $user_id, $today);
+    $stmt->execute();
+    $encouraged = [];
+    foreach ($stmt->get_result() as $row) $encouraged[(int) $row['recipient_id']] = true;
+
     $members = [];
-    foreach ($stmt->get_result() as $row) {
+    foreach ($rows as $row) {
         $members[] = [
             'member_id' => (int) $row['id'],
             'name' => buddy_short_name($row['full_name']),
             'is_me' => (int) $row['user_id'] === $user_id,
             'is_owner' => (int) $row['user_id'] === $owner_id,
+            'encouraged_today' => isset($encouraged[(int) $row['user_id']]),
         ];
     }
 

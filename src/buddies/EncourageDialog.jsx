@@ -4,7 +4,7 @@ import EncourageForm from './EncourageForm.jsx'
 // The message form for one member, in a modal. It is a real <dialog> opened with showModal(), so while it is open
 // the page behind can't be clicked or reached with Tab. It closes with the form's Cancel, Escape or a click outside
 // it (not while a message is being sent); GroupPanel then puts the focus back on that member's "Encourage" button.
-function EncourageDialog({ member, onSent, onCancel, onMemberGone, onUnauthorized }) {
+function EncourageDialog({ member, onSent, onAlreadySent, onCancel, onMemberGone, onUnauthorized }) {
   const dialog = useRef(null)
 
   useEffect(() => {
@@ -23,7 +23,7 @@ function EncourageDialog({ member, onSent, onCancel, onMemberGone, onUnauthorize
       {/* The padding is on this box, so a click on the dialog element itself is always a click outside the box. */}
       <div className="buddies-dialog__body">
         <h2 className="buddies-dialog__title" id="buddies-dialog-title">Encourage {member.name}</h2>
-        <EncourageForm member={member} onSent={onSent} onCancel={onCancel} onMemberGone={onMemberGone}
+        <EncourageForm member={member} onSent={onSent} onAlreadySent={onAlreadySent} onCancel={onCancel} onMemberGone={onMemberGone}
           onUnauthorized={onUnauthorized} />
       </div>
     </dialog>
