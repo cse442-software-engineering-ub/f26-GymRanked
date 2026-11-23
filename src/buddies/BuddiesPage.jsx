@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import GroupPanel, { GroupHero, InviteCard } from './GroupPanel.jsx'
 import EncouragementList from './EncouragementList.jsx'
 import NoGroupPanel from './NoGroupPanel.jsx'
+import SentEncouragements from './SentEncouragements.jsx'
 import { useBuddyGroupPoll } from './useBuddyGroupPoll.js'
 import { MESSAGES } from './buddiesFormat.js'
 import './buddies.css'
@@ -16,6 +17,8 @@ function BuddiesPage() {
   const [notice, setNotice] = useState('')
   const groupTitle = useRef(null)
   const focusGroupTitle = useRef(false)
+  // Bumped after a send so "Sent by you" loads again at once; it also loads again whenever the group view changes.
+  const [sentVersion, setSentVersion] = useState(0)
 
   const toLogin = useCallback(() => navigate('/login', { replace: true }), [navigate])
   const { state, fresh, announcement, reload, refresh, replace } = useBuddyGroupPoll({ onUnauthorized: toLogin })
@@ -72,6 +75,11 @@ function BuddiesPage() {
             <HowItWorks />
           </div>
         )}
+        {status === 'ready' && !data.group && (
+          <div className="buddies-sent-row buddies-sent-row--optional">
+            <SentEncouragements reloadKey={data} hideWhenEmpty onUnauthorized={toLogin} />
+          </div>
+        )}
 
         {status === 'ready' && data.group && (
           <>
@@ -80,8 +88,12 @@ function BuddiesPage() {
               {data.group.invite_code && <InviteCard group={data.group} />}
             </div>
             <div className="buddies-bottom">
-              <GroupPanel group={data.group} onNotice={setNotice} onUnauthorized={toLogin} onMembersChanged={refresh} />
+              <GroupPanel group={data.group} onNotice={setNotice} onUnauthorized={toLogin}
+                onMembersChanged={() => { refresh(); setSentVersion((version) => version + 1) }} />
               <EncouragementList encouragements={data.encouragements} fresh={fresh} />
+            </div>
+            <div className="buddies-sent-row">
+              <SentEncouragements reloadKey={data} version={sentVersion} onUnauthorized={toLogin} />
             </div>
           </>
         )}
