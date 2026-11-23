@@ -5,8 +5,8 @@ import { initialsOf, memberCountLabel } from './buddiesFormat.js'
 const FACES_SHOWN = 5
 
 // The group's hero card, like the Dashboard's "Today's workout": its name, a row of member faces and its size. After
-// joining or creating, focus lands on the name (titleRef).
-export function GroupHero({ group, me, titleRef }) {
+// joining or creating, focus lands on the name (titleRef). Its "Leave group" button opens LeaveGroupDialog.jsx.
+export function GroupHero({ group, me, titleRef, onLeave, leaveRef }) {
   const alone = group.member_count === 1 && me.is_owner
   const faces = group.members.slice(0, FACES_SHOWN)
   const more = group.members.length - faces.length
@@ -32,6 +32,12 @@ export function GroupHero({ group, me, titleRef }) {
             ? <>You&apos;re the only member. Share your invite code so friends can join.</>
             : <>Pick a member below and send them an encouragement, one a day to each member. Only they will see it.</>}
         </p>
+        {onLeave && (
+          <p className="buddies-hero__actions">
+            <button type="button" ref={leaveRef} className="buddies-button buddies-button--secondary buddies-button--small buddies-leave"
+              onClick={onLeave}>Leave group</button>
+          </p>
+        )}
       </div>
     </section>
   )

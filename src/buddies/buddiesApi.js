@@ -4,6 +4,7 @@
 //   POST api/buddy_join.php {"code": "7KQ2MXP9"}              -> 200 the group view after joining
 //   POST api/buddy_encourage.php {"member_id": 12, "message": "..."} -> 201 {encouragement: {id, to, message, sent_at}}
 //   GET  api/buddy_sent.php                                   -> {sent: [{id, to, message, sent_at}]}, your own, newest first
+//   POST api/buddy_leave.php {"leave": true}                  -> 200 the no-group view + left {name, new_owner, group_deleted}
 // The group view: {group: {name, member_count, invite_code, members: [{member_id, name ("Ben C."), is_me, is_owner,
 // encouraged_today}]}, me: {member_id, is_owner}, encouragements: [{id, from, message, sent_at}]}. invite_code is null
 // unless the caller owns the group; it has no expiry (card #152). Someone in no group gets
@@ -33,4 +34,8 @@ export function sendEncouragement(memberId, message) {
 
 export function getSentEncouragements() {
   return apiRequest('buddy_sent.php')
+}
+
+export function leaveBuddyGroup() {
+  return post('buddy_leave.php', { leave: true })
 }

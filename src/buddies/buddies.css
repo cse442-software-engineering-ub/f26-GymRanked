@@ -931,3 +931,39 @@
   color: var(--gr-text-muted);
   font-weight: 500;
 }
+
+/* Leave group (leave a workout buddies group story): a quiet secondary button in the group's hero, and a danger
+   button in the confirmation dialog. */
+.buddies-hero__actions {
+  position: relative;
+  margin: 18px 0 0;
+}
+
+.buddies-leave {
+  color: var(--gr-danger-text);
+}
+
+.buddies-button--danger {
+  border-color: var(--gr-danger);
+  background: var(--gr-danger);
+  /* The dialog's own surface colour: dark text on the bright dark-theme red, light text on the deep light-theme red. */
+  color: var(--gr-surface);
+}
+
+.buddies-button--danger:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+
+.buddies-leave__text {
+  color: var(--gr-text-soft);
+  line-height: 1.5;
+}
+
+.buddies-notice:focus {
+  outline: none;
+}
+
+.buddies-notice:focus-visible {
+  outline: 3px solid var(--gr-brand);
+  outline-offset: 3px;
+}
