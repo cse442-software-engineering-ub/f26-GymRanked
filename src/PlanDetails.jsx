@@ -54,7 +54,7 @@ function PlanDetails() {
   return (
     <div className="plan-library">
       <main className="plan-details">
-        <BackLink to={returnPath}>Back to {returnPages[returnPath]}</BackLink>
+        <BackLink to={returnPath} state={returnPath === '/recommended' ? { inOnboarding: true } : undefined}>Back to {returnPages[returnPath]}</BackLink>
         <PlanSelectionStatus loggedOut={selection.loggedOut} notice={selection.notice} />
         {error && <p className="status">Error loading plan: {error}</p>}
         {!error && plan === null && <p className="status">Loading plan...</p>}

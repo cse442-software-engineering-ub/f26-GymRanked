@@ -31,8 +31,8 @@ export default function OnboardingGate() {
   useEffect(() => {
     let active = true
     const path = location.pathname
-    // Keep this handoff for the current visit: RecommendedPlansPage clears the history state after mounting.
-    const equipmentJustSaved = path === '/recommended' && location.state?.setupSaved === true
+    // Keep this handoff for the current visit: RecommendedPlansPage swaps setupSaved for inOnboarding after mounting.
+    const equipmentJustSaved = path === '/recommended' && (location.state?.setupSaved === true || location.state?.inOnboarding === true)
     setCheck({ path, status: 'loading' })
 
     async function checkAccount() {
